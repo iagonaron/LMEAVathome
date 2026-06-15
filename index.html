@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LMEAV at home</title>
+<style>
+  :root{
+    --bg:#0a1028; --panel:#0d142e; --panel2:#111b3d; --line:#1e2a52;
+    --ink:#e9edff; --muted:#8b97c4; --muted2:#5e6a98; --paper:#ffffff;
+    --accent:#5b9dff;
+  }
+  html,body{margin:0;padding:0}
+  body{
+    background:linear-gradient(180deg, #0b1f4d 0%, #0a1430 32%, #060a18 70%, #02030a 100%);
+    background-attachment:fixed; color:var(--ink);
+    font-family:"Helvetica Neue",Arial,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5; min-height:100vh;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:22px 26px 80px}
+
+  /* "at home" manuscrito */
+  .home2,.ath{font-style:italic;font-family:Georgia,'Times New Roman',serif;font-weight:500;color:#aeb6d6;transform:rotate(-3deg);display:inline-block}
+
+  /* barra superior */
+  .topbar{position:relative;display:flex;justify-content:flex-end;align-items:center;min-height:20px}
+  .opt-mini{position:absolute;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2)}
+  .by{font-size:11.5px;letter-spacing:.03em;color:var(--muted2);font-weight:500}
+
+  /* hero: LMEAV at home una sola vez, grande */
+  .hero{text-align:center;margin:46px 0 48px}
+  .hero h1{font-size:68px;font-weight:900;letter-spacing:-.01em;margin:0;line-height:1}
+  .hero .lm{color:var(--ink);font-weight:900}
+  .hero .eav{color:var(--muted2);font-weight:300}
+  .hero .home2{font-size:.42em}
+  .hero .tag{font-size:16px;color:var(--muted);margin:16px 0 0}
+
+  /* tarjetas apaisadas de apps — SIN color */
+  .apps{display:flex;flex-direction:column;gap:16px}
+  .app-card{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;
+    padding:26px 30px;text-align:left;width:100%;cursor:pointer;text-decoration:none;color:inherit;
+    transition:transform .12s,border-color .15s,box-shadow .15s}
+  .app-card:hover{transform:translateY(-3px);border-color:var(--muted2);box-shadow:0 20px 50px rgba(20,40,120,.4)}
+  .app-card .edge{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--line)}
+  .app-card .info{flex:1;min-width:0}
+  .app-card .kick{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
+  .app-card h2{font-size:32px;margin:6px 0 8px;font-weight:900;letter-spacing:-.3px;line-height:1.05}
+  .app-card h2 .home2{font-size:.5em}
+  .app-card p{font-size:14.5px;color:var(--muted);margin:0;max-width:640px;line-height:1.5}
+  .app-card .cta{font-size:14px;font-weight:800;color:var(--ink);white-space:nowrap}
+
+  /* nombre con juego fino/grueso */
+  .nm .hl{font-weight:900;color:var(--ink)}
+  .nm .dim{font-weight:300;color:var(--muted2);opacity:.7}
+
+  /* tarjeta "proximamente" */
+  .app-card.soon{cursor:default;opacity:.62}
+  .app-card.soon:hover{transform:none;border-color:var(--line);box-shadow:none}
+  .app-card.soon .cta{color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;font-size:12px}
+
+  /* banda diagonal tipo envoltorio (esquina superior derecha) */
+  .ribbon{position:absolute;top:0;right:0;width:150px;height:150px;overflow:hidden;pointer-events:none}
+  .ribbon span{position:absolute;top:30px;right:-38px;transform:rotate(45deg);
+    background:rgba(233,237,255,.08);border-top:1px solid rgba(233,237,255,.18);border-bottom:1px solid rgba(233,237,255,.18);
+    color:var(--muted);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+    width:170px;text-align:center;padding:5px 0}
+
+  .foot{text-align:center;margin-top:38px;font-size:12px;color:var(--muted2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="opt-mini">Optimizado para ordenador y tablet</div>
+    <div class="by">by Iago González Alonso</div>
+  </div>
+
+  <div class="hero">
+    <h1><span class="lm">LM</span><span class="eav">EAV</span> <span class="home2">at home</span></h1>
+    <p class="tag">Recursos interactivos de Lenguaje Musical y Educación Auditiva y Vocal</p>
+  </div>
+
+  <div class="apps">
+
+    <!-- PreDict — ACTIVA. Cambia el href por la URL real cuando la tengas. -->
+    <a class="app-card" href="https://iagonaron.github.io/predictathome/">
+      <div class="edge"></div>
+      <div class="info">
+        <div class="kick">Educación auditiva</div>
+        <h2 class="nm"><span class="hl">PRE</span><span class="dim">DICT</span> <span class="home2">at home</span></h2>
+        <p>Ejercicios específicos de ritmo, melodía y tonalidad que entrenan tu oído y mejoran tus dictados.</p>
+      </div>
+      <div class="cta">Entrar →</div>
+    </a>
+
+    <!-- Dictados — proximamente. Solo DICT en negrita. -->
+    <div class="app-card soon">
+      <div class="edge"></div>
+      <div class="info">
+        <div class="kick">Educación auditiva</div>
+        <h2 class="nm"><span class="hl">DICT</span><span class="dim">ADOS</span> <span class="home2">at home</span></h2>
+        <p>El dictado completo, como lo harías en clase, pero desde casa.</p>
+      </div>
+      <div class="cta">Próximamente</div>
+    </div>
+
+    <!-- Intervalia — proximamente -->
+    <div class="app-card soon">
+      <div class="edge"></div>
+      <div class="info">
+        <div class="kick">Educación vocal y auditiva</div>
+        <h2 class="nm"><span class="hl">INTER</span><span class="dim">VALIA</span> <span class="home2">at home</span></h2>
+        <p>Entrena el oído cantando: afinación y reconocimiento de intervalos con el micrófono.</p>
+      </div>
+      <div class="cta">Próximamente</div>
+    </div>
+
+    <!-- Acceso ritmico (simulacros) — proximamente. Banda "para alumnos de 4º". NOMBRE PROVISIONAL. -->
+    <div class="app-card soon">
+      <div class="edge"></div>
+      <div class="ribbon"><span>Alumnos de 4º</span></div>
+      <div class="info">
+        <div class="kick">Preparación de pruebas</div>
+        <h2 class="nm"><span class="hl">ACCESO</span><span class="dim"> RÍTMICO</span> <span class="home2">at home</span></h2>
+        <p>Generador de simulaciones de pruebas de acceso de ritmo.</p>
+      </div>
+      <div class="cta">Próximamente</div>
+    </div>
+
+    <!-- Desafio 6 semicorcheas — proximamente. Banda "para alumnos de 4º". NOMBRE PROVISIONAL. -->
+    <div class="app-card soon">
+      <div class="edge"></div>
+      <div class="ribbon"><span>Alumnos de 4º</span></div>
+      <div class="info">
+        <div class="kick">Reto rítmico</div>
+        <h2 class="nm"><span class="dim">DESAFÍO</span> <span class="hl">6 SEMICORCHEAS</span> <span class="home2">at home</span></h2>
+        <p>Pon a prueba tu precisión rítmica con el reto de las seis semicorcheas.</p>
+      </div>
+      <div class="cta">Próximamente</div>
+    </div>
+
+  </div>
+
+  <div class="foot">LMEAV at home · by Iago González Alonso</div>
+
+</div>
+</body>
+</html>
