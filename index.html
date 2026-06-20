@@ -9,6 +9,7 @@
     --bg:#0a1028; --panel:#0d142e; --panel2:#111b3d; --line:#1e2a52;
     --ink:#e9edff; --muted:#8b97c4; --muted2:#5e6a98; --paper:#ffffff;
     --accent:#5b9dff;
+    --area-entonacion:#5b9dff; --area-ritmo:#22c98a; --area-audicion:#e08537; --area-teoria:#e84393;
   }
   html,body{margin:0;padding:0}
   body{
@@ -40,8 +41,17 @@
   .app-card{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;
     background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;
     padding:26px 30px;text-align:left;width:100%;cursor:pointer;text-decoration:none;color:inherit;
-    transition:transform .12s,border-color .15s,box-shadow .15s}
+    transition:transform .12s,border-color .15s,box-shadow .15s,background .25s}
   .app-card:hover{transform:translateY(-3px);border-color:var(--muted2);box-shadow:0 20px 50px rgba(20,40,120,.4)}
+  /* tinte sutil del color de apartado al pasar el ratón */
+  .app-card:has(.area.entonacion):hover{background:linear-gradient(180deg,rgba(91,157,255,.10),rgba(91,157,255,.04));border-color:var(--area-entonacion)}
+  .app-card:has(.area.ritmo):hover{background:linear-gradient(180deg,rgba(34,201,138,.10),rgba(34,201,138,.04));border-color:var(--area-ritmo)}
+  .app-card:has(.area.audicion):hover{background:linear-gradient(180deg,rgba(224,133,55,.10),rgba(224,133,55,.04));border-color:var(--area-audicion)}
+  .app-card:has(.area.teoria):hover{background:linear-gradient(180deg,rgba(232,67,147,.10),rgba(232,67,147,.04));border-color:var(--area-teoria)}
+  .app-card:has(.area.entonacion):hover .edge{background:var(--area-entonacion)}
+  .app-card:has(.area.ritmo):hover .edge{background:var(--area-ritmo)}
+  .app-card:has(.area.audicion):hover .edge{background:var(--area-audicion)}
+  .app-card:has(.area.teoria):hover .edge{background:var(--area-teoria)}
   .app-card .edge{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--line)}
   .app-card .info{flex:1;min-width:0}
   .app-card .kick{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
@@ -49,6 +59,12 @@
   .app-card h2 .home2{font-size:.5em}
   .app-card p{font-size:14.5px;color:var(--muted);margin:0;max-width:640px;line-height:1.5}
   .app-card .cta{font-size:14px;font-weight:800;color:var(--ink);white-space:nowrap}
+  /* etiqueta de apartado del LM (en la posición del kick): sutil en reposo, color al pasar el ratón */
+  .app-card .kick.area{transition:color .2s}
+  .app-card:has(.area.entonacion):hover .kick.area{color:var(--area-entonacion)}
+  .app-card:has(.area.ritmo):hover .kick.area{color:var(--area-ritmo)}
+  .app-card:has(.area.audicion):hover .kick.area{color:var(--area-audicion)}
+  .app-card:has(.area.teoria):hover .kick.area{color:var(--area-teoria)}
 
   /* nombre con juego fino/grueso */
   .nm .hl{font-weight:900;color:var(--ink)}
@@ -90,22 +106,20 @@
     <a class="app-card" href="https://iagonaron.github.io/predictathome/">
       <div class="edge"></div>
       <div class="info">
-        <div class="kick">Educación auditiva</div>
+        <div class="kick area audicion">Audición</div>
         <h2 class="nm"><span class="hl">PRE</span><span class="dim">DICT</span> <span class="home2">at home</span></h2>
         <p>Ejercicios específicos de ritmo, melodía y tonalidad que entrenan tu oído y mejoran tus dictados.</p>
       </div>
-      <div class="cta">Entrar →</div>
     </a>
 
     <!-- Dictados — ACTIVA. Solo DICT en negrita. -->
     <a class="app-card" href="https://iagonaron.github.io/dictadoathome/">
       <div class="edge"></div>
       <div class="info">
-        <div class="kick">Educación auditiva</div>
+        <div class="kick area audicion">Audición</div>
         <h2 class="nm"><span class="hl">DICT</span><span class="dim">ADOS</span> <span class="home2">at home</span></h2>
         <p>El dictado completo, como lo harías en clase, pero desde casa.</p>
       </div>
-      <div class="cta">Entrar →</div>
     </a>
 
     <!-- Intervalia — ACTIVA -->
@@ -113,11 +127,10 @@
       <div class="edge"></div>
       <div class="ribbon pro"><span><b class="thin">Disponible</b> nivel Pro</span></div>
       <div class="info">
-        <div class="kick">Educación vocal y auditiva</div>
+        <div class="kick area entonacion">Entonación</div>
         <h2 class="nm"><span class="hl">INTER</span><span class="dim">VALIA</span> <span class="home2">at home</span></h2>
         <p>Entrena el oído cantando: afinación y reconocimiento de intervalos con el micrófono.</p>
       </div>
-      <div class="cta">Entrar →</div>
     </a>
 
     <!-- Acceso ritmico (simulacros) — ACTIVA. Banda "para alumnos de 4º". -->
@@ -125,11 +138,10 @@
       <div class="edge"></div>
       <div class="ribbon"><span>Alumnos de 4º</span></div>
       <div class="info">
-        <div class="kick">Preparación de pruebas</div>
+        <div class="kick area ritmo">Ritmo</div>
         <h2 class="nm"><span class="hl">ACCESO</span><span class="dim"> RÍTMICO</span> <span class="home2">at home</span></h2>
         <p>Generador de simulaciones de pruebas de acceso de ritmo.</p>
       </div>
-      <div class="cta">Entrar →</div>
     </a>
 
     <!-- Desafio 6 semicorcheas — ACTIVA. Banda "para alumnos de 4º". -->
@@ -137,11 +149,10 @@
       <div class="edge"></div>
       <div class="ribbon"><span>Alumnos de 4º</span></div>
       <div class="info">
-        <div class="kick">Reto rítmico</div>
+        <div class="kick area ritmo">Ritmo</div>
         <h2 class="nm"><span class="dim">DESAFÍO</span> <span class="hl">6 SEMICORCHEAS</span> <span class="home2">at home</span></h2>
         <p>Pon a prueba tu precisión rítmica con el reto de las seis semicorcheas.</p>
       </div>
-      <div class="cta">Entrar →</div>
     </a>
 
   </div>
