@@ -20,11 +20,74 @@
   }
   .wrap{max-width:1040px;margin:0 auto;padding:22px 26px 80px}
 
+  /* ===== Animación de entrada (azul, Grado Elemental) ===== */
+  .veil{position:fixed;left:0;right:0;bottom:0;height:130vh;z-index:70;pointer-events:none;
+    background:linear-gradient(180deg, transparent 0%, #000 12%, #000 100%);}
+  body.intro .veil{animation:veilFog 1.6s cubic-bezier(.45,.05,.25,1) .6s forwards}
+  body:not(.intro) .veil{display:none}
+  @keyframes veilFog{from{transform:translateY(-30vh)}to{transform:translateY(118vh)}}
+
+  .hero{text-align:center;margin:46px 0 48px;position:relative;z-index:75}
+  .hero-title{font-size:68px;font-weight:900;letter-spacing:-.01em;margin:0;line-height:1;display:inline-flex;align-items:baseline;justify-content:center;position:relative}
+  .hero-title .t-lm{color:var(--ink);font-weight:900;position:relative;z-index:2}
+  .hero-title .t-eav{color:var(--muted2);font-weight:300;position:relative;z-index:1}
+  /* durante la intro, LM lleva un fondo del color del fondo para tapar EAV mientras se desliza */
+  body.intro .hero-title .t-lm{padding-right:.05em}
+  .hero-title .t-home{font-size:.42em;font-style:italic;font-family:Georgia,serif;font-weight:500;color:#aeb6d6;transform:rotate(-3deg);margin-left:.28em;display:inline-block;position:relative;z-index:3}
+
+  /* durante la intro */
+  body.intro .t-lm{animation:lmReveal 1.6s cubic-bezier(.5,.05,.2,1) forwards}
+  body.intro .t-eav{opacity:0;animation:eavShow 1s cubic-bezier(.5,.05,.2,1) forwards .9s}
+  body.intro .t-home{opacity:0;animation:homeWrite .7s ease forwards 1.8s}
+  body.intro .tag{opacity:0;animation:fadeUp .6s ease forwards 2.2s}
+
+  /* LM entra grande (acercándose), se asienta en el centro reduciéndose, y luego se desliza a su sitio */
+  @keyframes lmReveal{
+    0%{opacity:0;transform:translateX(105px) scale(1.6);background:#060a18}     /* grande, como acercándose */
+    20%{opacity:1;transform:translateX(105px) scale(1.6);background:#060a18}
+    50%{opacity:1;transform:translateX(105px) scale(1);background:#060a18}       /* se coloca en el centro a tamaño normal */
+    60%{transform:translateX(105px) scale(1);background:#060a18}                 /* pausa breve en el centro */
+    85%{background:#060a18}
+    100%{opacity:1;transform:translateX(0) scale(1);background:rgba(6,10,24,0)} /* se desliza a la izquierda */
+  }
+  /* EAV permanece OCULTO hasta que LM empieza a apartarse; entonces emerge fundiéndose */
+  @keyframes eavShow{
+    0%{opacity:0}
+    100%{opacity:1}
+  }
+  @keyframes homeWrite{
+    from{opacity:0;clip-path:inset(0 100% 0 0);transform:rotate(-3deg) translateX(-6px)}
+    to{opacity:1;clip-path:inset(0 0 0 0);transform:rotate(-3deg) translateX(0)}
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* tarjetas: ocultas durante la intro, aparecen al final del despliegue */
+  body.intro .apps .app-card{opacity:0;transform:translateY(16px)}
+  body.intro.cards-in .apps .app-card{animation:cardIn .5s ease forwards}
+  body.intro.cards-in .apps .app-card:nth-child(1){animation-delay:0s}
+  body.intro.cards-in .apps .app-card:nth-child(2){animation-delay:.06s}
+  body.intro.cards-in .apps .app-card:nth-child(3){animation-delay:.12s}
+  body.intro.cards-in .apps .app-card:nth-child(4){animation-delay:.18s}
+  body.intro.cards-in .apps .app-card:nth-child(5){animation-delay:.24s}
+  body.intro.cards-in .apps .app-card:nth-child(6){animation-delay:.30s}
+  body.intro.cards-in .apps .app-card:nth-child(7){animation-delay:.36s}
+  @keyframes cardIn{to{opacity:1;transform:translateY(0)}}
+  @media (prefers-reduced-motion: reduce){
+    .veil{display:none!important}
+    body.intro .t-lm,body.intro .t-eav,body.intro .t-home,body.intro .tag{animation:none!important;opacity:1!important;transform:none!important}
+    body.intro .apps .app-card{opacity:1!important;transform:none!important}
+  }
+
   /* "at home" manuscrito */
   .home2,.ath{font-style:italic;font-family:Georgia,'Times New Roman',serif;font-weight:500;color:#aeb6d6;transform:rotate(-3deg);display:inline-block}
 
   /* barra superior */
   .topbar{position:relative;display:flex;justify-content:flex-end;align-items:center;min-height:20px}
+  .topbar-right{display:flex;align-items:center;gap:14px}
+  .portal-gp{border:1px solid rgba(212,175,55,.55);font-size:15px;padding:7px 18px;border-radius:9px;cursor:pointer;background:linear-gradient(135deg,rgba(212,175,55,.16),rgba(184,134,11,.08));transition:background .15s,border-color .15s,box-shadow .15s;line-height:1}
+  .portal-gp .lm{color:#fff;font-weight:900;letter-spacing:.01em}
+  .portal-gp .pro{color:#d4af37;font-weight:300;letter-spacing:.04em}
+  .portal-gp:hover{background:linear-gradient(135deg,rgba(212,175,55,.30),rgba(184,134,11,.18));border-color:rgba(212,175,55,.85);box-shadow:0 4px 16px rgba(212,175,55,.30)}
   .opt-mini{position:absolute;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2)}
   .by{font-size:11.5px;letter-spacing:.03em;color:var(--muted2);font-weight:500}
 
@@ -34,7 +97,9 @@
   .hero .lm{color:var(--ink);font-weight:900}
   .hero .eav{color:var(--muted2);font-weight:300}
   .hero .home2{font-size:.42em}
-  .hero .tag{font-size:16px;color:var(--muted);margin:16px 0 0}
+  .hero .tag{font-size:16px;color:var(--muted);margin:16px 0 0;line-height:1.5}
+  .hero .tag b{color:var(--ink);font-weight:800}
+  .hero .tag .tag-grade{display:inline-block;margin-top:6px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);font-weight:700}
 
   /* tarjetas apaisadas de apps — SIN color */
   .apps{display:flex;flex-direction:column;gap:16px}
@@ -95,19 +160,41 @@
   .enig-modal p{margin:0 0 20px;font-size:14px;color:var(--muted);line-height:1.6}
   .enig-close{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
   .enig-close:hover{border-color:var(--muted2);color:var(--ink)}
+
+  /* modal Pro (dorado) */
+  .gp-backdrop{position:fixed;inset:0;background:rgba(20,12,2,.78);backdrop-filter:blur(4px);z-index:85;display:none;align-items:center;justify-content:center;padding:20px}
+  .gp-backdrop.open{display:flex}
+  .gp-modal{background:linear-gradient(180deg,#221908,#160f04);border:1px solid #d4af37;border-radius:20px;padding:36px 38px;max-width:420px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(212,175,55,.15),inset 0 1px 0 rgba(255,220,130,.12)}
+  .gp-crown{font-size:38px;color:#d4af37;margin-bottom:10px;text-shadow:0 2px 10px rgba(212,175,55,.4)}
+  .gp-modal h3{margin:0 0 12px;font-size:22px;color:#f5edd8;letter-spacing:.02em;font-weight:800}
+  .gp-modal p{margin:0 0 22px;font-size:14px;color:#c4b288;line-height:1.6}
+  .gp-input{width:100%;box-sizing:border-box;background:#0e0a02;border:1px solid #3a2c10;border-radius:11px;padding:13px 16px;font-size:15px;color:#f5edd8;text-align:center;letter-spacing:.06em;outline:none;transition:border-color .15s}
+  .gp-input:focus{border-color:#d4af37}
+  .gp-actions{display:flex;gap:12px;margin-top:18px}
+  .gp-cancel{flex:1;background:transparent;border:1px solid #3a2c10;color:#98875e;border-radius:11px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
+  .gp-cancel:hover{border-color:#98875e;color:#f5edd8}
+  .gp-go{flex:1;background:linear-gradient(135deg,#d4af37,#b8860b);border:none;color:#1a1407;border-radius:11px;padding:11px;font-size:14px;font-weight:900;letter-spacing:.04em;cursor:pointer;transition:filter .15s,box-shadow .15s}
+  .gp-go:hover{filter:brightness(1.08);box-shadow:0 6px 20px rgba(212,175,55,.4)}
+  .gp-err{margin-top:14px;min-height:1.1em;font-size:13px;color:#ff8585;font-weight:600}
+  .portal-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line);color:var(--ink);padding:12px 22px;border-radius:11px;font-size:13.5px;font-weight:600;z-index:90;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 14px 40px rgba(0,0,0,.4)}
+  .portal-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
-<body>
+<body class="intro">
+<div class="veil"></div>
 <div class="wrap">
 
   <div class="topbar">
     <div class="opt-mini">Optimizado para ordenador y tablet</div>
-    <div class="by">by Iago González Alonso</div>
+    <div class="topbar-right">
+      <button class="portal-gp" onclick="openGpGate()"><span class="lm">LM</span><span class="pro">PRO</span></button>
+      <div class="by">by Iago González Alonso</div>
+    </div>
   </div>
 
   <div class="hero">
-    <h1><span class="lm">LM</span><span class="eav">EAV</span> <span class="home2">at home</span></h1>
-    <p class="tag">Recursos interactivos de Lenguaje Musical y Educación Auditiva y Vocal</p>
+    <h1 class="hero-title" aria-label="LMEAV at home"><span class="t-lm">LM</span><span class="t-eav">EAV</span><span class="t-home">at home</span></h1>
+    <p class="tag">Recursos interactivos de Lenguaje Musical + Educación Auditiva y Vocal… <b>¡desde casa!</b><br><span class="tag-grade">Grado Elemental</span></p>
   </div>
 
   <div class="apps">
@@ -135,7 +222,6 @@
     <!-- Intervalia — ACTIVA -->
     <a class="app-card" href="https://iagonaron.github.io/intervalia/">
       <div class="edge"></div>
-      <div class="ribbon pro"><span><b class="thin">Disponible</b> nivel Pro</span></div>
       <div class="info">
         <div class="kick area entonacion">Entonación</div>
         <h2 class="nm"><span class="hl">INTER</span><span class="dim">VALIA</span> <span class="home2">at home</span></h2>
@@ -191,6 +277,20 @@
   <div class="foot">LMEAV at home · by Iago González Alonso</div>
 
 </div>
+<div class="gp-backdrop" id="gpBackdrop" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="gp-modal">
+    <div class="gp-crown">♛</div>
+    <h3>Portal de Grado Profesional</h3>
+    <p>Estás a punto de acceder al portal de Grado Profesional.<br>Introduce la contraseña para continuar.</p>
+    <input type="password" id="gpPin" class="gp-input" placeholder="Contraseña" autocomplete="off"
+      onkeydown="if(event.key==='Enter')submitGp()">
+    <div class="gp-actions">
+      <button class="gp-cancel" onclick="document.getElementById('gpBackdrop').classList.remove('open')">Cancelar</button>
+      <button class="gp-go" onclick="submitGp()">Acceder</button>
+    </div>
+    <div class="gp-err" id="gpErr"></div>
+  </div>
+</div>
 <div class="enig-backdrop" id="enigBackdrop" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="enig-modal" id="enigModal">
     <div class="enig-glyph" id="enigGlyph">♪</div>
@@ -200,6 +300,15 @@
   </div>
 </div>
 <script>
+// Intro: tarjetas aparecen al desplegarse el degradado. No quitamos 'intro' (forwards mantiene el final).
+(function(){
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ document.body.classList.remove('intro'); return; }
+  window.addEventListener('load',()=>{
+    setTimeout(()=>document.body.classList.add('cards-in'), 2050);
+  });
+})();
+
 const ENIG={
   entonacion:{glyph:'♪', color:'var(--area-entonacion)', title:'Muy pronto…',
     text:'Algo se está afinando en silencio.<br>Vuelve cuando suene la primera nota.'},
@@ -217,6 +326,26 @@ function tryTeoria(){
   if(pin==null){ showEnig('teoria'); return; }
   if(pin==='010513'){ window.location.href='https://iagonaron.github.io/teoriaathome/'; }
   else { showEnig('teoria'); }
+}
+function openGpGate(){
+  document.getElementById('gpErr').textContent='';
+  document.getElementById('gpPin').value='';
+  document.getElementById('gpBackdrop').classList.add('open');
+  setTimeout(()=>document.getElementById('gpPin').focus(),60);
+}
+function submitGp(){
+  const pin=document.getElementById('gpPin').value;
+  if(pin.trim().toLowerCase()==='hamilton'){
+    window.location.href='https://iagonaron.github.io/LMPROathome/';
+  } else {
+    document.getElementById('gpErr').textContent='Contraseña incorrecta';
+  }
+}
+function toast(msg){
+  let t=document.getElementById('portalToast');
+  if(!t){ t=document.createElement('div'); t.id='portalToast'; t.className='portal-toast'; document.body.appendChild(t); }
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2600);
 }
 function showEnig(kind){
   const c=ENIG[kind]||ENIG.entonacion;
