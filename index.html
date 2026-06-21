@@ -94,7 +94,7 @@
   .enig-modal h3{margin:0 0 10px;font-size:22px;color:var(--ink);letter-spacing:.04em}
   .enig-modal p{margin:0 0 20px;font-size:14px;color:var(--muted);line-height:1.6}
   .enig-close{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
-  .enig-close:hover{border-color:var(--area-entonacion);color:var(--ink)}
+  .enig-close:hover{border-color:var(--muted2);color:var(--ink)}
 </style>
 </head>
 <body>
@@ -153,6 +153,16 @@
       </div>
     </div>
 
+    <!-- Teoría — visible pero con contraseña 010513 -->
+    <div class="app-card locked-card" onclick="tryTeoria()" style="cursor:pointer">
+      <div class="edge"></div>
+      <div class="info">
+        <div class="kick area teoria">Teoría</div>
+        <h2 class="nm"><span class="hl">TEO</span><span class="dim">RÍA</span> <span class="home2">at home</span></h2>
+        <p>Los conceptos del lenguaje musical, claros y a tu ritmo. Algo nuevo se está escribiendo…</p>
+      </div>
+    </div>
+
     <!-- Acceso ritmico (simulacros) — ACTIVA. Banda "para alumnos de 4º". -->
     <a class="app-card" href="https://iagonaron.github.io/ritmosimulator/">
       <div class="edge"></div>
@@ -175,15 +185,6 @@
       </div>
     </a>
 
-    <!-- Teoría — visible pero con contraseña 010513 -->
-    <div class="app-card locked-card" onclick="tryTeoria()" style="cursor:pointer">
-      <div class="edge"></div>
-      <div class="info">
-        <div class="kick area teoria">Teoría</div>
-        <h2 class="nm"><span class="hl">TEO</span><span class="dim">RÍA</span> <span class="home2">at home</span></h2>
-        <p>Los conceptos del lenguaje musical, claros y a tu ritmo. Algo nuevo se está escribiendo…</p>
-      </div>
-    </div>
 
   </div>
 
@@ -191,27 +192,41 @@
 
 </div>
 <div class="enig-backdrop" id="enigBackdrop" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="enig-modal">
-    <div class="enig-glyph">♪</div>
-    <h3>Muy pronto…</h3>
-    <p>Algo se está afinando en silencio.<br>Vuelve cuando suene la primera nota.</p>
+  <div class="enig-modal" id="enigModal">
+    <div class="enig-glyph" id="enigGlyph">♪</div>
+    <h3 id="enigTitle">Muy pronto…</h3>
+    <p id="enigText">Algo se está afinando en silencio.<br>Vuelve cuando suene la primera nota.</p>
     <button class="enig-close" onclick="document.getElementById('enigBackdrop').classList.remove('open')">Cerrar</button>
   </div>
 </div>
 <script>
+const ENIG={
+  entonacion:{glyph:'♪', color:'var(--area-entonacion)', title:'Muy pronto…',
+    text:'Algo se está afinando en silencio.<br>Vuelve cuando suene la primera nota.'},
+  teoria:{glyph:'✎', color:'var(--area-teoria)', title:'Aún en el papel…',
+    text:'Las reglas todavía se están escribiendo.<br>Vuelve cuando se seque la tinta.'}
+};
 function tryEntonacion(){
   const pin=prompt('Acceso anticipado — introduce la contraseña:');
-  if(pin==null){ showEnig(); return; }
+  if(pin==null){ showEnig('entonacion'); return; }
   if(pin==='010513'){ window.location.href='https://iagonaron.github.io/entonacionathome/'; }
-  else { showEnig(); }
+  else { showEnig('entonacion'); }
 }
 function tryTeoria(){
   const pin=prompt('Acceso anticipado — introduce la contraseña:');
-  if(pin==null){ showEnig(); return; }
+  if(pin==null){ showEnig('teoria'); return; }
   if(pin==='010513'){ window.location.href='https://iagonaron.github.io/teoriaathome/'; }
-  else { showEnig(); }
+  else { showEnig('teoria'); }
 }
-function showEnig(){ document.getElementById('enigBackdrop').classList.add('open'); }
+function showEnig(kind){
+  const c=ENIG[kind]||ENIG.entonacion;
+  document.getElementById('enigGlyph').textContent=c.glyph;
+  document.getElementById('enigGlyph').style.color=c.color;
+  document.getElementById('enigTitle').textContent=c.title;
+  document.getElementById('enigText').innerHTML=c.text;
+  document.getElementById('enigModal').style.borderColor=c.color;
+  document.getElementById('enigBackdrop').classList.add('open');
+}
 </script>
 </body>
 </html>
