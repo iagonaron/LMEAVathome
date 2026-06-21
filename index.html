@@ -175,6 +175,16 @@
       </div>
     </a>
 
+    <!-- Teoría — visible pero con contraseña 010513 -->
+    <div class="app-card locked-card" onclick="tryTeoria()" style="cursor:pointer">
+      <div class="edge"></div>
+      <div class="info">
+        <div class="kick area teoria">Teoría</div>
+        <h2 class="nm"><span class="hl">TEO</span><span class="dim">RÍA</span> <span class="home2">at home</span></h2>
+        <p>Los conceptos del lenguaje musical, claros y a tu ritmo. Algo nuevo se está escribiendo…</p>
+      </div>
+    </div>
+
   </div>
 
   <div class="foot">LMEAV at home · by Iago González Alonso</div>
@@ -193,6 +203,12 @@ function tryEntonacion(){
   const pin=prompt('Acceso anticipado — introduce la contraseña:');
   if(pin==null){ showEnig(); return; }
   if(pin==='010513'){ window.location.href='https://iagonaron.github.io/entonacionathome/'; }
+  else { showEnig(); }
+}
+function tryTeoria(){
+  const pin=prompt('Acceso anticipado — introduce la contraseña:');
+  if(pin==null){ showEnig(); return; }
+  if(pin==='010513'){ window.location.href='https://iagonaron.github.io/teoriaathome/'; }
   else { showEnig(); }
 }
 function showEnig(){ document.getElementById('enigBackdrop').classList.add('open'); }
