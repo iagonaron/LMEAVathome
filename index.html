@@ -85,6 +85,16 @@
   .ribbon.pro span .thin{font-weight:300}
 
   .foot{text-align:center;margin-top:38px;font-size:12px;color:var(--muted2)}
+
+  /* cartel enigmático "Muy pronto" */
+  .enig-backdrop{position:fixed;inset:0;background:rgba(4,8,20,.72);backdrop-filter:blur(3px);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+  .enig-backdrop.open{display:flex}
+  .enig-modal{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--area-entonacion);border-radius:18px;padding:34px 36px;max-width:380px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+  .enig-glyph{font-size:42px;color:var(--area-entonacion);margin-bottom:8px;opacity:.9}
+  .enig-modal h3{margin:0 0 10px;font-size:22px;color:var(--ink);letter-spacing:.04em}
+  .enig-modal p{margin:0 0 20px;font-size:14px;color:var(--muted);line-height:1.6}
+  .enig-close{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
+  .enig-close:hover{border-color:var(--area-entonacion);color:var(--ink)}
 </style>
 </head>
 <body>
@@ -133,6 +143,16 @@
       </div>
     </a>
 
+    <!-- Entonación — visible pero con contraseña 010513 -->
+    <div class="app-card locked-card" onclick="tryEntonacion()" style="cursor:pointer">
+      <div class="edge"></div>
+      <div class="info">
+        <div class="kick area entonacion">Entonación</div>
+        <h2 class="nm"><span class="hl">ENTON</span><span class="dim">ACIÓN</span> <span class="home2">at home</span></h2>
+        <p>Canta las melodías y deja que tu voz guíe el aprendizaje. Algo nuevo se está afinando…</p>
+      </div>
+    </div>
+
     <!-- Acceso ritmico (simulacros) — ACTIVA. Banda "para alumnos de 4º". -->
     <a class="app-card" href="https://iagonaron.github.io/ritmosimulator/">
       <div class="edge"></div>
@@ -160,5 +180,22 @@
   <div class="foot">LMEAV at home · by Iago González Alonso</div>
 
 </div>
+<div class="enig-backdrop" id="enigBackdrop" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="enig-modal">
+    <div class="enig-glyph">♪</div>
+    <h3>Muy pronto…</h3>
+    <p>Algo se está afinando en silencio.<br>Vuelve cuando suene la primera nota.</p>
+    <button class="enig-close" onclick="document.getElementById('enigBackdrop').classList.remove('open')">Cerrar</button>
+  </div>
+</div>
+<script>
+function tryEntonacion(){
+  const pin=prompt('Acceso anticipado — introduce la contraseña:');
+  if(pin==null){ showEnig(); return; }
+  if(pin==='010513'){ window.location.href='https://iagonaron.github.io/entonacionathome/'; }
+  else { showEnig(); }
+}
+function showEnig(){ document.getElementById('enigBackdrop').classList.add('open'); }
+</script>
 </body>
 </html>
