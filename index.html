@@ -31,24 +31,21 @@
   .hero-title{font-size:68px;font-weight:900;letter-spacing:-.01em;margin:0;line-height:1;display:inline-flex;align-items:baseline;justify-content:center;position:relative}
   .hero-title .t-lm{color:var(--ink);font-weight:900;position:relative;z-index:2}
   .hero-title .t-eav{color:var(--muted2);font-weight:300;position:relative;z-index:1}
-  /* durante la intro, LM lleva un fondo del color del fondo para tapar EAV mientras se desliza */
-  body.intro .hero-title .t-lm{padding-right:.05em}
   .hero-title .t-home{font-size:.42em;font-style:italic;font-family:Georgia,serif;font-weight:500;color:#aeb6d6;transform:rotate(-3deg);margin-left:.28em;display:inline-block;position:relative;z-index:3}
 
   /* durante la intro */
   body.intro .t-lm{animation:lmReveal 1.6s cubic-bezier(.5,.05,.2,1) forwards}
-  body.intro .t-eav{opacity:0;animation:eavShow 1s cubic-bezier(.5,.05,.2,1) forwards .9s}
+  body.intro .t-eav{opacity:0;animation:eavShow 1s cubic-bezier(.5,.05,.2,1) forwards .95s}
   body.intro .t-home{opacity:0;animation:homeWrite .7s ease forwards 1.8s}
   body.intro .tag{opacity:0;animation:fadeUp .6s ease forwards 2.2s}
 
   /* LM entra grande (acercándose), se asienta en el centro reduciéndose, y luego se desliza a su sitio */
   @keyframes lmReveal{
-    0%{opacity:0;transform:translateX(105px) scale(1.6);background:#060a18}     /* grande, como acercándose */
-    20%{opacity:1;transform:translateX(105px) scale(1.6);background:#060a18}
-    50%{opacity:1;transform:translateX(105px) scale(1);background:#060a18}       /* se coloca en el centro a tamaño normal */
-    60%{transform:translateX(105px) scale(1);background:#060a18}                 /* pausa breve en el centro */
-    85%{background:#060a18}
-    100%{opacity:1;transform:translateX(0) scale(1);background:rgba(6,10,24,0)} /* se desliza a la izquierda */
+    0%{opacity:0;transform:translateX(105px) scale(1.6)}     /* grande, como acercándose */
+    20%{opacity:1;transform:translateX(105px) scale(1.6)}
+    50%{opacity:1;transform:translateX(105px) scale(1)}       /* se coloca en el centro a tamaño normal */
+    60%{transform:translateX(105px) scale(1)}                 /* pausa breve en el centro */
+    100%{opacity:1;transform:translateX(0) scale(1)}          /* se desliza a la izquierda */
   }
   /* EAV permanece OCULTO hasta que LM empieza a apartarse; entonces emerge fundiéndose */
   @keyframes eavShow{
@@ -165,7 +162,7 @@
   .gp-backdrop{position:fixed;inset:0;background:rgba(20,12,2,.78);backdrop-filter:blur(4px);z-index:85;display:none;align-items:center;justify-content:center;padding:20px}
   .gp-backdrop.open{display:flex}
   .gp-modal{background:linear-gradient(180deg,#221908,#160f04);border:1px solid #d4af37;border-radius:20px;padding:36px 38px;max-width:420px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(212,175,55,.15),inset 0 1px 0 rgba(255,220,130,.12)}
-  .gp-crown{font-size:38px;color:#d4af37;margin-bottom:10px;text-shadow:0 2px 10px rgba(212,175,55,.4)}
+  .gp-crown{margin:0 auto 12px;line-height:0}
   .gp-modal h3{margin:0 0 12px;font-size:22px;color:#f5edd8;letter-spacing:.02em;font-weight:800}
   .gp-modal p{margin:0 0 22px;font-size:14px;color:#c4b288;line-height:1.6}
   .gp-input{width:100%;box-sizing:border-box;background:#0e0a02;border:1px solid #3a2c10;border-radius:11px;padding:13px 16px;font-size:15px;color:#f5edd8;text-align:center;letter-spacing:.06em;outline:none;transition:border-color .15s}
@@ -205,7 +202,7 @@
       <div class="info">
         <div class="kick area audicion">Audición</div>
         <h2 class="nm"><span class="hl">PRE</span><span class="dim">DICT</span> <span class="home2">at home</span></h2>
-        <p>Ejercicios específicos de ritmo, melodía y tonalidad que entrenan tu oído y mejoran tus dictados.</p>
+        <p>Ejercicios específicos de ritmo, melodía, tonalidad y armonía que entrenan tu oído y mejoran tus dictados.</p>
       </div>
     </a>
 
@@ -239,15 +236,15 @@
       </div>
     </div>
 
-    <!-- Teoría — visible pero con contraseña 010513 -->
-    <div class="app-card locked-card" onclick="tryTeoria()" style="cursor:pointer">
+    <!-- Teoría — ACTIVA -->
+    <a class="app-card" href="https://iagonaron.github.io/teoriaathome/">
       <div class="edge"></div>
       <div class="info">
         <div class="kick area teoria">Teoría</div>
         <h2 class="nm"><span class="hl">TEO</span><span class="dim">RÍA</span> <span class="home2">at home</span></h2>
-        <p>Los conceptos del lenguaje musical, claros y a tu ritmo. Algo nuevo se está escribiendo…</p>
+        <p>Los conceptos del lenguaje musical, claros y a tu ritmo.</p>
       </div>
-    </div>
+    </a>
 
     <!-- Acceso ritmico (simulacros) — ACTIVA. Banda "para alumnos de 4º". -->
     <a class="app-card" href="https://iagonaron.github.io/ritmosimulator/">
@@ -279,7 +276,17 @@
 </div>
 <div class="gp-backdrop" id="gpBackdrop" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="gp-modal">
-    <div class="gp-crown">♛</div>
+    <div class="gp-crown">
+      <svg viewBox="6 34 88 56" width="64" height="41" aria-hidden="true">
+        <defs>
+          <linearGradient id="gpGold" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#e9c96a"/><stop offset="1" stop-color="#b8860b"/>
+          </linearGradient>
+        </defs>
+        <!-- estrella de 5 puntas SIN la punta superior (guiño logo Hamilton) -->
+        <path fill="url(#gpGold)" d="M 59.4 39.1 L 88.0 39.6 L 65.2 56.9 L 73.5 84.4 L 50.0 68.0 L 26.5 84.4 L 34.8 56.9 L 12.0 39.6 L 40.6 39.1 Z"/>
+      </svg>
+    </div>
     <h3>Portal de Grado Profesional</h3>
     <p>Estás a punto de acceder al portal de Grado Profesional.<br>Introduce la contraseña para continuar.</p>
     <input type="password" id="gpPin" class="gp-input" placeholder="Contraseña" autocomplete="off"
@@ -336,7 +343,7 @@ function openGpGate(){
 function submitGp(){
   const pin=document.getElementById('gpPin').value;
   if(pin.trim().toLowerCase()==='hamilton'){
-    window.location.href='https://iagonaron.github.io/LMPROathome/';
+    window.location.href='https://iagonaron.github.io/lmpro/';
   } else {
     document.getElementById('gpErr').textContent='Contraseña incorrecta';
   }
