@@ -254,7 +254,7 @@
   .portal-bell .pb-bell{width:22px;height:22px;fill:none;stroke:#d4af37;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transform-origin:50% 4px}
   .portal-bell-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#e5484d;color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--bg)}
   .portal-bell-badge.hidden{display:none}
-  .portal-welcome{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap}
+  .portal-welcome{position:absolute;left:0;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap}
   .portal-welcome .pw-nombre{color:var(--ink);font-weight:800}
   .portal-welcome .pw-check{width:18px;height:18px;flex:0 0 auto}
   .portal-welcome .pw-check circle{fill:#22c98a}
@@ -359,12 +359,12 @@
 
   <div class="topbar">
     <div class="opt-mini">Optimizado para ordenador y tablet</div>
+    <span class="portal-welcome" id="portal-welcome" style="display:none">
+      <span class="pw-hi">Bienvenido/a,</span>
+      <span class="pw-nombre" id="portal-welcome-nombre"></span>
+      <svg class="pw-check" viewBox="0 0 24 24" role="img" aria-label="Cuenta verificada"><circle cx="12" cy="12" r="10"/><path d="M8 12.4l2.6 2.6L16 9" fill="none" stroke="#0a1028" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
     <div class="topbar-right">
-      <span class="portal-welcome" id="portal-welcome" style="display:none">
-        <span class="pw-hi">Bienvenido/a,</span>
-        <span class="pw-nombre" id="portal-welcome-nombre"></span>
-        <svg class="pw-check" viewBox="0 0 24 24" role="img" aria-label="Cuenta verificada"><circle cx="12" cy="12" r="10"/><path d="M8 12.4l2.6 2.6L16 9" fill="none" stroke="#0a1028" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </span>
       <button class="portal-bell" id="alu-campana-btn" aria-label="Notificaciones" title="Notificaciones" style="display:none" onclick="AluCampana&&AluCampana.abrir()">
         <svg viewBox="0 0 24 24" class="pb-bell" aria-hidden="true"><path d="M12 3a5 5 0 0 0-5 5c0 4-1.5 5.5-2.5 6.5-.4.4-.1 1 .5 1h14c.6 0 .9-.6.5-1C19 13.5 17 12 17 8a5 5 0 0 0-5-5Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
         <span class="portal-bell-badge hidden" id="alu-campana-badge">0</span>
