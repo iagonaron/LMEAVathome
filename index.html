@@ -784,20 +784,42 @@ function showEnig(kind){
   var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
   var LS_ULT='alu_campana_ultimo';
   var POLL=30000;
-  var _cli=null,_timer=null,_nuevoT=null;
+  var _cli=null,_timer=null,_nuevoT=null,_cdTimer=null;
   function cli(){ if(!_cli && window.supabase){ _cli=window.supabase.createClient(SB_URL,SB_ANON); } return _cli; }
   function ses(){ try{ return JSON.parse(localStorage.getItem('lmeav_session')||'null'); }catch(e){ return null; } }
   function cuentaId(){ var s=ses(); return (s && s.id && s.estado==='validado') ? s.id : null; }
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   function fecha(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return String(iso).slice(0,10); return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2); }
-  // Margen que le queda al alumno para hacer la ficha (a partir de fin_normal/fin_gracia del payload).
-  function plazoTxt(p){
-    if(!p || !p.fin_normal) return null;
-    var ahora=new Date(), fn=new Date(p.fin_normal), fg=p.fin_gracia?new Date(p.fin_gracia):null;
-    function dias(d){ return Math.max(0, Math.ceil((d-ahora)/86400000)); }
-    if(ahora<=fn){ var n=dias(fn); return {txt:'Te quedan '+n+(n===1?' día':' días')+' (hasta el '+fecha(p.fin_normal)+')', urg:false}; }
-    if(fg && ahora<=fg){ var g=dias(fg); return {txt:'⚠ Última semana: '+g+(g===1?' día':' días')+' (hasta el '+fecha(p.fin_gracia)+')', urg:true}; }
-    return {txt:'Plazo terminado', urg:true};
+  // Cuenta atrás (días, horas, minutos, segundos) hasta el fin de plazo.
+  function fmtCuenta(ms){
+    if(ms<=0) return '0s';
+    var s=Math.floor(ms/1000);
+    var d=Math.floor(s/86400); s-=d*86400;
+    var h=Math.floor(s/3600);  s-=h*3600;
+    var m=Math.floor(s/60);    s-=m*60;
+    var out=[];
+    if(d) out.push(d+'d');
+    if(d||h) out.push(h+'h');
+    out.push(m+'m'); out.push(s+'s');
+    return out.join(' ');
+  }
+  function estadoPlazo(fnIso,fgIso){
+    if(!fnIso) return null;
+    var ahora=Date.now(), fn=new Date(fnIso).getTime(), fg=fgIso?new Date(fgIso).getTime():null;
+    if(!isFinite(fn)) return null;
+    if(ahora<=fn) return {fase:'normal', restante:fn-ahora};
+    if(fg && isFinite(fg) && ahora<=fg) return {fase:'gracia', restante:fg-ahora};
+    return {fase:'fin', restante:0};
+  }
+  function pintarCuenta(el){
+    var st=estadoPlazo(el.getAttribute('data-fin'), el.getAttribute('data-gracia'));
+    if(!st){ el.textContent=''; return; }
+    if(st.fase==='normal'){ el.style.color='#2dd4bf'; el.textContent='Te quedan '+fmtCuenta(st.restante); }
+    else if(st.fase==='gracia'){ el.style.color='#f59e0b'; el.textContent='⚠ Última semana · '+fmtCuenta(st.restante); }
+    else { el.style.color='#ef4444'; el.textContent='Plazo terminado'; }
+  }
+  function tickCuentas(){
+    Array.prototype.forEach.call(document.querySelectorAll('.alu-item-plazo[data-fin]'), pintarCuenta);
   }
   async function rpc(fn,args){ var c=cli(); if(!c) return {ok:false,error:'sin_cliente'}; try{ var r=await c.rpc(fn,args||{}); if(r.error){ console.warn('[alu-campana]',fn,r.error.message); return {ok:false,error:r.error.message}; } return r.data; }catch(e){ console.warn('[alu-campana]',fn,e); return {ok:false,error:String(e)}; } }
   function ultimo(){ try{ var v=parseInt(localStorage.getItem(LS_ULT),10); return isNaN(v)?null:v; }catch(e){ return null; } }
@@ -844,12 +866,12 @@ function showEnig(kind){
     if(!list.length){ body.innerHTML='<div class="alu-vacio">Todavía no tienes notificaciones.</div>'; return; }
     body.innerHTML=list.map(function(o){
       var fid=(o.payload_json && o.payload_json.ficha_id) ? o.payload_json.ficha_id : '';
-      var pz=fid?plazoTxt(o.payload_json):null;
+      var pj=o.payload_json||{};
       return '<div class="alu-item'+(o.leido?'':' no-leido')+'" data-id="'+esc(o.id)+'"'+(fid?(' data-ficha="'+esc(fid)+'"'):'')+'>'
         +'<span class="alu-dot"></span>'
         +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Aviso')+'</div>'
         +(o.cuerpo?'<div class="alu-item-cuerpo">'+esc(o.cuerpo)+'</div>':'')
-        +(pz?'<div class="alu-item-plazo" style="font-size:12px;font-weight:600;margin-top:4px;color:'+(pz.urg?'#f59e0b':'#2dd4bf')+'">'+esc(pz.txt)+'</div>':'')
+        +((fid&&pj.fin_normal)?'<div class="alu-item-plazo" data-fin="'+esc(pj.fin_normal)+'" data-gracia="'+esc(pj.fin_gracia||'')+'" style="font-size:12px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums"></div>':'')
         +'<div class="alu-item-fecha">'+fecha(o.creado_en)+'</div>'
         +(fid?'<button class="alu-hacer" data-ficha="'+esc(fid)+'" style="margin-top:8px;background:#2dd4bf;color:#062b26;border:0;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">Hacer la ficha →</button>':'')
         +'</div></div>';
@@ -868,6 +890,7 @@ function showEnig(kind){
     Array.prototype.forEach.call(body.querySelectorAll('.alu-item.no-leido'),function(el){
       el.addEventListener('click',function(){ marcar(el.getAttribute('data-id'),el); });
     });
+    tickCuentas();
   }
   async function marcar(nid,el){
     var id=cuentaId(); if(!id||!nid) return;
@@ -879,8 +902,8 @@ function showEnig(kind){
     var r=await rpc('suite_alumno_marcar_todo',{p_cuenta_id:id});
     if(r && r.ok){ render(); refrescar(); }
   }
-  function abrir(){ var b=btn(); if(b) b.classList.remove('nuevo'); modalEl().classList.add('open'); render(); }
-  function cerrar(){ var m=document.getElementById('alu-modal'); if(m) m.classList.remove('open'); }
+  function abrir(){ var b=btn(); if(b) b.classList.remove('nuevo'); modalEl().classList.add('open'); render(); if(_cdTimer) clearInterval(_cdTimer); _cdTimer=setInterval(tickCuentas,1000); }
+  function cerrar(){ var m=document.getElementById('alu-modal'); if(m) m.classList.remove('open'); if(_cdTimer){ clearInterval(_cdTimer); _cdTimer=null; } }
   function start(){
     refrescar();
     if(_timer) clearInterval(_timer);
