@@ -233,7 +233,55 @@
     .gate-card{filter:none!important;transform:none!important}
     body.gating .wrap{filter:brightness(.5)!important;transform:none!important}
   }
+  /* ===== Acceso de alumno (Suite at home) ===== */
+  .gate-help{margin-top:12px;font-size:11.5px;color:var(--muted2);line-height:1.5}
+  .gate-alt{margin-top:16px;padding-top:15px;border-top:1px solid var(--line)}
+  .gate-linkbtn{background:none;border:none;color:var(--area-entonacion);font-size:13.5px;font-weight:800;letter-spacing:.02em;cursor:pointer;padding:7px 6px}
+  .gate-linkbtn:hover{text-decoration:underline}
+  #alumnoLogin .gate-input,#alumnoRegistro .gate-input{margin-top:10px}
+  #alumnoLogin .gate-input:first-of-type,#alumnoRegistro .gate-input:first-of-type{margin-top:0}
+  .gate-input.txt{letter-spacing:normal;text-align:left}
+  .gate-note{margin:14px 0 4px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;
+    background:rgba(224,133,55,.09);font-size:12px;color:var(--muted);line-height:1.55;text-align:left}
+  .gate-note b{color:var(--ink);font-weight:800}
+  .gate-q{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:3px;text-align:left}
+  .gate-mini{font-size:11.5px;line-height:1.5;color:var(--muted2);margin:0 0 8px;text-align:left}
+  .gate-linkbtn2{color:var(--muted2)}
+  .gate-back{margin-top:8px}
+  /* ===== Campana de notificaciones del alumno validado ===== */
+  .portal-bell{position:relative;border:1px solid rgba(212,175,55,.55);background:linear-gradient(135deg,rgba(212,175,55,.14),rgba(184,134,11,.06));border-radius:11px;padding:8px 10px;cursor:pointer;line-height:0;transition:background .15s,border-color .15s,box-shadow .15s}
+  .portal-bell:hover{background:linear-gradient(135deg,rgba(212,175,55,.28),rgba(184,134,11,.16));border-color:rgba(212,175,55,.85);box-shadow:0 4px 16px rgba(212,175,55,.30)}
+  .portal-bell .pb-bell{width:22px;height:22px;fill:none;stroke:#d4af37;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transform-origin:50% 4px}
+  .portal-bell-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#e5484d;color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--bg)}
+  .portal-bell-badge.hidden{display:none}
+  .portal-bell.hay-avisos::before,.portal-bell.hay-avisos::after{content:"";position:absolute;inset:0;border-radius:11px;border:2px solid rgba(212,175,55,.6);animation:alucamp-onda 2.4s ease-out infinite;pointer-events:none}
+  .portal-bell.hay-avisos::after{animation-delay:1.2s}
+  .portal-bell.hay-avisos .pb-bell{animation:alucamp-tintineo 2.4s ease-in-out infinite}
+  .portal-bell.nuevo{animation:alucamp-burst .6s ease-out}
+  @keyframes alucamp-onda{0%{transform:scale(1);opacity:.7}100%{transform:scale(3.2);opacity:0}}
+  @keyframes alucamp-tintineo{0%,60%,100%{transform:rotate(0)}66%{transform:rotate(12deg)}72%{transform:rotate(-10deg)}78%{transform:rotate(7deg)}84%{transform:rotate(-4deg)}90%{transform:rotate(0)}}
+  @keyframes alucamp-burst{0%{box-shadow:0 0 0 0 rgba(212,175,55,.55)}100%{box-shadow:0 0 0 18px rgba(212,175,55,0)}}
+  @media (prefers-reduced-motion: reduce){.portal-bell.hay-avisos::before,.portal-bell.hay-avisos::after,.portal-bell.hay-avisos .pb-bell,.portal-bell.nuevo{animation:none}}
+  .alu-modal{position:fixed;inset:0;z-index:90;display:none;align-items:flex-start;justify-content:center;padding:70px 16px 16px;background:rgba(5,8,20,.6);backdrop-filter:blur(3px)}
+  .alu-modal.open{display:flex}
+  .alu-card{width:100%;max-width:460px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.5);overflow:hidden}
+  .alu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .alu-head h3{margin:0;font-size:16px;color:var(--ink);font-weight:800}
+  .alu-head .alu-todo{background:none;border:none;color:var(--area-entonacion);font-size:12.5px;font-weight:700;cursor:pointer;padding:4px 6px}
+  .alu-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px}
+  .alu-body{max-height:60vh;overflow:auto;padding:8px 14px 16px}
+  .alu-item{display:flex;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:default}
+  .alu-item:last-child{border-bottom:none}
+  .alu-item.no-leido{cursor:pointer}
+  .alu-dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--area-entonacion);margin-top:6px;visibility:hidden}
+  .alu-item.no-leido .alu-dot{visibility:visible}
+  .alu-item-main{flex:1 1 auto;min-width:0}
+  .alu-item-tit{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .alu-item-cuerpo{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px}
+  .alu-item-fecha{font-size:11px;color:var(--muted2);margin-top:3px}
+  .alu-vacio{color:var(--muted2);font-size:13px;text-align:center;padding:24px 8px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="intro locked">
 <div class="gate" id="gate" aria-modal="true" role="dialog">
@@ -246,12 +294,17 @@
     <h1 class="hero-title gate-logo" aria-label="LMEAV at home"><span class="t-lm">LM</span><span class="t-eav">EAV</span><span class="t-home">at home</span></h1>
     <div id="gatePass">
       <h3>Acceso a la suite</h3>
-      <p>Recursos de uso interno.</p>
       <input class="gate-input" id="gateInput" type="password" placeholder="Contraseña" autocomplete="off" autocapitalize="off" spellcheck="false">
       <label class="gate-remember"><input type="checkbox" id="gateRemember"> Recordar en este dispositivo</label>
-      <button class="gate-go" onclick="submitGate()">Entrar</button>
+      <button class="gate-go" onclick="submitGate()">Entrar como invitado</button>
       <div class="gate-err" id="gateErr"></div>
-      <div style="margin-top:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);opacity:.6">gate v2 · siempre solicita</div>
+      <div class="gate-help">¿No tienes la contraseña? Pídela a cualquier profesor de Lenguaje Musical del CMUS A Coruña.</div>
+      <div class="gate-alt">
+        <div class="gate-q">¿Eres alumno/a de Iago?</div>
+        <p class="gate-mini">Como invitado ya tienes el 99% de las funciones. Registrarte solo añade la vinculación con las tablas de evaluación y el seguimiento de las actividades que hagas.</p>
+        <button class="gate-linkbtn" onclick="abrirRegistro()">Registrarme</button>
+        <button class="gate-linkbtn gate-linkbtn2" onclick="abrirLogin()">Ya tengo cuenta</button>
+      </div>
     </div>
     <div id="gateMobile" style="display:none">
       <div class="gm-icon">
@@ -262,6 +315,38 @@
       <button class="gate-go" onclick="continueAnyway()">Continuar de todas formas</button>
       <button class="gate-secondary" onclick="backToPass()">Volver</button>
     </div>
+    <div id="alumnoLogin" style="display:none">
+      <h3>Soy alumno de Iago</h3>
+      <p>Entra con tu nombre y tu contraseña.</p>
+      <input class="gate-input txt" id="logNombre" type="text" placeholder="Nombre y apellidos" autocomplete="off" autocapitalize="words" spellcheck="false">
+      <input class="gate-input" id="logPass" type="password" placeholder="Contraseña" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <label class="gate-remember"><input type="checkbox" id="logRecordar"> Recordar en este dispositivo</label>
+      <button class="gate-go" id="logBtn" onclick="alumnoEntrar()">Entrar</button>
+      <div class="gate-err" id="alumnoLoginErr"></div>
+      <button class="gate-linkbtn" onclick="abrirRegistro()">¿Primera vez? Crea tu cuenta</button>
+      <button class="gate-secondary gate-back" onclick="mostrarPanel('gatePass')">Volver</button>
+    </div>
+    <div id="alumnoRegistro" style="display:none">
+      <h3>Crear cuenta de alumno</h3>
+      <p>Solo para alumnos de Iago. Tu profesor validará tu cuenta.</p>
+      <input class="gate-input txt" id="regNombre" type="text" placeholder="Nombre y apellidos" autocomplete="off" autocapitalize="words" spellcheck="false">
+      <input class="gate-input" id="regPass" type="password" placeholder="Elige una contraseña" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <label class="gate-remember"><input type="checkbox" id="regRecordar" checked> Recordar en este dispositivo</label>
+      <div class="gate-note"><b>Pensada para ordenador</b> y adaptada para tablet. <b>No es una app para móvil.</b></div>
+      <button class="gate-go" id="regBtn" onclick="alumnoRegistrar()">Crear mi cuenta</button>
+      <div class="gate-err" id="alumnoRegistroErr"></div>
+      <button class="gate-linkbtn" onclick="abrirLogin()">Ya tengo cuenta</button>
+      <button class="gate-secondary gate-back" onclick="mostrarPanel('gatePass')">Volver</button>
+    </div>
+    <div id="alumnoPendiente" style="display:none">
+      <div class="gm-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>
+      </div>
+      <h3>Cuenta creada</h3>
+      <p>Tu profesor <b>Iago</b> recibirá tu solicitud. En cuanto te valide, tendrás acceso a todas las funciones de LMEAV at home.<br>Mientras tanto, puedes usar las apps como invitado.</p>
+      <button class="gate-go" onclick="continuarComoInvitadoPend()">Continuar</button>
+      <button class="gate-secondary gate-back" onclick="abrirLogin()">Ya me validaron: entrar</button>
+    </div>
   </div>
 </div>
 <div class="veil"></div>
@@ -270,7 +355,10 @@
   <div class="topbar">
     <div class="opt-mini">Optimizado para ordenador y tablet</div>
     <div class="topbar-right">
-      <button class="portal-gp" onclick="openGpGate()"><span class="lm">LM</span><span class="pro">PRO</span></button>
+      <button class="portal-bell" id="alu-campana-btn" aria-label="Notificaciones" title="Notificaciones" style="display:none" onclick="AluCampana&&AluCampana.abrir()">
+        <svg viewBox="0 0 24 24" class="pb-bell" aria-hidden="true"><path d="M12 3a5 5 0 0 0-5 5c0 4-1.5 5.5-2.5 6.5-.4.4-.1 1 .5 1h14c.6 0 .9-.6.5-1C19 13.5 17 12 17 8a5 5 0 0 0-5-5Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+        <span class="portal-bell-badge hidden" id="alu-campana-badge">0</span>
+      </button>
       <div class="by">by Iago González Alonso</div>
     </div>
   </div>
@@ -408,6 +496,95 @@ const GATE_PASS='aula30año26';
 const GATE_KEY='lmeav_gate_fill';
 // limpieza de marcas antiguas que saltaban el gate (versiones previas)
 try{ localStorage.removeItem('lmeav_gate_ok'); sessionStorage.removeItem('lmeav_gate_ok'); }catch(e){}
+
+// ===== Suite at home · sesión de alumno (Supabase) =====================
+// El portal es el rol INVITADO (gate de arriba). Sobre él se monta el
+// acceso de ALUMNO: registro -> pendiente de validación; login -> si está
+// validado, entra directo (y en visitas siguientes auto-salta el gate).
+// La sesión vive en localStorage['lmeav_session']; las subapps (Teoría...)
+// la leerán en la Fase 5 (misma-origen => localStorage compartido).
+const SESSION_KEY='lmeav_session';
+const SB_URL='https://woiptkyrxkbpnvioypit.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
+let _sbClient=null;
+function sbClient(){
+  if(!_sbClient && window.supabase){ _sbClient=window.supabase.createClient(SB_URL, SB_ANON); }
+  return _sbClient;
+}
+function getSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); }catch(e){ return null; } }
+function setSession(s){ try{ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }catch(e){} }
+function clearSession(){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
+async function callRPC(fn, args){
+  try{
+    const c=sbClient();
+    if(!c) return { ok:false, error:'sin_conexion' };
+    const { data, error } = await c.rpc(fn, args);
+    if(error){ console.warn('[rpc]', fn, error.message); return { ok:false, error:'red' }; }
+    return data || { ok:false, error:'vacio' };
+  }catch(e){ console.warn('[rpc]', fn, e); return { ok:false, error:'excepcion' }; }
+}
+
+// ---- Cambio de panel dentro de la tarjeta del gate ----
+function mostrarPanel(id){
+  ['gatePass','gateMobile','alumnoLogin','alumnoRegistro','alumnoPendiente'].forEach(p=>{
+    const el=document.getElementById(p); if(el) el.style.display=(p===id)?'':'none';
+  });
+}
+function abrirLogin(){
+  const s=getSession();
+  const n=document.getElementById('logNombre'), p=document.getElementById('logPass'), r=document.getElementById('logRecordar');
+  if(s && s.recordar){ if(s.nombre) n.value=s.nombre; if(s.pass) p.value=s.pass; if(r) r.checked=true; }
+  mostrarPanel('alumnoLogin');
+  setTimeout(()=>{ try{ (n.value? p:n).focus(); }catch(e){} }, 60);
+}
+function abrirRegistro(){
+  const s=getSession();
+  const n=document.getElementById('regNombre');
+  if(s && s.recordar && s.nombre && n && !n.value){ n.value=s.nombre; }
+  mostrarPanel('alumnoRegistro');
+  setTimeout(()=>{ try{ document.getElementById('regNombre').focus(); }catch(e){} }, 60);
+}
+function continuarComoInvitadoPend(){ unlockGate(); }
+
+async function alumnoRegistrar(){
+  const nombre=(document.getElementById('regNombre').value||'').trim();
+  const pass=document.getElementById('regPass').value||'';
+  const err=document.getElementById('alumnoRegistroErr'); err.textContent='';
+  if(nombre.length<3){ err.textContent='Escribe tu nombre y apellidos.'; return; }
+  if(pass.length<4){ err.textContent='La contraseña debe tener al menos 4 caracteres.'; return; }
+  const btn=document.getElementById('regBtn'); btn.disabled=true; btn.textContent='Creando…';
+  const r=await callRPC('suite_registrar_alumno', { p_nombre:nombre, p_pass:pass });
+  btn.disabled=false; btn.textContent='Crear mi cuenta';
+  if(!r.ok){
+    err.textContent = r.error==='nombre_corto' ? 'Escribe tu nombre y apellidos.'
+                    : r.error==='pass_corta'   ? 'La contraseña debe tener al menos 4 caracteres.'
+                    : 'No se pudo crear la cuenta. Revisa tu conexión e inténtalo de nuevo.';
+    return;
+  }
+  const recordar=document.getElementById('regRecordar').checked;
+  setSession({ id:r.id, nombre, estado:'pendiente', recordar, pass: recordar?pass:undefined });
+  mostrarPanel('alumnoPendiente');
+}
+
+async function alumnoEntrar(){
+  const nombre=(document.getElementById('logNombre').value||'').trim();
+  const pass=document.getElementById('logPass').value||'';
+  const err=document.getElementById('alumnoLoginErr'); err.textContent='';
+  if(!nombre || !pass){ err.textContent='Escribe tu nombre y tu contraseña.'; return; }
+  const btn=document.getElementById('logBtn'); btn.disabled=true; btn.textContent='Entrando…';
+  const r=await callRPC('suite_login_alumno', { p_nombre:nombre, p_pass:pass });
+  btn.disabled=false; btn.textContent='Entrar';
+  if(!r.ok){
+    err.textContent = r.error==='credenciales' ? 'Nombre o contraseña incorrectos.'
+                    : 'No se pudo entrar. Revisa tu conexión e inténtalo de nuevo.';
+    return;
+  }
+  const recordar=document.getElementById('logRecordar').checked;
+  setSession({ id:r.id, nombre:r.nombre, estado:r.estado, alumno_canon_id:r.alumno_canon_id, grupo_id:r.grupo_id, recordar, pass: recordar?pass:undefined });
+  if(r.estado==='validado'){ unlockGate(); }
+  else if(r.estado==='rechazado'){ err.textContent='Tu solicitud no fue aceptada. Habla con Iago en clase.'; }
+  else { mostrarPanel('alumnoPendiente'); }   // pendiente
+}
 function gateRemembered(){
   try{ return localStorage.getItem(GATE_KEY)==='1'; }catch(e){ return false; }
 }
@@ -465,8 +642,9 @@ function submitGate(){
   }
 }
 (function(){
-  // El gate se muestra SIEMPRE (con su animación). Si se ha pedido recordar,
-  // solo se pre-rellena el campo y se marca la casilla: hay que pulsar Entrar igualmente.
+  // El gate se muestra SIEMPRE (con su animación) para invitados. Si se ha
+  // pedido recordar, solo se pre-rellena el campo. EXCEPCIÓN: un alumno ya
+  // validado (sesión recordada) salta el gate directamente.
   const remembered=gateRemembered();
   if(remembered){
     document.getElementById('gateInput').value=GATE_PASS;
@@ -475,19 +653,58 @@ function submitGate(){
   // el gate emerge justo cuando la intro termina de asentarse (hero quieto)
   const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const delay=reduce?0:2900, fdelay=reduce?100:3500;
-  window.addEventListener('load',()=>{
+
+  function mostrarGate(){
     const g=document.getElementById('gate');
     setTimeout(()=>{ document.body.classList.add('gating'); g.classList.add('show'); }, delay);
     setTimeout(()=>{
       try{
         const inp=document.getElementById('gateInput');
-        inp.focus();
-        if(remembered){ inp.setSelectionRange(inp.value.length, inp.value.length); }
+        if(document.getElementById('gatePass').style.display!=='none'){
+          inp.focus();
+          if(remembered){ inp.setSelectionRange(inp.value.length, inp.value.length); }
+        }
       }catch(e){}
     }, fdelay);
+  }
+  function saltarGate(){
+    const g=document.getElementById('gate');
+    document.body.classList.remove('gating','locked');
+    document.body.classList.add('revealing');
+    if(g){ g.classList.remove('show'); g.style.display='none'; }
+  }
+
+  window.addEventListener('load',()=>{
+    (async()=>{
+      // Auto-salto del gate para un alumno YA validado (sesión recordada).
+      // Refresca el estado por si Iago lo validó/rechazó desde la última vez.
+      const s=getSession();
+      if(s && s.id && s.estado==='validado'){
+        const r=await callRPC('suite_estado_cuenta', { p_id:s.id });
+        if(r && r.ok && r.estado==='validado'){
+          setSession(Object.assign({}, s, { estado:'validado', alumno_canon_id:r.alumno_canon_id, grupo_id:r.grupo_id }));
+          saltarGate();
+          return;
+        }
+        if(r && r.ok && r.estado){
+          setSession(Object.assign({}, s, { estado:r.estado, alumno_canon_id:r.alumno_canon_id, grupo_id:r.grupo_id }));
+        }
+      }
+      // Si en este dispositivo ya hay una cuenta de alumno registrada (aunque
+      // esté pendiente), no mostramos el cartel de invitado: vamos directos al
+      // login con el nombre y la contraseña ya puestos (si pidió recordar).
+      const s2=getSession();
+      if(s2 && s2.id){ abrirLogin(); }
+      mostrarGate();
+    })();
   });
+
   document.addEventListener('keydown',e=>{
-    if(e.key==='Enter' && document.body.classList.contains('locked')){ submitGate(); }
+    if(e.key!=='Enter' || !document.body.classList.contains('locked')) return;
+    const vis=id=>{ const el=document.getElementById(id); return el && el.style.display!=='none'; };
+    if(vis('alumnoLogin')) alumnoEntrar();
+    else if(vis('alumnoRegistro')) alumnoRegistrar();
+    else if(vis('gatePass')) submitGate();
   });
 })();
 
@@ -548,5 +765,87 @@ function showEnig(kind){
   document.getElementById('enigBackdrop').classList.add('open');
 }
 </script>
+<script>
+(function(){
+  'use strict';
+  var SB_URL='https://woiptkyrxkbpnvioypit.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
+  var LS_ULT='alu_campana_ultimo';
+  var POLL=30000;
+  var _cli=null,_timer=null,_nuevoT=null;
+  function cli(){ if(!_cli && window.supabase){ _cli=window.supabase.createClient(SB_URL,SB_ANON); } return _cli; }
+  function ses(){ try{ return JSON.parse(localStorage.getItem('lmeav_session')||'null'); }catch(e){ return null; } }
+  function cuentaId(){ var s=ses(); return (s && s.id && s.estado==='validado') ? s.id : null; }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function fecha(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return String(iso).slice(0,10); return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2); }
+  async function rpc(fn,args){ var c=cli(); if(!c) return {ok:false,error:'sin_cliente'}; try{ var r=await c.rpc(fn,args||{}); if(r.error){ console.warn('[alu-campana]',fn,r.error.message); return {ok:false,error:r.error.message}; } return r.data; }catch(e){ console.warn('[alu-campana]',fn,e); return {ok:false,error:String(e)}; } }
+  function ultimo(){ try{ var v=parseInt(localStorage.getItem(LS_ULT),10); return isNaN(v)?null:v; }catch(e){ return null; } }
+  function guardar(n){ try{ localStorage.setItem(LS_ULT,String(n)); }catch(e){} }
+  function btn(){ return document.getElementById('alu-campana-btn'); }
+  function badge(){ return document.getElementById('alu-campana-badge'); }
+  function onda(){ var b=btn(); if(!b) return; b.classList.add('nuevo'); if(_nuevoT) clearTimeout(_nuevoT); _nuevoT=setTimeout(function(){ b.classList.remove('nuevo'); },700); }
+  async function refrescar(){
+    var id=cuentaId(),b=btn(),bd=badge();
+    if(!id){ if(b) b.style.display='none'; return; }
+    if(b) b.style.display='';
+    var r=await rpc('suite_alumno_notif_contador',{p_cuenta_id:id});
+    var n=(r && r.ok)?(r.no_leidos||0):0;
+    if(bd){ bd.textContent=n>99?'99+':String(n); bd.classList.toggle('hidden',n===0); }
+    if(b) b.classList.toggle('hay-avisos',n>0);
+    var prev=ultimo(); if(prev!=null && n>prev) onda(); guardar(n);
+  }
+  function modalEl(){
+    var m=document.getElementById('alu-modal'); if(m) return m;
+    m=document.createElement('div'); m.className='alu-modal'; m.id='alu-modal';
+    m.innerHTML='<div class="alu-card"><div class="alu-head"><h3>Tus notificaciones</h3><div><button class="alu-todo" id="alu-todo">Marcar todo leído</button><button class="alu-close" id="alu-close" aria-label="Cerrar">&times;</button></div></div><div class="alu-body" id="alu-body"></div></div>';
+    document.body.appendChild(m);
+    m.addEventListener('click',function(e){ if(e.target===m) cerrar(); });
+    m.querySelector('#alu-close').addEventListener('click',cerrar);
+    m.querySelector('#alu-todo').addEventListener('click',marcarTodo);
+    return m;
+  }
+  async function render(){
+    var body=document.getElementById('alu-body'); if(!body) return;
+    body.innerHTML='<div class="alu-vacio">Cargando…</div>';
+    var id=cuentaId(); if(!id){ body.innerHTML='<div class="alu-vacio">Inicia sesión para ver tus notificaciones.</div>'; return; }
+    var r=await rpc('suite_alumno_notif_listar',{p_cuenta_id:id});
+    var list=(r && r.ok && Array.isArray(r.notificaciones))?r.notificaciones:[];
+    if(!list.length){ body.innerHTML='<div class="alu-vacio">Todavía no tienes notificaciones.</div>'; return; }
+    body.innerHTML=list.map(function(o){
+      return '<div class="alu-item'+(o.leido?'':' no-leido')+'" data-id="'+esc(o.id)+'">'
+        +'<span class="alu-dot"></span>'
+        +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Aviso')+'</div>'
+        +(o.cuerpo?'<div class="alu-item-cuerpo">'+esc(o.cuerpo)+'</div>':'')
+        +'<div class="alu-item-fecha">'+fecha(o.creado_en)+'</div></div></div>';
+    }).join('');
+    Array.prototype.forEach.call(body.querySelectorAll('.alu-item.no-leido'),function(el){
+      el.addEventListener('click',function(){ marcar(el.getAttribute('data-id'),el); });
+    });
+  }
+  async function marcar(nid,el){
+    var id=cuentaId(); if(!id||!nid) return;
+    var r=await rpc('suite_alumno_marcar_leido',{p_cuenta_id:id,p_notif_id:nid});
+    if(r && r.ok){ if(el) el.classList.remove('no-leido'); refrescar(); }
+  }
+  async function marcarTodo(){
+    var id=cuentaId(); if(!id) return;
+    var r=await rpc('suite_alumno_marcar_todo',{p_cuenta_id:id});
+    if(r && r.ok){ render(); refrescar(); }
+  }
+  function abrir(){ var b=btn(); if(b) b.classList.remove('nuevo'); modalEl().classList.add('open'); render(); }
+  function cerrar(){ var m=document.getElementById('alu-modal'); if(m) m.classList.remove('open'); }
+  function start(){
+    refrescar();
+    if(_timer) clearInterval(_timer);
+    _timer=setInterval(refrescar,POLL);
+    document.addEventListener('visibilitychange',function(){ if(!document.hidden) refrescar(); });
+    window.addEventListener('focus',refrescar);
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') cerrar(); });
+  }
+  window.AluCampana={ abrir:abrir, cerrar:cerrar, refrescar:refrescar };
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',start); } else { start(); }
+})();
+</script>
+
 </body>
 </html>
