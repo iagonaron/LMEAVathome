@@ -790,6 +790,15 @@ function showEnig(kind){
   function cuentaId(){ var s=ses(); return (s && s.id && s.estado==='validado') ? s.id : null; }
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   function fecha(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return String(iso).slice(0,10); return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2); }
+  // Margen que le queda al alumno para hacer la ficha (a partir de fin_normal/fin_gracia del payload).
+  function plazoTxt(p){
+    if(!p || !p.fin_normal) return null;
+    var ahora=new Date(), fn=new Date(p.fin_normal), fg=p.fin_gracia?new Date(p.fin_gracia):null;
+    function dias(d){ return Math.max(0, Math.ceil((d-ahora)/86400000)); }
+    if(ahora<=fn){ var n=dias(fn); return {txt:'Te quedan '+n+(n===1?' día':' días')+' (hasta el '+fecha(p.fin_normal)+')', urg:false}; }
+    if(fg && ahora<=fg){ var g=dias(fg); return {txt:'⚠ Última semana: '+g+(g===1?' día':' días')+' (hasta el '+fecha(p.fin_gracia)+')', urg:true}; }
+    return {txt:'Plazo terminado', urg:true};
+  }
   async function rpc(fn,args){ var c=cli(); if(!c) return {ok:false,error:'sin_cliente'}; try{ var r=await c.rpc(fn,args||{}); if(r.error){ console.warn('[alu-campana]',fn,r.error.message); return {ok:false,error:r.error.message}; } return r.data; }catch(e){ console.warn('[alu-campana]',fn,e); return {ok:false,error:String(e)}; } }
   function ultimo(){ try{ var v=parseInt(localStorage.getItem(LS_ULT),10); return isNaN(v)?null:v; }catch(e){ return null; } }
   function guardar(n){ try{ localStorage.setItem(LS_ULT,String(n)); }catch(e){} }
@@ -835,10 +844,12 @@ function showEnig(kind){
     if(!list.length){ body.innerHTML='<div class="alu-vacio">Todavía no tienes notificaciones.</div>'; return; }
     body.innerHTML=list.map(function(o){
       var fid=(o.payload_json && o.payload_json.ficha_id) ? o.payload_json.ficha_id : '';
+      var pz=fid?plazoTxt(o.payload_json):null;
       return '<div class="alu-item'+(o.leido?'':' no-leido')+'" data-id="'+esc(o.id)+'"'+(fid?(' data-ficha="'+esc(fid)+'"'):'')+'>'
         +'<span class="alu-dot"></span>'
         +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Aviso')+'</div>'
         +(o.cuerpo?'<div class="alu-item-cuerpo">'+esc(o.cuerpo)+'</div>':'')
+        +(pz?'<div class="alu-item-plazo" style="font-size:12px;font-weight:600;margin-top:4px;color:'+(pz.urg?'#f59e0b':'#2dd4bf')+'">'+esc(pz.txt)+'</div>':'')
         +'<div class="alu-item-fecha">'+fecha(o.creado_en)+'</div>'
         +(fid?'<button class="alu-hacer" data-ficha="'+esc(fid)+'" style="margin-top:8px;background:#2dd4bf;color:#062b26;border:0;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">Hacer la ficha →</button>':'')
         +'</div></div>';
