@@ -276,15 +276,15 @@
   @keyframes alucamp-tintineo{0%,60%,100%{transform:rotate(0)}66%{transform:rotate(12deg)}72%{transform:rotate(-10deg)}78%{transform:rotate(7deg)}84%{transform:rotate(-4deg)}90%{transform:rotate(0)}}
   @keyframes alucamp-burst{0%{box-shadow:0 0 0 0 rgba(212,175,55,.55)}100%{box-shadow:0 0 0 18px rgba(212,175,55,0)}}
   @media (prefers-reduced-motion: reduce){.portal-bell.hay-avisos::before,.portal-bell.hay-avisos::after,.portal-bell.hay-avisos .pb-bell,.portal-bell.nuevo{animation:none}}
-  .alu-modal{position:fixed;inset:0;z-index:90;display:none;align-items:flex-start;justify-content:center;padding:70px 16px 16px;background:rgba(5,8,20,.6);backdrop-filter:blur(3px)}
+  .alu-modal{position:fixed;inset:0;z-index:90;display:none;align-items:flex-start;justify-content:center;padding:36px 16px 16px;background:rgba(5,8,20,.6);backdrop-filter:blur(3px)}
   .alu-modal.open{display:flex}
-  .alu-card{width:100%;max-width:460px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.5);overflow:hidden}
+  .alu-card{width:100%;max-width:880px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.5);overflow:hidden}
   .alu-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
   .alu-head h3{margin:0;font-size:16px;color:var(--ink);font-weight:800}
   .alu-head .alu-todo{background:none;border:none;color:var(--area-entonacion);font-size:12.5px;font-weight:700;cursor:pointer;padding:4px 6px}
   .alu-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px}
-  .alu-body{max-height:60vh;overflow:auto;padding:8px 14px 16px}
-  .alu-item{display:flex;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:default}
+  .alu-body{max-height:82vh;overflow:auto;padding:8px 14px 16px}
+  .alu-item{display:flex;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:default}
   .alu-item:last-child{border-bottom:none}
   .alu-item.no-leido{cursor:pointer}
   .alu-dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--area-entonacion);margin-top:6px;visibility:hidden}
@@ -1164,7 +1164,7 @@ function showEnig(kind){
           +'<div class="alu-item-main">'
           +'<div class="alu-item-tit">📦 Tareas de la semana'+(hechaT?' <span class="alu-hecha-check" aria-label="Hechas">✓</span>':'')+'</div>'
           +'<div class="alu-item-fecha">'+fecha(o.creado_en)+'</div>'
-          +partes
+          +'<div class="ts-partes">'+partes+'</div>'
           +'</div></div>';
       }
       // FASE 7 · notificación de QUIZ DE RITMO: tarjeta propia con la
@@ -1206,10 +1206,10 @@ function showEnig(kind){
           : '<button class="alu-hacer'+(prog?' alu-continuar':'')+'" data-ficha="'+esc(fid)+'" data-n="'+esc(pj.numero!=null?pj.numero:'')+'" style="margin-top:8px;background:#2dd4bf;color:#062b26;border:0;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">'+(prog?'Continuar la ficha ('+prog.hechos+'/'+prog.total+') →':'Hacer la ficha →')+'</button>';
       }
       return '<div class="alu-item'+((o.leido||hecha)?'':' no-leido')+(fid?' ficha':'')+(hecha?' hecha':'')+(extra?' alu-extra-pin':'')+'" data-id="'+esc(o.id)+'"'+(fid?(' data-ficha="'+esc(fid)+'"'):'')+'>'
-        +(extra?'<div class="alu-extra-banda">⏰ TIEMPO EXTRA · ¡no la dejes escapar!</div>':'')
+        
         +(fid?'<div class="neb-mini" aria-hidden="true"><i class="n1"></i><i class="n2"></i><i class="n3"></i></div>':'')
         +'<span class="alu-dot"></span>'
-        +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Aviso')+(hecha?' <span class="alu-hecha-check" aria-label="Entregada">✓</span>':'')+'</div>'
+        +'<div class="alu-item-main"><div class="alu-item-tit">'+(extra?'<span class="alu-extra-chip">⏰ TIEMPO EXTRA</span> ':'')+esc(o.titulo||'Aviso')+(hecha?' <span class="alu-hecha-check" aria-label="Entregada">✓</span>':'')+'</div>'
         +(cuerpoTxt?'<div class="alu-item-cuerpo">'+esc(cuerpoTxt)+'</div>':'')
         +((fid&&pj.fin_normal&&!hecha)?'<div class="alu-item-plazo" data-fin="'+esc(pj.fin_normal)+'" data-gracia="'+esc(pj.fin_gracia||'')+'" style="font-size:12px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums"></div>':'')
         +progHTML
@@ -1324,10 +1324,10 @@ function showEnig(kind){
       // FASE 8 · tarjeta "Tareas de la semana" + pin de TIEMPO EXTRA
       '.alu-item.alu-item-tareas{border:1px solid rgba(255,214,120,.5);background:linear-gradient(165deg,rgba(255,214,120,.10),rgba(24,15,60,.65) 45%,rgba(8,5,24,.8))}'+
       '.alu-item-tareas .alu-item-tit{color:#ffe4a8}'+
-      '.ts-parte{margin-top:10px;padding:10px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.045)}'+
-      '.ts-parte-tit{font-size:13.5px;font-weight:800;color:#f1ecff}'+
+      '.ts-partes{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px;margin-top:8px}'+'.ts-parte{padding:9px 11px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.045);display:flex;flex-direction:column;gap:5px}'+'.ts-parte .ts-marcar,.ts-parte .alu-quiz-go,.ts-parte .ts-ver-lecciones{margin-top:auto;align-self:flex-start}'+
+      '.ts-parte-tit{font-size:12.5px;font-weight:800;color:#f1ecff}'+
       '.ts-parte-tit b{color:#ffd678}'+
-      '.ts-parte-sub{font-size:12.5px;color:#b9b0dd;margin-top:4px;white-space:pre-wrap}'+
+      '.ts-parte-sub{font-size:11.5px;color:#b9b0dd;white-space:pre-wrap;max-height:64px;overflow:auto}'+
       '.ts-check{color:#7ef0c0}'+
       '.ts-parte.ts-hecha{filter:grayscale(1);opacity:.55}'+
       '.ts-marcar,.ts-ver-lecciones{margin-top:8px;border:0;border-radius:8px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer}'+
@@ -1335,10 +1335,10 @@ function showEnig(kind){
       '.ts-marcar{color:#e8e4ff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25)}'+
       '.ts-marcar:hover{background:rgba(255,255,255,.16)}'+
       '.alu-item-tareas.hecha{opacity:.72;border-color:rgba(148,163,184,.3)}'+
-      '.alu-item.alu-extra-pin{border-color:#ff2d6a;box-shadow:0 0 0 1px rgba(255,45,106,.5),0 10px 34px rgba(255,45,106,.3);animation:pinLatido 1.5s ease-in-out infinite;background:linear-gradient(165deg,#4a0d24 0%,#2e0817 45%,#1a0510 100%)!important}'+'.alu-item.alu-extra-pin .neb-mini{opacity:.25;filter:hue-rotate(300deg)}'+'.alu-item.alu-extra-pin .alu-item-cuerpo{color:#ffd6e2;font-weight:700}'+
-      '.alu-extra-banda{font-size:11px;font-weight:900;letter-spacing:.12em;color:#fff;background:linear-gradient(90deg,#ff2d6a,#ff6a3c);border-radius:8px;padding:5px 10px;margin-bottom:8px;display:inline-block;animation:pinLatido 1.5s ease-in-out infinite}'+
+      '.alu-item.alu-extra-pin{border:1px solid #ff2d6a;border-radius:12px;margin:8px 0;padding:10px 12px;box-shadow:0 0 0 1px rgba(255,45,106,.45),0 8px 26px rgba(255,45,106,.25);animation:pinLatido 1.5s ease-in-out infinite;background:linear-gradient(100deg,#4a0d24 0%,#2e0817 55%,#1a0510 100%)!important;align-items:center}'+'.alu-item.alu-extra-pin .alu-item-main{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px}'+'.alu-item.alu-extra-pin .alu-item-tit{flex:0 0 auto}'+'.alu-item.alu-extra-pin .alu-item-cuerpo{flex:1 1 260px;font-size:12px;line-height:1.4;margin:0}'+'.alu-item.alu-extra-pin .alu-item-plazo{flex:0 0 auto;margin:0!important}'+'.alu-item.alu-extra-pin .alu-item-fecha{display:none}'+'.alu-item.alu-extra-pin .alu-hacer{flex:0 0 auto;margin:0}'+'.alu-item.alu-extra-pin .neb-mini{display:none}'+'.alu-item.alu-extra-pin .alu-item-cuerpo{color:#ffd6e2;font-weight:700}'+
+      '.alu-extra-chip{font-size:10.5px;font-weight:900;letter-spacing:.1em;color:#fff;background:linear-gradient(90deg,#ff2d6a,#ff6a3c);border-radius:7px;padding:3px 8px;vertical-align:1px;animation:pinLatido 1.5s ease-in-out infinite;display:inline-block}'+
       '@keyframes pinLatido{0%,100%{opacity:1}50%{opacity:.55}}'+
-      '@media (prefers-reduced-motion:reduce){.alu-item.alu-extra-pin,.alu-extra-banda{animation:none!important}}'+
+      '@media (prefers-reduced-motion:reduce){.alu-item.alu-extra-pin,.alu-extra-chip{animation:none!important}}'+
       // FASE 7 · notificación de QUIZ DE RITMO: piel psicodélica de RITMO at
       // home (fondo azul noche + blobs amarillo/rosa/verde/azul en deriva).
       '.alu-item.alu-item-quiz{position:relative;overflow:hidden;border:1px solid rgba(52,211,153,.45);background:linear-gradient(160deg,#241a52 0%,#180f3c 38%,#0e0a2c 72%,#080518 100%)}'+
