@@ -259,11 +259,14 @@
   .portal-welcome .pw-nombre{color:var(--ink);font-weight:800}
   .portal-welcome .pw-check{width:18px;height:18px;flex:0 0 auto}
   .portal-welcome .pw-check circle{fill:#22c98a}
-  /* FASE 6.8 · botón "Mis resultados" (estética Suite: nebulosa azul/morada) */
-  .pw-resultados{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font:inherit;font-size:12.5px;font-weight:800;color:#e9e4ff;padding:6px 13px;border-radius:99px;border:1px solid rgba(169,116,255,.55);background:linear-gradient(120deg,rgba(169,116,255,.22),rgba(91,208,255,.14) 55%,rgba(255,92,205,.16));box-shadow:0 4px 16px rgba(169,116,255,.22);transition:box-shadow .15s,border-color .15s,transform .12s}
-  .pw-resultados:hover{border-color:rgba(169,116,255,.95);box-shadow:0 6px 22px rgba(169,116,255,.42);transform:translateY(-1px)}
+  /* FASE 6.8 · botón "Mis resultados": misma estética que las tarjetas de
+     apps (app-card) en formato pequeño — rectangular, borde --line, fondo
+     panel2→panel y hover que se eleva. Ancho = línea del nombre del alumno
+     (align-self:stretch dentro de la columna del welcome). */
+  .pw-resultados{display:flex;align-items:center;justify-content:center;gap:8px;align-self:stretch;box-sizing:border-box;cursor:pointer;font:inherit;font-size:12.5px;font-weight:800;letter-spacing:.01em;color:var(--ink);padding:7px 12px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:10px;transition:transform .12s,border-color .15s,box-shadow .15s}
+  .pw-resultados:hover{transform:translateY(-2px);border-color:var(--muted2);box-shadow:0 10px 26px rgba(20,40,120,.4)}
   .pw-resultados:active{transform:translateY(0)}
-  .pw-resultados .pwr-chev{font-size:10px;opacity:.75}
+  .pw-resultados .pwr-chev{font-size:10px;opacity:.7;color:var(--muted)}
   @media (max-width:560px){.portal-welcome .pw-hi{display:none}}
   .portal-bell.hay-avisos::before,.portal-bell.hay-avisos::after{content:"";position:absolute;inset:0;border-radius:11px;border:2px solid rgba(212,175,55,.6);animation:alucamp-onda 2.4s ease-out infinite;pointer-events:none}
   .portal-bell.hay-avisos::after{animation-delay:1.2s}
@@ -840,6 +843,31 @@ function showEnig(kind){
   // el botón de la notificación a "Continuar la ficha →".
   // ============================================================
   var _progresos={};   // ficha_id -> {hechos,total,t}
+  // FASE 6.9 · fichas ya ENTREGADAS: se pintan en gris con ✓ verde y sin
+  // botón/cuenta atrás, para que el alumno no crea que tiene algo pendiente.
+  // Fuentes: marcador localStorage que deja el player al entregar (instantáneo,
+  // mismo origen) + RPC suite_fichas_entregadas (autoritativa, multi-dispositivo).
+  var _entregadas={};  // ficha_id -> true
+  function entregadasLocal(id){
+    var out={};
+    try{
+      var pref='suite_ficha_hecha_'+id+'_';
+      for(var k=0;k<localStorage.length;k++){
+        var key=localStorage.key(k);
+        if(key && key.indexOf(pref)===0) out[key.slice(pref.length)]=true;
+      }
+    }catch(e){}
+    return out;
+  }
+  async function cargarEntregadas(id){
+    var out=entregadasLocal(id);
+    var r=await rpc('suite_fichas_entregadas',{p_cuenta_id:id});
+    if(r && r.ok && Array.isArray(r.entregadas)){
+      r.entregadas.forEach(function(fid){ if(fid) out[fid]=true; });
+    }
+    _entregadas=out;
+    return out;
+  }
   function progLocalTodos(id){
     var out={};
     try{
@@ -870,7 +898,10 @@ function showEnig(kind){
       });
     }
     _progresos=out;
-    return out;
+    // FASE 6.9 · una ficha ENTREGADA nunca cuenta como "a medias" (restos de
+    // progreso que no llegaron a borrarse, p. ej. entrega desde otro equipo).
+    Object.keys(_progresos).forEach(function(fid){ if(_entregadas[fid]) delete _progresos[fid]; });
+    return _progresos;
   }
   function pintarCampanaProgreso(){
     var b=btn(); if(!b) return;
@@ -917,7 +948,8 @@ function showEnig(kind){
     if(bd){ bd.textContent=n>99?'99+':String(n); bd.classList.toggle('hidden',n===0); }
     if(b) b.classList.toggle('hay-avisos',n>0);
     var prev=ultimo(); if(prev!=null && n>prev) onda(); guardar(n);
-    // FASE 6.7 · fichas a medias → campana en modo "pendiente de terminar"
+    // FASE 6.7/6.9 · entregadas + fichas a medias → estado de la campana
+    try{ await cargarEntregadas(id); }catch(e){}
     try{ await cargarProgresos(id); }catch(e){}
     pintarCampanaProgreso();
   }
@@ -938,31 +970,51 @@ function showEnig(kind){
     var r=await rpc('suite_alumno_notif_listar',{p_cuenta_id:id});
     var list=(r && r.ok && Array.isArray(r.notificaciones))?r.notificaciones:[];
     if(!list.length){ body.innerHTML='<div class="alu-vacio">Todavía no tienes notificaciones.</div>'; return; }
-    // FASE 6.7 · refresca los progresos antes de pintar (para decidir
-    // "Hacer la ficha" vs "Continuar la ficha" y la fracción X/Y).
+    // FASE 6.7/6.9 · refresca entregadas y progresos antes de pintar (para
+    // decidir Hacer/Continuar/✓ Entregada y la fracción X/Y).
+    try{ await cargarEntregadas(id); }catch(e){}
     try{ await cargarProgresos(id); }catch(e){}
     pintarCampanaProgreso();
+    // FASE 6.9 · las fichas ENTREGADAS se hunden al final de la lista y se
+    // pintan "hechas"; las pendientes/a medias quedan arriba.
+    var esHecha=function(o){ var f=(o.payload_json&&o.payload_json.ficha_id)||''; return !!(f && _entregadas[f]); };
+    list.sort(function(a,b){ return (esHecha(a)?1:0)-(esHecha(b)?1:0); });
     body.innerHTML=list.map(function(o){
       var fid=(o.payload_json && o.payload_json.ficha_id) ? o.payload_json.ficha_id : '';
       var pj=o.payload_json||{};
-      var prog=(fid && _progresos[fid]) ? _progresos[fid] : null;
+      var hecha=esHecha(o);
+      var prog=(!hecha && fid && _progresos[fid]) ? _progresos[fid] : null;
       var progHTML='';
       if(prog){
         var pct=Math.max(0,Math.min(100,Math.round(prog.hechos*100/Math.max(1,prog.total))));
         progHTML='<div class="alu-item-prog"><span class="aip-txt">⏸ Ficha a medias · '+prog.hechos+' de '+prog.total+' ejercicios hechos</span>'
           +'<span class="aip-bar"><i style="width:'+pct+'%"></i></span></div>';
       }
-      return '<div class="alu-item'+(o.leido?'':' no-leido')+(fid?' ficha':'')+'" data-id="'+esc(o.id)+'"'+(fid?(' data-ficha="'+esc(fid)+'"'):'')+'>'
+      var cuerpoTxt=hecha ? 'Ya la entregaste. ¡Buen trabajo!' : (o.cuerpo||'');
+      var accionHTML='';
+      if(fid){
+        accionHTML=hecha
+          ? '<span class="alu-hecha-badge">✓ Entregada</span>'
+          : '<button class="alu-hacer'+(prog?' alu-continuar':'')+'" data-ficha="'+esc(fid)+'" data-n="'+esc(pj.numero!=null?pj.numero:'')+'" style="margin-top:8px;background:#2dd4bf;color:#062b26;border:0;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">'+(prog?'Continuar la ficha ('+prog.hechos+'/'+prog.total+') →':'Hacer la ficha →')+'</button>';
+      }
+      return '<div class="alu-item'+((o.leido||hecha)?'':' no-leido')+(fid?' ficha':'')+(hecha?' hecha':'')+'" data-id="'+esc(o.id)+'"'+(fid?(' data-ficha="'+esc(fid)+'"'):'')+'>'
         +(fid?'<div class="neb-mini" aria-hidden="true"><i class="n1"></i><i class="n2"></i><i class="n3"></i></div>':'')
         +'<span class="alu-dot"></span>'
-        +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Aviso')+'</div>'
-        +(o.cuerpo?'<div class="alu-item-cuerpo">'+esc(o.cuerpo)+'</div>':'')
-        +((fid&&pj.fin_normal)?'<div class="alu-item-plazo" data-fin="'+esc(pj.fin_normal)+'" data-gracia="'+esc(pj.fin_gracia||'')+'" style="font-size:12px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums"></div>':'')
+        +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Aviso')+(hecha?' <span class="alu-hecha-check" aria-label="Entregada">✓</span>':'')+'</div>'
+        +(cuerpoTxt?'<div class="alu-item-cuerpo">'+esc(cuerpoTxt)+'</div>':'')
+        +((fid&&pj.fin_normal&&!hecha)?'<div class="alu-item-plazo" data-fin="'+esc(pj.fin_normal)+'" data-gracia="'+esc(pj.fin_gracia||'')+'" style="font-size:12px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums"></div>':'')
         +progHTML
         +'<div class="alu-item-fecha">'+fecha(o.creado_en)+'</div>'
-        +(fid?'<button class="alu-hacer'+(prog?' alu-continuar':'')+'" data-ficha="'+esc(fid)+'" data-n="'+esc(pj.numero!=null?pj.numero:'')+'" style="margin-top:8px;background:#2dd4bf;color:#062b26;border:0;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">'+(prog?'Continuar la ficha ('+prog.hechos+'/'+prog.total+') →':'Hacer la ficha →')+'</button>':'')
+        +accionHTML
         +'</div></div>';
     }).join('');
+    // FASE 6.9 · las entregadas no leídas se marcan LEÍDAS solas (el alumno
+    // ya cumplió: que el globito rojo no le persiga). Un solo refresco al final.
+    var autoLeer=list.filter(function(o){ return esHecha(o) && !o.leido; });
+    if(autoLeer.length){
+      Promise.all(autoLeer.map(function(o){ return rpc('suite_alumno_marcar_leido',{p_cuenta_id:id,p_notif_id:o.id}); }))
+        .then(function(){ refrescar(); }).catch(function(){});
+    }
     // "Hacer la ficha": marca leído y abre el player con esa ficha (mismo origen -> el player lee la sesión).
     Array.prototype.forEach.call(body.querySelectorAll('.alu-hacer'),function(b){
       b.addEventListener('click',function(ev){
@@ -1020,6 +1072,16 @@ function showEnig(kind){
       '.alu-item-prog .aip-txt{font-size:12px;font-weight:800;color:#5bd0ff}'+
       '.alu-item-prog .aip-bar{display:block;height:7px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}'+
       '.alu-item-prog .aip-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#a974ff,#5bd0ff 55%,#ff5ccd);background-size:200% 100%;animation:pnSlide 3s linear infinite}'+
+      // FASE 6.9 · ficha ENTREGADA: tarjeta gris desaturada + ✓ verde
+      '.alu-item.ficha.hecha{border-color:rgba(148,163,184,.30);background:linear-gradient(160deg,#1b2036 0%,#151a2b 55%,#101423 100%);opacity:.82}'+
+      '.alu-item.ficha.hecha .neb-mini{opacity:.10;filter:blur(26px) grayscale(1)}'+
+      '.alu-item.ficha.hecha .neb-mini i{animation:none!important}'+
+      '.alu-item.ficha.hecha .alu-item-tit{color:#aab2cc}'+
+      '.alu-item.ficha.hecha .alu-item-cuerpo{color:#7d86a6}'+
+      '.alu-item.ficha.hecha .alu-item-fecha{color:#5e6a98}'+
+      '.alu-item.ficha.hecha .alu-dot{visibility:hidden}'+
+      '.alu-hecha-check{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-left:6px;border-radius:50%;background:#22c98a;color:#062b26;font-size:12px;font-weight:900;vertical-align:middle}'+
+      '.alu-hecha-badge{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:13px;font-weight:800;color:#22c98a;background:rgba(34,201,138,.10);border:1px solid rgba(34,201,138,.45);border-radius:8px;padding:7px 12px}'+
       '@media (prefers-reduced-motion:reduce){.alu-item.ficha .neb-mini i,.alu-item.ficha .alu-hacer{animation:none!important}.portal-bell.ficha-pendiente::before,.portal-bell.ficha-pendiente::after,.portal-bell.ficha-pendiente .pb-bell,.portal-bell-prog,.alu-item-prog .aip-bar i{animation:none!important}}';
     document.head.appendChild(s);
   }
