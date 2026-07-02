@@ -848,6 +848,30 @@ function showEnig(kind){
   // Fuentes: marcador localStorage que deja el player al entregar (instantáneo,
   // mismo origen) + RPC suite_fichas_entregadas (autoritativa, multi-dispositivo).
   var _entregadas={};  // ficha_id -> true
+  // FASE 7 · quizzes de ritmo ya HECHOS: marcador localStorage que deja
+  // RITMO at home al completar (mismo origen) + RPC suite_quiz_hechos_de
+  // (autoritativa, multi-dispositivo). envio_id -> true
+  var _quizHechos={};
+  function quizHechosLocal(id){
+    var out={};
+    try{
+      var pref='suite_quiz_hecho_'+id+'_';
+      for(var k=0;k<localStorage.length;k++){
+        var key=localStorage.key(k);
+        if(key && key.indexOf(pref)===0) out[key.slice(pref.length)]=true;
+      }
+    }catch(e){}
+    return out;
+  }
+  async function cargarQuizHechos(id){
+    var out=quizHechosLocal(id);
+    var r=await rpc('suite_quiz_hechos_de',{p_cuenta_id:id});
+    if(r && r.ok && Array.isArray(r.hechos)){
+      r.hechos.forEach(function(eid){ if(eid) out[eid]=true; });
+    }
+    _quizHechos=out;
+    return out;
+  }
   function entregadasLocal(id){
     var out={};
     try{
@@ -974,12 +998,32 @@ function showEnig(kind){
     // decidir Hacer/Continuar/✓ Entregada y la fracción X/Y).
     try{ await cargarEntregadas(id); }catch(e){}
     try{ await cargarProgresos(id); }catch(e){}
+    try{ await cargarQuizHechos(id); }catch(e){}
     pintarCampanaProgreso();
     // FASE 6.9 · las fichas ENTREGADAS se hunden al final de la lista y se
     // pintan "hechas"; las pendientes/a medias quedan arriba.
-    var esHecha=function(o){ var f=(o.payload_json&&o.payload_json.ficha_id)||''; return !!(f && _entregadas[f]); };
+    // FASE 7 · los quizzes ya HECHOS también se hunden.
+    var esQuiz=function(o){ return !!(o.payload_json && o.payload_json.quiz && o.payload_json.envio_id); };
+    var esQuizHecho=function(o){ return esQuiz(o) && !!_quizHechos[o.payload_json.envio_id]; };
+    var esHecha=function(o){ var f=(o.payload_json&&o.payload_json.ficha_id)||''; return !!(f && _entregadas[f]) || esQuizHecho(o); };
     list.sort(function(a,b){ return (esHecha(a)?1:0)-(esHecha(b)?1:0); });
     body.innerHTML=list.map(function(o){
+      // FASE 7 · notificación de QUIZ DE RITMO: tarjeta propia con la
+      // estética psicodélica de RITMO at home (blobs amarillo/rosa/verde/azul).
+      if(esQuiz(o)){
+        var qj=o.payload_json, qHecho=esQuizHecho(o);
+        var qAccion=qHecho
+          ? '<span class="alu-hecha-badge">✓ Hecho</span>'
+          : '<button class="alu-quiz-go" data-envio="'+esc(qj.envio_id)+'" data-carta="'+esc(qj.carta||'')+'">▶ Empezar el quiz</button>';
+        return '<div class="alu-item alu-item-quiz'+((o.leido||qHecho)?'':' no-leido')+(qHecho?' hecha':'')+'" data-id="'+esc(o.id)+'">'
+          +'<div class="quiz-blobs" aria-hidden="true"><i class="q1"></i><i class="q2"></i><i class="q3"></i><i class="q4"></i></div>'
+          +'<span class="alu-dot"></span>'
+          +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Quiz de ritmo')+(qHecho?' <span class="alu-hecha-check" aria-label="Hecho">✓</span>':'')+'</div>'
+          +'<div class="alu-item-cuerpo">'+esc(qHecho?'Ya lo completaste. ¡Buen trabajo!':(o.cuerpo||''))+'</div>'
+          +'<div class="alu-item-fecha">'+fecha(o.creado_en)+'</div>'
+          +qAccion
+          +'</div></div>';
+      }
       var fid=(o.payload_json && o.payload_json.ficha_id) ? o.payload_json.ficha_id : '';
       var pj=o.payload_json||{};
       var hecha=esHecha(o);
@@ -1015,6 +1059,19 @@ function showEnig(kind){
       Promise.all(autoLeer.map(function(o){ return rpc('suite_alumno_marcar_leido',{p_cuenta_id:id,p_notif_id:o.id}); }))
         .then(function(){ refrescar(); }).catch(function(){});
     }
+    // FASE 7 · "Empezar el quiz": marca leído y abre RITMO at home con la
+    // carta y el envío (mismo origen -> localStorage compartido para el ✓).
+    Array.prototype.forEach.call(body.querySelectorAll('.alu-quiz-go'),function(b){
+      b.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var envio=b.getAttribute('data-envio')||'';
+        var carta=b.getAttribute('data-carta')||'';
+        var item=b.closest('.alu-item'), nid=item&&item.getAttribute('data-id');
+        if(nid) marcar(nid,item);
+        window.location.href='https://iagonaron.github.io/ritmoathome/?quizCarta='+encodeURIComponent(carta)
+          +'&envio='+encodeURIComponent(envio)+'&cuenta='+encodeURIComponent(cuentaId()||'');
+      });
+    });
     // "Hacer la ficha": marca leído y abre el player con esa ficha (mismo origen -> el player lee la sesión).
     Array.prototype.forEach.call(body.querySelectorAll('.alu-hacer'),function(b){
       b.addEventListener('click',function(ev){
@@ -1082,7 +1139,27 @@ function showEnig(kind){
       '.alu-item.ficha.hecha .alu-dot{visibility:hidden}'+
       '.alu-hecha-check{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-left:6px;border-radius:50%;background:#22c98a;color:#062b26;font-size:12px;font-weight:900;vertical-align:middle}'+
       '.alu-hecha-badge{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:13px;font-weight:800;color:#22c98a;background:rgba(34,201,138,.10);border:1px solid rgba(34,201,138,.45);border-radius:8px;padding:7px 12px}'+
-      '@media (prefers-reduced-motion:reduce){.alu-item.ficha .neb-mini i,.alu-item.ficha .alu-hacer{animation:none!important}.portal-bell.ficha-pendiente::before,.portal-bell.ficha-pendiente::after,.portal-bell.ficha-pendiente .pb-bell,.portal-bell-prog,.alu-item-prog .aip-bar i{animation:none!important}}';
+      // FASE 7 · notificación de QUIZ DE RITMO: piel psicodélica de RITMO at
+      // home (fondo azul noche + blobs amarillo/rosa/verde/azul en deriva).
+      '.alu-item.alu-item-quiz{position:relative;overflow:hidden;border:1px solid rgba(52,211,153,.45);background:linear-gradient(160deg,#241a52 0%,#180f3c 38%,#0e0a2c 72%,#080518 100%)}'+
+      '.alu-item-quiz .quiz-blobs{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;filter:blur(24px);opacity:.55}'+
+      '.alu-item-quiz .quiz-blobs i{position:absolute;border-radius:50%;display:block}'+
+      '.alu-item-quiz .quiz-blobs .q1{width:120px;height:110px;left:-26px;top:-36px;background:#34d399;animation:pnDrift1 19s ease-in-out infinite}'+
+      '.alu-item-quiz .quiz-blobs .q2{width:110px;height:100px;right:-24px;top:-20px;background:#5bd0ff;animation:pnDrift2 23s ease-in-out infinite}'+
+      '.alu-item-quiz .quiz-blobs .q3{width:130px;height:120px;right:18%;bottom:-46px;background:#ff5ccd;animation:pnDrift3 21s ease-in-out infinite}'+
+      '.alu-item-quiz .quiz-blobs .q4{width:100px;height:96px;left:22%;bottom:-40px;background:#ff9a3c;animation:pnDrift1 25s ease-in-out infinite}'+
+      '.alu-item-quiz .alu-dot,.alu-item-quiz .alu-item-main{position:relative;z-index:1}'+
+      '.alu-item-quiz .alu-item-tit{color:#f6f3ff}'+
+      '.alu-item-quiz .alu-item-cuerpo{color:#cfc7f5}'+
+      '.alu-item-quiz .alu-item-fecha{color:#9a90c8}'+
+      '.alu-quiz-go{margin-top:8px;border:0;border-radius:8px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer;color:#08301f;background:linear-gradient(90deg,#ffd678,#34d399 40%,#5bd0ff 75%,#ff5ccd);background-size:200% 100%;animation:pnSlide 3s linear infinite;box-shadow:0 8px 24px rgba(52,211,153,.35)}'+
+      '.alu-item-quiz.hecha{border-color:rgba(148,163,184,.30);background:linear-gradient(160deg,#1b2036 0%,#151a2b 55%,#101423 100%);opacity:.82}'+
+      '.alu-item-quiz.hecha .quiz-blobs{opacity:.10;filter:blur(24px) grayscale(1)}'+
+      '.alu-item-quiz.hecha .quiz-blobs i{animation:none!important}'+
+      '.alu-item-quiz.hecha .alu-item-tit{color:#aab2cc}'+
+      '.alu-item-quiz.hecha .alu-item-cuerpo{color:#7d86a6}'+
+      '.alu-item-quiz.hecha .alu-dot{visibility:hidden}'+
+      '@media (prefers-reduced-motion:reduce){.alu-item.ficha .neb-mini i,.alu-item.ficha .alu-hacer,.alu-item-quiz .quiz-blobs i,.alu-quiz-go{animation:none!important}.portal-bell.ficha-pendiente::before,.portal-bell.ficha-pendiente::after,.portal-bell.ficha-pendiente .pb-bell,.portal-bell-prog,.alu-item-prog .aip-bar i{animation:none!important}}';
     document.head.appendChild(s);
   }
   function start(){
