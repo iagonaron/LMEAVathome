@@ -852,6 +852,72 @@ function showEnig(kind){
   // RITMO at home al completar (mismo origen) + RPC suite_quiz_hechos_de
   // (autoritativa, multi-dispositivo). envio_id -> true
   var _quizHechos={};
+  // FASE 8 · partes de "Tareas de la semana" marcadas: 'envio|parte' -> true
+  var _semanaHechos={};
+  function semanaHechosLocal(id){
+    var out={};
+    try{
+      var pref='suite_semana_hecho_'+id+'_';
+      for(var k=0;k<localStorage.length;k++){
+        var key=localStorage.key(k);
+        if(key && key.indexOf(pref)===0) out[key.slice(pref.length)]=true;   // '<envio>_<parte>'
+      }
+    }catch(e){}
+    return out;
+  }
+  async function cargarSemanaHechos(id){
+    var out=semanaHechosLocal(id);
+    try{
+      var r=await rpc('suite_semana_hechos_de',{p_cuenta_id:id});
+      if(r && r.ok && Array.isArray(r.hechos)){
+        r.hechos.forEach(function(h){ if(h && h.envio_id) out[h.envio_id+'_'+h.parte]=true; });
+      }
+    }catch(e){}
+    _semanaHechos=out;
+    return out;
+  }
+  function parteHecha(envio,parte){ return !!_semanaHechos[envio+'_'+parte]; }
+  /* FASE 8 · visor de lecciones (capturas del libro): pantalla completa,
+     desplazable, y al FINAL el botón «✓ Ya la estudié» que marca la parte. */
+  function abrirVisorLecciones(envio, imgs){
+    var old=document.getElementById('ts-visor'); if(old) old.remove();
+    var ov=document.createElement('div'); ov.id='ts-visor';
+    ov.style.cssText='position:fixed;inset:0;z-index:100002;background:rgba(8,5,22,.96);overflow:auto;-webkit-overflow-scrolling:touch;padding:18px 14px 30px';
+    var inner='<div style="max-width:760px;margin:0 auto">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+      +'<div style="font:800 15px/1.2 \'Helvetica Neue\',Arial,sans-serif;color:#ffd678;letter-spacing:.08em;text-transform:uppercase">📚 Lecciones de la semana</div>'
+      +'<button id="tsVisorCerrar" style="border:0;border-radius:10px;padding:9px 14px;font-weight:800;cursor:pointer;background:rgba(255,255,255,.12);color:#f6f3ff">✕ Cerrar</button></div>';
+    imgs.forEach(function(u,i){
+      inner+='<div style="font:800 11px/1 \'Helvetica Neue\',Arial,sans-serif;color:#ffb86b;letter-spacing:.14em;text-transform:uppercase;margin:14px 0 6px 2px">Lección '+(i+1)+'</div>'
+        +'<img src="'+esc(u)+'" alt="Lección '+(i+1)+'" loading="lazy" style="display:block;width:100%;height:auto;border-radius:12px;background:#fff;box-shadow:0 12px 34px rgba(0,0,0,.45)">';
+    });
+    var ya=parteHecha(envio,'lecciones');
+    inner+='<div style="text-align:center;margin-top:22px">'
+      +(ya
+        ? '<span style="font:800 15px \'Helvetica Neue\',Arial;color:#7ef0c0">✓ Ya la marcaste como estudiada</span>'
+        : '<button id="tsVisorHecho" style="border:0;border-radius:14px;padding:14px 26px;font:800 16px \'Helvetica Neue\',Arial;cursor:pointer;color:#062b26;background:linear-gradient(90deg,#ffd678,#34d399 55%,#5bd0ff);box-shadow:0 12px 34px rgba(52,211,153,.4)">✓ Ya la estudié</button>')
+      +'</div></div>';
+    ov.innerHTML=inner;
+    document.body.appendChild(ov);
+    document.getElementById('tsVisorCerrar').onclick=function(){ ov.remove(); };
+    var bh=document.getElementById('tsVisorHecho');
+    if(bh) bh.onclick=async function(){
+      bh.disabled=true; bh.textContent='Guardando…';
+      await marcarParte(envio,'lecciones');
+      ov.remove();
+      try{ render(); }catch(e){}
+    };
+  }
+  async function marcarParte(envio,parte){
+    var id=cuentaId(); if(!id) return false;
+    _semanaHechos[envio+'_'+parte]=true;
+    try{ localStorage.setItem('suite_semana_hecho_'+id+'_'+envio+'_'+parte,String(Date.now())); }catch(e){}
+    try{
+      var r=await rpc('suite_semana_marcar',{p_cuenta_id:id,p_envio_id:envio,p_parte:parte});
+      if(!(r && r.ok)) console.warn('[semana] marcar',r);
+    }catch(e){ console.warn('[semana] marcar',e); }
+    return true;
+  }
   function quizHechosLocal(id){
     var out={};
     try{
@@ -972,6 +1038,21 @@ function showEnig(kind){
     try{ await rpc('suite_quiz_barrer',{}); }catch(e){}
     var r=await rpc('suite_alumno_notif_contador',{p_cuenta_id:id});
     var n=(r && r.ok)?(r.no_leidos||0):0;
+    // FASE 8 · las fichas todavía NO activadas (llegan el viernes 19:00) no
+    // deben encender el globo: se descuentan del contador.
+    if(n>0){
+      try{
+        var rl=await rpc('suite_alumno_notif_listar',{p_cuenta_id:id});
+        if(rl && rl.ok && Array.isArray(rl.notificaciones)){
+          var ocultas=rl.notificaciones.filter(function(o){
+            var pj=o.payload_json||{};
+            if(o.leido || !pj.ficha_id || !pj.fin_normal) return false;
+            return ((Date.parse(pj.fin_normal)||0) - 7*864e5) > Date.now();
+          }).length;
+          n=Math.max(0,n-ocultas);
+        }
+      }catch(e){}
+    }
     if(bd){ bd.textContent=n>99?'99+':String(n); bd.classList.toggle('hidden',n===0); }
     if(b) b.classList.toggle('hay-avisos',n>0);
     var prev=ultimo(); if(prev!=null && n>prev) onda(); guardar(n);
@@ -1002,15 +1083,90 @@ function showEnig(kind){
     try{ await cargarEntregadas(id); }catch(e){}
     try{ await cargarProgresos(id); }catch(e){}
     try{ await cargarQuizHechos(id); }catch(e){}
+    try{ await cargarSemanaHechos(id); }catch(e){}
     pintarCampanaProgreso();
     // FASE 6.9 · las fichas ENTREGADAS se hunden al final de la lista y se
     // pintan "hechas"; las pendientes/a medias quedan arriba.
     // FASE 7 · los quizzes ya HECHOS también se hunden.
-    var esQuiz=function(o){ return !!(o.payload_json && o.payload_json.quiz && o.payload_json.envio_id); };
+    // FASE 8 · tarjeta agrupada "Tareas de la semana"; la FICHA no se ve
+    // hasta su activación (viernes 19:00); en TIEMPO EXTRA se ancla arriba.
+    var esQuiz=function(o){ return !!(o.payload_json && o.payload_json.quiz && o.payload_json.envio_id && !o.payload_json.tareas_semana); };
     var esQuizHecho=function(o){ return esQuiz(o) && !!_quizHechos[o.payload_json.envio_id]; };
-    var esHecha=function(o){ var f=(o.payload_json&&o.payload_json.ficha_id)||''; return !!(f && _entregadas[f]) || esQuizHecho(o); };
-    list.sort(function(a,b){ return (esHecha(a)?1:0)-(esHecha(b)?1:0); });
+    var esTareas=function(o){ return !!(o.payload_json && o.payload_json.tareas_semana && o.payload_json.semana_envio_id); };
+    var tareasHecha=function(o){
+      if(!esTareas(o)) return false;
+      var pj=o.payload_json, se=pj.semana_envio_id;
+      if(pj.quiz && pj.quiz.envio_id && !_quizHechos[pj.quiz.envio_id]) return false;
+      if(((pj.lecciones&&pj.lecciones.length)||(pj.lecciones_imgs&&pj.lecciones_imgs.length)) && !parteHecha(se,'lecciones')) return false;
+      if(pj.otras && !parteHecha(se,'otras')) return false;
+      return true;
+    };
+    var fichaOculta=function(o){
+      var pj=o.payload_json||{}, f=pj.ficha_id||'';
+      if(!f || _entregadas[f] || !pj.fin_normal) return false;
+      var act=(Date.parse(pj.fin_normal)||0) - 7*864e5;   // activa = entrega − 7 días
+      return act > Date.now();
+    };
+    var enTiempoExtra=function(o){
+      var pj=o.payload_json||{}, f=pj.ficha_id||'';
+      if(!f || _entregadas[f] || !pj.fin_normal) return false;
+      var fin=Date.parse(pj.fin_normal)||0, fg=Date.parse(pj.fin_gracia||'')||0;
+      var t=Date.now();
+      return t>fin && (!fg || t<=fg);
+    };
+    var esHecha=function(o){ var f=(o.payload_json&&o.payload_json.ficha_id)||''; return !!(f && _entregadas[f]) || esQuizHecho(o) || tareasHecha(o); };
+    list=list.filter(function(o){ return !fichaOculta(o); });
+    list.sort(function(a,b){
+      var pa=(enTiempoExtra(a)?-1:0)+(esHecha(a)?1:0);
+      var pb=(enTiempoExtra(b)?-1:0)+(esHecha(b)?1:0);
+      return pa-pb;
+    });
     body.innerHTML=list.map(function(o){
+      // FASE 8 · TARJETA AGRUPADA "Tareas de la semana": quiz → lecciones → otras.
+      if(esTareas(o)){
+        var tj=o.payload_json, se=tj.semana_envio_id;
+        var hechaT=tareasHecha(o);
+        var partes='';
+        // 1º · QUIZ
+        if(tj.quiz && tj.quiz.envio_id){
+          var qh=!!_quizHechos[tj.quiz.envio_id];
+          partes+='<div class="ts-parte ts-quiz'+(qh?' ts-hecha':'')+'">'
+            +'<div class="ts-parte-tit">🥁 Quiz de ritmo · Carta '+esc(tj.quiz.carta||'')+(tj.quiz.nombre?' · '+esc(tj.quiz.nombre):'')+(qh?' <b class="ts-check">✓</b>':'')+'</div>'
+            +(qh?'<div class="ts-parte-sub">Ya lo completaste. ¡Buen trabajo!</div>'
+                :'<button class="alu-quiz-go" data-envio="'+esc(tj.quiz.envio_id)+'" data-carta="'+esc(tj.quiz.carta||'')+'">▶ Empezar el quiz</button>')
+            +'</div>';
+        }
+        // 2º · LECCIONES DE RITMO
+        var lecNums=(tj.lecciones||[]).map(function(l){ return l && l.n; }).filter(function(n){ return n!=null; });
+        var imgs=tj.lecciones_imgs||[];
+        if(lecNums.length || imgs.length){
+          var lh=parteHecha(se,'lecciones');
+          partes+='<div class="ts-parte ts-lecciones'+(lh?' ts-hecha':'')+'">'
+            +'<div class="ts-parte-tit">📚 Lecciones de ritmo'+(lecNums.length?': '+lecNums.map(function(n){return '<b>'+esc(n)+'</b>';}).join(' · '):'')+(lh?' <b class="ts-check">✓</b>':'')+'</div>'
+            +(lh
+              ? '<div class="ts-parte-sub">Estudiadas. El viernes se tocan en clase.</div>'
+              : (imgs.length
+                  ? '<button class="ts-ver-lecciones" data-envio="'+esc(se)+'" data-imgs="'+esc(JSON.stringify(imgs))+'">📖 Abrir las lecciones ('+imgs.length+')</button>'
+                  : '<button class="ts-marcar" data-envio="'+esc(se)+'" data-parte="lecciones">☐ Ya las estudié</button>'))
+            +'</div>';
+        }
+        // 3º · OTRAS TAREAS
+        if(tj.otras){
+          var oh=parteHecha(se,'otras');
+          partes+='<div class="ts-parte ts-otras'+(oh?' ts-hecha':'')+'">'
+            +'<div class="ts-parte-tit">📝 Otras tareas'+(oh?' <b class="ts-check">✓</b>':'')+'</div>'
+            +'<div class="ts-parte-sub ts-otras-txt">'+esc(tj.otras)+'</div>'
+            +(oh?'':'<button class="ts-marcar" data-envio="'+esc(se)+'" data-parte="otras">☐ Hecho</button>')
+            +'</div>';
+        }
+        return '<div class="alu-item alu-item-tareas'+((o.leido||hechaT)?'':' no-leido')+(hechaT?' hecha':'')+'" data-id="'+esc(o.id)+'">'
+          +'<span class="alu-dot"></span>'
+          +'<div class="alu-item-main">'
+          +'<div class="alu-item-tit">📦 Tareas de la semana'+(hechaT?' <span class="alu-hecha-check" aria-label="Hechas">✓</span>':'')+'</div>'
+          +'<div class="alu-item-fecha">'+fecha(o.creado_en)+'</div>'
+          +partes
+          +'</div></div>';
+      }
       // FASE 7 · notificación de QUIZ DE RITMO: tarjeta propia con la
       // estética psicodélica de RITMO at home (blobs amarillo/rosa/verde/azul).
       if(esQuiz(o)){
@@ -1038,13 +1194,20 @@ function showEnig(kind){
           +'<span class="aip-bar"><i style="width:'+pct+'%"></i></span></div>';
       }
       var cuerpoTxt=hecha ? 'Ya la entregaste. ¡Buen trabajo!' : (o.cuerpo||'');
+      // FASE 8 · TIEMPO EXTRA (para el alumno, sin jerga): mensaje claro + pin rojo
+      var extra=enTiempoExtra(o);
+      if(extra){
+        cuerpoTxt='Te quedaste sin tiempo. Tienes UNA SEMANA EXTRA para recuperarla: si no la entregas antes del '
+          +fecha(pj.fin_gracia||'')+', la nota de esta ficha será un 0.';
+      }
       var accionHTML='';
       if(fid){
         accionHTML=hecha
           ? '<span class="alu-hecha-badge">✓ Entregada</span>'
           : '<button class="alu-hacer'+(prog?' alu-continuar':'')+'" data-ficha="'+esc(fid)+'" data-n="'+esc(pj.numero!=null?pj.numero:'')+'" style="margin-top:8px;background:#2dd4bf;color:#062b26;border:0;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">'+(prog?'Continuar la ficha ('+prog.hechos+'/'+prog.total+') →':'Hacer la ficha →')+'</button>';
       }
-      return '<div class="alu-item'+((o.leido||hecha)?'':' no-leido')+(fid?' ficha':'')+(hecha?' hecha':'')+'" data-id="'+esc(o.id)+'"'+(fid?(' data-ficha="'+esc(fid)+'"'):'')+'>'
+      return '<div class="alu-item'+((o.leido||hecha)?'':' no-leido')+(fid?' ficha':'')+(hecha?' hecha':'')+(extra?' alu-extra-pin':'')+'" data-id="'+esc(o.id)+'"'+(fid?(' data-ficha="'+esc(fid)+'"'):'')+'>'
+        +(extra?'<div class="alu-extra-banda">⏰ TIEMPO EXTRA · ¡no la dejes escapar!</div>':'')
         +(fid?'<div class="neb-mini" aria-hidden="true"><i class="n1"></i><i class="n2"></i><i class="n3"></i></div>':'')
         +'<span class="alu-dot"></span>'
         +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Aviso')+(hecha?' <span class="alu-hecha-check" aria-label="Entregada">✓</span>':'')+'</div>'
@@ -1062,6 +1225,23 @@ function showEnig(kind){
       Promise.all(autoLeer.map(function(o){ return rpc('suite_alumno_marcar_leido',{p_cuenta_id:id,p_notif_id:o.id}); }))
         .then(function(){ refrescar(); }).catch(function(){});
     }
+    // FASE 8 · marcar una parte de las tareas ("Ya las estudié" / "Hecho")
+    Array.prototype.forEach.call(body.querySelectorAll('.ts-marcar'),function(b){
+      b.addEventListener('click',async function(ev){
+        ev.stopPropagation();
+        b.disabled=true; b.textContent='Guardando…';
+        await marcarParte(b.getAttribute('data-envio'), b.getAttribute('data-parte'));
+        render();                                   // repinta con la parte en gris
+      });
+    });
+    // FASE 8 · visor de lecciones: capturas del profe + botón de estudiado al final
+    Array.prototype.forEach.call(body.querySelectorAll('.ts-ver-lecciones'),function(b){
+      b.addEventListener('click',function(ev){
+        ev.stopPropagation();
+        var imgs=[]; try{ imgs=JSON.parse(b.getAttribute('data-imgs')||'[]'); }catch(e){}
+        abrirVisorLecciones(b.getAttribute('data-envio'), imgs);
+      });
+    });
     // FASE 7 · "Empezar el quiz": marca leído y abre RITMO at home con la
     // carta y el envío (mismo origen -> localStorage compartido para el ✓).
     Array.prototype.forEach.call(body.querySelectorAll('.alu-quiz-go'),function(b){
@@ -1142,6 +1322,24 @@ function showEnig(kind){
       '.alu-item.ficha.hecha .alu-dot{visibility:hidden}'+
       '.alu-hecha-check{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-left:6px;border-radius:50%;background:#22c98a;color:#062b26;font-size:12px;font-weight:900;vertical-align:middle}'+
       '.alu-hecha-badge{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:13px;font-weight:800;color:#22c98a;background:rgba(34,201,138,.10);border:1px solid rgba(34,201,138,.45);border-radius:8px;padding:7px 12px}'+
+      // FASE 8 · tarjeta "Tareas de la semana" + pin de TIEMPO EXTRA
+      '.alu-item.alu-item-tareas{border:1px solid rgba(255,214,120,.5);background:linear-gradient(165deg,rgba(255,214,120,.10),rgba(24,15,60,.65) 45%,rgba(8,5,24,.8))}'+
+      '.alu-item-tareas .alu-item-tit{color:#ffe4a8}'+
+      '.ts-parte{margin-top:10px;padding:10px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.045)}'+
+      '.ts-parte-tit{font-size:13.5px;font-weight:800;color:#f1ecff}'+
+      '.ts-parte-tit b{color:#ffd678}'+
+      '.ts-parte-sub{font-size:12.5px;color:#b9b0dd;margin-top:4px;white-space:pre-wrap}'+
+      '.ts-check{color:#7ef0c0}'+
+      '.ts-parte.ts-hecha{filter:grayscale(1);opacity:.55}'+
+      '.ts-marcar,.ts-ver-lecciones{margin-top:8px;border:0;border-radius:8px;padding:8px 13px;font-weight:800;font-size:12.5px;cursor:pointer}'+
+      '.ts-ver-lecciones{color:#08301f;background:linear-gradient(90deg,#ffd678,#34d399 55%,#5bd0ff);box-shadow:0 6px 20px rgba(52,211,153,.3)}'+
+      '.ts-marcar{color:#e8e4ff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25)}'+
+      '.ts-marcar:hover{background:rgba(255,255,255,.16)}'+
+      '.alu-item-tareas.hecha{opacity:.72;border-color:rgba(148,163,184,.3)}'+
+      '.alu-item.alu-extra-pin{border-color:#ff2d6a;box-shadow:0 0 0 1px rgba(255,45,106,.5),0 10px 34px rgba(255,45,106,.25);animation:pinLatido 1.5s ease-in-out infinite}'+
+      '.alu-extra-banda{font-size:11px;font-weight:900;letter-spacing:.12em;color:#fff;background:linear-gradient(90deg,#ff2d6a,#ff6a3c);border-radius:8px;padding:5px 10px;margin-bottom:8px;display:inline-block;animation:pinLatido 1.5s ease-in-out infinite}'+
+      '@keyframes pinLatido{0%,100%{opacity:1}50%{opacity:.55}}'+
+      '@media (prefers-reduced-motion:reduce){.alu-item.alu-extra-pin,.alu-extra-banda{animation:none!important}}'+
       // FASE 7 · notificación de QUIZ DE RITMO: piel psicodélica de RITMO at
       // home (fondo azul noche + blobs amarillo/rosa/verde/azul en deriva).
       '.alu-item.alu-item-quiz{position:relative;overflow:hidden;border:1px solid rgba(52,211,153,.45);background:linear-gradient(160deg,#241a52 0%,#180f3c 38%,#0e0a2c 72%,#080518 100%)}'+
