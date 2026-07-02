@@ -967,6 +967,9 @@ function showEnig(kind){
     var id=cuentaId(),b=btn(),bd=badge();
     if(!id){ if(b) b.style.display='none'; return; }
     if(b) b.style.display='';
+    // FASE 7.3 · barrido perezoso: materializa las notificaciones de quizzes
+    // PROGRAMADOS cuya hora ya se cumplió (idempotente, sin datos sensibles).
+    try{ await rpc('suite_quiz_barrer',{}); }catch(e){}
     var r=await rpc('suite_alumno_notif_contador',{p_cuenta_id:id});
     var n=(r && r.ok)?(r.no_leidos||0):0;
     if(bd){ bd.textContent=n>99?'99+':String(n); bd.classList.toggle('hidden',n===0); }
