@@ -827,7 +827,7 @@ function showEnig(kind){
     var st=estadoPlazo(el.getAttribute('data-fin'), el.getAttribute('data-gracia'));
     if(!st){ el.textContent=''; return; }
     if(st.fase==='normal'){ el.style.color='#2dd4bf'; el.textContent='Te quedan '+fmtCuenta(st.restante); }
-    else if(st.fase==='gracia'){ el.style.color='#f59e0b'; el.textContent='⚠ Última semana · '+fmtCuenta(st.restante); }
+    else if(st.fase==='gracia'){ el.style.color='#ff5c80'; el.textContent='⏰ Semana de recuperación · te quedan '+fmtCuenta(st.restante); }
     else { el.style.color='#ef4444'; el.textContent='Plazo terminado'; }
   }
   function tickCuentas(){
@@ -1197,8 +1197,7 @@ function showEnig(kind){
       // FASE 8 · TIEMPO EXTRA (para el alumno, sin jerga): mensaje claro + pin rojo
       var extra=enTiempoExtra(o);
       if(extra){
-        cuerpoTxt='Te quedaste sin tiempo. Tienes UNA SEMANA EXTRA para recuperarla: si no la entregas antes del '
-          +fecha(pj.fin_gracia||'')+', la nota de esta ficha será un 0.';
+        cuerpoTxt='Te quedaste sin tiempo y has sacado un 0, crack. Para recuperar la puntuación de esta ficha te doy UNA SEMANA MÁS. Si te pasas, ya sí que la liaste.';
       }
       var accionHTML='';
       if(fid){
@@ -1336,7 +1335,7 @@ function showEnig(kind){
       '.ts-marcar{color:#e8e4ff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25)}'+
       '.ts-marcar:hover{background:rgba(255,255,255,.16)}'+
       '.alu-item-tareas.hecha{opacity:.72;border-color:rgba(148,163,184,.3)}'+
-      '.alu-item.alu-extra-pin{border-color:#ff2d6a;box-shadow:0 0 0 1px rgba(255,45,106,.5),0 10px 34px rgba(255,45,106,.25);animation:pinLatido 1.5s ease-in-out infinite}'+
+      '.alu-item.alu-extra-pin{border-color:#ff2d6a;box-shadow:0 0 0 1px rgba(255,45,106,.5),0 10px 34px rgba(255,45,106,.3);animation:pinLatido 1.5s ease-in-out infinite;background:linear-gradient(165deg,#4a0d24 0%,#2e0817 45%,#1a0510 100%)!important}'+'.alu-item.alu-extra-pin .neb-mini{opacity:.25;filter:hue-rotate(300deg)}'+'.alu-item.alu-extra-pin .alu-item-cuerpo{color:#ffd6e2;font-weight:700}'+
       '.alu-extra-banda{font-size:11px;font-weight:900;letter-spacing:.12em;color:#fff;background:linear-gradient(90deg,#ff2d6a,#ff6a3c);border-radius:8px;padding:5px 10px;margin-bottom:8px;display:inline-block;animation:pinLatido 1.5s ease-in-out infinite}'+
       '@keyframes pinLatido{0%,100%{opacity:1}50%{opacity:.55}}'+
       '@media (prefers-reduced-motion:reduce){.alu-item.alu-extra-pin,.alu-extra-banda{animation:none!important}}'+
