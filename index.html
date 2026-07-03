@@ -259,6 +259,9 @@
   .portal-welcome .pw-nombre{color:var(--ink);font-weight:800}
   .portal-welcome .pw-check{width:18px;height:18px;flex:0 0 auto}
   .portal-welcome .pw-check circle{fill:#22c98a}
+  /* Iago 3-jul: boton Salir en linea con el sello (como en el portal GP) */
+  .portal-welcome .pw-salir{margin-left:4px;cursor:pointer;font:700 11.5px 'Helvetica Neue',Arial,sans-serif;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:8px;padding:4px 9px;line-height:1.2;transition:color .15s,border-color .15s,box-shadow .15s}
+  .portal-welcome .pw-salir:hover{color:var(--ink);border-color:var(--muted2);box-shadow:0 4px 14px rgba(20,40,120,.35)}
   /* FASE 6.8 · botón "Mis resultados": misma estética que las tarjetas de
      apps (app-card) en formato pequeño — rectangular, borde --line, fondo
      panel2→panel y hover que se eleva. Ancho = línea del nombre del alumno
@@ -373,6 +376,7 @@
         <span class="pw-hi">Bienvenido/a,</span>
         <span class="pw-nombre" id="portal-welcome-nombre"></span>
         <svg class="pw-check" viewBox="0 0 24 24" role="img" aria-label="Cuenta verificada"><circle cx="12" cy="12" r="10"/><path d="M8 12.4l2.6 2.6L16 9" fill="none" stroke="#0a1028" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button type="button" class="pw-salir" id="btn-salir-sesion" title="Cerrar sesión" onclick="salirSesion()">⎋ Salir</button>
       </span>
       <button type="button" class="pw-resultados" id="btn-mis-resultados" onclick="MisResultados&&MisResultados.abrir()">📊 Mis resultados <span class="pwr-chev">▾</span></button>
     </span>
@@ -540,6 +544,12 @@ function sbClient(){
 function getSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); }catch(e){ return null; } }
 function setSession(s){ try{ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }catch(e){} }
 function clearSession(){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
+// Iago 3-jul: cerrar sesion desde la barra de bienvenida. Vuelve al gate.
+function salirSesion(){
+  if(!confirm('¿Seguro que quieres cerrar tu sesión?')) return;
+  clearSession();
+  location.reload();
+}
 async function callRPC(fn, args){
   try{
     const c=sbClient();
@@ -887,8 +897,10 @@ function showEnig(kind){
     parte=parte||'lecciones'; titulo=titulo||'Lecciones de la semana';
     var old=document.getElementById('ts-visor'); if(old) old.remove();
     var ov=document.createElement('div'); ov.id='ts-visor';
-    ov.style.cssText='position:fixed;inset:0;z-index:100002;background:rgba(8,5,22,.96);overflow:auto;-webkit-overflow-scrolling:touch;padding:18px 14px 30px';
-    var inner='<div style="max-width:760px;margin:0 auto">'
+    ov.style.cssText='position:fixed;inset:0;z-index:100002;background:rgba(8,5,22,.96);overflow:auto;-webkit-overflow-scrolling:touch;padding:16px 10px 30px';
+    // Iago 3-jul: visor a lo ANCHO - 760px se quedaba pequeno para leer la
+    // partitura en iPad/ordenador. Ahora ocupa casi todo el viewport (tope 1240px).
+    var inner='<div style="max-width:1240px;margin:0 auto">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
       +'<div style="font:700 14px/1.2 \'Helvetica Neue\',Arial,sans-serif;color:#c8cfdd;letter-spacing:.06em;text-transform:uppercase">'+esc(titulo)+'</div>'
       +'<div style="display:flex;align-items:center;gap:12px">'
