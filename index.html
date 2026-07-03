@@ -1854,7 +1854,7 @@ function showEnig(kind){
 (function(){
   'use strict';
   function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-  function cuentaId(){ try{ var s=JSON.parse(localStorage.getItem('lmeav_session')||'null'); return s&&s.cuenta_id; }catch(e){ return null; } }
+  function cuentaId(){ try{ var s=JSON.parse(localStorage.getItem('lmeav_session')||'null'); return (s&&s.id&&s.estado==='validado')?s.id:null; }catch(e){ return null; } }
   var _cliMsj=null;
   function cli(){
     if(_cliMsj || !window.supabase) return _cliMsj;
@@ -1948,7 +1948,7 @@ function showEnig(kind){
   'use strict';
   var K='alu_tour_visto';
   function cuentaValidada(){
-    try{ var s=JSON.parse(localStorage.getItem('lmeav_session')||'null'); return !!(s&&s.cuenta_id); }catch(e){ return false; }
+    try{ var s=JSON.parse(localStorage.getItem('lmeav_session')||'null'); return !!(s&&s.id&&s.estado==='validado'); }catch(e){ return false; }
   }
   var PASOS=[
     { sel:'#alu-campana-btn', tit:'🔔 Tus tareas', txt:'Cada viernes a las 19:00 te llegan aquí las Tareas de la semana: el quiz de ritmo, las lecciones para estudiar y la ficha de teoría (¡con sus 7 días de plazo!).' },
