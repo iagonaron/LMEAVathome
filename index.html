@@ -4346,6 +4346,14 @@ window.DictadoClase = (function(){
     return { iw:iw, rows:_filas(await r.json()) };
   }
 
+  // Diagnóstico (solo tester): si esta semana no hay dictado, ¿qué hay en la base?
+  async function consultaUltimos(){
+    var url=SBU+'/rest/v1/suite_dictados_clase?select=curso,anio,semana_iso,numero'+
+      '&curso=in.('+CURSOS.join(',')+')&order=anio.desc,semana_iso.desc&limit=5';
+    var r=await fetch(url,{headers:{'apikey':SBK,'Authorization':'Bearer '+SBK,'Cache-Control':'no-cache'}});
+    return r.ok ? (await r.json()) : [];
+  }
+
   async function abrir(cursoSel, btn){
     var txt=btn?btn.innerHTML:'';
     if(btn){ btn.disabled=true; btn.innerHTML='⏳ Cargando…'; }
@@ -4371,7 +4379,29 @@ window.DictadoClase = (function(){
   function pintar(res){
     var host=document.querySelector('.apps'); if(!host) return;
     var old=document.getElementById('da-card'); if(old) old.remove();
-    if(!res || !res.rows.length) return;
+    if(!res) return;
+    if(!res.rows.length){
+      // Sin dictado ESTA semana: nota de diagnóstico visible solo para el tester
+      if(res.ultimos && res.ultimos.length){
+        var card0=document.createElement('div');
+        card0.id='da-card'; card0.className='{CARD_CLASS} da-card'.replace('{CARD_CLASS}','');
+        card0.className=(document.querySelector('.app-card.pro-card')?'app-card pro-card':'app-card')+' da-card';
+        card0.style.opacity='.75';
+        var lista=res.ultimos.map(function(f){
+          return 'nº '+(f.numero!=null?f.numero:'¿?')+' · '+f.curso+' · semana '+f.semana_iso+'/'+f.anio;
+        }).join('  ·  ');
+        card0.innerHTML='<div class="edge"></div><div class="info">'+
+          '<div class="kick area audicion">Audición · Diario del profesor</div>'+
+          '<h2 class="nm"><span class="hl">DICTADO</span> <span class="dim">ACTIVO</span>'+
+            '<span class="da-badge">Solo profesor</span></h2>'+
+          '<p>Esta semana (semana '+res.iw.semana+'/'+res.iw.anio+') no hay ningún dictado guardado para '+
+            CURSOS.join(', ')+'.<br><b>Últimos en la base:</b> '+lista+
+            '.<br><span style="opacity:.75">La tarjeta solo reproduce el de la semana ISO actual: revisa en qué semana del Diario guardaste el dictado.</span></p>'+
+          '</div>';
+        host.insertBefore(card0, host.firstChild);
+      }
+      return;
+    }
     var card=document.createElement('div');
     card.id='da-card';
     card.className='app-card da-card';
@@ -4402,7 +4432,13 @@ window.DictadoClase = (function(){
     if(_busy) return; _busy=true;
     try{
       if(!esTester()){ var old=document.getElementById('da-card'); if(old) old.remove(); return; }
-      pintar(await consulta());
+      var res=await consulta();
+      if(!res.rows.length){
+        try{ res.ultimos=await consultaUltimos(); }catch(e2){ res.ultimos=[]; }
+        console.info('[dictado-activo] sin dictado en la semana '+res.iw.semana+'/'+res.iw.anio+
+          ' para '+CURSOS.join(',')+'. Últimos:', res.ultimos);
+      }
+      pintar(res);
     }catch(e){ console.warn('[dictado-activo]', e); }
     finally{ _busy=false; }
   }
