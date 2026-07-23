@@ -4356,6 +4356,17 @@ window.DictadoClase = (function(){
     var ys=new Date(Date.UTC(date.getUTCFullYear(),0,1));
     return { anio:date.getUTCFullYear(), semana:Math.ceil((((date-ys)/86400000)+1)/7) };
   }
+  // SEMANA DOCENTE (Iago 23-jul-2026): el dictado activo caduca el VIERNES a
+  // las 19:00 (fin de la semana de Iago, igual que las fichas). A partir de
+  // ese momento la tarjeta pasa a mirar la semana siguiente — así nunca
+  // conviven dos dictados aunque el siguiente ya esté preparado.
+  function semanaDocenteRef(){
+    var now=new Date();
+    var mon=new Date(now); mon.setHours(0,0,0,0);
+    mon.setDate(mon.getDate()-((mon.getDay()+6)%7));
+    var fri19=new Date(mon); fri19.setDate(mon.getDate()+4); fri19.setHours(19,0,0,0);
+    return (now>fri19)? new Date(mon.getTime()+7*864e5) : now;
+  }
 
   // VexFlow + piano bajo demanda (mismas versiones que la vista iPad)
   var _libsProm=null;
@@ -4373,7 +4384,7 @@ window.DictadoClase = (function(){
 
   function _filas(rows){ return (rows||[]).filter(function(f){ return f && f.dictado; }); }
   async function consulta(){
-    var iw=isoWeek(new Date());
+    var iw=isoWeek(semanaDocenteRef());
     var url=SBU+'/rest/v1/suite_dictados_clase?select=*'+
       '&anio=eq.'+iw.anio+'&semana_iso=eq.'+iw.semana+
       '&curso=in.('+CURSOS.join(',')+')&order=curso.asc';
@@ -4396,7 +4407,7 @@ window.DictadoClase = (function(){
     try{
       await libs();
       // relectura SIN caché: si cambiaste el tempo desde otro dispositivo, se respeta
-      var iw=isoWeek(new Date());
+      var iw=isoWeek(semanaDocenteRef());
       var r=await fetch(SBU+'/rest/v1/suite_dictados_clase?select=*'+
         '&curso=eq.'+encodeURIComponent(cursoSel)+'&anio=eq.'+iw.anio+'&semana_iso=eq.'+iw.semana,
         {headers:{'apikey':SBK,'Authorization':'Bearer '+SBK,'Cache-Control':'no-cache'}});
@@ -4432,7 +4443,7 @@ window.DictadoClase = (function(){
             '<span class="da-badge">Solo profesor</span></h2>'+
           '<p>Esta semana (semana '+res.iw.semana+'/'+res.iw.anio+') no hay ningún dictado guardado para '+
             CURSOS.join(', ')+'.<br><b>Últimos en la base:</b> '+lista+
-            '.<br><span style="opacity:.75">La tarjeta solo reproduce el de la semana ISO actual: revisa en qué semana del Diario guardaste el dictado.</span></p>'+
+            '.<br><span style="opacity:.75">La tarjeta reproduce el de la semana docente actual (cambia al siguiente el viernes a las 19:00): revisa en qué semana del Diario guardaste el dictado.</span></p>'+
           '</div>';
         host.insertBefore(card0, host.firstChild);
       }
