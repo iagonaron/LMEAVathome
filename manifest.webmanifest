@@ -1,6 +1,6 @@
 {
-  "name": "LMEAV at home",
-  "short_name": "LMEAV",
+  "name": "LMGE at home",
+  "short_name": "LMGE",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0a1028",
