@@ -305,6 +305,13 @@
   .alu-item-cuerpo{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px}
   .alu-item-fecha{font-size:11px;color:var(--muted2);margin-top:3px}
   .alu-vacio{color:var(--muted2);font-size:13px;text-align:center;padding:24px 8px}
+
+/* @LM-SIMETRIA · las tarjetas eran content-box: con ancho 100% + 30px de
+   relleno a cada lado se salían 62px por la derecha, así que el margen
+   izquierdo y el derecho no coincidían (se notaba sobre todo en iPad).
+   Con border-box quedan centradas de verdad, sin tocar nada más. */
+.wrap .app-card{box-sizing:border-box}
+/* /@LM-SIMETRIA */
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
