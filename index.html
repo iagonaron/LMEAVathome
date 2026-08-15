@@ -312,6 +312,18 @@
    Con border-box quedan centradas de verdad, sin tocar nada más. */
 .wrap .app-card{box-sizing:border-box}
 /* /@LM-SIMETRIA */
+
+/* @LM-QUIZ7 · quiz de ritmo fuera de plazo: sigue ahí, pero sin ruido */
+.alu-item.alu-tarde{opacity:.86}
+.alu-item.alu-tarde .quiz-blobs{opacity:.28;filter:saturate(.5)}
+.alu-tarde-chip{
+  display:inline-block;vertical-align:1px;margin-right:6px;
+  font:900 10px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.11em;
+  text-transform:uppercase;color:#0e1220;
+  background:linear-gradient(90deg,#ffd678,#e0a53c);
+  border-radius:6px;padding:3px 7px;
+}
+/* /@LM-QUIZ7 */
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1571,6 +1583,12 @@ function showEnig(kind){
   // leer: cada parcela pendiente de cada semana activa (quiz, lecciones, otras,
   // ficha en plazo) vale 1; las fichas/quizzes sueltos pendientes valen 1; los
   // avisos y revisiones de dictado sin leer valen 1. Ficha + quiz + lecciones = 3.
+  /* @LM-QUIZ7 · un quiz de ritmo reclama atención UNA semana. Pasada, sigue
+     disponible en el panel (marcado «pendiente»), pero deja de sumar en la
+     campana: si no, un quiz sin hacer dejaría la campanita encendida para
+     siempre y el aviso perdería todo su valor. */
+  function quizFuera(o){ return ((Date.parse(o && o.creado_en)||0) + 7*864e5) <= Date.now(); }
+
   function contarPendientes(list){
     var fmap=fichasPorNumeroDe(list), n=0, enMarco={};
     (list||[]).forEach(function(o){                       // 1ª pasada: semanas
@@ -1602,7 +1620,7 @@ function showEnig(kind){
         if(plazoFinDe(pj)) return;                                           // caducada
         n++; return;
       }
-      if(pj.quiz && pj.envio_id){ if(!_quizHechos[pj.envio_id]) n++; return; }
+      if(pj.quiz && pj.envio_id){ if(!_quizHechos[pj.envio_id] && !quizFuera(o)) n++; return; }
       if(pj.dictado_revision){ if(!o.leido) n++; return; }
       if(!o.leido && !esValidacionTxt(o)) n++;                               // aviso sin leer
     });
@@ -2214,14 +2232,15 @@ function showEnig(kind){
       // estética psicodélica de RITMO at home (blobs amarillo/rosa/verde/azul).
       if(esQuiz(o)){
         var qj=o.payload_json, qHecho=esQuizHecho(o);
+        var qTarde=!qHecho && quizFuera(o);          // @LM-QUIZ7
         var qAccion=qHecho
           ? '<span class="alu-hecha-badge">✓ Hecho</span>'
-          : '<button class="alu-quiz-go" data-envio="'+esc(qj.envio_id)+'" data-carta="'+esc(qj.carta||'')+'">▶ Empezar el quiz</button>';
-        return '<div class="alu-item alu-item-quiz'+((o.leido||qHecho)?'':' no-leido')+(qHecho?' hecha':'')+'" data-id="'+esc(o.id)+'">'
+          : '<button class="alu-quiz-go" data-envio="'+esc(qj.envio_id)+'" data-carta="'+esc(qj.carta||'')+'">'+(qTarde?'▶ Hacerlo ahora':'▶ Empezar el quiz')+'</button>';
+        return '<div class="alu-item alu-item-quiz'+((o.leido||qHecho||qTarde)?'':' no-leido')+(qHecho?' hecha':'')+(qTarde?' alu-tarde':'')+'" data-id="'+esc(o.id)+'">'
           +'<div class="quiz-blobs" aria-hidden="true"><i class="q1"></i><i class="q2"></i><i class="q3"></i><i class="q4"></i></div>'
           +'<span class="alu-dot"></span>'
-          +'<div class="alu-item-main"><div class="alu-item-tit">'+esc(o.titulo||'Quiz de ritmo')+(qHecho?' <span class="alu-hecha-check" aria-label="Hecho">✓</span>':'')+'</div>'
-          +'<div class="alu-item-cuerpo">'+esc(qHecho?'Ya lo completaste. ¡Buen trabajo!':(o.cuerpo||''))+'</div>'
+          +'<div class="alu-item-main"><div class="alu-item-tit">'+(qTarde?'<span class="alu-tarde-chip">Pendiente</span> ':'')+esc(o.titulo||'Quiz de ritmo')+(qHecho?' <span class="alu-hecha-check" aria-label="Hecho">✓</span>':'')+'</div>'
+          +'<div class="alu-item-cuerpo">'+esc(qHecho?'Ya lo completaste. ¡Buen trabajo!':(qTarde?'Se te pasó la semana, pero lo puedes hacer igual cuando quieras.':(o.cuerpo||'')))+'</div>'
           +'<div class="alu-item-fecha">'+fecha(o.creado_en)+'</div>'
           +qAccion
           +'</div></div>';
