@@ -89,10 +89,6 @@
   /* barra superior */
   .topbar{position:relative;display:flex;justify-content:flex-end;align-items:center;min-height:20px}
   .topbar-right{display:flex;align-items:center;gap:14px}
-  .portal-gp{border:1px solid rgba(212,175,55,.55);font-size:15px;padding:7px 18px;border-radius:9px;cursor:pointer;background:linear-gradient(135deg,rgba(212,175,55,.16),rgba(184,134,11,.08));transition:background .15s,border-color .15s,box-shadow .15s;line-height:1}
-  .portal-gp .lm{color:#fff;font-weight:900;letter-spacing:.01em}
-  .portal-gp .pro{color:#d4af37;font-weight:300;letter-spacing:.04em}
-  .portal-gp:hover{background:linear-gradient(135deg,rgba(212,175,55,.30),rgba(184,134,11,.18));border-color:rgba(212,175,55,.85);box-shadow:0 4px 16px rgba(212,175,55,.30)}
   .opt-mini{position:absolute;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2)}
   .by{font-size:11.5px;letter-spacing:.03em;color:var(--muted2);font-weight:500}
 
@@ -166,21 +162,6 @@
   .enig-close{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
   .enig-close:hover{border-color:var(--muted2);color:var(--ink)}
 
-  /* modal Pro (dorado) */
-  .gp-backdrop{position:fixed;inset:0;background:rgba(20,12,2,.78);backdrop-filter:blur(4px);z-index:85;display:none;align-items:center;justify-content:center;padding:20px}
-  .gp-backdrop.open{display:flex}
-  .gp-modal{background:linear-gradient(180deg,#221908,#160f04);border:1px solid #d4af37;border-radius:20px;padding:36px 38px;max-width:420px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(212,175,55,.15),inset 0 1px 0 rgba(255,220,130,.12)}
-  .gp-crown{margin:0 auto 12px;line-height:0}
-  .gp-modal h3{margin:0 0 12px;font-size:22px;color:#f5edd8;letter-spacing:.02em;font-weight:800}
-  .gp-modal p{margin:0 0 22px;font-size:14px;color:#c4b288;line-height:1.6}
-  .gp-input{width:100%;box-sizing:border-box;background:#0e0a02;border:1px solid #3a2c10;border-radius:11px;padding:13px 16px;font-size:15px;color:#f5edd8;text-align:center;letter-spacing:.06em;outline:none;transition:border-color .15s}
-  .gp-input:focus{border-color:#d4af37}
-  .gp-actions{display:flex;gap:12px;margin-top:18px}
-  .gp-cancel{flex:1;background:transparent;border:1px solid #3a2c10;color:#98875e;border-radius:11px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
-  .gp-cancel:hover{border-color:#98875e;color:#f5edd8}
-  .gp-go{flex:1;background:linear-gradient(135deg,#d4af37,#b8860b);border:none;color:#1a1407;border-radius:11px;padding:11px;font-size:14px;font-weight:900;letter-spacing:.04em;cursor:pointer;transition:filter .15s,box-shadow .15s}
-  .gp-go:hover{filter:brightness(1.08);box-shadow:0 6px 20px rgba(212,175,55,.4)}
-  .gp-err{margin-top:14px;min-height:1.1em;font-size:13px;color:#ff8585;font-weight:600}
   .portal-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line);color:var(--ink);padding:12px 22px;border-radius:11px;font-size:13.5px;font-weight:600;z-index:90;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 14px 40px rgba(0,0,0,.4)}
   .portal-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -1015,30 +996,6 @@
   </p>
 
 </div>
-<div class="gp-backdrop" id="gpBackdrop" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="gp-modal">
-    <div class="gp-crown">
-      <svg viewBox="6 34 88 56" width="64" height="41" aria-hidden="true">
-        <defs>
-          <linearGradient id="gpGold" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#e9c96a"/><stop offset="1" stop-color="#b8860b"/>
-          </linearGradient>
-        </defs>
-        <!-- estrella de 5 puntas SIN la punta superior (guiño logo Hamilton) -->
-        <path fill="url(#gpGold)" d="M 59.4 39.1 L 88.0 39.6 L 65.2 56.9 L 73.5 84.4 L 50.0 68.0 L 26.5 84.4 L 34.8 56.9 L 12.0 39.6 L 40.6 39.1 Z"/>
-      </svg>
-    </div>
-    <h3>Portal de Grado Profesional</h3>
-    <p>Estás a punto de acceder al portal de Grado Profesional.<br>Introduce la contraseña para continuar.</p>
-    <input type="password" id="gpPin" class="gp-input" placeholder="Contraseña" autocomplete="off"
-      onkeydown="if(event.key==='Enter')submitGp()">
-    <div class="gp-actions">
-      <button class="gp-cancel" onclick="document.getElementById('gpBackdrop').classList.remove('open')">Cancelar</button>
-      <button class="gp-go" onclick="submitGp()">Acceder</button>
-    </div>
-    <div class="gp-err" id="gpErr"></div>
-  </div>
-</div>
 <div class="enig-backdrop" id="enigBackdrop" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="enig-modal" id="enigModal">
     <div class="enig-glyph" id="enigGlyph">♪</div>
@@ -1451,20 +1408,6 @@ function tryTeoria(){
   if(pin==null){ showEnig('teoria'); return; }
   if(pin==='010513'){ window.location.href='https://iagonaron.github.io/teoriaathome/'; }
   else { showEnig('teoria'); }
-}
-function openGpGate(){
-  document.getElementById('gpErr').textContent='';
-  document.getElementById('gpPin').value='';
-  document.getElementById('gpBackdrop').classList.add('open');
-  setTimeout(()=>document.getElementById('gpPin').focus(),60);
-}
-function submitGp(){
-  const pin=document.getElementById('gpPin').value;
-  if(pin.trim().toLowerCase()==='hamilton'){
-    window.location.href='https://iagonaron.github.io/lmpro/';
-  } else {
-    document.getElementById('gpErr').textContent='Contraseña incorrecta';
-  }
 }
 function toast(msg){
   let t=document.getElementById('portalToast');
