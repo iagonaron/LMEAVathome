@@ -3317,6 +3317,22 @@ function showEnig(kind){
 .da-badge{display:inline-block;margin-left:10px;font-size:10.5px;font-weight:900;letter-spacing:.14em;
   text-transform:uppercase;color:#fbbf24;border:1px solid rgba(251,191,36,.5);border-radius:999px;
   padding:3px 10px;vertical-align:middle}
+/* ── dictado activo: botón pequeño junto a la campana (formato discreto,
+      igual que en el portal GP · Iago ago-2026) ── */
+.da-mini{display:flex;align-items:center;gap:6px}
+.da-mini .da-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  border:1px solid rgba(245,140,60,.55);border-radius:999px;
+  background:linear-gradient(135deg,rgba(245,140,60,.22),rgba(214,90,30,.10));
+  color:#FFC08A;
+  font:800 11px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.02em;
+  padding:7px 12px;cursor:pointer;white-space:nowrap;box-shadow:none;animation:none;
+  transition:background .18s,border-color .18s,color .18s;transform:none;
+}
+.da-mini .da-btn::after{content:none}
+.da-mini .da-btn:hover:not(:disabled){background:rgba(245,140,60,.34);border-color:#F5924A;color:#fff;transform:none}
+.da-mini .da-btn:disabled{opacity:.5;cursor:default}
+.da-mini .da-play{font-size:9px;opacity:.85}
 </style>
 <script>
 /* ============================================================
@@ -3531,7 +3547,13 @@ window.DictadoClase = (function(){
 
   function construir(){
     var E=[]; paseActualDef=0;
-    var A=69, T=tonicMidi(), acordes=acordesTonales();
+    // (Iago ago-2026 · clave de FA) En dictados en clave de fa la referencia es
+    // La3 (57) y la tónica suena en su registro real (Sol2–Do4): tonicMidi()
+    // normaliza a 60-71, así que se baja una octava. Los ACORDES TONALES no
+    // cambian: acordesTonales() usa la tónica normalizada y ya suenan en la
+    // tesitura de clave de sol, adaptados a la tonalidad del dictado.
+    var esFa=(D && D.clef==='bass');
+    var A=esFa?57:69, T=tonicMidi()-(esFa?12:0), acordes=acordesTonales();
     E.push({tipo:'silencio', dur:measureBeats/2});
 
     for(var r=1;r<=2;r++){
@@ -4688,35 +4710,28 @@ window.DictadoClase = (function(){
   }
 
   function pintar(res){
-    var host=document.querySelector('.apps'); if(!host) return;
-    var old=document.getElementById('da-card'); if(old) old.remove();
-    if(!res) return;
-    if(!res.rows.length){
-      // Iago jul-2026: sin dictado esta semana, la tarjeta NO se pinta (tampoco
-      // para el tester). El diagnóstico de "últimos en la base" era ruido; queda
-      // en la consola por si hace falta investigar.
+    // (Iago ago-2026) Formato DISCRETO, igual que el portal GP: un botón
+    // pequeño en la barra superior (junto a la campana) en vez de la
+    // tarjeta grande en la parrilla. Solo lo ve la cuenta tester.
+    var host=document.querySelector('.topbar-right'); if(!host) return;
+    var old=document.getElementById('da-mini'); if(old) old.remove();
+    var oldCard=document.getElementById('da-card'); if(oldCard) oldCard.remove();
+    if(!res || !res.rows.length){
+      // sin dictado esta semana no se pinta nada; queda en consola.
       return;
     }
-    var card=document.createElement('div');
-    card.id='da-card';
-    card.className='app-card da-card';
-    var botones=res.rows.map(function(f){
-      return '<button type="button" class="da-btn" data-curso="'+f.curso+'">'+
-        '<span class="da-play">▶</span> '+f.curso+
-        (f.numero!=null?' · Dictado nº '+f.numero:' · Dictado')+'</button>';
+    var caja=document.createElement('div');
+    caja.id='da-mini'; caja.className='da-mini';
+    caja.innerHTML=res.rows.map(function(f){
+      return '<button type="button" class="da-btn" data-curso="'+f.curso+'" '+
+        'title="'+f.curso+' · dictado animado de la semana '+res.iw.semana+' · solo profesor">'+
+        '<span class="da-play">▶</span>Dictado'+
+        (f.numero!=null?' nº '+f.numero:'')+
+        (res.rows.length>1?' · '+f.curso:'')+'</button>';
     }).join('');
-    card.innerHTML=
-      '<div class="edge"></div>'+
-      '<div class="info">'+
-        '<div class="kick area audicion">Audición · Diario del profesor</div>'+
-        '<h2 class="nm"><span class="hl">DICTADO</span> <span class="dim">ACTIVO</span>'+
-          '<span class="da-badge">Solo profesor</span></h2>'+
-        '<p>Dictado animado preparado para esta semana (semana '+res.iw.semana+'). '+
-          'Pulsa ▶ y se abre el reproductor de clase a pantalla completa.</p>'+
-        '<div class="da-botones">'+botones+'</div>'+
-      '</div>';
-    host.insertBefore(card, host.firstChild);
-    card.querySelectorAll('.da-btn').forEach(function(b){
+    var by=host.querySelector('.by');
+    if(by) host.insertBefore(caja, by); else host.appendChild(caja);
+    caja.querySelectorAll('.da-btn').forEach(function(b){
       b.addEventListener('click', function(){ abrir(b.dataset.curso, b); });
     });
     libs().catch(function(){});   // precarga silenciosa: el ▶ abre al instante
@@ -4726,7 +4741,7 @@ window.DictadoClase = (function(){
   async function revisar(){
     if(_busy) return; _busy=true;
     try{
-      if(!esTester()){ var old=document.getElementById('da-card'); if(old) old.remove(); return; }
+      if(!esTester()){ var old=document.getElementById('da-card'); if(old) old.remove(); var oldM=document.getElementById('da-mini'); if(oldM) oldM.remove(); return; }
       var res=await consulta();
       if(!res.rows.length){
         try{ res.ultimos=await consultaUltimos(); }catch(e2){ res.ultimos=[]; }
