@@ -2235,14 +2235,19 @@ function showEnig(kind){
               return '<button class="ts-lec-chip abre" data-envio="'+esc(se)+'" data-parte="'+esc(parte)+'" data-lbl="'+esc(lbl)+'" data-imgs="'+esc(JSON.stringify(l.imgs))+'">📖 '+lbl+'</button>';
             return '<button class="ts-lec-chip marca" data-envio="'+esc(se)+'" data-parte="'+esc(parte)+'">☐ '+lbl+'</button>';
           }).join('');
-          var lecPend=!caduSem && !lecList.every(function(l){ return parteHecha(se,(l.n!=null)?('leccion_'+l.n):'lecciones'); });
+          // (Iago 14-sep-2026) Cuando ya se han estudiado TODAS, el bloque se
+          // atenua igual que el del quiz completado — asi de un vistazo se ve
+          // que queda. Los chips siguen pulsandose para repasar la leccion
+          // (la regla .ts-parte.ts-hecha .ts-lec-chip.abre.hecha lo permite).
+          var lecTodas=lecList.every(function(l){ return parteHecha(se,(l.n!=null)?('leccion_'+l.n):'lecciones'); });
+          var lecPend=!caduSem && !lecTodas;
           var lecPartes=lecList.map(function(l){ return (l.n!=null)?('leccion_'+l.n):'lecciones'; });
-          partes+='<div class="ts-parte ts-lecciones">'
+          partes+='<div class="ts-parte ts-lecciones'+(lecTodas?' ts-hecha':'')+'">'
             +(lecPend?'<span class="ts-dot" aria-hidden="true"></span>':'')
-            +'<div class="ts-parte-tit">📚 Lecciones de ritmo</div>'
+            +'<div class="ts-parte-tit">📚 Lecciones de ritmo'+(lecTodas?' <b class="ts-check">✓</b>':'')+'</div>'
             +((tj.carta_ritmo&&tj.carta_ritmo.id)?('<div class="ts-carta-row">Lecciones de la carta <b>'+esc(tj.carta_ritmo.id)+'</b>'+(tj.carta_ritmo.nombre?(' · '+esc(tj.carta_ritmo.nombre)):'')+' <a class="ts-ver-intro" target="_blank" rel="noopener" href="https://iagonaron.github.io/ritmoathome/?introCarta='+encodeURIComponent(tj.carta_ritmo.id)+'">▸ Ver explicación interactiva</a></div>'):'')
             +'<div class="ts-lec-chips">'+chips+'</div>'
-            +'<div class="ts-parte-sub">Pulsa la lección para verla.</div>'
+            +'<div class="ts-parte-sub">'+(lecTodas?'Ya las estudiaste. Púlsalas para repasarlas.':'Pulsa la lección para verla.')+'</div>'
             +(lecPend?'<button class="ts-marcar ts-lec-todas" data-envio="'+esc(se)+'" data-partes="'+esc(JSON.stringify(lecPartes))+'">✓ Marcar como estudiadas</button>':'')
             +'</div>';
         }
