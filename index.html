@@ -2236,8 +2236,8 @@ function showEnig(kind){
             return '<button class="ts-lec-chip marca" data-envio="'+esc(se)+'" data-parte="'+esc(parte)+'">☐ '+lbl+'</button>';
           }).join('');
           // (Iago 14-sep-2026) Cuando ya se han estudiado TODAS, el bloque se
-          // atenua igual que el del quiz completado — asi de un vistazo se ve
-          // que queda. Los chips siguen pulsandose para repasar la leccion
+          // atenúa igual que el del quiz completado — así de un vistazo se ve
+          // qué queda. Los chips siguen pulsándose para repasar la lección
           // (la regla .ts-parte.ts-hecha .ts-lec-chip.abre.hecha lo permite).
           var lecTodas=lecList.every(function(l){ return parteHecha(se,(l.n!=null)?('leccion_'+l.n):'lecciones'); });
           var lecPend=!caduSem && !lecTodas;
@@ -4891,6 +4891,36 @@ window.DictadoClase = (function(){
   }
 })();
 
+</script>
+<script>
+/* (Iago 14-sep-2026) VOLVER DEL QUIZ Y QUE SE VEA HECHO.
+   El quiz se abre en ESTA misma ventana (window.location), así que al volver
+   con el botón atrás Safari restaura la página de su caché: la tarjeta seguía
+   diciendo «Empezar el quiz» aunque ya estuviera completado. Con pageshow
+   +persisted se fuerza una recarga en ese caso concreto.
+   Y si la URL trae #tareas (es lo que usa RITMO at home al terminar), se abre
+   la campana sola para que caiga directo en sus lecciones. */
+(function(){
+  try{
+    window.addEventListener('pageshow', function(e){ if(e && e.persisted) location.reload(); });
+    function abrirTareasSiToca(){
+      if((location.hash||'').indexOf('tareas')===-1) return;
+      var t0=Date.now();
+      var iv=setInterval(function(){
+        try{
+          if(window.AluCampana && typeof AluCampana.abrir==='function'){
+            var b=document.getElementById('alu-campana-btn');
+            if(b && b.style.display!=='none'){ clearInterval(iv); AluCampana.abrir(); return; }
+          }
+        }catch(e){}
+        if(Date.now()-t0>12000) clearInterval(iv);
+      },350);
+    }
+    if(document.readyState==='complete') abrirTareasSiToca();
+    else window.addEventListener('load', abrirTareasSiToca);
+    window.addEventListener('hashchange', abrirTareasSiToca);
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
