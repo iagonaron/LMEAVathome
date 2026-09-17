@@ -909,10 +909,6 @@ if(window.Sentry && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){
       <button type="button" class="pw-resultados" id="btn-mis-resultados" onclick="MisResultados&&MisResultados.abrir()">📊 Mis resultados <span class="pwr-chev">▾</span></button>
     </span>
     <div class="topbar-right">
-      <button class="portal-bell" id="alu-msj-btn" aria-label="Mensajes con el profe" title="Mensajes con el profe" style="display:none" onclick="AluMensajes&&AluMensajes.abrir()">
-        <svg viewBox="0 0 24 24" class="pb-bell" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
-        <span class="portal-bell-badge hidden" id="alu-msj-badge">0</span>
-      </button>
       <button class="portal-bell" id="alu-campana-btn" aria-label="Notificaciones" title="Notificaciones" style="display:none" onclick="AluCampana&&AluCampana.abrir()">
         <svg viewBox="0 0 24 24" class="pb-bell" aria-hidden="true"><path d="M12 3a5 5 0 0 0-5 5c0 4-1.5 5.5-2.5 6.5-.4.4-.1 1 .5 1h14c.6 0 .9-.6.5-1C19 13.5 17 12 17 8a5 5 0 0 0-5-5Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
         <span class="portal-bell-badge hidden" id="alu-campana-badge">0</span>
@@ -3332,7 +3328,6 @@ function showEnig(kind){
   }
   var PASOS=[
     { sel:'#alu-campana-btn', tit:'🔔 Tus tareas', txt:'Cada viernes a las 19:00 te llegan aquí las Tareas de la semana: el quiz de ritmo, las lecciones para estudiar y la ficha de teoría (¡con sus 7 días de plazo!).' },
-    { sel:'#alu-msj-btn', tit:'✉️ Habla con tu profe', txt:'Por aquí recibirás mensajes y consejos del profe. Y tú puedes escribirle cuando quieras: dudas, problemas con una tarea… lo que sea.' },
     { sel:'#btn-mis-resultados', tit:'📊 Mis resultados', txt:'Aquí puedes consultar tus resultados, progreso y estadísticas. Sin sorpresas: siempre sabrás cómo vas.' },
     { sel:'.apps', tit:'🎵 Las apps', txt:'Y aquí abajo, las aplicaciones para practicar por libre todo lo que quieras: Ritmo, Teoría, Intervalia, Entonación, Dictado… Cuanto más las uses, más fácil será todo.' }
   ];
