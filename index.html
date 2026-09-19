@@ -2246,6 +2246,22 @@ function showEnig(kind){
       var pj=o.payload_json||{};
       if(pj.tareas_semana && pj.ficha && pj.ficha.numero!=null) _fichasEnMarco[String(pj.ficha.numero)]=true;
     });
+    /* (19-sep-2026, Iago) EL QUIZ SALIA POR DUPLICADO
+       «Por que ahora el quizz me llega por duplicado?» — y al alumno tambien.
+       La ficha ya tenia este trato (_fichasEnMarco): si el marco semanal la
+       lleva dentro, no se pinta ademas suelta. Al quiz nunca se le puso, asi
+       que aparecia dos veces: su aviso suelto y otra vez dentro de «Tareas de
+       la semana». Mismo criterio para los dos: si el marco lo lleva, el suelto
+       no se pinta. Arregla tambien los avisos ya enviados, porque es al pintar. */
+    var _quizzesEnMarco={};
+    list.forEach(function(o){
+      var pj=o.payload_json||{};
+      if(pj.tareas_semana && pj.quiz && pj.quiz.envio_id) _quizzesEnMarco[String(pj.quiz.envio_id)]=true;
+    });
+    var quizAbsorbido=function(o){
+      if(!esQuiz(o)) return false;
+      return !!_quizzesEnMarco[String(o.payload_json.envio_id)];
+    };
     var fichaAbsorbida=function(o){
       var pj=o.payload_json||{};
       if(!pj.ficha_id || pj.numero==null) return false;
@@ -2280,7 +2296,7 @@ function showEnig(kind){
       return !!(st && st.fase==='fin');
     };
     var esHecha=function(o){ var f=(o.payload_json&&o.payload_json.ficha_id)||''; return !!(f && _entregadas[f]) || esQuizHecho(o) || tareasHecha(o); };
-    list=list.filter(function(o){ return !fichaOculta(o) && !fichaAbsorbida(o) && !fichaCaducada(o); });
+    list=list.filter(function(o){ return !fichaOculta(o) && !fichaAbsorbida(o) && !fichaCaducada(o) && !quizAbsorbido(o); });
     list.sort(function(a,b){
       var pa=(enTiempoExtra(a)?-1:0)+(esHecha(a)?1:0);
       var pb=(enTiempoExtra(b)?-1:0)+(esHecha(b)?1:0);
@@ -2746,6 +2762,16 @@ function showEnig(kind){
     var ap=(e && e.apartado_override) || MAP_APP[e && e.app_origen] || null;
     return APARTADOS[ap] ? ap : null;
   }
+  /* (19-sep-2026, Iago) SORTEO DE LECCIONES EN RITMO 4º
+     «En mi tabla de profe quiero una columna por sesión con las dos lecciones,
+      pero cuando ellos entran en su portal, en Mis resultados, que sí se
+      especifique cuál de las dos le ha tocado.»
+     La app de ritmo guarda esa lección en payload_json.leccion_num. */
+  function leccionDe(e){
+    var pj = e && e.payload_json;
+    if (pj && pj.leccion_num != null) return 'Lecci\u00f3n ' + pj.leccion_num;
+    return e ? e.leccion : null;
+  }
   // Sesiones normalizadas {ap, fecha, trim, leccion, nota}, orden cronológico.
   // Incluye nota_secundaria si su etiqueta mapea a un apartado GE.
   function sesiones(){
@@ -2756,11 +2782,11 @@ function showEnig(kind){
       if(e.sin_evaluar) return;
       var ap=apartadoDe(e);
       if(ap && e.nota_final!=null && isFinite(Number(e.nota_final))){
-        out.push({ ap:ap, fecha:e.fecha||null, trim:e.trimestre||null, leccion:e.leccion, nota:Number(e.nota_final) });
+        out.push({ ap:ap, fecha:e.fecha||null, trim:e.trimestre||null, leccion:leccionDe(e), nota:Number(e.nota_final) });
       }
       if(e.nota_secundaria!=null && e.etiqueta_nota_secundaria && APARTADOS[e.etiqueta_nota_secundaria]
          && isFinite(Number(e.nota_secundaria))){
-        out.push({ ap:e.etiqueta_nota_secundaria, fecha:e.fecha||null, trim:e.trimestre||null, leccion:e.leccion, nota:Number(e.nota_secundaria) });
+        out.push({ ap:e.etiqueta_nota_secundaria, fecha:e.fecha||null, trim:e.trimestre||null, leccion:leccionDe(e), nota:Number(e.nota_secundaria) });
       }
     });
     out.sort(function(a,b){ return String(a.fecha||'').localeCompare(String(b.fecha||'')); });
