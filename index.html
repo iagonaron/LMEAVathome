@@ -2945,6 +2945,7 @@ function showEnig(kind){
     });
     s+='</svg>';
     var ley=ORDEN_CL.map(function(ap){ return '<span class="mr-chip" style="--apc:'+APARTADOS[ap].color+'">'+esc(APARTADOS[ap].label)+'</span>'; }).join('')
+      +(ORDEN_EX.indexOf('entonacion_atonal')>=0 ? '<span class="mr-chip" style="--apc:'+APARTADOS.entonacion_atonal.color+'">'+esc(APARTADOS.entonacion_atonal.label)+' (solo examen)</span>' : '')
       +'<span class="mr-chip" style="--apc:var(--mr-dim)">★ examen</span>';
     return '<section class="mr-card mr-graf"><div class="mr-ctit"><span>Tu evolución durante el curso</span><span class="mr-ctit-r">14 sep → 15 jun</span></div>'
       +'<div class="mr-graf-svg">'+s+'</div><div class="mr-ley">'+ley+'</div></section>';
