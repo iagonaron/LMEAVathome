@@ -16,6 +16,13 @@
    - Lo que se abre desde el Diario (proyectar en clase, generar fichas…) sigue como siempre en esa pestaña.
    PARA VOLVER A «SOLO TESTER/PROTESTER»: subir otra vez la versión anterior de este fichero
    (lm-piel.js del commit 09642bf de LMEAVathome); en 10 minutos todo el mundo vuelve a lo de siempre.
+   28-sep-2026 (noche, más tarde) · CARRUSEL PRO PARA TODOS (Iago: «Actualiza el carrusel»).
+   - El Carrusel PRO (PreDictPROCarrusel, GP) vive en iagonaron.github.io, adonde no llega la marca de *.lmathome.es,
+     y los alumnos entran con el móvil por el QR: ahí la piel va SIEMPRE, en la pantalla del profe y en los móviles
+     (también si se abre desde el Diario), salvo en el navegador donde alguien la apague con ?piel=0.
+   - El Carrusel de GE (PredictCarrusel) no carga este fichero: se queda como está (decisión del 26-sep).
+   PARA DEJAR EL CARRUSEL PRO COMO ANTES: subir otra vez su línea «LM piel» del commit deed5cc (PreDictPROCarrusel),
+   o este fichero del commit f4db5c6 (LMEAVathome).
    ---- lo que decía antes (27-sep-2026, solo para Iago Tester e Iago Protester): ----
    27-sep-2026 · DE MOMENTO SOLO PARA IAGO TESTER E IAGO PROTESTER
    - Cada app lleva en su <head> UNA línea («LM piel») que solo carga este
@@ -65,6 +72,8 @@
 
   var H = document.documentElement;
   var ES_PORTAL = familia === 'portal';
+  /* (28-sep-2026, noche) el Carrusel PRO: piel SIEMPRE (no le llega la marca y los móviles entran por el QR) */
+  var SIEMPRE = app === 'carrusel-gp';
 
   /* ---------- la marca: ¿se enciende la piel en este navegador? ---------- */
   var DOMINIO = /(^|\.)lmathome\.es$/.test(location.hostname) ? '; domain=.lmathome.es' : '';
@@ -352,9 +361,10 @@
     if (marca !== quiere) ponerMarca(quiere);
     marca = quiere;
   }
-  var activo = marca === '1' && !NO_PIEL;
-  /* lo abierto desde el Diario (clase, proyector, generar fichas…) se queda como siempre en esa pestaña */
-  if (activo && !ES_PORTAL && q.piel !== '1') {
+  var activo = (marca === '1' || SIEMPRE) && !NO_PIEL;
+  /* lo abierto desde el Diario (clase, proyector, generar fichas…) se queda como siempre en esa pestaña
+     (menos el Carrusel PRO, que se ve con la piel en las dos pantallas) */
+  if (activo && !ES_PORTAL && !SIEMPRE && q.piel !== '1') {
     var deDonde = ''; try { deDonde = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
     var DIARIO = /^(diario|acceso)\.lmathome\.es$|^correccion[a-z0-9-]*\.lmathome\.es$|\.netlify\.app$/;
     try {
