@@ -1,0 +1,83 @@
+/* =====================================================================
+   LM at home · PIEL COMÚN (26-sep-2026, Iago)
+   La estética del Diario («Mis diarios») llevada a los portales y sus apps:
+   fondo del conservatorio, cristal oscuro, texto blanco y el color SOLO para
+   destacar. Solo aspecto: nada de funcionamiento.
+   Lo carga lm-piel.js solo cuando la piel está encendida (marca lm_piel=1: de momento, Iago Tester/Protester).
+   ===================================================================== */
+:root{
+  --lm-cristal: rgba(11,19,32,.72);
+  --lm-cristal-fuerte: rgba(11,19,32,.86);
+  --lm-cristal-suave: rgba(11,19,32,.55);
+  --lm-borde: rgba(255,255,255,.12);
+  --lm-borde-fuerte: rgba(255,255,255,.22);
+  --lm-texto: #ffffff;
+  --lm-texto-2: rgba(255,255,255,.74);
+  --lm-texto-3: rgba(255,255,255,.52);
+  /* colores de apartado (acento, contorno, títulos) */
+  --lm-rosa:#ec4899; --lm-verde:#22c55e; --lm-azul:#4a9eff; --lm-naranja:#f97316; --lm-amarillo:#facc15; --lm-morado:#a855f7;
+  /* rellenos lisos con texto blanco (algo más oscuros, para el contraste) */
+  --lm-rosa-f:#db2777; --lm-verde-f:#16a34a; --lm-azul-f:#2563eb; --lm-naranja-f:#ea580c; --lm-morado-f:#9333ea;
+  --lm-tinta:#0b1320;
+  --lm-oro:#d4af37;
+  --lm-r-tarjeta:16px; --lm-r-panel:14px; --lm-r-boton:12px; --lm-r-chip:8px;
+  --lm-blur:8px;
+  --lm-fuente:"Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ---------- fondo común: la foto del conservatorio, desenfocada y con velo ---------- */
+html.lm-piel{ background:#0b1320 !important; }
+html.lm-piel::before{
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:url("fondo-vertical.jpg") center 62% / cover no-repeat;
+  filter:blur(4px) saturate(1.08); transform:scale(1.04);
+}
+@media (min-aspect-ratio: 1/1){
+  html.lm-piel::before{ background-image:url("fondo-apaisado.jpg"); background-position:center center; }
+}
+html.lm-piel::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(8,22,40,.56); }
+html.lm-piel body{ background:transparent !important; background-image:none !important; }
+/* modo sin piel (p. ej. mientras se juega un quiz dentro de la misma página) */
+html.lm-piel.lm-sin-piel::before, html.lm-piel.lm-sin-piel::after{ display:none !important; }
+html.lm-piel.lm-sin-piel #lm-grado{ display:none !important; }
+
+/* ---------- rótulo de grado arriba al centro ---------- */
+/* 27-sep-2026 (Iago): «arriba de todo, siempre igual, sin nada a los lados y sin estar pegado al techo».
+   Banda fija arriba: el centro del rótulo a 22px del borde. Cada app deja libre esa banda (su contenido empieza
+   por debajo de --lm-grado-banda, 46px) para que no haya nada a los lados. */
+html.lm-piel{ --lm-grado-banda:46px; }
+#lm-grado{
+  position:absolute; top:22px; left:50%; transform:translate(-50%,-50%); z-index:30; pointer-events:none;
+  font:800 11px/1 var(--lm-fuente); letter-spacing:.32em; text-indent:.32em; text-transform:uppercase; white-space:nowrap;
+  color:#ffffff; opacity:.92;
+}
+html.lm-gp #lm-grado{ color:var(--lm-oro); opacity:1; }
+
+/* ---------- pie común (27-sep-2026): «by Iago González Alonso» y «Optimizado para ordenador y tablet»
+   abajo del todo y en el centro, uno debajo del otro (LMPiel.alPie mueve aquí los elementos de cada app) ---------- */
+#lm-pie{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  width:100%; box-sizing:border-box; clear:both; padding:34px 16px 26px; margin:0; text-align:center;
+  font:500 12px/1.5 var(--lm-fuente); letter-spacing:.02em; color:rgba(255,255,255,.62);
+}
+#lm-pie:empty{ display:none; }
+#lm-pie > .lm-en-pie{
+  position:static !important; inset:auto !important; transform:none !important; float:none !important;
+  display:block !important; width:auto !important; max-width:100% !important; height:auto !important;
+  margin:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important;
+  background:none !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  color:inherit !important; font:inherit !important; font-size:12px !important; line-height:1.5 !important;
+  letter-spacing:.02em !important; text-transform:none !important; opacity:1 !important; white-space:nowrap !important;
+}
+#lm-pie > .lm-en-pie *{ color:inherit !important; font:inherit !important; letter-spacing:inherit !important; text-transform:none !important; }
+#lm-pie > .lm-en-pie::before, #lm-pie > .lm-en-pie::after{ content:none !important; }
+
+/* ---------- 27-sep-2026 (Iago): «no queremos que haya texto con sombreado» (fuera de los quiz) ---------- */
+html.lm-piel:not(.lm-sin-piel) body, html.lm-piel:not(.lm-sin-piel) body *{ text-shadow:none !important; }
+
+/* ---------- iconos planos (sustituyen a los emojis, como en el Diario) ---------- */
+html.lm-piel .pl-emo{ display:none !important; }
+html.lm-piel svg.pl-i{ width:1.15em; height:1.15em; display:inline-block; vertical-align:-.2em; flex:none; stroke:currentColor; fill:none; filter:none !important; margin-right:.28em; }
+
+/* ---------- utilidades comunes que pueden usar las pieles de cada app ---------- */
+html.lm-piel .lm-cristal{ background:var(--lm-cristal) !important; -webkit-backdrop-filter:blur(var(--lm-blur)); backdrop-filter:blur(var(--lm-blur)); border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel); color:var(--lm-texto); }
