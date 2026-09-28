@@ -819,3 +819,13 @@ html.lm-fam-teoria .pad h3{ font-size:clamp(16px, 1.4vw, 20px) !important; lette
 html.lm-fam-teoria .pad-sub{ max-width:100% !important; letter-spacing:0 !important; white-space:nowrap; font-size:clamp(9.5px, .75vw, 10.5px) !important; }
 /* (la etiqueta de la casilla en el editor de modulación no es un botón: sigue rosa) */
 html.lm-fam-teoria .editor .editor-head .chip{ background:var(--lm-rosa-f) !important; color:#fff !important; }
+
+/* ---------- 12.4 (28-sep-2026, Iago) «Corregir» de los ejercicios libres: SOLO contorno rosa; lo opaco es el dado ----------
+   Al pasar el ratón, rosa liso (como las tarjetas). Para volver al rosa opaco: borrar este bloque. */
+html.lm-fam-teoria .iconbtn.btn-correct{
+  background:transparent !important; background-image:none !important; border:1.5px solid var(--lm-rosa) !important; color:#fff !important;
+}
+html.lm-fam-teoria .iconbtn.btn-correct:not(:disabled):hover{
+  background:var(--lm-rosa-f) !important; border-color:var(--lm-rosa-f) !important; filter:none !important;
+}
+html.lm-fam-teoria .iconbtn.btn-correct:disabled{ opacity:.45 !important; }
