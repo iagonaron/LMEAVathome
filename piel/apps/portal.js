@@ -31,6 +31,8 @@
    12) Visor de las lecciones de ritmo: UNA hilera arriba solo con iconos (rueda de tonalidad horizontal, ♯ ♭ M m en
        verde, rotuladores, nota, goma, deshacer, borrar todo), pantalla completa con cada página entera, y el fondo de
        la piel (GP sin marrón). La barra de siempre sigue debajo, oculta, y es la que guarda.
+   13) (28-sep-2026) Ventana de BIENVENIDA a la estética nueva, una sola vez por cuenta y aparato («Hemos hecho una
+       reforma estética…», de Iago). Para verla otra vez: ?bienvenida=1.
    Copia de la versión anterior: portal.js.bak-27sep-v2
    ===================================================================== */
 (function () {
@@ -750,6 +752,54 @@
   try { new MutationObserver(function () { visorLecciones(); }).observe(document.body, { childList: true }); } catch (e) {}
   try { new MutationObserver(function () { librosMax(); }).observe(document.body, { childList: true }); } catch (e) {}   /* (28-sep) el visor de Libros se crea al abrirlo */
 
+  /* ---------- 13 (28-sep-2026, Iago) BIENVENIDA a la estética nueva: una sola vez por cuenta ----------
+     «para cuando haya el cambio estético, aparezca una ventana de bienvenida o algo así que ponga: Hemos hecho una
+     reforma estética, espero que te guste! Por lo demás todo funciona igual que hasta ahora. Un abrazo, Iago».
+     Sale con la sesión abierta y la portada a la vista (sin la puerta de entrada ni el aviso del móvil, sin la visita
+     guiada ni otra ventana encima). Queda apuntado en el aparato: localStorage «lm_piel_bienvenida:<cuenta>».
+     Para volver a verla: ?bienvenida=1 en la dirección. */
+  var _bvHecha = false;
+  function bienvenida() {
+    if (_bvHecha || document.getElementById('lm-bv')) return;
+    var gp = document.documentElement.classList.contains('lm-gp');
+    var s = null; try { s = JSON.parse(localStorage.getItem(gp ? 'lmpro_session' : 'lmeav_session') || 'null'); } catch (e) {}
+    var id = s && (s.id || s.cuenta_id); if (!id) return;
+    if (/visor=/.test(location.hash || '')) return;                        /* el Ojeador del Diario: nunca */
+    var forzar = /[?&]bienvenida=1(&|$)/.test(location.search);
+    var K = 'lm_piel_bienvenida:' + id;
+    try { if (!forzar && localStorage.getItem(K)) { _bvHecha = true; return; } } catch (e) { return; }
+    var gate = document.getElementById('gate');                              /* la puerta (o el aviso del móvil) a la vista */
+    if (gate && gate.classList.contains('show') && !gate.classList.contains('hide') && getComputedStyle(gate).display !== 'none') return;
+    if (!document.querySelector('.wrap .apps .app-card')) return;
+    /* que no haya otra ventana encima: la primera tarjeta (o, si no está a la vista, la barra de arriba) se puede pulsar */
+    function tapado(el) {
+      if (!el) return null;
+      var r = el.getBoundingClientRect(); if (r.bottom < 4 || r.top > innerHeight - 4 || r.width < 4) return null;
+      var x = Math.min(innerWidth - 2, Math.max(1, r.left + r.width / 2)), y = Math.min(innerHeight - 2, Math.max(1, r.top + Math.min(r.height / 2, 40)));
+      var t = document.elementFromPoint(x, y); return !(t && (t === el || el.contains(t)));
+    }
+    var tc = tapado(document.querySelector('.wrap .apps .app-card'));
+    if (tc === true) return;
+    if (tc === null && tapado(document.querySelector('.topbar')) !== false) return;
+    _bvHecha = true;
+    try { localStorage.setItem(K, new Date().toISOString()); } catch (e) {}
+    var d = document.createElement('div');
+    d.id = 'lm-bv'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'lm-bv-t');
+    d.innerHTML = '<div class="lm-bv-card">' +
+      '<div class="lm-bv-ico">' + ico('palette') + '</div>' +
+      '<p class="lm-bv-p1" id="lm-bv-t">Hemos hecho una reforma estética.<br><b>¡Espero que te guste!</b></p>' +
+      '<p class="lm-bv-p2">Por lo demás, todo funciona igual que hasta ahora.</p>' +
+      '<p class="lm-bv-firma">Un abrazo,<br>Iago</p>' +
+      '<button type="button" class="lm-bv-ok">¡Vamos!</button>' +
+      '</div>';
+    function cerrar() { document.removeEventListener('keydown', tecla, true); d.classList.add('lm-bv-fuera'); setTimeout(function () { d.remove(); }, 180); }
+    function tecla(e) { if (e.key === 'Escape' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); cerrar(); } }
+    d.addEventListener('click', function (e) { if (e.target === d || (e.target.closest && e.target.closest('.lm-bv-ok'))) cerrar(); });
+    document.addEventListener('keydown', tecla, true);
+    document.body.appendChild(d);
+    try { var cj = d.querySelector('.lm-bv-card'); cj.setAttribute('tabindex', '-1'); cj.focus({ preventScroll: true }); } catch (e) {}   /* el foco en la ventana (sin anillo en el botón) */
+  }
+
   function todo() {
     try { tarjetas(); } catch (e) {} try { misResultados(); } catch (e) {} try { hileraTester(); } catch (e) {}
     try { carrusel(); } catch (e) {} try { pie(); } catch (e) {} try { colorNavegador(); } catch (e) {}
@@ -758,6 +808,7 @@
     try { cuadroPantalla(); } catch (e) {}
     try { visorLecciones(); } catch (e) {}
     try { librosMax(); } catch (e) {}
+    try { bienvenida(); } catch (e) {}
   }
   todo();
   var n = 0, t = setInterval(function () { todo(); if (++n > 240) clearInterval(t); }, 500);

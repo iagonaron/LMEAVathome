@@ -240,6 +240,15 @@ html.lm-fam-portal #temazo .tz-tira{ border-radius:var(--lm-r-tarjeta) !importan
 html.lm-fam-portal #temazo .tz-dado, html.lm-fam-portal #temazo .tz-btn{ border-radius:10px !important; }
 html.lm-fam-portal #temazo .tz-chip{ border-radius:8px !important; }
 html.lm-fam-portal #temazo .tz-player{ border-radius:12px !important; }
+/* (28-sep-2026, noche · Iago) «La barra del temazo de la semana prefiero que se vea de color azul, sin animación:
+   un azul opaco, como el de entonación, todo relleno. Así es coherente: el resto de tarjetas son solo contorno mientras
+   no se pulsan, y va a destacar igual por su posición.» El azul de Entonación (el mismo relleno que su tarjeta al
+   pulsarla), sin nebulosa, sin barrido de luz y sin degradados. Sigue apareciendo al completar las tareas (eso es
+   del portal, no de la piel) y el ecualizador solo se mueve mientras suena la canción. Para quitarlo: borrar estas líneas. */
+html.lm-fam-portal #temazo .tz-tira{ background:var(--lm-azul-f) !important; border:1px solid var(--lm-azul-f) !important; box-shadow:none !important; }
+html.lm-fam-portal #temazo .tz-neb{ display:none !important; animation:none !important; }
+html.lm-fam-portal #temazo .tz-tira::before{ content:none !important; animation:none !important; }
+html.lm-fam-portal #temazo .tz-barra i{ background:#fff !important; }
 html.lm-fam-portal #medallero, html.lm-fam-portal .medallero{
   background:var(--lm-cristal) !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-tarjeta) !important;
   -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:none !important;
@@ -708,3 +717,29 @@ html.lm-fam-portal #dcOverlay .dc-reps-tit{ color:#fff; }
 html.lm-fam-portal #dcOverlay .dc-rueda{ background:rgba(0,0,0,.28); border-color:var(--lm-borde-fuerte); }
 html.lm-fam-portal #dcOverlay .dc-rueda-it.on{ color:#fdba74; }
 html.lm-fam-portal #dcOverlay .dc-reps-ok{ background:var(--lm-naranja) !important; color:#fff !important; box-shadow:none !important; }
+
+/* (28-sep-2026, Iago) 13 · BIENVENIDA a la estética nueva (una sola vez por cuenta y aparato) */
+html.lm-piel #lm-bv{ position:fixed; inset:0; z-index:2147483000; display:flex; align-items:center; justify-content:center; padding:20px;
+  background:rgba(4,10,20,.58); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); animation:lmBvFondo .25s ease-out both; }
+html.lm-piel #lm-bv.lm-bv-fuera{ opacity:0; transition:opacity .18s ease-in; }
+html.lm-piel #lm-bv .lm-bv-card{ box-sizing:border-box; max-width:420px; width:100%; padding:26px 24px 22px; text-align:center;
+  background:var(--lm-cristal-fuerte); border:1px solid var(--lm-borde-fuerte); border-radius:var(--lm-r-tarjeta);
+  box-shadow:0 24px 60px rgba(0,0,0,.5); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  color:var(--lm-texto); font:15px/1.5 var(--lm-fuente); animation:lmBvEntra .35s ease-out both; }
+html.lm-piel #lm-bv .lm-bv-ico{ width:52px; height:52px; margin:0 auto 14px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+  background:var(--lm-azul-f); color:#fff; }
+html.lm-piel.lm-gp #lm-bv .lm-bv-ico{ background:var(--lm-oro); color:var(--lm-tinta); }
+html.lm-piel #lm-bv .lm-bv-ico .pl-i{ width:28px; height:28px; }
+html.lm-piel #lm-bv p{ margin:0; }
+html.lm-piel #lm-bv .lm-bv-p1{ font-size:18px; line-height:1.4; font-weight:600; margin-bottom:10px; text-wrap:balance; }
+html.lm-piel #lm-bv .lm-bv-p1 b{ font-weight:800; }
+html.lm-piel #lm-bv .lm-bv-p2{ color:var(--lm-texto-2); margin-bottom:14px; text-wrap:balance; }
+html.lm-piel #lm-bv .lm-bv-firma{ color:var(--lm-texto-2); font-style:italic; margin-bottom:20px; }
+html.lm-piel #lm-bv .lm-bv-ok{ font:800 15px/1 var(--lm-fuente) !important; padding:13px 30px !important; border-radius:var(--lm-r-boton) !important;
+  border:0 !important; background:var(--lm-azul-f) !important; color:#fff !important; cursor:pointer; min-width:140px; box-shadow:none !important; }
+html.lm-piel.lm-gp #lm-bv .lm-bv-ok{ background:var(--lm-oro) !important; color:var(--lm-tinta) !important; }
+html.lm-piel #lm-bv .lm-bv-ok:focus-visible{ outline:2px solid #fff; outline-offset:3px; }
+html.lm-piel #lm-bv .lm-bv-card:focus{ outline:none; }
+@keyframes lmBvFondo{ from{ opacity:0 } to{ opacity:1 } }
+@keyframes lmBvEntra{ from{ opacity:0; transform:translateY(10px) scale(.98) } to{ opacity:1; transform:none } }
+@media (prefers-reduced-motion:reduce){ html.lm-piel #lm-bv, html.lm-piel #lm-bv .lm-bv-card{ animation:none; } }
