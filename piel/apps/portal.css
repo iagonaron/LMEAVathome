@@ -688,6 +688,12 @@ html.lm-fam-portal #dcOverlay .dc-icobtn .pl-i, html.lm-fam-portal #dcOverlay .d
 html.lm-fam-portal #dcOverlay .dc-score-panel{ border-radius:var(--lm-r-tarjeta); box-shadow:0 18px 50px rgba(0,0,0,.4); }
 html.lm-fam-portal #dcOverlay .dc-playbtn{ background:var(--lm-naranja) !important; box-shadow:0 8px 22px rgba(0,0,0,.35) !important; width:68px; height:68px; }
 html.lm-fam-portal #dcOverlay .dc-playbtn .pl-i{ width:30px; height:30px; }
+/* (28-sep-2026, Iago) «que el botón de play sea de color blanco relleno y que esté bien en el centro… coge la referencia
+   del centro del triángulo». Sin el margen que la piel pone detrás de cada icono (lo empujaba ~4 px a la izquierda),
+   triángulo relleno de blanco y movido 0,68 u. a la derecha para que su baricentro (x ≈ 11,32 de 24, contando el trazo
+   redondeado) quede justo en el centro del círculo. La pausa (dos barras simétricas) queda centrada con solo quitar el margen. */
+html.lm-fam-portal #dcOverlay .dc-playbtn svg.pl-i{ margin:0 !important; color:#fff; }
+html.lm-fam-portal #dcOverlay .dc-playbtn svg.pl-i path[d="M7 4l13 8-13 8z"]{ fill:currentColor; transform:translateX(.68px); }
 html.lm-fam-portal #dcOverlay .dc-ctl-lbl{ color:var(--lm-texto-3); }
 html.lm-fam-portal #dcOverlay .dc-val{ color:#fff; }
 html.lm-fam-portal #dcOverlay .dc-dur{ color:#fdba74; }
