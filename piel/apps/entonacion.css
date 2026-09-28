@@ -1,0 +1,356 @@
+/* =====================================================================
+   LM at home · PIEL · ENTONACIÓN at home (entonacion.ge; el portal GP enlaza a la
+   misma app con ?grado=gp) — (26-sep-2026 · v2 y v3 27-sep-2026, Iago) Solo aspecto.
+   Todo cuelga de html.lm-fam-entonacion. Apartado ENTONACIÓN → azul #4a9eff (contornos)
+   · relleno liso #2563eb con texto blanco. La partitura sigue en papel blanco con sus
+   colores de canto (azul = la nota que toca cantar; verde/ámbar/rojo = cómo salió cada
+   nota; rosa = pistas).
+   3ª vuelta (Iago):
+   · Tarjetas de ciclo (B, por defecto): cristal negro con SOLO el contorno azul, entero;
+     al pasar el ratón, relleno azul liso y opaco (sube 3px). «En construcción», apagada.
+   · Botones lisos y opacos, radio 10px, iconos blancos de 16px, texto en una línea:
+     principal (Empezar intento, Volver a estudiar, Activar micrófono, Registrar…) en azul;
+     normal (Tónica, Escala, Pistas, Afinador, velocidades, ¿Cómo funciona?…) en gris
+     azulado #243044 y azul cuando está elegido; poco importante (Salir, Edición, Volver,
+     Configurar, Cerrar) solo contorno. Misma altura en cada fila; grupos del mismo ancho.
+   · El DADO: «Nueva lección», «Nuevo ejercicio» y el dado del editor son SOLO el dado,
+     cuadrado 40×40 azul, siempre el control más a la derecha de su fila (como PreDict).
+   · El contenido empieza por debajo de la banda del rótulo de grado (46px).
+   · Sin sombras de texto; nada marrón (las etiquetas de ayuda y el aviso del editor, lisos).
+   Compañero: entonacion.js.
+   ===================================================================== */
+
+html.lm-fam-entonacion{
+  --bg:rgba(8,14,26,.5); --panel:rgba(11,19,32,.72); --panel2:rgba(11,19,32,.72); --line:rgba(255,255,255,.12);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52); --paper:#ffffff;
+  --accent:#2563eb; --accent2:#4a9eff; --accent-soft:rgba(74,158,255,.14);
+  --green:#22c55e; --green-soft:rgba(34,197,94,.16);
+  --lm-en-f:#2563eb;                        /* relleno azul con texto blanco (principal, elegido, dado) */
+  --en-f-hover:#286afb;                     /* el mismo con brillo 1.07 */
+  --en-azul:#4a9eff;                        /* contorno azul */
+  --en-n:#243044;                           /* botón normal: relleno neutro opaco */
+  --en-n-hover:#2d3b52;
+  --en-n-off:#1c2636;                       /* desactivado / bloqueado: también opaco */
+  --en-linea:rgba(255,255,255,.35);         /* solo contorno (poco importante) */
+  --en-rosa-pista:#e9799f;                  /* el rosa de las notas-pista de la partitura */
+}
+html.lm-fam-entonacion body{ font-family:var(--lm-fuente); }
+
+/* ---------- banda del rótulo de grado: el contenido empieza por debajo (46px), nada a sus lados ---------- */
+html.lm-fam-entonacion body{ padding-top:54px !important; }
+html.lm-fam-entonacion header{ padding-top:0 !important; }
+
+/* ---------- 1. cabecera ---------- */
+html.lm-fam-entonacion .home2, html.lm-fam-entonacion .ath{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-entonacion .brand h1 span[aria-hidden="true"]{ color:rgba(255,255,255,.82) !important; }
+/* con ?grado=gp la app sigue diciendo «GRADO ELEMENTAL» bajo LM at home: se oculta ese rótulo
+   pequeño (sin mover nada) para que no contradiga el de arriba, «GRADO PROFESIONAL» */
+html.lm-fam-entonacion.lm-gp .brand h1 span[aria-hidden="true"]{ visibility:hidden !important; }
+html.lm-fam-entonacion .brand .lm{ color:#fff !important; }
+html.lm-fam-entonacion .appname-top .pre{ color:#fff !important; }
+html.lm-fam-entonacion .appname-top .post{ color:#fff !important; opacity:.62 !important; }
+html.lm-fam-entonacion .hint{ color:rgba(255,255,255,.8) !important; }
+
+/* ---------- 2. pie común (by… / Optimizado…) abajo del todo ---------- */
+/* entonacion.js los lleva a #lm-pie; la línea de arriba desaparece */
+html.lm-fam-entonacion .topinfo{ display:none !important; }
+/* el cuerpo pasa a columna: si la página es corta, el pie baja al borde de la pantalla;
+   si es larga, va después de todo el contenido. El pie ya da el aire de abajo. */
+html.lm-fam-entonacion body{ display:flex; flex-direction:column; padding-bottom:0 !important; }
+html.lm-fam-entonacion body > .wrap{ width:100%; flex:1 0 auto; }
+html.lm-fam-entonacion #lm-pie{ flex:none; }
+
+/* =====================================================================
+   3. PORTADA: elegir ciclo
+   ===================================================================== */
+html.lm-fam-entonacion .lvl{
+  border-radius:var(--lm-r-tarjeta) !important; color:#fff !important; box-shadow:none !important;
+  transition:transform .18s ease, background-color .18s ease, border-color .18s ease !important;
+}
+html.lm-fam-entonacion .lvl .lvl-nm{ color:#fff !important; }
+html.lm-fam-entonacion .lvl .lvl-cur{ color:rgba(255,255,255,.72) !important; opacity:1 !important; }
+html.lm-fam-entonacion .lvl.locked{ cursor:not-allowed !important; }
+html.lm-fam-entonacion .lvl:focus-visible{ outline:2px solid #fff !important; outline-offset:3px; }
+/* B (por defecto) · cristal negro con SOLO el contorno azul; al pasar el ratón, azul liso y opaco */
+html.lm-fam-entonacion.lm-tarjetas-b .lvl{
+  background:var(--lm-cristal) !important; border:1.5px solid var(--lm-azul) !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-entonacion.lm-tarjetas-b .lvl:not(.locked):hover{
+  transform:translateY(-3px); background:var(--lm-azul-f) !important; border-color:var(--lm-azul) !important;
+}
+html.lm-fam-entonacion.lm-tarjetas-b .lvl:not(.locked):hover .lvl-cur{ color:#fff !important; }
+html.lm-fam-entonacion.lm-tarjetas-b .lvl:not(.locked):active{ transform:translateY(-1px) scale(.98); }
+/* «en construcción»: la misma tarjeta, apagada (contorno azul tenue, letra atenuada) */
+html.lm-fam-entonacion.lm-tarjetas-b .lvl.locked{
+  background:var(--lm-cristal) !important; border:1.5px solid rgba(74,158,255,.32) !important; opacity:1 !important;
+}
+html.lm-fam-entonacion.lm-tarjetas-b .lvl.locked .lvl-nm, html.lm-fam-entonacion.lm-tarjetas-b .lvl.locked .lvl-cur{ color:rgba(255,255,255,.42) !important; }
+/* A (?tarjetas=a) · relleno azul liso, texto blanco, sin borde; al pasar: sube 3px y brilla */
+html.lm-fam-entonacion.lm-tarjetas-a .lvl,
+html.lm-fam-entonacion.lm-tarjetas-a .lvl.locked{
+  background:color-mix(in srgb, var(--lm-azul-f) 94%, transparent) !important; border:0 !important;
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+}
+html.lm-fam-entonacion.lm-tarjetas-a .lvl:not(.locked):hover{ transform:translateY(-3px); background:var(--en-f-hover) !important; }
+html.lm-fam-entonacion.lm-tarjetas-a .lvl.locked{ opacity:.45 !important; }
+
+html.lm-fam-entonacion .lvl-note{ color:rgba(255,255,255,.8) !important; }
+/* aviso «Las lecciones… en construcción» / «Cargando lección…»: una caja de cristal a la medida del texto */
+html.lm-fam-entonacion .lvl-soon{
+  width:fit-content; max-width:100%; box-sizing:border-box; margin:16px auto 0 !important; padding:12px 22px !important;
+  background:var(--lm-cristal) !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important;
+  color:rgba(255,255,255,.8) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+/* cuando la app lo deja vacío (tras cargar una lección) no se pinta la caja, pero conserva su hueco */
+html.lm-fam-entonacion .lvl-soon:empty{ background:transparent !important; border-color:transparent !important; -webkit-backdrop-filter:none; backdrop-filter:none; }
+/* Afinador (normal) y Edición (poco importante): mismo alto y mismo ancho, uno al lado del otro */
+html.lm-fam-entonacion .edit-foot{ gap:10px; margin-top:34px !important; }
+html.lm-fam-entonacion .edit-foot > button{ width:280px !important; height:40px !important; margin:0 !important; }
+
+/* =====================================================================
+   4. BOTONES — lisos y opacos, radio 10px, icono blanco de 16px, texto en una línea
+   ===================================================================== */
+html.lm-fam-entonacion :is(.ph-tab, .ph-newlesson, .ph-exit, .tuner-open, .edit-foot button, .back-foot button,
+  .st-tool, .st-speed, .att-help-btn, .attempt-start, .result-actions button, .tuner-mic-btn, .tuner-close){
+  display:inline-flex !important; align-items:center; justify-content:center; gap:7px;
+  height:36px; min-height:0; padding:0 14px !important; box-sizing:border-box; margin:0;
+  border-radius:10px !important; border:1px solid var(--en-n) !important;
+  background:var(--en-n) !important; background-image:none !important; color:#fff !important;
+  font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important; text-transform:none !important;
+  white-space:nowrap; box-shadow:none !important; opacity:1; filter:none; cursor:pointer;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  transition:background-color .15s ease, border-color .15s ease, transform .05s ease !important;
+}
+html.lm-fam-entonacion :is(.ph-tab, .ph-newlesson, .ph-exit, .tuner-open, .edit-foot button, .back-foot button,
+  .st-tool, .st-speed, .att-help-btn, .attempt-start, .result-actions button, .tuner-mic-btn, .tuner-close) svg.pl-i{
+  width:16px !important; height:16px !important; margin:0 !important; vertical-align:0; flex:none; color:#fff !important;
+}
+/* normal: pasar el ratón */
+html.lm-fam-entonacion :is(.ph-tab:not(.on):not(.locked), .tuner-open, .st-tool, .st-speed:not(.on), .att-help-btn,
+  .result-actions button:not(.primary):not(.lm-en-salir):not(.lm-en-nuevo)):hover:not(:disabled){
+  background:var(--en-n-hover) !important; border-color:var(--en-n-hover) !important; color:#fff !important;
+}
+/* principal y elegido → azul: Empezar intento · Volver a estudiar · Activar micrófono · pestaña y velocidad elegidas */
+html.lm-fam-entonacion :is(.attempt-start, .result-actions button.primary, .tuner-mic-btn, .ph-tab.on, .st-speed.on){
+  background:var(--lm-en-f) !important; border-color:var(--lm-en-f) !important; color:#fff !important;
+}
+html.lm-fam-entonacion :is(.attempt-start, .result-actions button.primary, .tuner-mic-btn, .ph-tab.on, .st-speed.on):hover:not(:disabled){
+  background:var(--en-f-hover) !important; border-color:var(--en-f-hover) !important; filter:none !important;
+}
+html.lm-fam-entonacion :is(.attempt-start, .result-actions button, .tuner-mic-btn, .edit-foot button):active:not(:disabled){ transform:scale(.97); }
+/* poco importante → solo contorno blanco 35 %, fondo transparente: Salir · Edición · Volver · Cerrar */
+html.lm-fam-entonacion :is(.ph-exit, #toEditBtn, .back-foot button, .result-actions button.lm-en-salir, .tuner-close){
+  background:transparent !important; border:1px solid var(--en-linea) !important; color:#fff !important;
+}
+html.lm-fam-entonacion :is(.ph-exit, #toEditBtn, .back-foot button, .result-actions button.lm-en-salir, .tuner-close):hover{
+  background:transparent !important; border-color:rgba(255,255,255,.7) !important; color:#fff !important;
+}
+/* desactivado / bloqueado: opaco y apagado */
+html.lm-fam-entonacion :is(.st-tool, .st-speed, .att-help-btn, .attempt-start, .result-actions button):disabled,
+html.lm-fam-entonacion .ph-tab.locked{
+  background:var(--en-n-off) !important; border-color:var(--en-n-off) !important; color:rgba(255,255,255,.42) !important;
+  opacity:1 !important; cursor:not-allowed !important; filter:none !important;
+}
+html.lm-fam-entonacion :is(.st-tool, .st-speed, .att-help-btn, .attempt-start):disabled svg.pl-i{ color:rgba(255,255,255,.42) !important; }
+/* «Escuchando…» del afinador: ya no es la acción principal → neutro */
+html.lm-piel.lm-fam-entonacion .tuner-card button.tuner-mic-btn.listening,
+html.lm-piel.lm-fam-entonacion .tuner-card button.tuner-mic-btn.listening:hover{
+  background:var(--en-n) !important; border-color:var(--en-n) !important; filter:none;
+}
+html.lm-fam-entonacion :is(.ph-tab, .ph-exit, .st-tool, .st-speed, .att-help-btn, .attempt-start, .result-actions button,
+  .tuner-open, .edit-foot button, .back-foot button, .tuner-mic-btn, .tuner-close, .lm-en-nuevo):focus-visible{ outline:2px solid #fff !important; outline-offset:2px; }
+
+/* ---------- el DADO: solo el dado, cuadrado 40×40 azul, el último de su fila ---------- */
+/* (vale para «Nueva lección» de la barra, «Nuevo ejercicio» del resultado y el dado del editor) */
+html.lm-fam-entonacion .lm-en-orig{ display:none !important; }
+html.lm-piel.lm-fam-entonacion button.lm-en-nuevo{
+  display:inline-grid !important; place-items:center; flex:0 0 40px !important;
+  width:40px !important; height:40px !important; min-width:40px !important; min-height:40px !important;
+  padding:0 !important; margin:0 !important; gap:0 !important; box-sizing:border-box;
+  border-radius:10px !important; border:1px solid var(--lm-en-f) !important; background:var(--lm-en-f) !important;
+  background-image:none !important; box-shadow:none !important; color:#fff !important; filter:none !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; transform:none; animation:none !important;
+}
+html.lm-piel.lm-fam-entonacion button.lm-en-nuevo:hover{ background:var(--en-f-hover) !important; border-color:var(--en-f-hover) !important; }
+html.lm-piel.lm-fam-entonacion button.lm-en-nuevo:active{ transform:scale(.95) !important; }
+html.lm-piel.lm-fam-entonacion button.lm-en-nuevo svg.lm-en-dado{ width:20px !important; height:20px !important; margin:0 !important; color:#fff !important; display:block !important; transform:none !important; }
+
+/* Pistas: el mismo botón normal, corazón blanco; mientras se elige la nota, azul (elegido) */
+html.lm-fam-entonacion .st-tool.st-hint.active{ background:var(--lm-en-f) !important; border-color:var(--lm-en-f) !important; color:#fff !important; }
+html.lm-fam-entonacion #hintCount{ margin-left:-3px; font-weight:700; }
+/* aviso de «ya puedes practicar con acompañamiento» (destello azul de la app): contorno azul, texto blanco */
+html.lm-fam-entonacion .st-tool.just-unlocked{ border-color:var(--en-azul) !important; color:#fff !important; }
+
+/* =====================================================================
+   5. PRÁCTICA: barra de fases, paneles de Estudio e Intento
+   ===================================================================== */
+/* barra: [Estudio][Intento] ……… [✕ Salir][dado] — todo de 40px; el dado, siempre el último */
+html.lm-fam-entonacion #viewPractice{ padding-top:16px !important; }
+html.lm-fam-entonacion .ph-bar{ gap:8px !important; }
+html.lm-fam-entonacion .ph-bar > button{ height:40px; }
+html.lm-fam-entonacion .ph-bar .ph-tab{ min-width:112px; }
+html.lm-fam-entonacion .ph-bar .ph-exit{ order:1; min-width:96px; }
+html.lm-fam-entonacion .ph-bar .ph-newlesson{ order:2; }
+
+html.lm-fam-entonacion .mini-tuner{ background:var(--lm-cristal) !important; border-color:var(--lm-borde-fuerte) !important; border-radius:10px !important; }
+html.lm-fam-entonacion .study-head, html.lm-fam-entonacion .attempt-head{
+  background:var(--lm-cristal) !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-entonacion .study-timer{ color:#fff !important; }
+html.lm-fam-entonacion .study-timer.warn{ color:#f5a623 !important; }
+html.lm-fam-entonacion .study-timer.crit{ color:#ef4444 !important; }
+html.lm-fam-entonacion .study-skip{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-entonacion .study-skip:hover{ color:var(--lm-azul) !important; border-bottom-color:var(--lm-azul) !important; }
+html.lm-fam-entonacion .study-text{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-entonacion .study-text b{ color:#fff !important; }
+html.lm-fam-entonacion .speed-hint-inline{ color:var(--lm-azul) !important; }
+/* herramientas del estudio en UNA fila: [Tónica][Escala][Pistas][Afinador] | [Practicar con acompañamiento] [Más lento][Normal][Más rápido] */
+html.lm-fam-entonacion .study-tools{ gap:8px !important; flex-wrap:nowrap !important; }
+html.lm-fam-entonacion .st-tempo{ gap:8px !important; }
+html.lm-fam-entonacion .study-tools > .st-tool{ min-width:112px; }
+html.lm-fam-entonacion .st-tempo .st-speed{ min-width:100px; }
+html.lm-fam-entonacion .st-sep{ background:var(--lm-borde-fuerte) !important; height:22px !important; margin:0 2px !important; flex:none; }
+html.lm-fam-entonacion .st-accomp-tip{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte); border-radius:var(--lm-r-chip) !important; box-shadow:none !important; }
+html.lm-fam-entonacion .st-accomp-tip::after{ border-top-color:rgba(11,19,32,.86) !important; }
+/* iPad apaisado y pantallas estrechas (≤1180px): la misma fila, algo más compacta, para que quepa
+   entera (si aun así no cupiera, pasa a dos filas en vez de salirse por la derecha) */
+@media (max-width:1180px){
+  html.lm-fam-entonacion #viewPractice{ padding-left:4px !important; padding-right:4px !important; }
+  html.lm-fam-entonacion .study-tools{ gap:6px !important; flex-wrap:wrap !important; row-gap:8px !important; }
+  html.lm-fam-entonacion .st-tempo{ gap:6px !important; }
+  html.lm-fam-entonacion .study-tools :is(.st-tool, .st-speed){ padding:0 10px !important; font-size:12px !important; gap:6px; }
+  html.lm-fam-entonacion .study-tools > .st-tool{ min-width:0; }
+  html.lm-fam-entonacion .study-tools .st-tempo .st-speed{ min-width:88px; }
+  html.lm-fam-entonacion .study-tools :is(.st-tool, .st-speed) svg.pl-i{ width:15px !important; height:15px !important; }
+}
+/* la partitura del alumno: papel blanco */
+html.lm-fam-entonacion .student-sheet{ border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 10px 34px rgba(0,0,0,.35) !important; }
+
+/* intento: [▶ Empezar intento] [Más lento][Normal][Más rápido] [ⓘ ¿Cómo funciona?][Afinador] */
+html.lm-fam-entonacion .attempt-status{ color:#fff !important; }
+html.lm-fam-entonacion .attempt-tools{ gap:8px !important; }
+html.lm-fam-entonacion .att-speed-sel{ margin:0 !important; }
+html.lm-fam-entonacion button.attempt-start{ min-width:176px; }
+html.lm-fam-entonacion .attempt-tools > .att-help-btn{ min-width:166px; }
+html.lm-fam-entonacion .att-help-info{ background:var(--lm-cristal-fuerte) !important; border-color:var(--lm-borde) !important; border-radius:10px !important; color:rgba(255,255,255,.86) !important; }
+html.lm-fam-entonacion .att-help-info b{ color:#fff !important; }
+html.lm-fam-entonacion .att-help-info b[style]{ color:var(--lm-azul) !important; }
+html.lm-fam-entonacion .signal-warn{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-entonacion .signal-warn.mic{ color:#f87171 !important; }
+html.lm-fam-entonacion .signal-warn.tune{ color:#f5a623 !important; }
+
+/* cuenta atrás y claqueta: número blanco limpio sobre un velo (sin sombra) */
+html.lm-fam-entonacion .clack-overlay, html.lm-fam-entonacion .study-countdown{ background:rgba(4,10,20,.55) !important; }
+
+/* =====================================================================
+   6. RESULTADO DEL INTENTO: aprobado en verde, suspenso en rojo (sin ámbar ni naranja)
+   ===================================================================== */
+/* el panel flota arriba, por debajo de la banda del rótulo de grado */
+html.lm-fam-entonacion .result-overlay{ padding-top:62px !important; }
+html.lm-fam-entonacion .result-card{
+  background:rgba(11,19,32,.95) !important; border:2px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important;
+  box-shadow:0 18px 50px rgba(0,0,0,.45) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-entonacion .result-overlay.good .result-card, html.lm-fam-entonacion .result-overlay.mid .result-card{ border-color:var(--lm-verde) !important; }
+html.lm-fam-entonacion .result-overlay.low2 .result-card, html.lm-fam-entonacion .result-overlay.bad .result-card{ border-color:#ef4444 !important; }
+html.lm-fam-entonacion .result-overlay.good .result-score, html.lm-fam-entonacion .result-overlay.mid .result-score{ color:var(--lm-verde) !important; }
+html.lm-fam-entonacion .result-overlay.low2 .result-score, html.lm-fam-entonacion .result-overlay.bad .result-score{ color:#ef4444 !important; }
+html.lm-fam-entonacion .result-msg{ color:#fff !important; }
+/* «Ayuda de piano: …»: etiqueta lisa y opaca (antes, tintes translúcidos que sobre oscuro se veían marrones) */
+html.lm-fam-entonacion .result-help{ border-radius:var(--lm-r-chip) !important; padding:4px 10px !important; }
+html.lm-fam-entonacion .result-help.h0, html.lm-fam-entonacion .result-help.h1{ background:#16a34a !important; color:#fff !important; }
+html.lm-fam-entonacion .result-help.h2{ background:#f5a623 !important; color:var(--lm-tinta) !important; }
+html.lm-fam-entonacion .result-help.h3{ background:#ea580c !important; color:#fff !important; }
+html.lm-fam-entonacion .result-help.h4{ background:#dc2626 !important; color:#fff !important; }
+/* sus botones: 40px; los dos de texto, del mismo ancho; «Salir» solo contorno; el dado, el último */
+html.lm-fam-entonacion .result-actions{ gap:10px !important; }
+html.lm-fam-entonacion .result-actions > button{ height:40px; }
+html.lm-fam-entonacion .result-actions > button:not(.lm-en-nuevo):not(.lm-en-salir){ min-width:224px; }
+html.lm-fam-entonacion .result-actions > button.lm-en-salir{ min-width:110px; order:1; }
+html.lm-fam-entonacion .result-actions > button.lm-en-nuevo{ order:2; }
+
+/* =====================================================================
+   7. AFINADOR (ventana)
+   ===================================================================== */
+html.lm-fam-entonacion .tuner-overlay{ background:rgba(4,10,20,.55) !important; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+html.lm-fam-entonacion .tuner-card{
+  background:var(--lm-cristal-fuerte) !important; color:#fff !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important;
+  box-shadow:0 24px 60px rgba(0,0,0,.45) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-entonacion .tuner-help, html.lm-fam-entonacion .tuner-status, html.lm-fam-entonacion .tuner-cents{ color:rgba(255,255,255,.78) !important; }
+html.lm-fam-entonacion .tuner-help b{ color:#fff; }
+html.lm-fam-entonacion .tuner-freq{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-entonacion .tuner-note{ color:var(--lm-azul) !important; }
+html.lm-fam-entonacion .tuner-card button.tuner-mic-btn{ height:40px; min-width:200px; }
+/* cerrar: cuadrado 1×1 con la ✕ plana, solo contorno */
+html.lm-fam-entonacion .tuner-card button.tuner-close{ width:36px; height:36px; padding:0 !important; gap:0; top:12px !important; right:12px !important; }
+/* barra del afinador: lisa y clara (la aguja cambia de color: verde/ámbar/rojo) */
+html.lm-fam-entonacion .tuner-bar{ background:#e6e9f1 !important; background-image:none !important; border-radius:6px !important; }
+
+/* =====================================================================
+   8. EDITOR DEL PROFESOR: cristal, acento azul y los mismos botones
+   ===================================================================== */
+html.lm-fam-entonacion .cfg-panel, html.lm-fam-entonacion .lib, html.lm-fam-entonacion .modal, html.lm-fam-entonacion .cell-modal, html.lm-fam-entonacion .gg-menu{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border-color:var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important;
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+html.lm-fam-entonacion .gg-menu{ border-radius:10px !important; }
+html.lm-fam-entonacion .modal-bg, html.lm-fam-entonacion .cell-modal-bg{ background:rgba(4,10,20,.55) !important; }
+html.lm-fam-entonacion :is(.levels button, .cfg-btn, .ed-mode, .ed-tool, .midi-badge, .midi-btn, .reg-btn, .li-load, .li-del,
+  .lib-reload, .cfg-actions button, .cell-modal-close button, .modal-actions button, .play-big){
+  display:inline-flex !important; align-items:center; justify-content:center; gap:7px;
+  height:36px; min-height:0; padding:0 14px !important; box-sizing:border-box;
+  border-radius:10px !important; box-shadow:none !important; background-image:none !important; filter:none;
+  border:1px solid var(--en-n) !important; background:var(--en-n) !important; color:#fff !important;
+  font:700 13px/1 var(--lm-fuente) !important; white-space:nowrap; opacity:1;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  transition:background-color .15s ease, border-color .15s ease !important;
+}
+html.lm-fam-entonacion :is(.levels button, .ed-mode, .ed-tool, .midi-btn, .li-load, .play-big):hover:not(:disabled):not(.active):not(.on){
+  background:var(--en-n-hover) !important; border-color:var(--en-n-hover) !important;
+}
+/* elegido / principal → azul: nivel, modo Alturas/Ritmo, reproduciendo, Registrar, Entrar, Exportar */
+html.lm-fam-entonacion :is(.levels button.active, .ed-mode.on, .play-big.on, .reg-btn, .modal-actions .ok, .cfg-actions .cfg-export, #importOk){
+  background:var(--lm-en-f) !important; border-color:var(--lm-en-f) !important; color:#fff !important;
+}
+html.lm-fam-entonacion :is(.reg-btn, .modal-actions .ok, .cfg-actions .cfg-export, #importOk):hover:not(:disabled){ background:var(--en-f-hover) !important; border-color:var(--en-f-hover) !important; }
+/* poco importante → solo contorno: Configurar · Cancelar · Cerrar · Borrar · recargar */
+html.lm-fam-entonacion :is(.cfg-btn, .modal-actions .cancel, .cell-modal-close button:not(#importOk), .cfg-actions .cfg-close, .li-del, .lib-reload){
+  background:transparent !important; border:1px solid var(--en-linea) !important; color:#fff !important;
+}
+html.lm-fam-entonacion :is(.cfg-btn, .modal-actions .cancel, .cell-modal-close button:not(#importOk), .cfg-actions .cfg-close, .lib-reload):hover{ border-color:rgba(255,255,255,.7) !important; }
+html.lm-fam-entonacion .li-del:hover{ border-color:#ef4444 !important; color:#fff !important; background:#dc2626 !important; }
+html.lm-fam-entonacion :is(.levels button, .reg-btn):disabled{ background:var(--en-n-off) !important; border-color:var(--en-n-off) !important; color:rgba(255,255,255,.42) !important; opacity:1 !important; }
+html.lm-fam-entonacion .ed-mode kbd, html.lm-fam-entonacion .ed-tool kbd{ background:rgba(255,255,255,.1) !important; border-color:rgba(255,255,255,.25) !important; color:rgba(255,255,255,.75) !important; }
+html.lm-fam-entonacion .ed-mode.on kbd{ color:#fff !important; border-color:rgba(255,255,255,.45) !important; }
+html.lm-fam-entonacion .midi-badge{ cursor:default; }
+html.lm-fam-entonacion .midi-badge.on{ border-color:var(--lm-verde) !important; }
+html.lm-fam-entonacion .pad-select{ height:36px; box-sizing:border-box; background:var(--en-n) !important; border:1px solid var(--en-n) !important; border-radius:10px !important; color:#fff !important; }
+html.lm-fam-entonacion .pad-select select{ background:#1a2436 !important; color:#fff !important; border-color:rgba(255,255,255,.2) !important; }
+html.lm-fam-entonacion :is(.levels button, .cfg-btn, .ed-mode, .ed-tool, .midi-badge, .midi-btn, .reg-btn, .lib-reload, .li-load, .li-del,
+  .cell-modal-close button, .modal-actions button, .play-big) svg.pl-i{
+  width:16px !important; height:16px !important; margin:0 !important; flex:none; color:#fff !important;
+}
+/* ▶ del editor: cuadrado 1×1 (neutro; azul mientras suena) */
+html.lm-fam-entonacion .play-big{ width:40px !important; height:40px !important; padding:0 !important; }
+html.lm-fam-entonacion .lib-reload{ width:32px !important; height:32px !important; padding:0 !important; }
+/* fila de arriba del editor: [Fácil][Medio][Difícil] [⚙ Configurar nivel MEDIO] [dado] — el dado, el último */
+html.lm-fam-entonacion .toolbar{ gap:10px !important; }
+html.lm-fam-entonacion .toolbar > .gen{ order:2; }
+html.lm-fam-entonacion .toolbar .dice-label{ display:none !important; }
+html.lm-fam-entonacion .levels{ gap:6px !important; }
+html.lm-fam-entonacion .levels button{ min-width:84px; }
+/* chips del panel de configuración: cristal; elegido, azul liso */
+html.lm-fam-entonacion .cfg-chip{ background:var(--lm-cristal) !important; border-color:rgba(255,255,255,.2) !important; border-radius:10px !important; }
+html.lm-fam-entonacion .cfg-chip.on{ background:var(--lm-en-f) !important; border-color:var(--lm-en-f) !important; }
+html.lm-fam-entonacion .cfg-chip .cc-not, html.lm-fam-entonacion .cfg-chip .cc-freq{ color:rgba(255,255,255,.75) !important; border-color:rgba(255,255,255,.3) !important; }
+html.lm-fam-entonacion .cfg-out, html.lm-fam-entonacion .reg-name, html.lm-fam-entonacion .modal input, html.lm-fam-entonacion #importText{ background:#111a2a !important; border-color:rgba(255,255,255,.2) !important; color:#fff !important; }
+html.lm-fam-entonacion .lib-item{ background:rgba(11,19,32,.6) !important; border-color:var(--lm-borde) !important; }
+/* aviso de validación: liso, sin el tinte ámbar translúcido (que sobre oscuro se veía marrón) */
+html.lm-fam-entonacion .reg-banner{ background:#1a2436 !important; border:1px solid #f5a623 !important; color:#fff !important; }
+html.lm-fam-entonacion .reg-banner b{ color:#fde3a7 !important; }
+html.lm-fam-entonacion .tempo-mini{ border-radius:6px !important; background:var(--en-n) !important; border-color:var(--en-n) !important; color:#fff !important; }
+html.lm-fam-entonacion .tempo-input{ background:#111a2a !important; border-color:rgba(255,255,255,.2) !important; color:#fff !important; }
+html.lm-fam-entonacion .modal-actions .cancel{ color:#fff !important; }

@@ -1,0 +1,499 @@
+/* =====================================================================
+   LM at home · PIEL · DICTADOS at home (GE, dictados.ge) y DICTADO PRO (GP, dictados.gp)
+   Solo aspecto. Todo cuelga de html.lm-fam-dictado. Compañero: dictado.js.
+   Apartado AUDICIÓN → naranja #f97316 (contornos, títulos) · relleno #ea580c con texto blanco.
+   Las partituras siguen sobre papel blanco.
+   26-sep-2026 primera vuelta · 27-sep-2026 segunda (créditos al pie, botones como Teoría)
+   27-sep-2026 (tarde) TERCERA VUELTA, lo que manda ahora (copia de antes: dictado.css.bak-27sep-v2):
+   · tarjetas de elegir (cursos, mantenimiento): cristal negro con SOLO el contorno naranja;
+     al pasar, naranja liso opaco (B, la de por defecto; la A sigue con ?tarjetas=a);
+   · botones lisos y opacos: neutro #243044 · principal naranja · poco importantes solo contorno;
+   · «Nuevo dictado» = SOLO el dado, cuadrado 40×40 naranja, el último de su fila;
+   · Revelar / Pistas / Solución: mismo tamaño, en rejilla; tarjetas de escucha todas iguales;
+   · rótulo de grado en la banda fija de arriba (el contenido empieza por debajo de 46px);
+   · GP sin dorado; sin sombras; el cartel del dictado en vídeo, panel opaco.
+   ===================================================================== */
+
+/* ---------- 0. las variables de la app pasan a la paleta del Diario (GE y GP igual) ---------- */
+html.lm-fam-dictado{
+  --bg:transparent; --panel:rgba(11,19,32,.72); --panel2:rgba(11,19,32,.72); --line:rgba(255,255,255,.12);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52); --paper:#ffffff;
+  --green:#22c55e; --green-soft:rgba(34,197,94,.16);
+  --red:#ef4444; --red-soft:rgba(239,68,68,.16);
+  --accent:#f97316; --accent-soft:rgba(249,115,22,.16);
+  --on:#16a34a; --off:rgba(255,255,255,.28);
+  --bas:#22c55e; --rec:#4a9eff; --oca:#f97316; --pun:#a855f7;
+  --pista:#f97316;
+  --gold1:#f97316; --gold2:#ea580c; --gold-soft:#ffffff;
+  --mel:#f97316; --mel-soft:rgba(249,115,22,.16);
+  --lm-dc-f:#ea580c;                                   /* relleno naranja con texto blanco */
+  --dc-neutro:#243044; --dc-neutro-h:#2d3b52;          /* botones normales: liso opaco */
+  --dc-contorno:rgba(255,255,255,.35);                  /* botones poco importantes: solo contorno */
+}
+html.lm-fam-dictado body{ font-family:var(--lm-fuente); }
+
+/* ---------- 1. banda del rótulo de grado: nada a sus lados; la cabecera empieza por debajo de 46px ---------- */
+html.lm-fam-dictado .apphead{ margin-top:calc(var(--lm-grado-banda, 46px) - 16px) !important; }   /* body ya tiene 20px arriba */
+html.lm-fam-dictado .topinfo.lm-vacio{ display:none !important; }                                 /* créditos → pie (dictado.js) */
+
+/* ---------- 2. cabecera: textos ---------- */
+html.lm-fam-dictado .home2, html.lm-fam-dictado .ath{ color:rgba(255,255,255,.82) !important; }
+/* «GRADO ELEMENTAL / PROFESIONAL» pequeñito bajo el logo: blanco también en GP (el único dorado es el rótulo de arriba) */
+html.lm-fam-dictado .lm-brand .lm-h1 span[aria-hidden="true"]{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-dictado .topinfo-by, html.lm-fam-dictado .topinfo-sep, html.lm-fam-dictado .topinfo-opt{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-dictado .apphead{ border-bottom-color:rgba(255,255,255,.14) !important; }
+html.lm-fam-dictado .appname-top .pre{ color:#fff !important; }
+html.lm-fam-dictado .appname-top .post{ color:#fff !important; opacity:.62 !important; }
+html.lm-fam-dictado .hybrid-note{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-dictado .hybrid-note .pistas-word{ color:var(--lm-naranja) !important; }
+html.lm-fam-dictado .difficulty-hint{ color:rgba(255,255,255,.6) !important; white-space:nowrap; }
+
+/* =====================================================================
+   3. BOTONES lisos y opacos, radio 10, icono de 16, texto en una línea
+      normales → neutro #243044 · principal → naranja · poco importantes → solo contorno
+   ===================================================================== */
+html.lm-fam-dictado .lm-ico-orig, html.lm-fam-dictado .lm-txt-orig{ display:none !important; }
+/* cabecera: Versión vídeo · 3ºGE · dado — la misma altura (40) que el dado */
+html.lm-fam-dictado .lm-actions{ gap:10px !important; }
+/* (sin tocar «display»: la app oculta/enseña el indicador de curso con style="display:…") */
+html.lm-fam-dictado .btn-dado, html.lm-fam-dictado .course-indicator{
+  box-sizing:border-box !important; height:40px !important; min-height:40px !important; padding:0 16px !important;
+  align-items:center !important; gap:7px !important;
+  background:var(--dc-neutro) !important; background-image:none !important; border:0 !important; border-radius:10px !important;
+  color:#fff !important; box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important; white-space:nowrap !important;
+  transition:background-color .15s ease !important;
+}
+html.lm-fam-dictado .btn-dado:hover, html.lm-fam-dictado .course-indicator:hover{ background:var(--dc-neutro-h) !important; }
+html.lm-fam-dictado .btn-dado svg, html.lm-fam-dictado .btn-dado svg.pl-i{ width:16px !important; height:16px !important; margin:0 !important; color:#fff !important; vertical-align:-3px; }
+html.lm-fam-dictado .btn-dado > span > svg.pl-i{ margin-right:4px !important; }   /* «Versión vídeo»: el icono va dentro del texto */
+html.lm-fam-dictado .course-indicator{ gap:7px !important; padding:0 14px !important; font-size:14px !important; }
+html.lm-fam-dictado .ci-dot{ background:var(--lm-naranja) !important; box-shadow:none !important; animation:none !important; border-radius:2px !important; }
+
+/* ---------- DADO: SOLO el dado, cuadrado 40×40 naranja liso; siempre el último de su fila
+   (cabecera · cartel del papel vacío · «Generar nuevo» del editor) ---------- */
+html.lm-fam-dictado .lm-dado, html.lm-fam-dictado .btn-dado.lm-dado, html.lm-fam-dictado .edit-btn.lm-dado, html.lm-fam-dictado .empty-cta-btn.lm-dado{
+  box-sizing:border-box !important; width:40px !important; min-width:40px !important; max-width:40px !important;
+  height:40px !important; min-height:40px !important; padding:0 !important; gap:0 !important; flex:none !important; order:99;
+  display:inline-flex; align-items:center !important; justify-content:center !important;
+  background:var(--lm-naranja-f) !important; background-image:none !important; border:0 !important; border-radius:10px !important;
+  color:#fff !important; box-shadow:none !important; transform:none !important; font-size:0 !important; line-height:0 !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-dictado .lm-dado:hover, html.lm-fam-dictado .btn-dado.lm-dado:hover, html.lm-fam-dictado .edit-btn.lm-dado:hover, html.lm-fam-dictado .empty-cta-btn.lm-dado:hover{
+  background:var(--lm-naranja-f) !important; filter:brightness(1.08); transform:none !important;
+}
+html.lm-fam-dictado .lm-dado > :not(svg.lm-ico-dice){ display:none !important; }
+html.lm-fam-dictado .lm-dado > svg.lm-ico-dice{ display:block !important; width:20px !important; height:20px !important; margin:0 !important; color:#fff !important; stroke:#fff !important; }
+
+/* ---------- 4. el dictado (papel blanco) y el papel vacío (con el dado en medio) ---------- */
+html.lm-fam-dictado .score-panel{ border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; }
+html.lm-fam-dictado #dictScore svg text[fill="#5b9dff"], html.lm-fam-dictado #dictScore svg text[fill="#d4af37"]{ fill:var(--lm-naranja-f) !important; }
+html.lm-fam-dictado #dictScore .bar-hl-line{ stroke:var(--lm-naranja) !important; }
+html.lm-fam-dictado #countInOverlay{ color:rgba(249,115,22,.7) !important; }
+html.lm-fam-dictado .empty-cta{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1px solid var(--lm-borde) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+
+/* ---------- 5. tempo (− 50 +): cuadrados lisos neutros ---------- */
+html.lm-fam-dictado .tempo-lbl{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-dictado .tempo-btn{
+  width:28px !important; height:28px !important; background:var(--dc-neutro) !important; border:0 !important; border-radius:8px !important;
+  color:#fff !important; box-shadow:none !important;
+}
+html.lm-fam-dictado .tempo-btn:hover{ background:var(--dc-neutro-h) !important; }
+html.lm-fam-dictado .tempo-val{ color:var(--lm-naranja) !important; }
+
+/* =====================================================================
+   6. TARJETAS DE ESCUCHA (1 Tonalidad · 2 Completo · 3 1ª Frase…): todas iguales y alineadas
+      (en GP las de frase eran más anchas y altas → las seis 118×132, con las bolitas compactas)
+   ===================================================================== */
+html.lm-fam-dictado .cards-title{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-dictado .cards-hint{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-dictado .cards-grid{ gap:10px !important; align-items:stretch !important; }
+html.lm-fam-dictado .listen-card, html.lm-fam-dictado .listen-card-wide{
+  box-sizing:border-box !important; width:118px !important; height:118px !important; min-height:0 !important;
+  padding:10px 8px !important; gap:6px !important; justify-content:space-between !important;
+  background:var(--lm-cristal) !important; background-image:none !important; border:1px solid var(--lm-borde) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-dictado.lm-gp .listen-card, html.lm-fam-dictado.lm-gp .listen-card-wide{ height:132px !important; }
+html.lm-fam-dictado .listen-card:hover{ border-color:var(--lm-naranja) !important; box-shadow:none !important; transform:none !important; }
+html.lm-fam-dictado .listen-card.spent:hover{ border-color:var(--lm-borde) !important; }
+html.lm-fam-dictado .listen-card.playing{ border-color:var(--lm-naranja) !important; box-shadow:inset 0 0 0 1px var(--lm-naranja) !important; }
+html.lm-fam-dictado .lc-num{
+  border-radius:6px !important; background:rgba(255,255,255,.08) !important; border:1px solid var(--lm-borde) !important; color:rgba(255,255,255,.74) !important;
+}
+html.lm-fam-dictado .listen-card.playing .lc-num{ background:var(--lm-dc-f) !important; border-color:var(--lm-dc-f) !important; color:#fff !important; }
+/* número y título en la misma línea, arriba a la izquierda, igual en todas las tarjetas */
+html.lm-fam-dictado .lc-num{ top:9px !important; left:9px !important; }
+html.lm-fam-dictado .lc-title{
+  color:#fff !important; margin-top:0 !important; white-space:nowrap !important; align-self:stretch !important;
+  text-align:left !important; padding-left:24px !important; line-height:20px !important;
+}
+/* escuchar: cuadrado 40×40 neutro liso; sonando, naranja (y late con el pulso) */
+html.lm-fam-dictado .lc-play{
+  box-sizing:border-box !important; width:40px !important; height:40px !important; flex:none !important;
+  border-radius:10px !important; border:0 !important; background:var(--dc-neutro) !important; box-shadow:none !important;
+}
+html.lm-fam-dictado .lc-play svg{ width:18px !important; height:18px !important; fill:none !important; stroke:#fff !important; stroke-width:2 !important; stroke-linejoin:round !important; stroke-linecap:round !important; overflow:visible; }
+html.lm-fam-dictado .lc-play:not(:disabled):hover{ background:var(--dc-neutro-h) !important; }
+html.lm-fam-dictado .listen-card.playing .lc-play{ background:var(--lm-dc-f) !important; }
+html.lm-fam-dictado .lc-play.beat{ background:var(--lm-naranja) !important; box-shadow:none !important; }
+/* bolitas: la misma caja en todas las tarjetas (en GP, alto para dos grupos) */
+html.lm-fam-dictado .lc-dots{ margin-top:0 !important; }
+html.lm-fam-dictado.lm-gp .lc-dots{ height:44px !important; align-items:center !important; align-content:center !important; }
+html.lm-fam-dictado.lm-gp .lc-dots-grouped{ flex-direction:column !important; flex-wrap:nowrap !important; gap:4px !important; }
+html.lm-fam-dictado .lc-dotgrp{ background:rgba(255,255,255,.05) !important; border-radius:6px !important; gap:6px !important; padding:1px 6px !important; }
+html.lm-fam-dictado.lm-gp .lc-miniclef{ gap:1px !important; margin-right:2px !important; }
+html.lm-fam-dictado.lm-gp .lc-miniclef .mc-sol{ font-size:18px !important; }
+html.lm-fam-dictado.lm-gp .lc-miniclef .mc-fa{ font-size:14px !important; }
+html.lm-fam-dictado .lc-dots .dotpip{ border-color:rgba(255,255,255,.52) !important; }
+html.lm-fam-dictado .lc-dots .dotpip.done{ background:rgba(255,255,255,.4) !important; border-color:transparent !important; }
+html.lm-fam-dictado .lc-dots .dotpip.active{ background:var(--lm-naranja) !important; border-color:transparent !important; box-shadow:none !important; }
+html.lm-fam-dictado .lc-miniclef .clef-on{ color:#fff !important; }
+
+/* =====================================================================
+   7. REVELAR · PISTAS · SOLUCIÓN: los cinco del mismo tamaño y forma, en rejilla
+        [Revelar tonalidad] [Pista rítmica ]
+        [Revelar compás   ] [Pista melódica]
+               [ ✓ Solución ]
+      (tres filas que ocupan justo el alto de las tarjetas de escucha)
+   ===================================================================== */
+html.lm-fam-dictado .action-grid{
+  display:grid !important; grid-template-columns:repeat(2, minmax(0, 1fr)) !important; grid-template-rows:repeat(3, minmax(34px, 1fr)) !important;
+  gap:8px !important; flex:0 0 auto !important; align-self:stretch !important;
+}
+html.lm-fam-dictado .action-col{ display:contents !important; }
+html.lm-fam-dictado #btnRevKey{ grid-column:1; grid-row:1; }
+html.lm-fam-dictado #btnRevTs{ grid-column:1; grid-row:2; }
+html.lm-fam-dictado #btnPistaRit{ grid-column:2; grid-row:1; }
+html.lm-fam-dictado #btnPistaMel{ grid-column:2; grid-row:2; }
+html.lm-fam-dictado .action-grid > .action-card.solu{ grid-column:1 / -1; grid-row:3; justify-self:center; width:calc(50% - 4px) !important; }
+/* 1º GE no tiene «Revelar tonalidad» (la app lo oculta): «Revelar compás» ocupa su hueco */
+html.lm-fam-dictado #btnRevKey[style*="none"] + #btnRevTs{ grid-row:1 / span 2; }
+html.lm-fam-dictado .action-mini, html.lm-fam-dictado .action-grid > .action-card.solu{
+  box-sizing:border-box !important; width:auto; height:auto !important; min-height:34px !important; flex:none !important;
+  display:flex !important; flex-direction:row !important; align-items:center !important; justify-content:center !important; gap:7px !important;
+  padding:0 14px !important; border:0 !important; border-radius:10px !important; box-shadow:none !important; transform:none !important;
+  font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important; white-space:nowrap !important; text-align:center !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-dictado .action-mini{ background:var(--dc-neutro) !important; background-image:none !important; color:#fff !important; }
+html.lm-fam-dictado .action-mini:hover{ background:var(--dc-neutro-h) !important; color:#fff !important; }
+html.lm-fam-dictado .action-mini.arming, html.lm-fam-dictado .action-mini.arming:hover{ background:var(--lm-dc-f) !important; color:#fff !important; }   /* pista armada */
+html.lm-fam-dictado .action-mini.blocked:hover{ background:var(--dc-neutro) !important; }
+html.lm-fam-dictado .action-mini svg.lm-ico-accion, html.lm-fam-dictado .action-card.solu svg.lm-ico-accion{ width:16px !important; height:16px !important; margin:0 !important; flex:none; color:#fff; }
+html.lm-fam-dictado .action-card{ border-radius:10px !important; }
+html.lm-fam-dictado .action-card.solu{ background:var(--lm-dc-f) !important; background-image:none !important; color:#fff !important; }
+html.lm-fam-dictado .action-card.solu:hover{ background:var(--lm-dc-f) !important; filter:brightness(1.08); color:#fff !important; }
+html.lm-fam-dictado .action-card .ac-label{ font:inherit !important; }
+
+/* ---------- modo pista: cartel y cuadrados sobre el papel ---------- */
+html.lm-fam-dictado #pistaHint{ background:var(--lm-dc-f) !important; border-radius:var(--lm-r-chip) !important; box-shadow:none !important; color:#fff !important; }
+html.lm-fam-dictado .pistaPulse{ border-color:var(--lm-naranja) !important; background:rgba(249,115,22,.16) !important; box-shadow:none !important; }
+html.lm-fam-dictado .pistaPulse:hover{ background:var(--lm-naranja) !important; }
+html.lm-fam-dictado .pistaZone:hover{ background:rgba(249,115,22,.16) !important; border-color:var(--lm-naranja) !important; }
+html.lm-fam-dictado .pistaZoneLbl{ color:#c2410c !important; border-radius:6px !important; }
+
+/* ---------- cuenta atrás 3·2·1 ---------- */
+html.lm-fam-dictado .countdown{ background:rgba(249,115,22,.12) !important; }
+html.lm-fam-dictado .countdown span{ color:var(--lm-naranja) !important; }
+
+/* =====================================================================
+   8. VENTANAS (revelar tonalidad/compás, solución, contraseñas…)
+   ===================================================================== */
+html.lm-fam-dictado .modal-bg, html.lm-fam-dictado .save-modal, html.lm-fam-dictado #out{
+  background:rgba(4,10,20,.55) !important; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+}
+html.lm-fam-dictado .modal, html.lm-fam-dictado .save-modal-box, html.lm-fam-dictado #out .box{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.45) !important; color:#fff;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-dictado .modal-t, html.lm-fam-dictado .save-modal-t{ color:#fff !important; }
+html.lm-fam-dictado .modal p{ color:rgba(255,255,255,.86) !important; }
+html.lm-fam-dictado .quiz-warn{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-dictado .quiz-warn strong{ color:var(--lm-naranja) !important; }
+/* botones de las ventanas: principal naranja liso · Cancelar / Volver a revisar solo contorno */
+html.lm-fam-dictado .modal-row button{
+  box-sizing:border-box !important; height:40px !important; padding:0 16px !important; border-radius:10px !important; box-shadow:none !important;
+  font:700 13px/1 var(--lm-fuente) !important; white-space:nowrap !important;
+}
+html.lm-fam-dictado .modal-row button.lm-con-icono{ display:inline-flex; align-items:center; gap:7px; }
+html.lm-fam-dictado .modal-row button svg.lm-ico-accion{ width:16px !important; height:16px !important; margin:0 !important; flex:none; }
+html.lm-fam-dictado .modal-row button.primary{ background:var(--lm-dc-f) !important; background-image:none !important; color:#fff !important; border:0 !important; }
+html.lm-fam-dictado .modal-row button.primary:hover{ filter:brightness(1.08); }
+html.lm-fam-dictado .modal-row button.ghost{ background:transparent !important; border:1px solid var(--dc-contorno) !important; color:#fff !important; }
+html.lm-fam-dictado .modal-row button.ghost:hover{ border-color:rgba(255,255,255,.75) !important; }
+/* ruedas (tonalidad / armadura / compás): sin cajas ni líneas; la elegida en una caja naranja lisa, texto blanco */
+html.lm-fam-dictado .wheel-label{ color:rgba(255,255,255,.62) !important; line-height:18px; }
+html.lm-fam-dictado .wheel-avail{ color:rgba(255,255,255,.52) !important; }
+html.lm-fam-dictado .wheel-block{ position:relative; }
+html.lm-fam-dictado .wheel{ position:relative; z-index:1; background:transparent !important; background-image:none !important; border:0 !important; box-shadow:none !important; }
+html.lm-fam-dictado .wheel-item{ color:rgba(255,255,255,.45) !important; }
+html.lm-fam-dictado .wheel-item.d2{ color:rgba(255,255,255,.28) !important; }
+html.lm-fam-dictado .wheel-item.sel{ color:#fff !important; }
+/* la caja de la elegida va DETRÁS de la rueda, sobre la fila central de SU rueda */
+html.lm-fam-dictado .wheel-sel-line{
+  top:70px !important; z-index:0 !important; left:8px !important; right:8px !important;
+  background:var(--lm-dc-f) !important; border:0 !important; border-radius:8px !important;
+}
+html.lm-fam-dictado .wheel-sel-line.ok{ background:var(--lm-verde-f) !important; }
+html.lm-fam-dictado .wheel-sel-line.ko{ background:#dc2626 !important; }
+html.lm-fam-dictado .wheel.ok .wheel-item.sel, html.lm-fam-dictado .wheel.ko .wheel-item.sel{ color:#fff !important; }
+html.lm-fam-dictado .quiz-feedback{ border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-dictado .quiz-feedback.ok{ background:rgba(34,197,94,.12) !important; border:1px solid rgba(34,197,94,.45) !important; color:#dcfce7 !important; }
+html.lm-fam-dictado .quiz-feedback.ko{ background:rgba(239,68,68,.12) !important; border:1px solid rgba(239,68,68,.45) !important; color:#fee2e2 !important; }
+html.lm-fam-dictado .maint-input, html.lm-fam-dictado #out textarea, html.lm-fam-dictado .save-modal-ta{
+  background:rgba(0,0,0,.35) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:10px !important; color:#fff !important;
+}
+html.lm-fam-dictado .maint-input:focus{ border-color:#fff !important; outline:none !important; }
+html.lm-fam-dictado #out .row button, html.lm-fam-dictado .save-modal-btns button{ background:var(--lm-dc-f) !important; color:#fff !important; border:0 !important; border-radius:10px !important; }
+html.lm-fam-dictado #out .row button.ghost, html.lm-fam-dictado .save-modal-btns .ghost{ background:transparent !important; border:1px solid var(--dc-contorno) !important; color:#fff !important; }
+/* contraseña de cursos en pruebas (estilos en línea en la app) */
+html.lm-fam-dictado #betaPassModal{ background:rgba(4,10,20,.6) !important; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+html.lm-fam-dictado #betaPassModal > div{
+  background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-dictado #betaPassModal input{ background:rgba(0,0,0,.35) !important; border-color:var(--lm-borde-fuerte) !important; color:#fff !important; }
+html.lm-fam-dictado #betaPassModal button{ border-radius:10px !important; }
+html.lm-fam-dictado #betaPassModal button:last-child{ background:var(--lm-dc-f) !important; color:#fff !important; border:0 !important; }
+html.lm-fam-dictado #betaPassModal button:first-child{ background:transparent !important; border:1px solid var(--dc-contorno) !important; color:#fff !important; }
+
+/* =====================================================================
+   9. SELECTOR DE CURSO («¿Para qué curso?») y menú de Mantenimiento (profesor): tarjetas de ELEGIR
+   ===================================================================== */
+html.lm-fam-dictado .course-gate{ background:rgba(4,10,20,.5) !important; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+html.lm-fam-dictado .course-gate-box{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.45) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-dictado .course-gate-t{ color:#fff !important; }
+html.lm-fam-dictado .course-gate-sub{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-dictado .course-gate-sub strong{ color:#fff !important; }
+/* común a A y B */
+html.lm-fam-dictado .course-gate-list .course-opt, html.lm-fam-dictado .maint-card{
+  border-radius:var(--lm-r-tarjeta) !important; color:#fff !important; box-shadow:none !important; background-image:none !important;
+  transition:transform .18s ease, border-color .18s ease, background-color .18s ease, filter .18s ease !important;
+}
+html.lm-fam-dictado .course-gate-list .course-opt-l{ color:#fff !important; }
+html.lm-fam-dictado .course-gate-list .course-opt-big{ color:#fff !important; }
+html.lm-fam-dictado .course-opt-note{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-dictado .course-opt-tag{ border-radius:6px !important; background:rgba(255,255,255,.1) !important; color:rgba(255,255,255,.7) !important; }
+html.lm-fam-dictado .maint-card-t{ color:#fff !important; }
+/* B (por defecto): cristal negro con SOLO el contorno naranja, entero; al pasar, naranja liso opaco */
+html.lm-fam-dictado.lm-tarjetas-b .course-gate-list .course-opt, html.lm-fam-dictado.lm-tarjetas-b .maint-card{
+  background:var(--lm-cristal) !important; border:1.5px solid var(--lm-naranja) !important;
+  -webkit-backdrop-filter:blur(8px) !important; backdrop-filter:blur(8px) !important;
+}
+html.lm-fam-dictado.lm-tarjetas-b .course-gate-list .course-opt:not(.locked):not(.notready):hover, html.lm-fam-dictado.lm-tarjetas-b .maint-card:hover{
+  transform:translateY(-3px) !important; background:var(--lm-naranja-f) !important; border-color:var(--lm-naranja) !important; box-shadow:none !important;
+}
+html.lm-fam-dictado.lm-tarjetas-b .course-gate-list .course-opt.locked:hover, html.lm-fam-dictado.lm-tarjetas-b .course-gate-list .course-opt.notready:hover{
+  transform:none !important; background:var(--lm-cristal) !important; border-color:var(--lm-naranja) !important; box-shadow:none !important;
+}
+html.lm-fam-dictado.lm-tarjetas-b .course-gate-list .course-opt:not(.locked):not(.notready):hover .course-opt-tag,
+html.lm-fam-dictado.lm-tarjetas-b .maint-card:hover .maint-card-d{ color:#fff !important; }
+/* A (?tarjetas=a): relleno naranja liso, texto blanco, sin borde */
+html.lm-fam-dictado.lm-tarjetas-a .course-gate-list .course-opt, html.lm-fam-dictado.lm-tarjetas-a .maint-card{
+  background:color-mix(in srgb, var(--lm-naranja-f) 94%, transparent) !important; border:0 !important;
+}
+html.lm-fam-dictado.lm-tarjetas-a .course-gate-list .course-opt:not(.locked):not(.notready):hover, html.lm-fam-dictado.lm-tarjetas-a .maint-card:hover{
+  transform:translateY(-3px) !important; filter:brightness(1.07); background:var(--lm-naranja-f) !important; border:0 !important; box-shadow:none !important;
+}
+html.lm-fam-dictado.lm-tarjetas-a .course-gate-list .course-opt.locked:hover, html.lm-fam-dictado.lm-tarjetas-a .course-gate-list .course-opt.notready:hover{
+  transform:none !important; background:color-mix(in srgb, var(--lm-naranja-f) 94%, transparent) !important; border:0 !important; box-shadow:none !important;
+}
+html.lm-fam-dictado.lm-tarjetas-a .course-gate-list .course-opt-tag{ background:rgba(255,255,255,.2) !important; color:#fff !important; }
+html.lm-fam-dictado.lm-tarjetas-a .course-opt-note, html.lm-fam-dictado.lm-tarjetas-a .maint-card-d{ color:rgba(255,255,255,.85) !important; }
+
+/* ---------- 10. pie de la app (Configuración · Registrar nuevo dictado): poco importantes → solo contorno;
+   debajo, el pie común con los créditos (dictado.js → LMPiel.alPie) ---------- */
+html.lm-fam-dictado .footer-min{
+  display:flex !important; justify-content:center !important; align-items:center !important; gap:10px !important;
+  margin:18px 0 0 !important; padding-top:16px !important; border-top-color:rgba(255,255,255,.14) !important;
+}
+html.lm-fam-dictado .foot-sep{ display:none !important; }
+html.lm-fam-dictado .foot-link{
+  box-sizing:border-box !important; height:34px !important; padding:0 14px !important; display:inline-flex !important; align-items:center !important;
+  background:transparent !important; border:1px solid var(--dc-contorno) !important; border-radius:10px !important;
+  color:#fff !important; font:600 12px/1 var(--lm-fuente) !important; letter-spacing:.02em !important; text-transform:none !important; white-space:nowrap !important;
+}
+html.lm-fam-dictado .foot-link:hover{ border-color:rgba(255,255,255,.75) !important; color:#fff !important; }
+html.lm-fam-dictado #lm-pie{ padding-top:12px; padding-bottom:4px; }
+/* «← Volver al dictado» (abajo a la izquierda, fuera del dictado): poco importante → solo contorno */
+html.lm-fam-dictado .back-gen{
+  box-sizing:border-box !important; height:40px !important; padding:0 14px !important;
+  background:rgba(11,19,32,.35) !important; border:1px solid var(--dc-contorno) !important; border-radius:10px !important; color:#fff !important;
+  box-shadow:none !important; font:700 13px/1 var(--lm-fuente) !important; white-space:nowrap !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-dictado .back-gen:hover{ border-color:rgba(255,255,255,.75) !important; }
+html.lm-fam-dictado .back-gen svg.pl-i{ width:16px; height:16px; vertical-align:-4px; margin-right:6px; }
+/* botones de solo icono (✕ cerrar · ⛶ pantalla completa · ↺ de nuevo…): el icono, centrado */
+html.lm-fam-dictado .dc-icobtn svg.pl-i, html.lm-fam-dictado .val-close svg.pl-i, html.lm-fam-dictado .vdel svg.pl-i{ width:16px; height:16px; margin:0; vertical-align:-3px; }
+html.lm-fam-dictado .dc-playbtn svg.pl-i{ margin:0; }
+html.lm-fam-dictado .reg-banner{ background:var(--lm-cristal-fuerte) !important; background-image:none !important; border-radius:var(--lm-r-boton) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+
+/* ---------- 11. Configuración (vista de edición, profesor) ---------- */
+html.lm-fam-dictado .cell, html.lm-fam-dictado .mel-card, html.lm-fam-dictado .ton-cell, html.lm-fam-dictado .course-float,
+html.lm-fam-dictado .laws-btn, html.lm-fam-dictado .edit-bar{
+  background:var(--lm-cristal) !important; background-image:none !important; border-color:var(--lm-borde) !important; box-shadow:none !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-dictado .cell{ border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-dictado .cell.on, html.lm-fam-dictado .meter-card.on{ border-color:rgba(34,197,94,.55) !important; background:rgba(22,163,74,.12) !important; }
+html.lm-fam-dictado .ton-cell.on{ border-color:var(--lm-naranja) !important; background:rgba(249,115,22,.14) !important; background-image:none !important; color:#fff !important; }
+/* cursos de la Configuración: botones neutros; el que se edita, naranja */
+html.lm-fam-dictado .course-float .course-opt{ background:var(--dc-neutro) !important; background-image:none !important; border-color:transparent !important; color:#fff !important; border-radius:10px !important; }
+html.lm-fam-dictado .course-float .course-opt:hover{ background:var(--dc-neutro-h) !important; }
+html.lm-fam-dictado .course-float .course-opt.on{ background:var(--lm-dc-f) !important; }
+html.lm-fam-dictado .tabs{ background:var(--lm-cristal) !important; border-color:var(--lm-borde) !important; }
+html.lm-fam-dictado .tabs button.active, html.lm-fam-dictado .bar button:not(.ghost), html.lm-fam-dictado .appnav button.active{ background:var(--lm-dc-f) !important; color:#fff !important; }
+html.lm-fam-dictado .edit-btn{ background:var(--dc-neutro) !important; background-image:none !important; border-color:transparent !important; color:#fff !important; border-radius:10px !important; }
+html.lm-fam-dictado .edit-btn:hover{ background:var(--dc-neutro-h) !important; }
+html.lm-fam-dictado .edit-btn.on, html.lm-fam-dictado .edit-done{ background:var(--lm-dc-f) !important; border-color:transparent !important; color:#fff !important; }
+html.lm-fam-dictado .edit-bar-lbl{ color:var(--lm-naranja) !important; }
+html.lm-fam-dictado .edit-bar-count, html.lm-fam-dictado .mel-badge{ border-radius:6px !important; }
+html.lm-fam-dictado .save-btn{ background:var(--lm-dc-f) !important; color:#fff !important; border-radius:10px !important; }
+html.lm-fam-dictado .addnew{ background:rgba(11,19,32,.55) !important; border-color:var(--lm-borde-fuerte) !important; }
+html.lm-fam-dictado .addnew input, html.lm-fam-dictado .addnew select, html.lm-fam-dictado .vaddrow.editing input{ background:rgba(0,0,0,.35) !important; color:#fff !important; border-color:var(--lm-borde-fuerte) !important; }
+html.lm-fam-dictado .harm-olabel{ color:var(--lm-naranja) !important; }
+html.lm-fam-dictado .harm-deg.dom{ color:#fdba74 !important; }
+html.lm-fam-dictado .ton-cell .ton-pending{ border-radius:6px !important; }
+html.lm-fam-dictado .track{ border-radius:8px !important; }
+html.lm-fam-dictado .knob{ border-radius:6px !important; }
+
+/* ---------- 12. mini-editor del profesor (sobre el papel): resaltados en naranja en vez de azul/verde (GE) u oro (GP) ---------- */
+html.lm-fam-dictado #dictScore #edSelBox{ fill:rgba(249,115,22,.18) !important; stroke:var(--lm-naranja) !important; }
+html.lm-fam-dictado #dictScore .ed-hit:hover{ fill:rgba(249,115,22,.14) !important; }
+html.lm-fam-dictado #dictScore .ed-pulse-hit:hover{ fill:rgba(249,115,22,.22) !important; }
+html.lm-fam-dictado #dictScore .ed-pulse-hit[fill="rgba(34,201,138,.10)"], html.lm-fam-dictado #dictScore .ed-pulse-hit[fill="rgba(212,175,55,.10)"]{ fill:rgba(249,115,22,.10) !important; }
+html.lm-fam-dictado #dictScore .ed-pulse-hit[fill="rgba(34,201,138,.12)"], html.lm-fam-dictado #dictScore .ed-pulse-hit[fill="rgba(212,175,55,.12)"]{ fill:rgba(249,115,22,.12) !important; }
+html.lm-fam-dictado #dictScore .ed-pulse-hit[fill="rgba(34,201,138,.26)"], html.lm-fam-dictado #dictScore .ed-pulse-hit[fill="rgba(212,175,55,.26)"]{ fill:rgba(249,115,22,.24) !important; }
+html.lm-fam-dictado #dictScore .ed-pulse-hit[fill="rgba(34,201,138,.42)"], html.lm-fam-dictado #dictScore .ed-pulse-hit[fill="rgba(212,175,55,.42)"]{ fill:rgba(249,115,22,.38) !important; }
+html.lm-fam-dictado #dictScore .ed-pulse-hit[stroke="#22c98a"], html.lm-fam-dictado #dictScore .ed-pulse-hit[stroke="#d4af37"]{ stroke:var(--lm-naranja) !important; }
+html.lm-fam-dictado #midiStatus{ border-radius:6px !important; background:rgba(255,255,255,.06) !important; border-color:rgba(255,255,255,.2) !important; }
+html.lm-fam-dictado #midiStatus[style*="color: rgb(212, 175, 55)"], html.lm-fam-dictado #midiStatus[style*="color:#d4af37"], html.lm-fam-dictado #midiStatus[style*="color: #d4af37"]{ color:#4ade80 !important; }
+html.lm-fam-dictado .rl-selftest b[style*="d4af37"]{ color:#4ade80 !important; }
+/* modo clase (llega desde el Diario): banner, botón y ventana «Confirmar tonalidad» sin degradados ni dorado */
+html.lm-fam-dictado #paraClaseBar{ background:var(--lm-dc-f) !important; background-image:none !important; }
+html.lm-fam-dictado #btnParaClase{ background:var(--lm-dc-f) !important; background-image:none !important; box-shadow:none !important; color:#fff !important; }
+html.lm-fam-dictado #confTonOverlay{ background:rgba(4,10,20,.6) !important; }
+html.lm-fam-dictado #confTonOverlay > div{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important;
+  border-radius:var(--lm-r-tarjeta) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-dictado #confTonOverlay > div > div:first-child{ color:var(--lm-naranja) !important; }
+html.lm-fam-dictado #confTonMayor, html.lm-fam-dictado #confTonMenor{ border-color:rgba(255,255,255,.2) !important; background:rgba(255,255,255,.04) !important; }
+html.lm-fam-dictado #confTonMayor[style*="233, 201, 106, 0.16"], html.lm-fam-dictado #confTonMenor[style*="233, 201, 106, 0.16"],
+html.lm-fam-dictado #confTonMayor[style*="233,201,106,.16"], html.lm-fam-dictado #confTonMenor[style*="233,201,106,.16"]{ border-color:var(--lm-naranja) !important; background:rgba(249,115,22,.18) !important; }
+html.lm-fam-dictado #confTonOk{ background:var(--lm-dc-f) !important; background-image:none !important; color:#fff !important; }
+
+/* =====================================================================
+   13. VERSIÓN VÍDEO (pestaña ?video=1: portada y reproductor animado a pantalla completa)
+   ===================================================================== */
+html.lm-fam-dictado #dvLander{ background:transparent !important; }
+/* la portada esconde todo lo demás de la página: el rótulo de grado se deja visible (en su banda) */
+html.lm-fam-dictado.dv-mode body > #lm-grado#lm-grado{ display:block !important; }
+html.lm-fam-dictado #dvModal{ background:rgba(4,10,20,.55) !important; }
+html.lm-fam-dictado .dv-card{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.45) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-dictado .dv-tit{ color:#fff !important; }
+html.lm-fam-dictado .dv-sub{ color:var(--lm-naranja) !important; }
+html.lm-fam-dictado .dv-txt{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-dictado .dv-b{ box-sizing:border-box !important; height:40px !important; padding:0 18px !important; border-radius:10px !important; display:inline-flex; align-items:center; gap:7px; font:700 13px/1 var(--lm-fuente) !important; }
+html.lm-fam-dictado .dv-b.main{ background:var(--lm-dc-f) !important; background-image:none !important; color:#fff !important; border:0 !important; }
+html.lm-fam-dictado .dv-b.ghost{ background:transparent !important; border:1px solid var(--dc-contorno) !important; color:#fff !important; }
+html.lm-fam-dictado .dv-b svg.pl-i{ width:16px; height:16px; margin:0; }
+/* «← Volver al modo interactivo»: poco importante → botón de solo contorno */
+html.lm-fam-dictado .dv-links a{
+  box-sizing:border-box; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px;
+  border:1px solid var(--dc-contorno); border-radius:10px; color:#fff !important; text-decoration:none !important; font:600 13px/1 var(--lm-fuente);
+}
+html.lm-fam-dictado .dv-links a:hover{ border-color:rgba(255,255,255,.75); }
+html.lm-fam-dictado .dv-links a svg.pl-i{ width:16px; height:16px; margin:0; }
+
+/* reproductor: la foto del conservatorio también detrás (es una capa opaca a pantalla completa) */
+html.lm-fam-dictado #dcOverlay{ background:#0b1320 !important; background-image:none !important; isolation:isolate; }
+html.lm-fam-dictado #dcOverlay::before{
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:url("../fondo-vertical.jpg") center 62% / cover no-repeat; filter:blur(4px) saturate(1.08); transform:scale(1.04);
+}
+@media (min-aspect-ratio: 1/1){ html.lm-fam-dictado #dcOverlay::before{ background-image:url("../fondo-apaisado.jpg"); background-position:center; } }
+html.lm-fam-dictado #dcOverlay::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(8,22,40,.56); }
+/* banda del rótulo de grado también en el reproductor (capa a pantalla completa): la barra de arriba baja por debajo
+   de 46px y el rótulo queda encima, en su sitio (en pantalla completa de verdad no se ve el rótulo: sin banda) */
+html.lm-fam-dictado #dcOverlay:not(:fullscreen){ padding-top:calc(var(--lm-grado-banda, 46px) - 10px) !important; box-sizing:border-box !important; }
+html.lm-fam-dictado body:has(> #dcOverlay.abierto) > #lm-grado{ position:fixed !important; z-index:601 !important; display:block !important; }
+html.lm-fam-dictado .dc-titulo{ color:#fff !important; }
+html.lm-fam-dictado #dcInfoRevel{ color:var(--lm-naranja) !important; }
+/* arriba a la derecha: ⛶ (acción normal, neutro) · ✕ (salir, solo contorno); cuadrados 40×40 */
+html.lm-fam-dictado .dc-icobtn{
+  box-sizing:border-box !important; width:40px !important; height:40px !important; padding:0 !important;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--dc-neutro) !important; border:0 !important; border-radius:10px !important; color:#fff !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-dictado .dc-icobtn:hover{ background:var(--dc-neutro-h) !important; }
+html.lm-fam-dictado .dc-icobtn[onclick*="close"]{ background:transparent !important; border:1px solid var(--dc-contorno) !important; }
+html.lm-fam-dictado .dc-icobtn[onclick*="close"]:hover{ border-color:rgba(255,255,255,.75) !important; }
+/* EL CARTEL («Pulsa ▶ para empezar», «1ª FRASE», «FIN DEL DICTADO»…): panel opaco y texto limpio, sin sombras ni velos */
+html.lm-fam-dictado .dc-cartel{
+  box-sizing:border-box; align-self:center; width:min(760px, calc(100% - 52px)); min-height:96px; margin:2px auto 6px;
+  padding:12px 24px; background:#131c2c !important; border:1px solid rgba(255,255,255,.12); border-radius:var(--lm-r-panel);
+}
+html.lm-fam-dictado .dc-cartel:has(#dcBig:empty):has(#dcSub:empty):has(#dcSub2:empty){ background:transparent !important; border-color:transparent; }
+html.lm-fam-dictado .dc-cartel-big{ color:#fff !important; text-shadow:none !important; }
+html.lm-fam-dictado .dc-cartel-sub{ color:var(--lm-naranja) !important; text-shadow:none !important; }
+html.lm-fam-dictado .dc-cartel-sub2{ color:rgba(255,255,255,.82) !important; text-shadow:none !important; }
+html.lm-fam-dictado .dc-score-panel{ border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; }
+html.lm-fam-dictado .dc-barhl{ background:var(--lm-naranja) !important; box-shadow:none !important; }
+html.lm-fam-dictado .dc-playbtn{
+  background:var(--lm-dc-f) !important; background-image:none !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; color:#fff !important;
+}
+html.lm-fam-dictado .dc-playbtn:hover{ filter:brightness(1.08); }
+html.lm-fam-dictado .dc-ctl-lbl{ color:rgba(255,255,255,.62) !important; }
+html.lm-fam-dictado .dc-mini{
+  background:var(--dc-neutro) !important; border:0 !important; border-radius:10px !important; color:#fff !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-dictado .dc-mini:hover{ background:var(--dc-neutro-h) !important; }
+html.lm-fam-dictado .dc-val{ color:var(--lm-naranja) !important; }
+html.lm-fam-dictado .dc-progress{ background:rgba(255,255,255,.16) !important; border-radius:4px !important; }
+html.lm-fam-dictado .dc-progress-fill{ background:var(--lm-naranja) !important; background-image:none !important; border-radius:4px !important; }
+html.lm-fam-dictado .dc-revelar{ background:var(--lm-dc-f) !important; background-image:none !important; color:#fff !important; box-shadow:none !important; border-radius:10px !important; }
+
+/* =====================================================================
+   14. PANTALLAS MÁS ESTRECHAS (1024 horizontal). Fallo anterior al rediseño: la fila de escucha +
+   Revelar/Pistas/Solución se salía por la derecha. Solo parte en otra línea cuando no cabe;
+   en 1280 y 1440 todo va en una fila.
+   ===================================================================== */
+html.lm-fam-dictado .cards-row{ flex-wrap:wrap !important; row-gap:12px; overflow:visible !important; }
+html.lm-fam-dictado .cards-grid{ flex:0 1 auto !important; min-width:0; flex-wrap:wrap !important; row-gap:10px; }
+html.lm-fam-dictado .cards-spacer{ display:block !important; }
+/* ya no caben en una fila (por debajo de ~1160px): los cinco en UNA fila, bajo las tarjetas de escucha,
+   a lo ancho del papel: Revelar tonalidad · Revelar compás · Pista rítmica · Pista melódica · Solución */
+@media (max-width:1160px){
+  html.lm-fam-dictado .cards-spacer{ display:none !important; }
+  html.lm-fam-dictado .action-grid{ flex:0 0 100% !important; grid-template-columns:repeat(5, minmax(0, 1fr)) !important; grid-template-rows:34px !important; }
+  html.lm-fam-dictado #btnRevKey{ grid-column:1; grid-row:1; }
+  html.lm-fam-dictado #btnRevTs{ grid-column:2; grid-row:1; }
+  html.lm-fam-dictado #btnPistaRit{ grid-column:3; grid-row:1; }
+  html.lm-fam-dictado #btnPistaMel{ grid-column:4; grid-row:1; }
+  html.lm-fam-dictado .action-grid > .action-card.solu{ grid-column:5; grid-row:1; width:auto !important; justify-self:stretch; }
+  html.lm-fam-dictado #btnRevKey[style*="none"] + #btnRevTs{ grid-column:1 / span 2; grid-row:1; }
+}
+/* (móvil: no es para móvil; se deja que no se salga nada) */
+@media (max-width:640px){
+  html.lm-fam-dictado .lm-top{ flex-wrap:wrap !important; row-gap:12px !important; }
+  html.lm-fam-dictado .lm-actions{ flex-wrap:wrap !important; gap:8px !important; }
+  html.lm-fam-dictado .cards-grid{ flex:1 1 100% !important; max-width:100%; }
+  html.lm-fam-dictado .cards-spacer{ display:none !important; }
+  html.lm-fam-dictado .difficulty-hint{ white-space:normal; }
+}

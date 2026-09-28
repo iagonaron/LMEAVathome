@@ -1,0 +1,318 @@
+/* =====================================================================
+   LM at home · PIEL · ACCESO RÍTMICO at home (GE · alumnos de 4º)
+   simuladoraccesoritmo.ge.lmathome.es — 26-sep-2026 · 2.ª vuelta 27-sep-2026 ·
+   3.ª vuelta 27-sep-2026 (tarde/noche, Iago). Copia de antes: acceso.css.bak-27sep-v2.
+   Solo aspecto: nada de funcionamiento. Todo cuelga de html.lm-fam-acceso.
+   Color de la app: VERDE de Ritmo (#22c55e; rellenos #16a34a con texto blanco).
+   La partitura sigue sobre papel blanco. Esta app no tiene quiz.
+   3.ª vuelta:
+   · rótulo de grado en la banda fija de arriba del núcleo: la cabecera empieza por debajo (§2);
+   · botones lisos y opacos de 40px: − tempo + · Ayuda rítmica · Tocar · DADO en una fila, con
+     «Ayuda rítmica» y «Tocar» del mismo ancho; normales neutro #243044, lo activo y lo principal en
+     verde; Volver, Edición, Mantenimiento, Cancelar y Cerrar, solo contorno (§3);
+   · el DADO: cuadrado 40×40 verde con SOLO el dado blanco, siempre el último de la fila, arriba a la
+     derecha de la partitura (acceso.js; su texto sigue en title/aria-label);
+   · catálogo (Edición): pestañas sueltas del mismo ancho; tarjetas B = cristal negro con el contorno
+     verde entero (las apagadas, contorno tenue); las de compases, al pasar el ratón, verde liso (§5);
+   · icono de «Ayuda rítmica» en blanco.
+   Tarjetas A (?tarjetas=a): las reglas de la 2.ª vuelta, tal cual (§6).
+   Quitar: borrar este fichero (y acceso.js).
+   ===================================================================== */
+
+/* ---------- 1. Paleta: las variables de la app pasan a la del Diario ----------
+   (los colores de frecuencia del catálogo —básico, recurrente, ocasional, puntual—
+   son datos y se conservan) */
+html.lm-fam-acceso{
+  --panel:rgba(11,19,32,.72); --panel2:rgba(11,19,32,.72); --line:rgba(255,255,255,.12);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.55);
+  --green:#22c55e; --green-soft:rgba(34,197,94,.18);
+  --accent:#16a34a; --accent2:#16a34a; --accent-soft:rgba(34,197,94,.14);
+  --on:#16a34a; --off:rgba(255,255,255,.24);
+  /* 3.ª vuelta: botones lisos y opacos */
+  --a3-neutro:#243044; --a3-neutro-h:#2d3b52; --a3-alto:40px; --a3-contorno:rgba(255,255,255,.35);
+  --a3-ancho:150px;     /* «Ayuda rítmica» y «Tocar», del mismo ancho */
+}
+html.lm-fam-acceso body{ font-family:var(--lm-fuente); }
+
+/* ---------- 2. Cabecera ----------
+   3.ª vuelta: el rótulo GRADO ELEMENTAL va en la banda fija de arriba del núcleo (46px) y a sus lados no
+   puede haber nada: la cabecera (logo y controles) empieza justo por debajo de esa banda. */
+html.lm-fam-acceso body{ padding-top:calc(var(--lm-grado-banda, 46px) + 10px) !important; }
+html.lm-fam-acceso .home2, html.lm-fam-acceso .ath{ color:rgba(255,255,255,.72) !important; }
+html.lm-fam-acceso .brand .eav{ color:rgba(255,255,255,.62); }
+html.lm-fam-acceso .brand-sub{ color:rgba(255,255,255,.62); white-space:nowrap; }
+html.lm-fam-acceso .appname-top{ margin-top:10px !important; }
+html.lm-fam-acceso .appname-top .post{ opacity:.7; }
+html.lm-fam-acceso .hint{ color:rgba(255,255,255,.74); margin-top:8px !important; }
+/* «by…» y «Optimizado…» bajan al pie (acceso.js): se cierra la fila vacía de arriba */
+html.lm-fam-acceso .lm-vacio{ display:none !important; }
+
+/* ---------- 3. BOTONES lisos y opacos (3.ª vuelta) ----------
+   40px de alto, radio 10, icono de 16px blanco, texto en una línea.
+   normales → neutro #243044 · principal (Tocar, Exportar, Copiar, «Sí, reproducir») y lo activo → verde ·
+   poco importantes (Volver, Edición, Mantenimiento, Cancelar, Cerrar) → solo contorno blanco 35 % */
+html.lm-fam-acceso .tbtn,
+html.lm-fam-acceso .transport .play,
+html.lm-fam-acceso .gen .dice-btn,
+html.lm-fam-acceso .rhythm-toggle,
+html.lm-fam-acceso .backbtn,
+html.lm-fam-acceso .bottomnav button,
+html.lm-fam-acceso .bar button,
+html.lm-fam-acceso .tabs button,
+html.lm-fam-acceso .modal-row button,
+html.lm-fam-acceso #out .row button{
+  box-sizing:border-box !important; height:var(--a3-alto) !important; min-height:var(--a3-alto) !important; margin:0;
+  border-radius:10px !important; box-shadow:none !important; background-image:none !important;
+  font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important; color:#fff !important;
+  display:inline-flex !important; align-items:center; justify-content:center; gap:7px; white-space:nowrap;
+  padding:0 16px !important; width:auto; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  transition:background-color .15s, border-color .15s, filter .15s !important;
+}
+/* normales: neutro opaco */
+html.lm-fam-acceso .tbtn,
+html.lm-fam-acceso .rhythm-toggle,
+html.lm-fam-acceso .tabs button,
+html.lm-fam-acceso .bar button.ghost{ background-color:var(--a3-neutro) !important; border:1px solid transparent !important; }
+html.lm-fam-acceso .tbtn:not(:disabled):hover,
+html.lm-fam-acceso .rhythm-toggle:hover,
+html.lm-fam-acceso .tabs button:not(.active):hover,
+html.lm-fam-acceso .bar button.ghost:hover{ background-color:var(--a3-neutro-h) !important; border-color:transparent !important; color:#fff !important; }
+/* principal: verde liso */
+html.lm-fam-acceso .bar button:not(.ghost),
+html.lm-fam-acceso .modal-row button.primary,
+html.lm-fam-acceso #out .row button:not(.ghost){ background-color:var(--lm-verde-f) !important; border:1px solid transparent !important; }
+html.lm-fam-acceso .bar button:not(.ghost):hover,
+html.lm-fam-acceso .modal-row button.primary:hover,
+html.lm-fam-acceso #out .row button:not(.ghost):hover{ background-color:var(--lm-verde-f) !important; filter:brightness(1.08); }
+/* poco importantes: solo contorno */
+html.lm-fam-acceso .backbtn,
+html.lm-fam-acceso .bottomnav button,
+html.lm-fam-acceso .modal-row button.ghost,
+html.lm-fam-acceso #out .row button.ghost{ background-color:transparent !important; border:1px solid var(--a3-contorno) !important; }
+html.lm-fam-acceso .backbtn:hover,
+html.lm-fam-acceso .bottomnav button:hover,
+html.lm-fam-acceso .modal-row button.ghost:hover,
+html.lm-fam-acceso #out .row button.ghost:hover{ background-color:transparent !important; border-color:rgba(255,255,255,.75) !important; color:#fff !important; }
+html.lm-fam-acceso .tbtn:focus-visible, html.lm-fam-acceso .transport .play:focus-visible, html.lm-fam-acceso .gen .dice-btn:focus-visible,
+html.lm-fam-acceso .backbtn:focus-visible, html.lm-fam-acceso .bottomnav button:focus-visible, html.lm-fam-acceso .tabs button:focus-visible,
+html.lm-fam-acceso .bar button:focus-visible, html.lm-fam-acceso .modal-row button:focus-visible, html.lm-fam-acceso #out .row button:focus-visible,
+html.lm-fam-acceso .rhythm-toggle:has(input:focus-visible){ outline:2px solid #fff !important; outline-offset:2px; }
+
+/* --- 3a. fila de la cabecera: − tempo + · Ayuda rítmica · Tocar · DADO (el dado, siempre el último) --- */
+html.lm-fam-acceso .controls{ gap:0 !important; }
+html.lm-fam-acceso .transport{ gap:8px !important; flex-wrap:nowrap !important; }
+html.lm-fam-acceso #bpmDown{ order:1; }
+html.lm-fam-acceso .transport .tempo{ order:2; color:rgba(255,255,255,.74) !important; margin:0 4px !important; min-width:64px; text-align:center; font-size:13px !important; }
+html.lm-fam-acceso .transport .tempo b{ color:#fff !important; font-size:15px !important; }
+html.lm-fam-acceso #bpmUp{ order:3; }
+html.lm-fam-acceso .transport .rhythm-toggle{ order:4; margin-left:8px !important; }
+html.lm-fam-acceso .transport .play{ order:5; }
+html.lm-fam-acceso .transport .gen{ order:6; }
+/* − / + : cuadrados neutros */
+html.lm-fam-acceso .tbtn{ width:var(--a3-alto) !important; flex:0 0 var(--a3-alto) !important; padding:0 !important; font-size:18px !important; display:grid !important; place-items:center; }
+html.lm-fam-acceso .tbtn:disabled{ opacity:.35 !important; }
+/* Ayuda rítmica (casilla) y Tocar: el mismo ancho */
+html.lm-fam-acceso .rhythm-toggle,
+html.lm-fam-acceso .transport .play{ width:var(--a3-ancho) !important; flex:0 0 var(--a3-ancho) !important; padding:0 12px !important; }
+/* Ayuda rítmica: neutro; marcada, verde. La casilla, un cuadradito blanco de trazo (marcada: blanca con ✓ verde) */
+html.lm-fam-acceso .rhythm-toggle{ gap:9px !important; cursor:pointer; user-select:none; }
+html.lm-fam-acceso .rhythm-toggle:has(input:checked),
+html.lm-fam-acceso .rhythm-toggle:has(input:checked):hover{ background-color:var(--lm-verde-f) !important; border-color:transparent !important; color:#fff !important; }
+html.lm-fam-acceso .rhythm-toggle input{
+  -webkit-appearance:none !important; appearance:none !important; box-sizing:border-box; flex:none;
+  width:16px !important; height:16px !important; margin:0 !important; border:1.5px solid rgba(255,255,255,.9); border-radius:4px;
+  background:transparent center / 12px 12px no-repeat; cursor:pointer; outline:none;
+}
+html.lm-fam-acceso .rhythm-toggle input:checked{
+  background-color:#fff;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316a34a' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E");
+  border-color:#fff;
+}
+/* Tocar / Parar: verde liso. Sin !important en el color de fondo: así el parpadeo al pulso (animación de la app) sigue viéndose */
+html.lm-fam-acceso .transport .play{ background-color:var(--lm-verde-f); border:1px solid transparent !important; }
+html.lm-fam-acceso .transport .play:hover{ background-color:var(--lm-verde-f); filter:brightness(1.08); }
+html.lm-fam-acceso .transport .play:active{ transform:scale(.97) !important; }
+html.lm-fam-acceso .transport .play.playing{ animation-name:lmAccPulso !important; }
+@keyframes lmAccPulso{ 0%{ background-color:#22c55e; } 18%{ background-color:#16a34a; } 100%{ background-color:#16a34a; } }
+/* DADO: cuadrado 40×40 verde liso con SOLO el dado blanco */
+html.lm-fam-acceso .gen{ display:flex !important; gap:0 !important; margin:0 !important; }
+html.lm-fam-acceso .gen .dice-btn,
+html.lm-fam-acceso .gen .dice-btn.lm-dado{
+  width:var(--a3-alto) !important; min-width:var(--a3-alto) !important; flex:0 0 var(--a3-alto) !important; padding:0 !important;
+  display:inline-grid !important; place-items:center; border:0 !important; background-color:var(--lm-verde-f) !important;
+}
+html.lm-fam-acceso .gen .dice-btn:hover{ background-color:var(--lm-verde-f) !important; filter:brightness(1.08); }
+html.lm-fam-acceso .gen .dice-btn:active{ transform:scale(.95) !important; }
+html.lm-fam-acceso .gen .dice-btn svg.lm-dado-ico{
+  display:block !important; width:20px !important; height:20px !important; margin:0 !important;
+  color:#fff !important; stroke:#fff !important; fill:none !important;
+}
+/* la etiqueta suelta «Nuevo ejercicio» y el dado dibujado por la app se quedan, ocultos */
+html.lm-fam-acceso .gen .dice-label,
+html.lm-fam-acceso .lm-ico-orig{ display:none !important; }
+
+/* iconos planos: 16px, blancos (en los rectángulos el hueco lo pone el gap) */
+html.lm-fam-acceso .transport .play > svg.pl-i,
+html.lm-fam-acceso .backbtn > svg.pl-i,
+html.lm-fam-acceso .bottomnav button > svg.pl-i,
+html.lm-fam-acceso .bar button > svg.pl-i,
+html.lm-fam-acceso .modal-row button > svg.pl-i,
+html.lm-fam-acceso #out .row button > svg.pl-i{
+  display:block !important; width:16px !important; height:16px !important; margin:0 !important;
+  fill:none !important; stroke:currentColor !important; color:#fff !important; flex:none;
+}
+html.lm-fam-acceso .lm-btn-vestido .lm-txt{ line-height:1; }
+
+/* --- 3b. pie de la vista principal (✎ Edición · 🔒 Mantenimiento) y ← Volver: solo contorno, mismo ancho --- */
+html.lm-fam-acceso .bottomnav{ gap:10px !important; }
+html.lm-fam-acceso .bottomnav button{ min-width:170px !important; }
+html.lm-fam-acceso .backbtn{ margin:22px 0 18px !important; }
+
+/* ---------- 4. Partitura (papel blanco) y pulso resaltado ---------- */
+html.lm-fam-acceso #score{ border:0 !important; border-radius:var(--lm-r-panel) !important; box-shadow:none !important; }
+html.lm-fam-acceso #pulseHL{ background:rgba(34,197,94,.16) !important; }
+html.lm-fam-acceso #pulseHL.accent{ background:rgba(34,197,94,.28) !important; }
+
+/* cuenta atrás 3·2·1 */
+html.lm-fam-acceso #countdown{ background:rgba(8,14,24,.55) !important; }
+html.lm-fam-acceso #countdown span{ color:#fff !important; }
+
+/* ventana de «Ayuda rítmica»: cristal oscuro; el icono del título, blanco (3.ª vuelta) */
+html.lm-fam-acceso .modal-bg{ background:rgba(4,10,20,.6) !important; }
+html.lm-fam-acceso .modal{
+  background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); box-shadow:0 24px 60px rgba(0,0,0,.5) !important;
+}
+html.lm-fam-acceso .modal-t{ display:flex; align-items:center; gap:10px; }
+html.lm-fam-acceso .modal-t svg.pl-i{ color:#fff !important; width:22px !important; height:22px !important; margin:0 !important; }
+html.lm-fam-acceso .modal-row{ gap:10px !important; }
+
+/* ---------- 5. Catálogo de ritmos (Edición) y Mantenimiento ---------- */
+html.lm-fam-acceso .sub{ color:rgba(255,255,255,.78); }
+html.lm-fam-acceso .legend{ color:rgba(255,255,255,.74); }
+html.lm-fam-acceso .bar .count{ color:rgba(255,255,255,.74); }
+/* pestañas: botones sueltos del mismo ancho (sin caja); la elegida, verde liso */
+html.lm-fam-acceso .tabs{
+  display:grid !important; grid-template-columns:repeat(4, 136px); gap:8px !important;
+  padding:0 !important; background:none !important; border:0 !important; border-radius:0 !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-acceso .tabs button{ width:100% !important; padding:0 10px !important; font-size:14px !important; }
+html.lm-fam-acceso .tabs button.active,
+html.lm-fam-acceso .tabs button.active:hover{ background-color:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-acceso .tabhint, html.lm-fam-acceso .meters-colhead{ color:rgba(255,255,255,.7) !important; }
+
+/* tarjetas (común A/B): rectángulo de 16px; en las apagadas se apaga solo lo de dentro
+   (si se apaga la tarjeta entera, el cristal se ve lechoso) */
+html.lm-fam-acceso .cell{
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important;
+  transition:background-color .18s ease, border-color .18s ease, transform .18s ease !important;
+}
+html.lm-fam-acceso .cell.off{ opacity:1 !important; }
+html.lm-fam-acceso .cell.off > *{ opacity:.62; }
+html.lm-fam-acceso .meter-card.off .meter-name b{ color:rgba(255,255,255,.4) !important; }
+
+/* B (por defecto, 3.ª vuelta) · cristal NEGRO con SOLO el contorno verde, entero (1,5px), sin relleno de color;
+   las apagadas, el mismo cristal con un contorno tenue. */
+html.lm-fam-acceso.lm-tarjetas-b .cell,
+html.lm-fam-acceso.lm-tarjetas-b .cell.off{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1.5px solid rgba(255,255,255,.16) !important;
+  box-shadow:none !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-acceso.lm-tarjetas-b .cell.on{ border-color:var(--lm-verde) !important; }
+html.lm-fam-acceso.lm-tarjetas-b .toggle input:checked + .track{ background:var(--lm-verde-f) !important; }
+/* compases (las tarjetas de elegir): al pasar el ratón, verde liso OPACO con el mismo contorno; lo de dentro, blanco.
+   (las de células son paneles de trabajo con partitura y botones: no se rellenan al pasar) */
+html.lm-fam-acceso.lm-tarjetas-b .meter-card:hover{
+  background:var(--lm-verde-f) !important; border-color:var(--lm-verde) !important; transform:translateY(-3px);
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+}
+html.lm-fam-acceso.lm-tarjetas-b .meter-card:hover > *{ opacity:1; }
+html.lm-fam-acceso.lm-tarjetas-b .meter-card:hover .meter-name b{ color:#fff !important; }
+html.lm-fam-acceso.lm-tarjetas-b .meter-card.off:hover .meter-name b{ color:rgba(255,255,255,.72) !important; }
+html.lm-fam-acceso.lm-tarjetas-b .meter-card:hover .toggle .track{ background:rgba(11,19,32,.32) !important; }
+html.lm-fam-acceso.lm-tarjetas-b .meter-card:hover .toggle input:checked + .track{ background:#fff !important; }
+html.lm-fam-acceso.lm-tarjetas-b .meter-card:hover .toggle input:checked + .track + .knob{ background:var(--lm-verde-f) !important; }
+
+/* A (?tarjetas=a) · activada = rellena de verde liso, texto blanco, sin borde de color (2.ª vuelta, tal cual) */
+html.lm-fam-acceso.lm-tarjetas-a .cell.off{
+  background:var(--lm-cristal) !important; border:1px solid var(--lm-borde) !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-acceso.lm-tarjetas-a .cell.on{
+  background:color-mix(in srgb, var(--lm-verde-f) 94%, transparent) !important; border:1px solid transparent !important;
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+}
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .name,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .meter-name b{ color:#fff !important; }
+/* chips y botones dentro de la tarjeta verde: cristal blanco */
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .pulses,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .freq button:not(.sel),
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .fb button:not(.sel),
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .vaddrow button,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .vedit:not([style*="background"]),
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .vdel,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .star:not(.on),
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .vartoggle,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .ungroup{
+  background:rgba(255,255,255,.2) !important; border-color:transparent !important; color:#fff !important;
+}
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .freq button:not(.sel):hover,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .fb button:not(.sel):hover,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .vaddrow button:hover,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .vedit:not([style*="background"]):hover,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .vdel:hover,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .star:not(.on):hover,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .vartoggle:hover{ background:rgba(255,255,255,.3) !important; }
+/* nivel elegido (color de dato): un filo blanco para que se distinga bien sobre el verde */
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .freq button.sel{ box-shadow:0 0 0 2px #fff !important; }
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .varwrap{ border-top-color:rgba(255,255,255,.35) !important; }
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .varitem{ background:rgba(11,19,32,.2) !important; border-color:rgba(255,255,255,.22) !important; }
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .hint-mono,
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .gcount{ color:rgba(255,255,255,.85) !important; }
+/* interruptor sobre verde: pista blanca y botón verde (encendido); apagado, pista oscura */
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .toggle .track{ background:rgba(11,19,32,.3) !important; }
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .toggle input:checked + .track{ background:#fff !important; }
+html.lm-fam-acceso.lm-tarjetas-a .cell.on .toggle input:checked + .track + .knob{ background:var(--lm-verde-f) !important; }
+
+/* interruptores: rectángulo suave, no pastilla (y en las tarjetas de compases, a su tamaño: la app los estiraba en alto) */
+html.lm-fam-acceso .toggle .track{ border-radius:8px !important; }
+html.lm-fam-acceso .toggle .knob{ border-radius:6px !important; }
+html.lm-fam-acceso .track{ background:rgba(255,255,255,.24) !important; }
+html.lm-fam-acceso .meter-card .toggle{ flex:0 0 auto !important; height:28px !important; }
+
+/* dentro de las tarjetas de células (paneles de trabajo): botoncitos lisos y opacos (neutro; lo elegido, su color de dato) */
+html.lm-fam-acceso .cell .pulses{ border-color:var(--lm-borde-fuerte) !important; color:rgba(255,255,255,.74) !important; border-radius:6px !important; }
+html.lm-fam-acceso .score, html.lm-fam-acceso .miniscore{ border-radius:10px !important; }
+html.lm-fam-acceso .freq button, html.lm-fam-acceso .fb button{ border-radius:var(--lm-r-chip) !important; }
+/* (en A, dentro de la tarjeta verde, mandan las reglas de §6, que son más concretas) */
+html.lm-fam-acceso .freq button:not(.sel),
+html.lm-fam-acceso .fb button:not(.sel){ background:var(--a3-neutro) !important; border-color:transparent !important; color:rgba(255,255,255,.88) !important; }
+html.lm-fam-acceso .freq button:not(.sel):hover,
+html.lm-fam-acceso .fb button:not(.sel):hover{ background:var(--a3-neutro-h) !important; color:#fff !important; }
+html.lm-fam-acceso .fb button > svg.pl-i{ width:13px !important; height:13px !important; vertical-align:-2px !important; margin:0 .4em 0 0 !important; }
+html.lm-fam-acceso .cell button > svg.pl-i{ display:inline-block !important; width:13px !important; height:13px !important; vertical-align:-2px !important; margin:0 .4em 0 0 !important; }
+html.lm-fam-acceso .varitem{ background:rgba(255,255,255,.04) !important; border-color:var(--lm-borde) !important; border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-acceso .grouphdr input, html.lm-fam-acceso .grpname-edit, html.lm-fam-acceso .varhead input.vname-edit{ background:rgba(0,0,0,.3) !important; border-color:var(--lm-borde-fuerte) !important; color:#fff !important; }
+html.lm-fam-acceso .vaddrow input{ background:rgba(0,0,0,.35) !important; border-color:var(--lm-borde-fuerte) !important; }
+/* (las marcadas «MAL» / «QUITAR» llevan su color puesto por la app en style="": es un dato, se respeta) */
+html.lm-fam-acceso .vaddrow button, html.lm-fam-acceso .vedit, html.lm-fam-acceso .vdel, html.lm-fam-acceso .cell .ungroup, html.lm-fam-acceso .star{ border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-acceso .vaddrow button, html.lm-fam-acceso .vedit:not([style*="background"]), html.lm-fam-acceso .vdel,
+html.lm-fam-acceso .cell .ungroup, html.lm-fam-acceso .star:not(.on){ background:var(--a3-neutro) !important; border-color:transparent !important; color:rgba(255,255,255,.88) !important; }
+html.lm-fam-acceso .vaddrow button:hover, html.lm-fam-acceso .vedit:not([style*="background"]):hover, html.lm-fam-acceso .vdel:hover,
+html.lm-fam-acceso .cell .ungroup:hover, html.lm-fam-acceso .star:not(.on):hover{ background:var(--a3-neutro-h) !important; color:#fff !important; }
+html.lm-fam-acceso #out{ background:rgba(4,10,20,.8) !important; }
+html.lm-fam-acceso #out .box{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+html.lm-fam-acceso #out textarea{ background:rgba(0,0,0,.4) !important; border-color:var(--lm-borde-fuerte) !important; color:#fff !important; border-radius:10px !important; }
+html.lm-fam-acceso #out .row button{ cursor:pointer; }
+html.lm-fam-acceso .maint-placeholder{ background:var(--lm-cristal) !important; border:1px dashed var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important; color:rgba(255,255,255,.62) !important; }
+
+/* ---------- 6. Pie común: abajo del todo aunque la página sea corta (Mantenimiento) ----------
+   (el cuerpo pasa a columna flexible: comprobado píxel a píxel que las vistas no se mueven) */
+html.lm-fam-acceso body{ display:flex !important; flex-direction:column; }
+html.lm-fam-acceso #lm-pie{ margin-top:auto; flex:none; }
+
+/* ---------- 7. Móvil (no es prioritario: «ahí me da igual»): la partitura, a su tamaño ---------- */
+@media (max-width:640px){
+  html.lm-fam-acceso #view-gen.active{ min-height:0 !important; }
+}

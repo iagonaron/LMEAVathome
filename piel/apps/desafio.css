@@ -1,0 +1,154 @@
+/* =====================================================================
+   LM at home · PIEL · DESAFÍO 6 SEMICORCHEAS at home (GE · alumnos de 4º)
+   6semicorcheas.ge.lmathome.es — 26-sep-2026 · 2.ª vuelta 27-sep-2026 ·
+   3.ª vuelta 27-sep-2026 (tarde/noche, Iago). Copia de antes: desafio.css.bak-27sep-v2.
+   Solo aspecto: nada de funcionamiento. Todo cuelga de html.lm-fam-desafio.
+   Color de la app: VERDE de Ritmo (#22c55e; rellenos #16a34a con texto blanco).
+   La partitura sigue sobre papel blanco. Esta app no tiene quiz.
+   Tarjetas de elegir: esta app no tiene (los niveles son un selector), así que A y B se ven igual.
+   3.ª vuelta:
+   · rótulo de grado en la banda fija de arriba del núcleo: la cabecera empieza por debajo (§2);
+   · botones lisos y opacos, todos de 40px de alto y en rejilla simétrica: los cuatro niveles del
+     mismo ancho arriba y, debajo, − tempo + (bajo los dos primeros) · Tocar · DADO (bajo los dos
+     últimos); el nivel elegido y Tocar en verde; el resto neutro #243044 (§3);
+   · el DADO: cuadrado 40×40 verde con SOLO el dado blanco, el último de la fila, arriba a la
+     derecha de la partitura (desafio.js le quita la palabra; su texto sigue en title/aria-label);
+   · «Leyenda» ya no lleva contorno especial: igual que los otros niveles (nada de dorado).
+   Quitar: borrar este fichero (y desafio.js).
+   ===================================================================== */
+
+/* ---------- 1. Paleta ---------- */
+html.lm-fam-desafio{
+  --panel:rgba(11,19,32,.72); --panel2:rgba(11,19,32,.72); --line:rgba(255,255,255,.12);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.55);
+  --gold1:#22c55e; --gold2:#16a34a;
+  --accent:#16a34a; --accent-soft:rgba(34,197,94,.14);
+  /* 3.ª vuelta: botones lisos y opacos */
+  --d3-neutro:#243044; --d3-neutro-h:#2d3b52; --d3-alto:40px;
+  --d3-col:104px;       /* ancho de cada nivel (los 4 iguales) */
+  --d3-hueco:8px;       /* hueco entre botones, en las dos filas */
+}
+/* el cuerpo crece con el contenido (la app lo fija al alto de la ventana) */
+html.lm-fam-desafio body{ font-family:var(--lm-fuente); height:auto !important; }
+
+/* ---------- 2. Cabecera ----------
+   3.ª vuelta: el rótulo GRADO ELEMENTAL va en la banda fija de arriba del núcleo (46px) y a sus lados no
+   puede haber nada: la cabecera (logo y controles) empieza justo por debajo de esa banda. */
+html.lm-fam-desafio body{ padding-top:calc(var(--lm-grado-banda, 46px) + 10px) !important; }
+html.lm-fam-desafio .home2{ color:rgba(255,255,255,.72) !important; }
+/* «GRADO ELEMENTAL» bajo el logo (es parte del logo LM at home, como en Dictado): en blanco */
+html.lm-fam-desafio .brand h1 span[aria-hidden="true"]{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-desafio .appname-top{ margin-top:10px !important; }
+html.lm-fam-desafio .appname-top .pre{ opacity:.7; }
+html.lm-fam-desafio .hint{ color:rgba(255,255,255,.74); margin-top:8px !important; }
+/* «by…» y «Versión optimizada…» bajan al pie (desafio.js): se cierran los huecos que dejan arriba */
+html.lm-fam-desafio .lm-vacio{ display:none !important; }
+
+/* ---------- 3. Controles: dos filas de botones lisos y opacos, en rejilla simétrica ----------
+   Fila 1: Principiante · Intermedio · Avanzado · Leyenda, los cuatro del mismo ancho.
+   Fila 2: − tempo + (debajo de los dos primeros) · Tocar · DADO (debajo de los dos últimos).
+   Las dos filas miden lo mismo y sus bordes caen unos encima de otros. */
+html.lm-fam-desafio .controls{ gap:var(--d3-hueco) !important; align-items:stretch !important; }
+
+/* niveles: botones sueltos (sin caja); el elegido, verde liso; los demás, neutro opaco */
+html.lm-fam-desafio .levels{
+  display:grid !important; grid-template-columns:repeat(4, var(--d3-col)); gap:var(--d3-hueco) !important;
+  padding:0 !important; margin:0 !important; background:none !important; border:0 !important; border-radius:0 !important;
+  box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-desafio .levels button,
+html.lm-fam-desafio .levels button.leyenda{
+  box-sizing:border-box !important; height:var(--d3-alto) !important; width:100% !important; padding:0 8px !important; margin:0 !important;
+  border:0 !important; border-radius:10px !important; box-shadow:none !important; background:var(--d3-neutro) !important; background-image:none !important;
+  color:#fff !important; font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important; white-space:nowrap !important;
+  transition:background-color .15s !important;
+}
+html.lm-fam-desafio .levels button:hover,
+html.lm-fam-desafio .levels button.leyenda:hover{ background:var(--d3-neutro-h) !important; color:#fff !important; }
+html.lm-fam-desafio .levels button.active,
+html.lm-fam-desafio .levels button.active:hover,
+html.lm-fam-desafio .levels button.leyenda.active,
+html.lm-fam-desafio .levels button.leyenda.active:hover{ background:var(--lm-verde-f) !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-desafio .levels button:focus-visible{ outline:2px solid #fff !important; outline-offset:2px; }
+
+/* fila de transporte: rejilla alineada con la de los niveles */
+html.lm-fam-desafio .transport{
+  display:grid !important; align-items:center !important; justify-content:stretch !important;
+  grid-template-columns:var(--d3-alto) minmax(0,1fr) var(--d3-alto) calc(2 * var(--d3-col) - var(--d3-alto)) var(--d3-alto);
+  column-gap:var(--d3-hueco) !important; row-gap:0 !important;
+}
+html.lm-fam-desafio .transport .tempo{ color:rgba(255,255,255,.74) !important; min-width:0 !important; font-size:13px !important; text-align:center; white-space:nowrap; }
+html.lm-fam-desafio .transport .tempo b{ color:#fff !important; }
+html.lm-fam-desafio .transport .tbtn,
+html.lm-fam-desafio .transport .play,
+html.lm-fam-desafio .gen .dice-btn{
+  box-sizing:border-box !important; height:var(--d3-alto) !important; margin:0 !important; border-radius:10px !important;
+  box-shadow:none !important; background-image:none !important; color:#fff !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important;
+  transition:background-color .15s, filter .15s !important;
+}
+/* − / + : cuadrados neutros */
+html.lm-fam-desafio .transport .tbtn{
+  width:var(--d3-alto) !important; flex:none !important; padding:0 !important; font-size:18px !important;
+  display:grid !important; place-items:center; background-color:var(--d3-neutro) !important; border:0 !important;
+}
+html.lm-fam-desafio .transport .tbtn:hover{ background-color:var(--d3-neutro-h) !important; }
+/* Tocar / Parar: la acción principal, verde liso, llena su hueco.
+   Sin !important en el color de fondo: así el parpadeo al pulso (animación de la app) sigue viéndose */
+html.lm-fam-desafio .transport .play{
+  width:100% !important; flex:none !important; padding:0 14px !important; border:0 !important;
+  display:inline-flex !important; align-items:center; justify-content:center; gap:7px; white-space:nowrap;
+  background-color:var(--lm-verde-f);
+}
+html.lm-fam-desafio .transport .play:hover{ background-color:var(--lm-verde-f); filter:brightness(1.08); }
+html.lm-fam-desafio .transport .play:active{ transform:scale(.97) !important; }
+/* mientras suena: parpadeo verde al pulso (el tempo lo marca la app con --pulse-ms) */
+html.lm-fam-desafio .transport .play.playing{ animation-name:lmDesPulso !important; }
+@keyframes lmDesPulso{ 0%{ background-color:#22c55e; } 18%{ background-color:#16a34a; } 100%{ background-color:#16a34a; } }
+
+/* DADO: cuadrado 40×40 verde liso con SOLO el dado blanco; el último de la fila (arriba a la derecha de la partitura) */
+html.lm-fam-desafio .gen{ display:flex !important; gap:0 !important; margin:0 !important; justify-content:flex-end; }
+html.lm-fam-desafio .gen .dice-btn,
+html.lm-fam-desafio .gen .dice-btn.lm-dado{
+  width:var(--d3-alto) !important; min-width:var(--d3-alto) !important; flex:0 0 var(--d3-alto) !important; padding:0 !important;
+  display:inline-grid !important; place-items:center; border:0 !important; background-color:var(--lm-verde-f) !important;
+}
+html.lm-fam-desafio .gen .dice-btn:hover{ background-color:var(--lm-verde-f) !important; filter:brightness(1.08); }
+html.lm-fam-desafio .gen .dice-btn:active{ transform:scale(.95) !important; }
+html.lm-fam-desafio .gen .dice-btn:focus-visible, html.lm-fam-desafio .transport button:focus-visible{ outline:2px solid #fff !important; outline-offset:2px; }
+html.lm-fam-desafio .gen .dice-btn svg.lm-dado-ico{
+  display:block !important; width:20px !important; height:20px !important; margin:0 !important;
+  color:#fff !important; stroke:#fff !important; fill:none !important;
+}
+/* la etiqueta suelta «Nuevo ejercicio» y el dado dibujado por la app se quedan, ocultos */
+html.lm-fam-desafio .gen .dice-label,
+html.lm-fam-desafio .lm-ico-orig{ display:none !important; }
+/* icono plano de Tocar/Parar: 16px, blanco */
+html.lm-fam-desafio .transport .play svg.lm-ico-nuevo{
+  display:block !important; width:16px !important; height:16px !important; margin:0 !important;
+  fill:none !important; stroke:currentColor !important; color:#fff !important; flex:none;
+}
+html.lm-fam-desafio .lm-btn-vestido .lm-txt{ line-height:1; }
+html.lm-fam-desafio .count-num{ color:#fff; }
+
+/* ---------- 4. Partitura (papel blanco) ---------- */
+html.lm-fam-desafio #score{ border:0 !important; border-radius:var(--lm-r-panel) !important; box-shadow:none !important; }
+html.lm-fam-desafio .measure-hi{ fill:rgba(34,197,94,.16) !important; }
+
+/* cuenta atrás 3·2·1 */
+html.lm-fam-desafio #countdown{ background:rgba(8,14,24,.55) !important; }
+html.lm-fam-desafio #countdown span{ color:#fff !important; }
+
+/* BONUS TRACK (capa a pantalla completa mientras suena): el rótulo de grado se queda visible encima, en su
+   banda (fijo solo mientras se ve la capa), y la cuenta 2·1 de la esquina baja por debajo de la banda */
+html.lm-fam-desafio #bonusScreen{ background:rgba(8,14,24,.9) !important; }
+html.lm-fam-desafio body:has(> #bonusScreen.playing) #lm-grado{ position:fixed !important; z-index:60 !important; }
+html.lm-fam-desafio #bonusScreen .bs-count{ top:calc(var(--lm-grado-banda, 46px) + 10px) !important; }
+html.lm-fam-desafio #bonusScreen .bs-title{ background:none !important; -webkit-background-clip:initial !important; background-clip:initial !important; color:var(--lm-verde) !important; }
+html.lm-fam-desafio #bonusScreen .bs-score{ border:0 !important; border-radius:var(--lm-r-panel) !important; box-shadow:none !important; }
+
+/* ---------- 5. Pie común: abajo del todo aunque la página sea corta ---------- */
+html.lm-fam-desafio #lm-pie{ margin-top:auto; flex:none; }
+/* el pie ya trae su aire abajo: sin el margen de la app debajo, a 1024×768 cabe todo sin scroll */
+html.lm-fam-desafio body{ padding-bottom:0 !important; }

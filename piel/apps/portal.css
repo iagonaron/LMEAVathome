@@ -1,0 +1,483 @@
+/* =====================================================================
+   LM at home · PIEL · PORTALES GE (ge.lmathome.es) y GP (gp.lmathome.es)
+   (26-sep-2026, Iago) Solo aspecto. Todo cuelga de html.lm-fam-portal.
+   27-sep-2026 (noche) · TERCERA VUELTA:
+   - barra de arriba en UNA fila alineada, de la misma altura que la banda de las apps
+     (46px, centro a 23px): «Bienvenido/a…» a la izquierda, «Formato digital» en el centro,
+     [Carrusel PRO] [Mis resultados] [campana] a la derecha; debajo, a la izquierda, la
+     hilera de herramientas de Tester/Protester;
+   - tarjetas: cristal negro con SOLO el contorno del color del apartado; al pasar el ratón,
+     relleno liso opaco de ese color;
+   - botones lisos y opacos (neutro #243044; lo poco importante, solo contorno);
+   - notificaciones con el contorno entero (sin resalte a la izquierda);
+   - leyenda de «Mis resultados» opaca e icono centrado;
+   - GP: nada de dorado (salvo el rótulo «GRADO PROFESIONAL»), portadas del medallero con
+     sus colores originales (sin sepia) y sin los distintivos «GP» de las tarjetas.
+   Copia de la versión anterior: portal.css.bak-27sep-v2
+   ===================================================================== */
+
+/* ---------- las variables del portal pasan a la paleta del Diario ---------- */
+html.lm-fam-portal{
+  --bg:#0b1320; --panel:rgba(11,19,32,.72); --panel2:rgba(11,19,32,.72); --line:rgba(255,255,255,.12);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52);
+  --accent:#4a9eff;
+  --area-entonacion:#4a9eff; --area-ritmo:#22c55e; --area-audicion:#f97316; --area-teoria:#ec4899;
+  --lm-neutro:#243044; --lm-neutro-h:#2d3b52;
+  --lm-barra:46px; --lm-ctl:34px;
+}
+/* GP sin dorado: las variables «oro» del portal pasan a blanco (el rótulo GRADO PROFESIONAL lo pinta aparte) */
+html.lm-fam-portal.lm-gp{ --gold1:#ffffff; --gold2:rgba(255,255,255,.55); --gold-soft:rgba(255,255,255,.85); }
+html.lm-fam-portal body{ font-family:var(--lm-fuente); }
+html.lm-fam-portal .veil{ display:none !important; }
+
+/* ---------- cabecera (LM at home + GRADO …) ---------- */
+html.lm-fam-portal .hero-title .t-lm{ color:#fff !important; }
+html.lm-fam-portal .hero-title .t-home, html.lm-fam-portal .home2, html.lm-fam-portal .ath{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-portal .hero-title .t-pro{ color:#fff !important; }
+html.lm-fam-portal .hero-grade{ color:#ffffff !important; }
+html.lm-fam-portal.lm-gp .hero-grade{ color:var(--lm-oro) !important; }      /* el único dorado de GP: el rótulo */
+html.lm-fam-portal .hero .tag{ color:rgba(255,255,255,.9) !important; }
+html.lm-fam-portal .hero .tag b{ color:#fff !important; }
+html.lm-fam-portal .hero .tag .tag-grade{ color:rgba(255,255,255,.74) !important; }
+/* la cabecera queda donde estaba aunque la barra de arriba ahora sea más baja */
+html.lm-fam-portal .hero{ margin-top:66px !important; }
+
+/* ---------- pie: «by Iago González Alonso» / «Optimizado para ordenador y tablet», abajo del todo y centrados ---------- */
+html.lm-fam-portal .topbar .opt-mini, html.lm-fam-portal .topbar .by{ display:none !important; }
+html.lm-fam-portal .foot-legal{ color:rgba(255,255,255,.5) !important; margin:34px auto 0 !important; }
+html.lm-fam-portal .foot{
+  display:flex !important; flex-direction:column !important; align-items:center !important; gap:2px !important;
+  margin:30px 0 0 !important; padding:0 !important; text-align:center !important;
+  font:500 12px/1.5 var(--lm-fuente) !important; letter-spacing:.02em !important; color:rgba(255,255,255,.62) !important;
+}
+html.lm-fam-portal .foot.lm-foot-2l{ margin-top:22px !important; }
+html.lm-fam-portal .foot .lm-foot-orig{ display:none !important; }
+html.lm-fam-portal .foot .lm-foot-l{ display:block; white-space:nowrap; }
+html.lm-fam-portal .foot .lm-opt::before{ content:none !important; }
+
+/* =====================================================================
+   BARRA DE ARRIBA · una sola fila alineada (centro a 23px, como el rótulo de las apps)
+   ===================================================================== */
+html.lm-fam-portal .wrap{ padding-top:0 !important; }
+html.lm-fam-portal .topbar{
+  position:relative !important; display:flex !important; align-items:center !important; justify-content:flex-end !important;
+  height:var(--lm-barra) !important; min-height:var(--lm-barra) !important; padding:0 !important; margin:0 !important;
+}
+/* izquierda: «Bienvenido/a, Nombre ✓ [Salir]» en la fila; debajo, la hilera de Tester/Protester */
+html.lm-fam-portal .portal-welcome{
+  position:absolute !important; left:0 !important; top:0 !important; transform:none !important;
+  flex-direction:column !important; align-items:flex-start !important; gap:6px !important;
+  color:rgba(255,255,255,.78) !important; white-space:nowrap !important;
+}
+html.lm-fam-portal .portal-welcome:not([style*="none"]){ display:flex; }
+html.lm-fam-portal .portal-welcome .pw-linea{ height:var(--lm-barra); display:flex !important; align-items:center !important; gap:8px !important; font-size:13px !important; }
+html.lm-fam-portal .portal-welcome .pw-nombre{ color:#fff !important; }
+html.lm-fam-portal .portal-welcome .pw-check{ width:18px !important; height:18px !important; }
+html.lm-fam-portal .portal-welcome .pw-check circle{ fill:var(--lm-verde) !important; }
+html.lm-fam-portal .portal-welcome .pw-check path{ stroke:#0b1320 !important; }
+/* Salir: poco importante → solo contorno */
+html.lm-fam-portal .portal-welcome .pw-salir{
+  height:var(--lm-ctl) !important; padding:0 12px !important; margin-left:6px !important; display:inline-flex !important; align-items:center !important; gap:5px !important;
+  background:transparent !important; border:1px solid rgba(255,255,255,.35) !important; border-radius:10px !important;
+  color:rgba(255,255,255,.88) !important; box-shadow:none !important; font:700 12px/1 var(--lm-fuente) !important;
+}
+html.lm-fam-portal .portal-welcome .pw-salir:hover{ border-color:#fff !important; color:#fff !important; }
+/* centro: «Formato digital» en la misma fila */
+html.lm-fam-portal #lm-fmt-centro{
+  position:absolute !important; left:50% !important; top:50% !important; transform:translate(-50%,-50%) !important;
+  margin:0 !important; z-index:4;
+}
+html.lm-fam-portal #lm-fmt-pill{
+  height:var(--lm-ctl) !important; padding:0 14px !important; gap:8px !important; margin:0 !important;
+  border-radius:10px !important; background:var(--lm-neutro) !important; border:0 !important; box-shadow:none !important;
+  color:#fff !important; font:700 13px/1 var(--lm-fuente) !important; -webkit-backdrop-filter:none; backdrop-filter:none;
+}
+html.lm-fam-portal #lm-fmt-pill:hover{ background:var(--lm-neutro-h) !important; filter:none !important; }
+html.lm-fam-portal #lm-fmt-pill .pt{ width:8px !important; height:8px !important; border-radius:2px !important; background:var(--lm-azul) !important; }
+/* derecha: [Carrusel PRO] [Mis resultados] [campana], todo del mismo alto */
+html.lm-fam-portal .topbar-right{
+  height:var(--lm-barra) !important; display:flex !important; align-items:center !important; justify-content:flex-end !important;
+  flex-wrap:nowrap !important; gap:10px !important; row-gap:0 !important; margin:0 !important;
+}
+html.lm-fam-portal .topbar-right > *{ align-self:center !important; margin-top:0 !important; margin-bottom:0 !important; }
+html.lm-fam-portal .topbar-right > .carrusel-btn{ order:-3 !important; }
+html.lm-fam-portal .topbar-right > #btn-mis-resultados{ order:-2 !important; }
+html.lm-fam-portal .topbar-right > #alu-campana-btn{ order:-1 !important; }
+
+/* campana: cuadrado liso con la campana blanca del Diario */
+html.lm-fam-portal .portal-bell{
+  width:var(--lm-ctl) !important; height:var(--lm-ctl) !important; padding:0 !important; border-radius:10px !important;
+  background:var(--lm-neutro) !important; border:0 !important; box-shadow:none !important;
+  display:inline-flex !important; align-items:center !important; justify-content:center !important;
+}
+html.lm-fam-portal .portal-bell[style*="none"]{ display:none !important; }
+html.lm-fam-portal .portal-bell:hover{ background:var(--lm-neutro-h) !important; box-shadow:none !important; }
+html.lm-fam-portal .portal-bell .pb-bell{ stroke:#fff !important; width:19px !important; height:19px !important; }
+html.lm-fam-portal .portal-bell.hay-avisos::before, html.lm-fam-portal .portal-bell.hay-avisos::after{ border-color:rgba(255,255,255,.55) !important; border-radius:10px !important; }
+html.lm-fam-portal .portal-bell.nuevo{ box-shadow:none !important; }
+html.lm-fam-portal .portal-bell-badge{ background:#e5484d !important; box-shadow:0 0 0 2px #0b1320 !important; border-radius:9px !important; top:-3px !important; right:-5px !important; }
+
+/* Mis resultados: cuadrado amarillo 1×1 con el icono justo en el centro */
+html.lm-fam-portal #btn-mis-resultados.lm-mr-cuadro{
+  position:relative !important; width:var(--lm-ctl) !important; height:var(--lm-ctl) !important; min-width:var(--lm-ctl) !important;
+  padding:0 !important; margin:0 !important; gap:0 !important; display:inline-flex; align-items:center !important; justify-content:center !important;
+  background:var(--lm-amarillo) !important; border:0 !important; border-radius:10px !important; box-shadow:none !important;
+  font-size:0 !important; line-height:0 !important; color:var(--lm-tinta) !important; overflow:hidden; transform:none !important; align-self:center !important;
+}
+html.lm-fam-portal #btn-mis-resultados.lm-mr-cuadro:hover{ filter:brightness(1.07); transform:none !important; box-shadow:none !important; }
+html.lm-fam-portal #btn-mis-resultados.lm-mr-cuadro .lm-mr-ico{
+  position:absolute !important; left:50% !important; top:50% !important; width:19px !important; height:19px !important;
+  transform:translate(-50%,-50%) !important; display:block !important; line-height:0 !important;
+}
+html.lm-fam-portal #btn-mis-resultados.lm-mr-cuadro .lm-mr-ico svg{ width:19px !important; height:19px !important; margin:0 !important; vertical-align:top !important; stroke:var(--lm-tinta) !important; stroke-width:2.2; }
+html.lm-fam-portal #btn-mis-resultados.lm-mr-cuadro .pwr-chev,
+html.lm-fam-portal #btn-mis-resultados.lm-mr-cuadro > svg.pl-i{ display:none !important; }
+html.lm-fam-portal #btn-mis-resultados.lm-mr-cuadro.lm-oculto{ display:none !important; }
+
+/* GP · «Carrusel PRO» (PreDict, naranja): botón liso con su icono, a la izquierda de Mis resultados */
+html.lm-fam-portal .carrusel-btn.lm-carr{
+  width:auto !important; height:var(--lm-ctl) !important; min-width:0 !important; padding:0 14px !important; margin:0 !important;
+  display:inline-flex !important; align-items:center !important; gap:7px !important; border-radius:10px !important;
+  background:var(--lm-naranja-f) !important; border:0 !important; box-shadow:none !important; filter:none !important; transform:none !important;
+  color:#fff !important; text-decoration:none !important; overflow:hidden;
+}
+html.lm-fam-portal .carrusel-btn.lm-carr:hover{ filter:brightness(1.08) !important; transform:none !important; }
+html.lm-fam-portal .carrusel-btn.lm-carr .cb-spiral, html.lm-fam-portal .carrusel-btn.lm-carr .cb-name{ display:none !important; }
+html.lm-fam-portal .carrusel-btn.lm-carr .lm-carr-ico{ display:inline-flex; line-height:0; }
+html.lm-fam-portal .carrusel-btn.lm-carr .lm-carr-ico svg{ width:17px; height:17px; margin:0 !important; stroke:#fff; }
+html.lm-fam-portal .carrusel-btn.lm-carr .lm-carr-txt{ font:800 13px/1 var(--lm-fuente); letter-spacing:.01em; white-space:nowrap; color:#fff; }
+html.lm-fam-portal body:not(.alu-validado) .carrusel-btn.lm-carr{ display:none !important; }
+
+/* hilera de Tester/Protester: debajo de «Bienvenido/a», botones lisos del mismo alto y con texto */
+html.lm-fam-portal #lm-tester{ display:flex; flex-wrap:nowrap; align-items:center; gap:8px; margin:0; }
+html.lm-fam-portal #lm-tester > *{ margin:0 !important; position:static !important; order:0 !important; }
+html.lm-fam-portal #lm-tester .rs-mini, html.lm-fam-portal #lm-tester .da-mini{ display:flex; gap:8px; }
+html.lm-fam-portal #lm-tester button, html.lm-fam-portal #lm-tester a{
+  height:var(--lm-ctl) !important; min-height:var(--lm-ctl) !important; padding:0 14px !important; display:inline-flex !important; align-items:center !important; gap:7px !important;
+  border-radius:10px !important; border:0 !important; box-shadow:none !important; background-image:none !important; transform:none !important;
+  font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important; text-transform:none !important; text-decoration:none !important; white-space:nowrap !important;
+  color:#fff !important; background:var(--lm-neutro) !important;
+}
+html.lm-fam-portal #lm-tester button:hover:not(:disabled), html.lm-fam-portal #lm-tester a:hover{ filter:brightness(1.12); }
+html.lm-fam-portal #lm-tester .lb-mini .da-btn{ background:var(--lm-neutro) !important; }
+html.lm-fam-portal #lm-tester .da-mini:not(.lb-mini):not(.ri-mini) .da-btn{ background:var(--lm-naranja-f) !important; }
+html.lm-fam-portal #lm-tester .ri-mini .da-btn{ background:var(--lm-verde-f) !important; }
+html.lm-fam-portal #lm-tester .da-btn .da-play{ font-size:9px !important; opacity:.9; }
+html.lm-fam-portal #lm-tester .rs-btn.verde{ background:var(--lm-verde-f) !important; }
+html.lm-fam-portal #lm-tester .rs-btn.azul{ background:var(--lm-azul-f) !important; }
+html.lm-fam-portal #lm-tester .rs-btn.violeta{ background:var(--lm-morado-f) !important; }
+html.lm-fam-portal #lm-tester #sorteo-btn{ background:var(--lm-naranja-f) !important; }
+html.lm-fam-portal #lm-tester #sorteo-btn span{ color:#fff !important; font:inherit !important; }
+html.lm-fam-portal #lm-tester svg.pl-i{ margin-right:0 !important; }
+/* GP: «Ver resultados» se lee «Resultados» (portal.js marca el botón; su texto real no se toca) */
+html.lm-fam-portal #lm-tester .rs-btn.lm-txt-resultados{ font-size:0 !important; }
+html.lm-fam-portal #lm-tester .rs-btn.lm-txt-resultados::after{ content:"Resultados"; font:700 13px/1 var(--lm-fuente); letter-spacing:.01em; }
+html.lm-fam-portal #rs-mini .rs-aviso{ left:0; right:auto; background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde) !important; border-radius:10px !important; }
+
+/* ---------- tarjetas de las apps ---------- */
+html.lm-fam-portal .app-card{
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; background-image:none !important;
+  transition:transform .18s ease, border-color .18s ease, background-color .18s ease, filter .18s ease !important;
+}
+html.lm-fam-portal .app-card .nm .hl{ color:#fff !important; }
+html.lm-fam-portal .app-card .home2{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-portal .app-card p{ max-width:none !important; }
+/* «para saber que estamos en grado profesional ya lo vemos arriba»: fuera los distintivos GP/PRO de las tarjetas */
+html.lm-fam-portal .app-card .pro-tag{ display:none !important; }
+html.lm-fam-portal .app-card{ --lm-ap:rgba(255,255,255,.55); --lm-ap-f:#475569; }
+html.lm-fam-portal .app-card.lm-ap-teoria{ --lm-ap:var(--lm-rosa); --lm-ap-f:var(--lm-rosa-f); }
+html.lm-fam-portal .app-card.lm-ap-ritmo{ --lm-ap:var(--lm-verde); --lm-ap-f:var(--lm-verde-f); }
+html.lm-fam-portal .app-card.lm-ap-entonacion{ --lm-ap:var(--lm-azul); --lm-ap-f:var(--lm-azul-f); }
+html.lm-fam-portal .app-card.lm-ap-audicion{ --lm-ap:var(--lm-naranja); --lm-ap-f:var(--lm-naranja-f); }
+
+/* B (por defecto): cristal negro con SOLO el contorno del color del apartado, entero; al pasar el ratón, relleno opaco */
+html.lm-fam-portal.lm-tarjetas-b .app-card{
+  background:var(--lm-cristal) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border:1.5px solid var(--lm-ap) !important;
+}
+html.lm-fam-portal.lm-tarjetas-b .app-card .edge, html.lm-fam-portal.lm-tarjetas-b .app-card::before{ display:none !important; }
+html.lm-fam-portal.lm-tarjetas-b .app-card .kick{ color:var(--lm-ap) !important; font-weight:800 !important; }
+html.lm-fam-portal.lm-tarjetas-b .app-card .nm .dim{ color:rgba(255,255,255,.62) !important; opacity:1 !important; }
+html.lm-fam-portal.lm-tarjetas-b .app-card p{ color:rgba(255,255,255,.78) !important; }
+html.lm-fam-portal.lm-tarjetas-b .app-card:hover{
+  transform:translateY(-3px); background:var(--lm-ap-f) !important; border-color:var(--lm-ap) !important;
+  -webkit-backdrop-filter:none; backdrop-filter:none; filter:none !important;
+}
+html.lm-fam-portal.lm-tarjetas-b .app-card:hover .kick,
+html.lm-fam-portal.lm-tarjetas-b .app-card:hover .kick.area{ color:#fff !important; }
+html.lm-fam-portal.lm-tarjetas-b .app-card:hover .nm .dim{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-portal.lm-tarjetas-b .app-card:hover p,
+html.lm-fam-portal.lm-tarjetas-b .app-card:hover .home2{ color:#fff !important; }
+html.lm-fam-portal.lm-tarjetas-b .app-card:hover .ribbon span{ background:rgba(255,255,255,.2) !important; border-color:rgba(255,255,255,.55) !important; color:#fff !important; }
+html.lm-fam-portal.lm-tarjetas-b .app-card.soon:hover{ transform:none; background:var(--lm-cristal) !important; }
+
+/* A (?tarjetas=a): tarjeta rellena del color liso del apartado, texto blanco */
+html.lm-fam-portal.lm-tarjetas-a .app-card{
+  background:color-mix(in srgb, var(--lm-ap-f) 94%, transparent) !important; border:0 !important;
+}
+html.lm-fam-portal.lm-tarjetas-a .app-card .edge{ display:none !important; }
+html.lm-fam-portal.lm-tarjetas-a .app-card .kick{ color:rgba(255,255,255,.88) !important; font-weight:800 !important; }
+html.lm-fam-portal.lm-tarjetas-a .app-card .nm .dim{ color:rgba(255,255,255,.78) !important; opacity:1 !important; }
+html.lm-fam-portal.lm-tarjetas-a .app-card p{ color:rgba(255,255,255,.92) !important; }
+html.lm-fam-portal.lm-tarjetas-a .app-card:hover{ transform:translateY(-3px); filter:brightness(1.07); background:var(--lm-ap-f) !important; }
+html.lm-fam-portal.lm-tarjetas-a .app-card:hover .kick.area{ color:#fff !important; }
+html.lm-fam-portal.lm-tarjetas-a .app-card .ribbon span{ background:rgba(255,255,255,.2) !important; border-color:rgba(255,255,255,.45) !important; color:#fff !important; }
+
+/* cinta «Alumnos de 4º» y «Muy pronto» */
+html.lm-fam-portal .ribbon span{ background:rgba(255,255,255,.1) !important; border-top:1px solid rgba(255,255,255,.3) !important; border-bottom:1px solid rgba(255,255,255,.3) !important; color:rgba(255,255,255,.9) !important; }
+html.lm-fam-portal .soon-tag{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-portal .app-card.soon .cta{ color:rgba(255,255,255,.55) !important; }
+
+/* ventana «Muy pronto…» */
+html.lm-fam-portal .enig-modal{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.5) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+html.lm-fam-portal .enig-glyph{ color:#fff !important; }
+html.lm-fam-portal .enig-close{ background:transparent !important; border:1px solid rgba(255,255,255,.35) !important; color:#fff !important; border-radius:10px !important; }
+
+/* ---------- GP · Temazo (se queda con su tira azul; solo formas) y medallero ---------- */
+html.lm-fam-portal #temazo .tz-tira{ border-radius:var(--lm-r-tarjeta) !important; }
+html.lm-fam-portal #temazo .tz-dado, html.lm-fam-portal #temazo .tz-btn{ border-radius:10px !important; }
+html.lm-fam-portal #temazo .tz-chip{ border-radius:8px !important; }
+html.lm-fam-portal #temazo .tz-player{ border-radius:12px !important; }
+html.lm-fam-portal #medallero, html.lm-fam-portal .medallero{
+  background:var(--lm-cristal) !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-tarjeta) !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:none !important;
+}
+/* portadas con sus colores originales (sin sepia): las cerradas, en sombra; las abiertas, tal cual */
+html.lm-fam-portal .med{ border-radius:12px !important; border:1px solid rgba(255,255,255,.14) !important; background:#0b1320 !important; box-shadow:none !important; }
+html.lm-fam-portal .med .im-off{ display:none !important; }
+html.lm-fam-portal .med.locked .im-on{ opacity:1 !important; filter:blur(2px) brightness(.42) !important; transform:scale(1.06); }
+html.lm-fam-portal .med.locked{ border-color:rgba(255,255,255,.12) !important; background:#0b1320 !important; }
+html.lm-fam-portal .med.locked::before{ background:rgba(11,19,32,.25) !important; box-shadow:none !important; border-radius:12px !important; }
+html.lm-fam-portal .med.locked::after{ color:rgba(255,255,255,.88) !important; text-shadow:none !important; }
+html.lm-fam-portal .med.locked:hover::after{ color:#fff !important; }
+html.lm-fam-portal .med.open{ border-color:rgba(255,255,255,.35) !important; }
+html.lm-fam-portal .med.open:hover{ border-color:#fff !important; box-shadow:0 14px 32px rgba(0,0,0,.55) !important; }
+html.lm-fam-portal .med.open:focus-visible{ outline-color:#fff !important; }
+html.lm-fam-portal .med .med-flash{ background:radial-gradient(circle at 50% 50%, rgba(255,255,255,.9), rgba(255,255,255,.35) 38%, transparent 68%) !important; }
+html.lm-fam-portal .med-aviso{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; color:#fff !important; border-radius:8px !important; }
+
+/* ---------- puerta de entrada (identificación) ---------- */
+html.lm-fam-portal #gate{ background:transparent !important; }
+html.lm-fam-portal body.gating .wrap{ filter:blur(6px) brightness(.55) !important; }
+html.lm-fam-portal .gate-card{
+  background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important;
+  box-shadow:0 24px 60px rgba(0,0,0,.45) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+html.lm-fam-portal .gate-card p, html.lm-fam-portal .gate-card .gate-tag{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-portal .gate-card .hero-title .t-lm, html.lm-fam-portal .gate-card .hero-title .t-pro{ color:#fff !important; }
+html.lm-fam-portal .gate-card label, html.lm-fam-portal .gate-remember, html.lm-fam-portal .gate-remember span{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-portal .gate-remember input{ accent-color:var(--lm-azul-f) !important; }
+html.lm-fam-portal .gate-puerta, html.lm-fam-portal .gate-invitado, html.lm-fam-portal .gate-secondary{
+  background:var(--lm-neutro) !important; background-image:none !important; border:1px solid transparent !important; border-radius:var(--lm-r-boton) !important; color:#fff !important; box-shadow:none !important;
+}
+html.lm-fam-portal .gate-puerta:hover, html.lm-fam-portal .gate-invitado:hover, html.lm-fam-portal .gate-secondary:hover{ background:var(--lm-neutro-h) !important; border-color:transparent !important; box-shadow:none !important; }
+html.lm-fam-portal .gate-puerta.on{ background:var(--lm-neutro) !important; border-color:rgba(255,255,255,.55) !important; }
+html.lm-fam-portal .gate-card input[type="text"], html.lm-fam-portal .gate-card input[type="password"], html.lm-fam-portal .gate-card input:not([type]),
+html.lm-fam-portal .gate-card input[type="email"], html.lm-fam-portal .gate-card input[type="number"], html.lm-fam-portal .gate-input{
+  background:rgba(0,0,0,.35) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:10px !important; color:#fff !important; box-shadow:none !important;
+}
+html.lm-fam-portal .gate-card input:focus, html.lm-fam-portal .gate-input:focus{ border-color:#fff !important; outline:none !important; box-shadow:none !important; }
+html.lm-fam-portal .gate-card .gate-go, html.lm-fam-portal .gate-card button[type="submit"]{
+  background:var(--lm-azul-f) !important; background-image:none !important; color:#fff !important; border:0 !important; border-radius:var(--lm-r-boton) !important; box-shadow:none !important;
+}
+html.lm-fam-portal .gate-card .gate-go:hover{ filter:brightness(1.1); }
+html.lm-fam-portal .gate-card a, html.lm-fam-portal .gate-card .link, html.lm-fam-portal .gate-linkbtn, html.lm-fam-portal .gate-linkbtn2{ color:rgba(255,255,255,.75) !important; }
+
+/* =====================================================================
+   NOTIFICACIONES (campana) · contorno entero, sin resalte a la izquierda
+   ===================================================================== */
+html.lm-fam-portal .alu-modal{ background:rgba(4,10,20,.55) !important; -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+html.lm-fam-portal .alu-card{
+  background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important;
+  box-shadow:0 24px 60px rgba(0,0,0,.5) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); color:#fff !important;
+}
+html.lm-fam-portal .alu-head{ border-bottom:1px solid var(--lm-borde) !important; background:transparent !important; }
+html.lm-fam-portal .alu-head h3{ color:#fff !important; font-weight:800 !important; }
+/* cerrar: poco importante → solo contorno */
+html.lm-fam-portal .alu-close{ width:34px; height:34px; border-radius:10px !important; background:transparent !important; border:1px solid rgba(255,255,255,.35) !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-portal .alu-close:hover{ border-color:#fff !important; }
+html.lm-fam-portal .alu-item{ border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-portal .alu-item-tit{ color:#fff !important; }
+html.lm-fam-portal .alu-item-cuerpo, html.lm-fam-portal .alu-item-fecha{ color:rgba(255,255,255,.7) !important; }
+/* cada aviso con color: cristal y el contorno ENTERO de su color (nada de franja a la izquierda ni degradados) */
+html.lm-fam-portal .alu-item.alu-recl,
+html.lm-fam-portal .alu-item.reco,
+html.lm-fam-portal .alu-item.ficha,
+html.lm-fam-portal .alu-item.alu-item-quiz,
+html.lm-fam-portal .alu-item.alu-item-ham,
+html.lm-fam-portal .alu-item.alu-extra-pin{
+  background:rgba(255,255,255,.035) !important; background-image:none !important; box-shadow:none !important;
+  border:1.5px solid var(--lm-av, rgba(255,255,255,.3)) !important; border-radius:var(--lm-r-panel) !important;
+}
+html.lm-fam-portal .alu-item.alu-recl{ --lm-av:var(--lm-rosa); }          /* las reclamaciones son de fichas (Teoría) */
+html.lm-fam-portal .alu-item.reco{ --lm-av:var(--rc, rgba(255,255,255,.4)); }
+html.lm-fam-portal .alu-item.ficha{ --lm-av:var(--lm-rosa); }
+html.lm-fam-portal .alu-item.alu-item-quiz{ --lm-av:var(--lm-verde); }
+html.lm-fam-portal .alu-item.alu-item-ham{ --lm-av:var(--lm-naranja); }
+html.lm-fam-portal .alu-item.alu-extra-pin{ --lm-av:#e5484d; }
+html.lm-fam-portal .alu-item.ficha.hecha{ --lm-av:rgba(255,255,255,.22); }
+html.lm-fam-portal .alu-item.reco::after, html.lm-fam-portal .alu-item.ficha .neb-mini, html.lm-fam-portal .alu-item-quiz .quiz-blobs{ display:none !important; }
+html.lm-fam-portal .alu-item.alu-item-ham .alu-item-tit, html.lm-fam-portal .alu-item.ficha .alu-item-tit{ color:#fff !important; }
+html.lm-fam-portal .alu-item.alu-item-ham .alu-item-cuerpo, html.lm-fam-portal .alu-item.ficha .alu-item-cuerpo{ color:rgba(255,255,255,.78) !important; }
+html.lm-fam-portal .alu-item.alu-item-ham .alu-item-fecha, html.lm-fam-portal .alu-item.ficha .alu-item-fecha{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-portal .ham-cita{ color:#fff !important; }
+html.lm-fam-portal .ham-ir{ background:var(--lm-naranja-f) !important; background-image:none !important; color:#fff !important; box-shadow:none !important; border-radius:10px !important; }
+html.lm-fam-portal .alu-recl-msg{ background:rgba(0,0,0,.25) !important; border:1px solid var(--lm-borde) !important; border-radius:10px !important; color:rgba(255,255,255,.85) !important; }
+html.lm-fam-portal .alu-recl-chip{ border-radius:6px !important; }
+html.lm-fam-portal .alu-recl-ej{ color:rgba(255,255,255,.78) !important; }
+html.lm-fam-portal .alu-recl-nota{ color:rgba(255,255,255,.78) !important; }
+html.lm-fam-portal .alu-recl-ver{
+  height:34px; display:inline-flex !important; align-items:center; gap:6px; padding:0 14px !important;
+  border-radius:10px !important; background:var(--lm-neutro) !important; border:0 !important; color:#fff !important; box-shadow:none !important;
+}
+html.lm-fam-portal .alu-recl-ver:hover{ background:var(--lm-neutro-h) !important; }
+/* tareas de la semana: caja neutra y cada parte con su contorno entero del color del apartado */
+html.lm-fam-portal .alu-item-tareas{
+  background:rgba(255,255,255,.035) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-panel) !important; box-shadow:none !important; background-image:none !important;
+}
+html.lm-fam-portal .ts-parte{
+  background:rgba(0,0,0,.22) !important; background-image:none !important; box-shadow:none !important;
+  border:1.5px solid var(--lm-ts, rgba(255,255,255,.3)) !important; border-radius:12px !important;
+}
+html.lm-fam-portal .ts-parte.ts-quiz, html.lm-fam-portal .ts-parte.ts-lecciones{ --lm-ts:var(--lm-verde); }
+html.lm-fam-portal .ts-parte.ts-ficha{ --lm-ts:var(--lm-rosa); }
+html.lm-fam-portal .ts-parte.ts-otras{ --lm-ts:rgba(255,255,255,.45); }
+html.lm-fam-portal .ts-parte.ts-ficha::before{ display:none !important; }
+html.lm-fam-portal .ts-parte-tit{ color:#fff !important; }
+html.lm-fam-portal .ts-parte-tit b{ color:#fff !important; }
+html.lm-fam-portal .ts-parte-sub, html.lm-fam-portal .ts-otras-txt{ color:rgba(255,255,255,.7) !important; }
+/* lecciones: botones lisos verdes */
+html.lm-fam-portal .ts-lec-chip{ border-radius:10px !important; background:var(--lm-verde-f) !important; border:0 !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-portal .ts-lec-chip:hover{ filter:brightness(1.1); }
+html.lm-fam-portal .ts-intro-link{ color:rgba(255,255,255,.7) !important; }
+/* botones de las tareas: lisos, del color de su apartado (sin degradados animados) */
+html.lm-fam-portal .alu-hacer, html.lm-fam-portal .alu-quiz-go, html.lm-fam-portal .ts-ver-lecciones{
+  animation:none !important; background-size:auto !important; background-image:none !important; box-shadow:none !important; border:0 !important; border-radius:10px !important; color:#fff !important;
+}
+html.lm-fam-portal .alu-hacer{ background:var(--lm-azul-f) !important; }
+html.lm-fam-portal .alu-hacer.ts-ficha-go, html.lm-fam-portal .alu-item.ficha .alu-hacer{ background:var(--lm-rosa-f) !important; }
+html.lm-fam-portal .alu-quiz-go, html.lm-fam-portal .ts-ver-lecciones{ background:var(--lm-verde-f) !important; }
+/* marcar / entendido / hecho: botón neutro liso */
+html.lm-fam-portal .ts-marcar{ background:var(--lm-neutro) !important; border:0 !important; color:#fff !important; border-radius:10px !important; box-shadow:none !important; }
+html.lm-fam-portal .ts-marcar:hover{ background:var(--lm-neutro-h) !important; }
+html.lm-fam-portal .ts-marcar.ts-marcar-fallo{ background:rgba(229,72,77,.3) !important; }
+html.lm-fam-portal .ts-parte.ts-ficha{ background:rgba(0,0,0,.22) !important; }
+html.lm-fam-portal .alu-hecha-check{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:6px !important; }
+/* ficha pendiente: plazo y progreso en blanco/rosa, barra lisa */
+html.lm-fam-portal .alu-item-plazo{ color:rgba(255,255,255,.85) !important; font-weight:700 !important; }
+html.lm-fam-portal .alu-item-prog .aip-txt{ color:#fff !important; }
+html.lm-fam-portal .alu-item-prog .aip-bar{ background:rgba(255,255,255,.14) !important; border-radius:4px !important; }
+html.lm-fam-portal .alu-item-prog .aip-bar i{ background:var(--lm-rosa) !important; background-image:none !important; border-radius:4px !important; }
+html.lm-fam-portal .ts-dot{ border-radius:3px !important; }
+/* campana GP en «ficha pendiente»: sin halo dorado */
+html.lm-fam-portal .portal-bell.ficha-pendiente::before, html.lm-fam-portal .portal-bell.ficha-pendiente::after{ border-color:rgba(255,255,255,.55) !important; }
+html.lm-fam-portal .portal-bell.ficha-pendiente .pb-bell{ stroke:#fff !important; }
+html.lm-fam-portal .portal-bell-prog{ background:var(--lm-rosa-f) !important; background-image:none !important; box-shadow:none !important; color:#fff !important; border-radius:6px !important; }
+
+/* ---------- Mis resultados (su color es el AMARILLO) ---------- */
+html.lm-fam-portal #mr-overlay{ background:#0b1320 !important; isolation:isolate; color:#fff !important; }
+html.lm-fam-portal #mr-overlay::before{
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:url("../fondo-vertical.jpg") center 62% / cover no-repeat; filter:blur(4px) saturate(1.08); transform:scale(1.04);
+}
+@media (min-aspect-ratio: 1/1){ html.lm-fam-portal #mr-overlay::before{ background-image:url("../fondo-apaisado.jpg"); background-position:center; } }
+html.lm-fam-portal #mr-overlay::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(8,22,40,.56); }
+html.lm-fam-portal #mr-overlay .mr-neb{ display:none !important; }
+html.lm-fam-portal #mr-overlay .mr-top{ min-height:var(--lm-barra); padding-top:6px !important; padding-bottom:6px !important; }
+html.lm-fam-portal #mr-overlay .mr-card{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+/* volver: poco importante → solo contorno */
+html.lm-fam-portal #mr-overlay .mr-volver{ height:34px; padding:0 14px !important; background:transparent !important; border:1px solid rgba(255,255,255,.35) !important; border-radius:10px !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-portal #mr-overlay .mr-volver:hover{ border-color:#fff !important; }
+html.lm-fam-portal #mr-overlay .mr-titulo{ color:#fff !important; display:flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; line-height:1 !important; }
+html.lm-fam-portal #mr-overlay .mr-titulo svg.pl-i{ color:var(--lm-amarillo) !important; margin:0 !important; vertical-align:middle !important; width:18px; height:18px; }
+html.lm-fam-portal #mr-overlay .mr-pct{ background:var(--lm-amarillo) !important; color:var(--lm-tinta) !important; border-radius:6px !important; }
+html.lm-fam-portal #mr-overlay .mr-ex, html.lm-fam-portal #mr-overlay .mr-bol{ background:rgba(0,0,0,.22) !important; background-image:none !important; border:1px solid var(--lm-borde) !important; border-radius:12px !important; box-shadow:none !important; }
+html.lm-fam-portal #mr-overlay .mr-extrim, html.lm-fam-portal #mr-overlay .mr-bol-t{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-portal #mr-overlay .mr-ex.vacio{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-portal #mr-overlay .mr-info-btn{ color:var(--lm-amarillo) !important; }
+html.lm-fam-portal #mr-overlay .mr-ctit{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-portal #mr-overlay .mr-pie{ color:rgba(255,255,255,.6) !important; }
+html.lm-fam-portal #mr-overlay .mr-avatar{ background:var(--lm-amarillo) !important; background-image:none !important; color:var(--lm-tinta) !important; box-shadow:none !important; }
+html.lm-fam-portal #mr-overlay .mr-hero-sub, html.lm-fam-portal #mr-overlay .mr-ap-nombre, html.lm-fam-portal #mr-overlay .mr-nc-lbl{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-portal #mr-overlay .mr-hero-nombre, html.lm-fam-portal #mr-overlay .mr-card-tit{ color:#fff !important; }
+html.lm-fam-portal #mr-overlay .mr-chip-trim{ color:#fff !important; background:var(--lm-neutro) !important; border-color:transparent !important; border-radius:8px !important; }
+html.lm-fam-portal #mr-overlay .mr-chip-trim.on{ color:var(--lm-tinta) !important; background:var(--lm-amarillo) !important; border-color:transparent !important; }
+/* leyenda del gráfico: opaca (relleno liso del color de cada apartado, texto blanco) */
+html.lm-fam-portal #mr-overlay .mr-ley .mr-chip,
+html.lm-fam-portal .mr-ley .mr-chip{
+  background:var(--apc) !important; background-image:none !important; border:0 !important; color:#fff !important;
+  border-radius:8px !important; padding:5px 11px !important; box-shadow:none !important;
+}
+/* rellenos más oscuros (los de PIEL) para que el texto blanco se lea; el tono es el mismo que el de la línea del gráfico */
+html.lm-fam-portal #mr-overlay .mr-ley .mr-chip[style*="#22c55e"], html.lm-fam-portal .mr-ley .mr-chip[style*="#22c55e"]{ background:var(--lm-verde-f) !important; }
+html.lm-fam-portal #mr-overlay .mr-ley .mr-chip[style*="#4a9eff"], html.lm-fam-portal .mr-ley .mr-chip[style*="#4a9eff"]{ background:var(--lm-azul-f) !important; }
+html.lm-fam-portal #mr-overlay .mr-ley .mr-chip[style*="#f97316"], html.lm-fam-portal .mr-ley .mr-chip[style*="#f97316"]{ background:var(--lm-naranja-f) !important; }
+html.lm-fam-portal #mr-overlay .mr-ley .mr-chip[style*="#ec4899"], html.lm-fam-portal .mr-ley .mr-chip[style*="#ec4899"]{ background:var(--lm-rosa-f) !important; }
+html.lm-fam-portal #mr-overlay .mr-ley .mr-chip.mr-chip-forma,
+html.lm-fam-portal .mr-ley .mr-chip.mr-chip-forma{ background:var(--lm-neutro) !important; color:#fff !important; }
+html.lm-fam-portal .mr-ley .mr-chip.mr-chip-forma i{ border-color:#fff !important; }
+html.lm-fam-portal .mr-ley .mr-chip.mr-chip-forma .mr-f-ex{ background:#fff !important; }
+/* sus variables pasan a la paleta común (amarillo para destacar, sin morado ni dorado) */
+html.lm-fam-portal .mr-overlay, html.lm-fam-portal .mr-modal{
+  --mr-acc:#facc15 !important; --mr-acc2:#facc15 !important;
+  --mr-ink:#ffffff !important; --mr-dim:rgba(255,255,255,.78) !important; --mr-dim2:rgba(255,255,255,.55) !important;
+  --mr-bd:rgba(255,255,255,.2) !important; --mr-bd2:rgba(255,255,255,.12) !important;
+  --mr-box:rgba(11,19,32,.94) !important; --mr-fondo:transparent !important;
+  --mr-card:rgba(255,255,255,.05) !important; --mr-card2:rgba(255,255,255,.035) !important;
+  --mr-pf:#0b1320 !important; --mr-pc:rgba(11,19,32,.86) !important; --mr-pc2:rgba(0,0,0,.25) !important;
+  --mr-tinta:#0b1320 !important; --mr-n1:#facc15 !important; --mr-n2:#facc15 !important;
+}
+html.lm-fam-portal .mr-modal .mr-box{ background:rgba(11,19,32,.94) !important; border-radius:var(--lm-r-tarjeta) !important; }
+
+/* ---------- mini-tour y avisos flotantes ---------- */
+html.lm-fam-portal .atour-card{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-panel) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+html.lm-fam-portal .atour-card h4{ color:#fff !important; }
+html.lm-fam-portal .atour-sig{ background:var(--lm-azul-f) !important; background-image:none !important; border-radius:10px !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-portal .atour-card h4{ color:#fff !important; }
+html.lm-fam-portal .atour-foco{ box-shadow:0 0 0 9999px rgba(4,7,18,.82), 0 0 0 2px #ffffff !important; border-radius:12px !important; }
+html.lm-fam-portal .atour-dots i{ border-radius:2px !important; }
+html.lm-fam-portal .atour-dots i.on{ background:#fff !important; }
+html.lm-fam-portal .atour-salta{ color:rgba(255,255,255,.7) !important; }
+
+/* ---------- Formato: ventana de cambio ---------- */
+html.lm-fam-portal .lmf-card{ background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.5) !important; }
+html.lm-fam-portal .lmf-btn{ border-radius:10px !important; box-shadow:none !important; background-image:none !important; }
+html.lm-fam-portal .lmf-btn.pri{ background:var(--lm-azul-f) !important; color:#fff !important; border:0 !important; }
+html.lm-fam-portal .lmf-btn.sec{ background:var(--lm-neutro) !important; color:#fff !important; border:0 !important; }
+html.lm-fam-portal .lmf-link{ height:36px; padding:0 14px !important; border:1px solid rgba(255,255,255,.35) !important; border-radius:10px !important; color:#fff !important; background:transparent !important; }
+html.lm-fam-portal .lmf-link:hover{ border-color:#fff !important; }
+html.lm-fam-portal .lmf-op{ background:rgba(255,255,255,.035) !important; border:1px solid var(--lm-borde-fuerte) !important; box-shadow:none !important; border-radius:12px !important; }
+html.lm-fam-portal .lmf-op.reco{ border:1.5px solid var(--lm-azul) !important; }
+html.lm-fam-portal .lmf-chip{ border-radius:6px !important; background:var(--lm-azul-f) !important; color:#fff !important; }
+html.lm-fam-portal .lmf-card input{ background:rgba(0,0,0,.35) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:10px !important; color:#fff !important; }
+
+/* ---------- Libros del aula (solo Tester/Protester): mismo fondo y cristal ---------- */
+html.lm-fam-portal #lb-ov{ background:#0b1320 !important; isolation:isolate; }
+html.lm-fam-portal #lb-ov::before{ content:""; position:fixed; inset:0; z-index:-2; pointer-events:none; background:url("../fondo-vertical.jpg") center 62% / cover no-repeat; filter:blur(4px) saturate(1.08); transform:scale(1.04); }
+@media (min-aspect-ratio: 1/1){ html.lm-fam-portal #lb-ov::before{ background-image:url("../fondo-apaisado.jpg"); background-position:center; } }
+html.lm-fam-portal #lb-ov::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(8,22,40,.56); }
+html.lm-fam-portal #lb-ov .lb-top{ background:var(--lm-cristal-fuerte) !important; border-bottom:1px solid var(--lm-borde) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+html.lm-fam-portal #lb-ov .lb-b{ border-radius:10px !important; background:var(--lm-neutro) !important; border:0 !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-portal #lb-ov .lb-b:hover{ background:var(--lm-neutro-h) !important; }
+html.lm-fam-portal #lb-ov .lb-b.on{ background:#fff !important; color:var(--lm-tinta) !important; }
+html.lm-fam-portal #lb-ov #lb-x{ background:transparent !important; border:1px solid rgba(255,255,255,.35) !important; }
+html.lm-fam-portal #lb-ov #lb-x:hover{ border-color:#fff !important; }
+html.lm-fam-portal #lb-ov .lb-it{ border-radius:12px !important; background:var(--lm-cristal) !important; border:1px solid var(--lm-borde-fuerte) !important; color:#fff !important; box-shadow:none !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+html.lm-fam-portal #lb-ov .lb-it:hover{ border-color:#fff !important; }
+html.lm-fam-portal #lb-ov .lb-it small, html.lm-fam-portal #lb-ov .lb-tit small{ color:rgba(255,255,255,.6) !important; }
+
+/* móvil: «solo horizontal» (Iago); lo justo para que nada se pise: botones arriba a la derecha,
+   luego «Bienvenido/a» y la hilera de Tester en una línea que salta, y «Formato» debajo, centrado */
+@media (max-width: 640px){
+  html.lm-fam-portal .topbar{ height:auto !important; min-height:0 !important; flex-direction:column !important; align-items:stretch !important; gap:8px !important; padding:8px 0 0 !important; }
+  html.lm-fam-portal .topbar-right{ order:-1; height:auto !important; justify-content:flex-end !important; }
+  html.lm-fam-portal .portal-welcome{ position:static !important; white-space:normal !important; min-width:0; }
+  html.lm-fam-portal .portal-welcome .pw-linea{ height:auto; flex-wrap:wrap; }
+  html.lm-fam-portal #lm-tester{ flex-wrap:wrap; }
+  html.lm-fam-portal #lm-fmt-centro{ position:static !important; transform:none !important; display:flex !important; justify-content:center; }
+  html.lm-fam-portal #lm-fmt-centro:not(.on){ display:none !important; }
+  html.lm-fam-portal .hero{ margin-top:24px !important; }
+}

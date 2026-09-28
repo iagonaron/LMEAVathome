@@ -1,0 +1,43 @@
+/* =====================================================================
+   LM at home · PIEL · CARRUSEL (PreDict Carrusel GE y PreDict PRO Carrusel GP)
+   (26-sep-2026, Iago) SE DEJAN COMO ESTÁN, a propósito:
+   · PreDict Carrusel (GE) es el tablero que se PROYECTA en clase («trabajo
+     auditivo de clase»), con su logo, su degradado de colores y un color por
+     módulo; no lo enlaza el portal de alumnos.
+   · PreDict PRO Carrusel (GP) es el juego EN DIRECTO con sala, QR, móviles de
+     los alumnos, cuenta atrás, podio y confeti; su identidad es el propio
+     espectáculo (y el portal GP ya lo presenta con su distintivo dorado).
+   La piel del Diario (foto + cristal) no pinta nada ahí y taparía la proyección
+   con el rótulo de grado. Lo más limpio es NO poner las dos líneas de la piel en
+   estas dos apps; si se ponen, este fichero anula TODO lo que hace el núcleo
+   (fondo, velo, rótulo e iconos) y devuelve a cada app su fondo original.
+   ===================================================================== */
+html.lm-fam-carrusel::before, html.lm-fam-carrusel::after{ display:none !important; content:none !important; }
+html.lm-fam-carrusel #lm-grado{ display:none !important; }
+/* los emojis vuelven a verse tal cual (el núcleo los habría cambiado por iconos de trazo) */
+html.lm-fam-carrusel .pl-emo{ display:inline !important; }
+html.lm-fam-carrusel svg.pl-i{ display:none !important; }
+
+/* fondos originales de cada app (copiados tal cual de su propio CSS) */
+@media screen{
+  html.lm-fam-carrusel.lm-app-carrusel-ge{ background:#0c0926 !important; }
+  html.lm-fam-carrusel.lm-app-carrusel-ge body{
+    background:
+      radial-gradient(820px 480px at 10% -6%, rgba(52,211,153,.28), transparent 58%),
+      radial-gradient(760px 520px at 90% -2%, rgba(91,208,255,.28), transparent 56%),
+      radial-gradient(720px 460px at 50% 8%, rgba(255,214,120,.18), transparent 55%),
+      radial-gradient(900px 620px at 82% 104%, rgba(169,116,255,.32), transparent 60%),
+      radial-gradient(680px 520px at 6% 110%, rgba(255,154,60,.26), transparent 58%),
+      radial-gradient(560px 440px at 38% 64%, rgba(52,211,153,.14), transparent 60%),
+      radial-gradient(620px 500px at 96% 52%, rgba(91,208,255,.16), transparent 58%),
+      linear-gradient(160deg, #1d1545 0%, #140f34 36%, #0c0926 70%, #070512 100%) !important;
+    background-attachment:fixed !important;
+  }
+  html.lm-fam-carrusel.lm-app-carrusel-gp{ background:#0a0702 !important; }
+  html.lm-fam-carrusel.lm-app-carrusel-gp body{
+    background:
+      radial-gradient(1100px 520px at 50% -6%, #4d3a0b 0%, transparent 60%),
+      linear-gradient(180deg,#4d3a0b 0%,#2e2308 32%,#160f04 70%,#0a0702 100%) !important;
+    background-attachment:fixed !important;
+  }
+}

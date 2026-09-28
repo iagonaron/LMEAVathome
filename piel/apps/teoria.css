@@ -1,0 +1,821 @@
+/* =====================================================================
+   LM at home · PIEL · TEORÍA at home (GE, teoria.ge) y TEORÍA PRO (GP, teoria.gp)
+   (26-sep-2026, Iago) Solo aspecto: nada de funcionamiento ni de colocación.
+   Todo cuelga de html.lm-fam-teoria (y .lm-ge / .lm-gp cuando cambia algo).
+   Color de la familia: ROSA de Teoría (#ec4899 acento · #db2777 relleno) en GE y
+   en GP. En GP el dorado queda SOLO en «GRADO PROFESIONAL».
+   Lo que es partitura sigue sobre papel blanco.
+   Compañero: teoria.js (iconos planos + cambio de dorados sueltos a rosa en GP).
+   ===================================================================== */
+
+/* ---------- 0. paleta: las variables de cada app pasan a la del Diario ---------- */
+html.lm-fam-teoria{
+  --tr-rosa:#ec4899; --tr-rosa-f:#db2777; --tr-rosa-t:rgba(236,72,153,.16); --tr-rosa-b:rgba(236,72,153,.7);
+  --tr-vidrio:rgba(11,19,32,.72); --tr-vidrio-f:rgba(11,19,32,.86); --tr-vidrio-o:rgba(11,19,32,.94);
+  --tr-linea:rgba(255,255,255,.12); --tr-linea-f:rgba(255,255,255,.22);
+  --tr-t2:rgba(255,255,255,.74); --tr-t3:rgba(255,255,255,.52);
+  --tr-rueda:#131d2f;                /* fondo opaco de las ruedas (para que la máscara funda bien) */
+  --tr-tinta:#16203a;                /* tinta sobre papel */
+}
+html.lm-fam-teoria.lm-ge{
+  --bg:#0b1320; --panel:rgba(11,19,32,.86); --panel2:rgba(11,19,32,.86); --line:rgba(255,255,255,.14);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52);
+  --teoria:#ec4899; --teoria-soft:rgba(236,72,153,.16);
+  --accent:rgba(255,255,255,.14); --accent2:rgba(255,255,255,.22); --accent-soft:rgba(255,255,255,.08);
+  --cd:#ffffff; --cd-soft:rgba(11,19,32,.55);
+}
+html.lm-fam-teoria.lm-gp{
+  --bg:#0b1320; --panel:rgba(11,19,32,.86); --panel2:rgba(17,27,44,.92); --line:rgba(255,255,255,.14);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52);
+  --accent:rgba(255,255,255,.14); --accent2:rgba(255,255,255,.22);
+  --gold:#ec4899; --gold1:#ec4899; --gold2:#db2777; --gold-soft:#ec4899;
+  --shadow:0 1px 2px rgba(0,0,0,.22),0 10px 28px rgba(0,0,0,.28);
+  /* compases.html: papel crema → papel blanco como el resto; tinta dorada → rosa */
+  --paper:#f3f5ff; --paper2:#f3f5ff; --paper-edge:#d6dbe8; --ink-dark:#16203a; --gold-ink:#db2777;
+  --green-ink:#15803d; --red-ink:#b91c1c;
+}
+html.lm-fam-teoria body{ font-family:var(--lm-fuente) !important; color:#fff; }
+
+/* ---------- 1. fondo: foto del Diario (el núcleo) — fuera nebulosas y degradados propios ---------- */
+html.lm-fam-teoria .teo-neb-bg, html.lm-fam-teoria .fp-neb{ display:none !important; }
+
+/* rótulo de grado (27-sep-2026, tarde, Iago): «arriba de todo, siempre igual, sin nada a los lados».
+   Lo pone el núcleo en una banda fija (centro a 22px); Teoría empieza por debajo de esa banda (46px).
+   (Salvo con la ficha GP abierta, que va después de .wrap: ahí .wrap se queda como estaba para no moverla.) */
+html.lm-fam-teoria .wrap{ padding-top:50px !important; }
+html.lm-fam-teoria.lm-gp body:has(> #view-fichapro[style*="block"]) > .wrap{ padding-top:26px !important; }
+
+/* ---------- 2. cabecera y marca ---------- */
+html.lm-fam-teoria .topinfo-by, html.lm-fam-teoria .topinfo-sep, html.lm-fam-teoria .topinfo-opt{ color:var(--tr-t3) !important; }
+html.lm-fam-teoria .brand h1, html.lm-fam-teoria .brand h1 .a, html.lm-fam-teoria .brand .teo{ color:#fff !important; }
+html.lm-fam-teoria .brand .ria, html.lm-fam-teoria .brand h1 .eav-pro{ color:#fff !important; font-weight:300 !important; }
+html.lm-fam-teoria .home2, html.lm-fam-teoria .ath{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-teoria .brand h1 .back-arrow{ color:var(--tr-t3) !important; }
+html.lm-fam-teoria .brand:hover h1 .back-arrow{ color:#fff !important; }
+/* las letritas «GRADO …» bajo LM at home: blanco en GE; en GP se quedan doradas (es el rótulo de grado) */
+html.lm-fam-teoria.lm-ge .brand h1 span[aria-hidden="true"]{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-teoria.lm-gp .brand h1 span[aria-hidden="true"]{ color:var(--lm-oro) !important; }
+html.lm-fam-teoria .brand-sub, html.lm-fam-teoria .brand-inline, html.lm-fam-teoria .tagline{ color:var(--tr-t2) !important; }
+/* «‹ LM at home» (GE) y «Volver al portal»: botón de cristal rectangular */
+html.lm-fam-teoria .lmeav-link, html.lm-fam-teoria .to-portal{
+  background:var(--tr-vidrio) !important; border:1px solid var(--tr-linea-f) !important; border-radius:10px !important;
+  color:rgba(255,255,255,.9) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:none !important;
+}
+html.lm-fam-teoria .lmeav-link:hover, html.lm-fam-teoria .to-portal:hover{ border-color:#fff !important; color:#fff !important; background:rgba(11,19,32,.9) !important; }
+/* nombre de la app en la portada */
+html.lm-fam-teoria .appname-top h2 .teo, html.lm-fam-teoria .eva-big .pre{ color:#fff !important; }
+html.lm-fam-teoria .appname-top h2 .ria, html.lm-fam-teoria .eva-big .dict{ color:#fff !important; }
+html.lm-fam-teoria .appname-sub, html.lm-fam-teoria .eva-tag{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .sueltos-aviso, html.lm-fam-teoria .eva-tag2{ color:var(--tr-t2) !important; text-shadow:0 1px 3px rgba(0,0,0,.45); }
+html.lm-fam-teoria .sueltos-aviso .rosa, html.lm-fam-teoria .eva-tag2 b{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .opt-banner{
+  border-radius:var(--lm-r-chip) !important; border:1px solid var(--tr-linea-f) !important; color:var(--tr-t2) !important;
+  background:var(--tr-vidrio) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-teoria .pro-tag-big, html.lm-fam-teoria .pro-seal, html.lm-fam-teoria .pro-seal-brand{
+  background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; border-radius:6px !important; box-shadow:none !important;
+}
+/* móvil (GP): el aviso y la etiqueta de la portada no caben en una línea → que partan (antes se salían de la pantalla) */
+@media (max-width:640px){
+  html.lm-fam-teoria .eva-tag2{ white-space:normal !important; }
+  html.lm-fam-teoria .opt-banner.opt-top{ width:auto !important; max-width:100%; white-space:normal; text-align:center; line-height:1.5; }
+}
+html.lm-fam-teoria .foot, html.lm-fam-teoria .maint-link{ color:var(--tr-t3) !important; }
+html.lm-fam-teoria .foot-prof{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .foot-prof:hover, html.lm-fam-teoria .maint-link:hover{ color:#fff !important; opacity:1 !important; }
+
+/* ---------- 3. TARJETAS DE LA PORTADA (GE .pad · GP .mode-card) ----------
+   B (por defecto): cristal oscuro con contorno rosa · A: relleno rosa liso.
+   Las de REPASO (GP) van en segundo plano: cristal con contorno neutro + cinta. */
+html.lm-fam-teoria .pad, html.lm-fam-teoria .home-grid .mode-card{
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; background-image:none !important;
+  -webkit-backdrop-filter:blur(8px) !important; backdrop-filter:blur(8px) !important;
+  transition:transform .18s ease, border-color .18s ease, background-color .18s ease, filter .18s ease !important;
+}
+html.lm-fam-teoria .pad h3, html.lm-fam-teoria .home-grid .mode-card h2{ color:#fff !important; font-weight:800 !important; }
+html.lm-fam-teoria .pad-sub, html.lm-fam-teoria .home-grid .mode-card .card-sub{ color:rgba(255,255,255,.74) !important; }
+@media (hover:hover){
+  html.lm-fam-teoria .pad-sub{ opacity:.55 !important; }
+  html.lm-fam-teoria .pad:hover .pad-sub{ opacity:1 !important; color:#fff !important; }
+}
+html.lm-fam-teoria .home-grid .mode-card .card-sub{ opacity:.55 !important; }
+html.lm-fam-teoria .home-grid .mode-card:hover .card-sub{ opacity:1 !important; color:#fff !important; }
+html.lm-fam-teoria .pad.soon{ opacity:.45 !important; }
+
+/* B · cristal + contorno rosa */
+html.lm-fam-teoria.lm-tarjetas-b .pad,
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card:not(.repaso){
+  background-color:var(--tr-vidrio) !important; border:1.5px solid var(--tr-rosa-b) !important;
+}
+html.lm-fam-teoria.lm-tarjetas-b .pad:not(.soon):hover,
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card:not(.repaso):hover{
+  transform:translateY(-3px) !important; border-color:var(--tr-rosa) !important; background-color:rgba(11,19,32,.84) !important;
+}
+/* A · relleno rosa liso, texto blanco */
+html.lm-fam-teoria.lm-tarjetas-a .pad,
+html.lm-fam-teoria.lm-tarjetas-a .home-grid .mode-card:not(.repaso){
+  background-color:color-mix(in srgb, var(--tr-rosa-f) 94%, transparent) !important; border:0 !important;
+}
+html.lm-fam-teoria.lm-tarjetas-a .pad:not(.soon):hover,
+html.lm-fam-teoria.lm-tarjetas-a .home-grid .mode-card:not(.repaso):hover{
+  transform:translateY(-3px) !important; filter:brightness(1.07); background-color:var(--tr-rosa-f) !important;
+}
+html.lm-fam-teoria.lm-tarjetas-a .pad-sub, html.lm-fam-teoria.lm-tarjetas-a .home-grid .mode-card:not(.repaso) .card-sub{ color:#fff !important; opacity:.85 !important; }
+/* repaso (GP): siempre cristal, contorno neutro; al pasar, contorno rosa */
+html.lm-fam-teoria .home-grid .mode-card.repaso{
+  background-color:var(--tr-vidrio) !important; border:1.5px solid rgba(255,255,255,.2) !important;
+}
+html.lm-fam-teoria.lm-tarjetas-a .home-grid .mode-card.repaso{ border-color:var(--tr-rosa-b) !important; }
+html.lm-fam-teoria .home-grid .mode-card.repaso:hover{ transform:translateY(-3px) !important; border-color:var(--tr-rosa) !important; background-color:rgba(11,19,32,.84) !important; }
+html.lm-fam-teoria .home-grid .mode-card.repaso h2{ font-weight:700 !important; }
+/* cinta REPASO: la misma banda de cristal que «Alumnos de 4º» del portal */
+html.lm-fam-teoria .mode-card.repaso .repaso-cinta span{
+  background:rgba(255,255,255,.1) !important; border-top:1px solid rgba(255,255,255,.3) !important; border-bottom:1px solid rgba(255,255,255,.3) !important;
+  color:rgba(255,255,255,.9) !important;
+}
+/* sello AVANZADO dentro de la tarjeta rellena: cristal para que se lea sobre el rosa */
+html.lm-fam-teoria.lm-tarjetas-a .home-grid .mode-card .pro-seal{ background:rgba(255,255,255,.22) !important; }
+/* «VER APUNTES» (visor ya rehecho aparte): mismo blanco que el resto de rótulos */
+html.lm-fam-teoria.lm-tarjetas-a .pad .apx-btn, html.lm-fam-teoria.lm-tarjetas-a .mode-card:not(.repaso) .apx-btn{ color:rgba(255,255,255,.88) !important; }
+html.lm-fam-teoria.lm-tarjetas-a .pad .apx-btn:hover, html.lm-fam-teoria.lm-tarjetas-a .mode-card:not(.repaso) .apx-btn:hover{ color:#fff !important; background:rgba(255,255,255,.14) !important; }
+html.lm-fam-teoria .apx-back{ border-radius:inherit; }
+/* tarjeta volteada (varios apuntes): que no se transparente el título de la tarjeta detrás de las opciones */
+html.lm-fam-teoria .apx-flip > :not(.apx-back){ visibility:hidden !important; }
+
+/* ---------- 4. VISTAS DE EJERCICIO (comunes GE/GP) ---------- */
+html.lm-fam-teoria .iv-title, html.lm-fam-teoria .iv-title .post{ color:#fff !important; }
+html.lm-fam-teoria .iv-title .dim{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-teoria .iv-sub, html.lm-fam-teoria .hint{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .iv-sub{ text-shadow:0 1px 3px rgba(0,0,0,.4); }
+/* tarjeta de ejercicio: cristal oscuro «de datos» */
+html.lm-fam-teoria .ex-card{
+  background:var(--tr-vidrio-f) !important; background-image:none !important; border:1px solid var(--tr-linea) !important;
+  border-radius:var(--lm-r-panel) !important; box-shadow:none !important;
+  -webkit-backdrop-filter:blur(8px) !important; backdrop-filter:blur(8px) !important;
+}
+html.lm-fam-teoria .ex-letter span{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-teoria .ex-letter b{ color:#fff; }
+html.lm-fam-teoria.lm-gp .ex-letter b{
+  background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; border-radius:6px !important;
+}
+/* botones de las tarjetas: rectángulos suaves, planos */
+html.lm-fam-teoria .iconbtn{
+  border-radius:10px !important; box-shadow:none !important; background-image:none !important;
+  background-color:rgba(255,255,255,.06) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important;
+  font-family:var(--lm-fuente) !important;
+}
+html.lm-fam-teoria .iconbtn:hover{ background-color:rgba(255,255,255,.12) !important; border-color:rgba(255,255,255,.55) !important; }
+html.lm-fam-teoria .iconbtn:disabled{ opacity:.4 !important; }
+/* Ejemplo: cristal neutro con la bombilla */
+html.lm-fam-teoria .btn-ejemplo{ color:#fff !important; }
+html.lm-fam-teoria .btn-ejemplo svg{ color:#fff; }
+/* Nuevo / Nuevos ejercicios (dado): contorno rosa, dado rosa, texto blanco
+   (27-sep-2026: teoria.js marca con .lm-nuevo TODOS los botones de «nuevo / otro / reiniciar…» y les pone dado + «Nuevo») */
+html.lm-fam-teoria .btn-nuevo, html.lm-fam-teoria .btn-nuevos, html.lm-fam-teoria .iconbtn[title^="Nuev"], html.lm-fam-teoria .lm-nuevo{
+  border-color:var(--tr-rosa) !important; background-color:rgba(236,72,153,.08) !important; color:#fff !important;
+}
+html.lm-fam-teoria .btn-nuevo svg, html.lm-fam-teoria .btn-nuevos svg, html.lm-fam-teoria .iconbtn[title^="Nuev"] svg, html.lm-fam-teoria .lm-nuevo svg{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .btn-nuevo:hover, html.lm-fam-teoria .btn-nuevos:hover, html.lm-fam-teoria .iconbtn[title^="Nuev"]:hover, html.lm-fam-teoria .lm-nuevo:hover{ background-color:rgba(236,72,153,.2) !important; border-color:var(--tr-rosa) !important; }
+/* Corregir: el relleno rosa de la familia (acción principal) */
+html.lm-fam-teoria .btn-correct{
+  background-color:var(--tr-rosa-f) !important; border-color:var(--tr-rosa-f) !important; color:#fff !important;
+}
+html.lm-fam-teoria .btn-correct:hover{ filter:brightness(1.08) !important; color:#fff !important; background-color:var(--tr-rosa-f) !important; }
+/* Deshacer */
+html.lm-fam-teoria .gn-undo{
+  border:1px solid var(--tr-linea-f) !important; background:rgba(255,255,255,.06) !important; color:#fff !important;
+  border-radius:10px !important; box-shadow:none !important;
+}
+html.lm-fam-teoria .gn-undo:not(:disabled):hover{ border-color:rgba(255,255,255,.55) !important; background:rgba(255,255,255,.12) !important; }
+html.lm-fam-teoria .gn-undo:disabled{ opacity:.35 !important; }
+html.lm-fam-teoria .gn-undo--light{ color:var(--tr-tinta) !important; border-color:#cfd4e3 !important; background:#fff !important; }
+/* iconos planos dentro de los botones (✓ ↶ ✕ … y dado/bombilla/repetir del Diario: teoria.js) */
+html.lm-fam-teoria .lm-ico-orig{ display:none !important; }
+html.lm-fam-teoria .iconbtn svg.pl-i, html.lm-fam-teoria .gn-undo svg.pl-i{ width:16px !important; height:16px !important; margin:0 1px 0 0 !important; vertical-align:-3px; }
+html.lm-fam-teoria .btn-nuevos svg.pl-i, html.lm-fam-teoria.lm-gp .btn-ejemplo svg.pl-i{ width:16px !important; height:16px !important; }
+html.lm-fam-teoria .ex-modal-otro svg.pl-i{ width:16px; height:16px; margin:0; }
+
+/* partitura: papel blanco */
+html.lm-fam-teoria .score{ border:0 !important; border-radius:12px !important; box-shadow:0 1px 2px rgba(0,0,0,.25) !important; }
+/* casillas de respuesta */
+html.lm-fam-teoria .ans-cell{ background:rgba(255,255,255,.04) !important; border:1px solid var(--tr-linea) !important; border-radius:12px !important; }
+html.lm-fam-teoria .ans-cell.ok{ border-color:var(--green) !important; background:var(--green-soft) !important; }
+html.lm-fam-teoria .ans-cell.bad{ border-color:var(--red) !important; background:var(--red-soft) !important; }
+
+/* ruedas (selectores tipo iOS): 3.ª vuelta → sección 12.5 */
+
+/* botones de alteración y de opción: chip neutro; elegido = relleno rosa */
+html.lm-fam-teoria .acc-btn{ border-radius:8px !important; box-shadow:none !important; }
+html.lm-fam-teoria .acc-btn:not(.on):not(:disabled){ background:var(--t3-neutro) !important; border-color:transparent !important; color:#fff !important; }   /* 3.ª vuelta: neutro opaco */
+html.lm-fam-teoria .acc-btn:not(.on):not(:disabled):hover{ background:var(--t3-neutro-h) !important; color:#fff !important; }
+html.lm-fam-teoria .acc-btn.on, html.lm-fam-teoria .com-opt.on, html.lm-fam-teoria .ac-invbtn.on,
+html.lm-fam-teoria .inv-accgrid .acc-cell.on, html.lm-fam-teoria .qz-opt.sel, html.lm-fam-teoria .ter-bop.on,
+html.lm-fam-teoria .tipo-btn.on, html.lm-fam-teoria .tipo-btn.sel, html.lm-fam-teoria .esc-acc.on, html.lm-fam-teoria .esc-var-acc.on,
+html.lm-fam-teoria .tonpop .pbtn.on, html.lm-fam-teoria .clave-fam-btn.on, html.lm-fam-teoria .clave-sub-btn.on{
+  background:var(--tr-rosa-f) !important; background-image:none !important; border-color:var(--tr-rosa-f) !important; color:#fff !important; box-shadow:none !important;
+}
+html.lm-fam-teoria .tipo-btn.on .ab, html.lm-fam-teoria .tipo-btn.sel .ab{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-teoria .com-opt, html.lm-fam-teoria .ac-invbtn, html.lm-fam-teoria .qz-opt, html.lm-fam-teoria .ter-bop, html.lm-fam-teoria .tipo-btn{ border-radius:8px !important; }
+html.lm-fam-teoria .com-fig{ border-radius:8px !important; }
+html.lm-fam-teoria .com-fig.on{ border-color:var(--tr-rosa-f) !important; background:#fce7f3 !important; box-shadow:0 0 0 2px rgba(219,39,119,.35) !important; }
+html.lm-fam-teoria .com-banner{ background:var(--tr-rosa-f) !important; background-image:none !important; border-radius:10px !important; }
+
+/* pestañas A/B (inversiones, acordes, enarmonías) */
+html.lm-fam-teoria .ac-tabs .in, html.lm-fam-teoria .inv-tabs .in, html.lm-fam-teoria .ena-tabs .ena-tabs-in{
+  border-color:var(--tr-linea-f) !important; border-radius:10px !important; background:var(--tr-vidrio) !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-teoria .ac-tabs button, html.lm-fam-teoria .inv-tabs button, html.lm-fam-teoria .ena-tabs button{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .ac-tabs button.on, html.lm-fam-teoria .inv-tabs button.on, html.lm-fam-teoria .ena-tabs button.on{ background:var(--tr-rosa-f) !important; color:#fff !important; }
+
+/* interruptor (intervalos compuestos, 7ª de dominante): rectángulo suave, no pastilla */
+html.lm-fam-teoria .switch{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .switch .track{ border-radius:7px !important; background:rgba(255,255,255,.16) !important; }
+html.lm-fam-teoria .switch .knob{ border-radius:5px !important; background:#fff !important; }
+html.lm-fam-teoria .switch.on .track{ background:var(--tr-rosa-f) !important; }
+
+/* avisos */
+html.lm-fam-teoria .comp-banner, html.lm-fam-teoria .tactil-aviso, html.lm-fam-teoria .tactil-aviso .ta-full{
+  background:rgba(236,72,153,.1) !important; background-image:none !important; border:1px solid rgba(236,72,153,.45) !important;
+  border-radius:12px !important; color:#fff !important;
+}
+html.lm-fam-teoria .tactil-aviso .ta-full{ border:0 !important; background:transparent !important; }
+html.lm-fam-teoria .tactil-aviso b{ color:#fff !important; }
+html.lm-fam-teoria .esc-banner{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .esc-banner b{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .esc-chip{ background:var(--tr-vidrio) !important; border-color:var(--tr-linea-f) !important; border-radius:12px !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+html.lm-fam-teoria .esc-chip.on{ border-color:var(--tr-rosa) !important; background:rgba(236,72,153,.16) !important; }
+html.lm-fam-teoria .esc-chip p{ color:var(--tr-t2) !important; }
+
+/* tonos vecinos, grados, casillas de nombres */
+html.lm-fam-teoria .vcell{ background:rgba(255,255,255,.04) !important; border-color:var(--tr-linea-f) !important; border-radius:12px !important; }
+html.lm-fam-teoria .vcell.given{ background:rgba(255,255,255,.1) !important; border-color:rgba(255,255,255,.4) !important; color:#fff !important; }
+html.lm-fam-teoria .vcell.ok{ border-color:var(--green) !important; background:var(--green-soft) !important; }
+html.lm-fam-teoria .vcell.bad{ border-color:var(--red) !important; background:var(--red-soft) !important; }
+html.lm-fam-teoria .tonpop{
+  background:var(--tr-vidrio-o) !important; background-image:none !important; border:1px solid var(--tr-linea-f) !important; border-radius:14px !important;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-teoria .tonpop .ok-btn{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; border:0 !important; border-radius:10px !important; }
+html.lm-fam-teoria .gr-ans{ background:rgba(255,255,255,.04) !important; border-color:var(--tr-linea) !important; }
+html.lm-fam-teoria .gr-ans.ok{ border-color:var(--green) !important; background:var(--green-soft) !important; }
+html.lm-fam-teoria .gr-ans.bad{ border-color:var(--red) !important; background:var(--red-soft) !important; }
+html.lm-fam-teoria .gr-notebox{ background:rgba(0,0,0,.25) !important; border-color:var(--tr-linea-f) !important; }
+html.lm-fam-teoria.lm-gp .gr-preg{ color:#fff !important; }
+html.lm-fam-teoria .qz-col{ background:rgba(255,255,255,.035) !important; border-color:var(--tr-linea) !important; }
+html.lm-fam-teoria .qz-opt:not(.sel):not(.ok):not(.bad){ background:var(--t3-neutro) !important; border-color:transparent !important; }
+/* términos */
+html.lm-fam-teoria .ter-ccard{ background:rgba(236,72,153,.12) !important; background-image:none !important; border-color:rgba(236,72,153,.45) !important; }
+html.lm-fam-teoria .ter-chip{ background:var(--tr-rosa-f) !important; box-shadow:none !important; border-radius:8px !important; }
+html.lm-fam-teoria .ter-chip.ok{ background:var(--green) !important; }
+html.lm-fam-teoria .ter-chip.bad{ background:var(--red) !important; }
+html.lm-fam-teoria .ter-axis-line{ background:var(--tr-rosa) !important; }
+html.lm-fam-teoria .ter-axis-top{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .ter-bterm{ color:var(--tr-rosa) !important; }
+/* enarmonías (bloques en rosa suave) */
+html.lm-fam-teoria .ena-ex, html.lm-fam-teoria .ena-ton-card, html.lm-fam-teoria .ena-ton-seg{ background:rgba(0,0,0,.22) !important; }
+html.lm-fam-teoria .ena-tbtn.on{ background:var(--tr-rosa-f) !important; border-color:var(--tr-rosa-f) !important; color:#fff !important; }
+
+/* ---------- 5. VENTANA «EJEMPLO RESUELTO» (GE blanca · GP azul) → cristal oscuro ---------- */
+html.lm-fam-teoria .ex-modal{ background:rgba(4,10,20,.6) !important; -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+html.lm-fam-teoria .ex-modal-box{
+  background:var(--tr-vidrio-o) !important; background-color:rgba(11,19,32,.94) !important; background-image:none !important;
+  color:#fff !important; border:1px solid var(--tr-linea-f) !important; border-radius:var(--lm-r-tarjeta) !important;
+  box-shadow:0 24px 60px rgba(0,0,0,.5) !important; -webkit-backdrop-filter:blur(14px) !important; backdrop-filter:blur(14px) !important;
+}
+html.lm-fam-teoria .ex-modal-box::before, html.lm-fam-teoria .ex-modal-box::after{ display:none !important; animation:none !important; }
+html.lm-fam-teoria .ex-modal-tag{
+  background:rgba(236,72,153,.14) !important; background-image:none !important; color:#fff !important;
+  border:1px solid rgba(236,72,153,.6) !important; border-radius:var(--lm-r-chip) !important; box-shadow:none !important;
+}
+html.lm-fam-teoria .ex-modal-box h3{ color:#fff !important; }
+html.lm-fam-teoria .ex-modal-sec .lab, html.lm-fam-teoria .ex-modal-scorewrap .lab, html.lm-fam-teoria .ex-mod-grados .lab, html.lm-fam-teoria .ex-mod-pasos .lab{ color:var(--tr-t3) !important; }
+html.lm-fam-teoria .ex-modal-sec .enun, html.lm-fam-teoria .ex-modal-sec .expl, html.lm-fam-teoria .ex-mod-pasos li{ color:rgba(255,255,255,.86) !important; }
+html.lm-fam-teoria .ex-modal-sec .expl b{ color:#fff !important; }
+html.lm-fam-teoria .ex-modal-resp{ background:rgba(236,72,153,.1) !important; border:1px solid rgba(236,72,153,.45) !important; border-radius:12px !important; }
+html.lm-fam-teoria .ex-modal-resp .lab{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .ex-modal-resp .val{ color:#fff !important; }
+html.lm-fam-teoria .ex-modal-scorescroll{ background:#fff !important; box-shadow:none !important; border-radius:12px !important; }
+html.lm-fam-teoria .ex-pasos{ background:rgba(255,255,255,.04) !important; border:1px solid var(--tr-linea) !important; }
+html.lm-fam-teoria .ex-pasos .ex-paso{ border-top-color:rgba(255,255,255,.08) !important; }
+html.lm-fam-teoria .ex-pasos .ex-paso .num{ background:var(--tr-rosa-f) !important; background-image:none !important; border-radius:6px !important; }
+html.lm-fam-teoria .ex-pasos .ex-paso .txt{ color:rgba(255,255,255,.86) !important; }
+html.lm-fam-teoria .ex-pasos .ex-paso .txt b, html.lm-fam-teoria .ex-truco b{ color:#fff !important; }
+html.lm-fam-teoria .ex-truco{ background:rgba(255,255,255,.04) !important; border:1px dashed rgba(255,255,255,.3) !important; color:rgba(255,255,255,.86) !important; }
+html.lm-fam-teoria .ex-vecgrid-col{ color:var(--tr-t3) !important; }
+html.lm-fam-teoria .ex-modal-close{
+  background:rgba(255,255,255,.06) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important; border-radius:10px !important;
+}
+html.lm-fam-teoria .ex-modal-close:hover{ background:rgba(255,255,255,.14) !important; border-color:#fff !important; }
+html.lm-fam-teoria .ex-modal-otro{
+  background:rgba(255,255,255,.06) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important; border-radius:10px !important; box-shadow:none !important;
+}
+html.lm-fam-teoria .ex-modal-otro:hover{ border-color:var(--tr-rosa) !important; background:rgba(236,72,153,.14) !important; }
+/* ejemplo de enarmonías avanzado (tarjeta clara) → cristal oscuro, partitura en papel */
+html.lm-fam-teoria .ej-ov{ background:rgba(4,10,20,.6) !important; }
+html.lm-fam-teoria .ej-card{ background:var(--tr-vidrio-o) !important; border:1px solid var(--tr-linea-f) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.5) !important; }
+html.lm-fam-teoria .ej-card h3{ color:#fff !important; }
+html.lm-fam-teoria .ej-card p{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .ej-card .ej-svg{ background:#fff; border-radius:12px; padding:6px; }
+html.lm-fam-teoria .ej-close{ background:rgba(255,255,255,.08) !important; border:1px solid var(--tr-linea-f) !important; border-radius:10px !important; }
+
+/* ventanas genéricas (clave del profesor, etc.) */
+html.lm-fam-teoria .modal-bg{ background:rgba(4,10,20,.6) !important; }
+html.lm-fam-teoria .modal-card{ background:var(--tr-vidrio-o) !important; border-color:var(--tr-linea-f) !important; border-radius:var(--lm-r-tarjeta) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+html.lm-fam-teoria .mc-btn{ border-radius:10px !important; }
+html.lm-fam-teoria .mc-btn.primary{ background:var(--tr-rosa-f) !important; }
+
+/* ---------- 6. FICHA DEL ALUMNO · GE (#ppAlumnoSim, capa a pantalla completa) ---------- */
+html.lm-fam-teoria #ppAlumnoSim, html.lm-fam-teoria #ppAluCarga{ background:#0b1320 !important; isolation:isolate; }
+html.lm-fam-teoria #ppAlumnoSim::before, html.lm-fam-teoria #ppAluCarga::before{
+  content:""; position:absolute; inset:0; z-index:-2; pointer-events:none;
+  background:url("../fondo-vertical.jpg") center 62% / cover no-repeat; filter:blur(4px) saturate(1.08); transform:scale(1.04);
+}
+html.lm-fam-teoria #ppAlumnoSim::after, html.lm-fam-teoria #ppAluCarga::after{ content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:rgba(8,22,40,.56); }
+@media (min-aspect-ratio: 1/1){
+  html.lm-fam-teoria #ppAlumnoSim::before, html.lm-fam-teoria #ppAluCarga::before{ background-image:url("../fondo-apaisado.jpg"); background-position:center; }
+}
+html.lm-fam-teoria #ppAlumnoSim .neb-bg{ display:none !important; }
+html.lm-fam-teoria #ppAluCarga > div:first-child{ border-top-color:var(--tr-rosa) !important; }
+/* barra de progreso y salir */
+html.lm-fam-teoria #ppAlumnoSim #simHead{ color:rgba(255,255,255,.9) !important; opacity:1 !important; }
+html.lm-fam-teoria #ppAlumnoSim #simBar{ background:var(--tr-rosa) !important; border-radius:3px !important; }
+html.lm-fam-teoria #ppAlumnoSim #simBar{ box-shadow:none !important; }
+html.lm-fam-teoria #ppAlumnoSim #simSalir{
+  border-radius:var(--lm-r-boton) !important; background:var(--tr-vidrio) !important; border:1px solid var(--tr-linea-f) !important;
+  -webkit-backdrop-filter:blur(8px) !important; backdrop-filter:blur(8px) !important;
+}
+html.lm-fam-teoria #ppAlumnoSim #simSalir:hover{ border-color:#fff !important; }
+/* la pista de la barra (div padre de #simBar) */
+html.lm-fam-teoria #ppAlumnoSim div:has(> #simBar){ border-radius:3px !important; background:rgba(255,255,255,.14) !important; }
+/* tarjeta del ejercicio */
+html.lm-fam-teoria #ppAlumnoSim .sim-card{
+  background:var(--tr-vidrio-f) !important; background-image:none !important; border:1px solid var(--tr-linea) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important;
+  -webkit-backdrop-filter:blur(8px) !important; backdrop-filter:blur(8px) !important;
+}
+html.lm-fam-teoria #ppAlumnoSim .sim-eyebrow{ background:none !important; -webkit-text-fill-color:currentColor !important; color:var(--tr-rosa) !important; }
+html.lm-fam-teoria #ppAlumnoSim .sim-enun{ color:#fff !important; }
+html.lm-fam-teoria #ppAlumnoSim #simScore, html.lm-fam-teoria #ppAlumnoSim .sim-card #simScore{
+  background:rgba(0,0,0,.22) !important; background-image:none !important; border:1px solid rgba(255,255,255,.1) !important; border-radius:var(--lm-r-panel) !important;
+  --ficha-borde:rgba(255,255,255,.2); --ficha-rot:rgba(255,255,255,.7); --ficha-dada:#ffffff; --ficha-dada-bg:rgba(255,255,255,.1);
+}
+html.lm-fam-teoria #ppAlumnoSim .simSolHost{ --ficha-borde:rgba(255,255,255,.2); --ficha-rot:rgba(255,255,255,.7); --ficha-dada:#ffffff; --ficha-dada-bg:rgba(255,255,255,.1); }
+html.lm-fam-teoria #ppAlumnoSim #simScore, html.lm-fam-teoria #ppAlumnoSim #simScore div, html.lm-fam-teoria #ppAlumnoSim #simScore label, html.lm-fam-teoria #ppAlumnoSim #simScore span{ color:rgba(255,255,255,.92); }
+html.lm-fam-teoria #ppAlumnoSim svg.penta{ background:#fff !important; box-shadow:0 1px 2px rgba(0,0,0,.25) !important; }
+html.lm-fam-teoria #ppAlumnoSim #simScore .ans-cell{ background:rgba(255,255,255,.04) !important; border-color:rgba(255,255,255,.16) !important; }
+/* (ruedas de la ficha: sección 12.5) */
+html.lm-fam-teoria #ppAlumnoSim #simScore .acc-btn{ background:var(--t3-neutro) !important; border-color:transparent !important; color:#fff !important; }
+html.lm-fam-teoria #ppAlumnoSim #simScore .acc-btn.on{ background:var(--tr-rosa-f) !important; border-color:var(--tr-rosa-f) !important; }
+html.lm-fam-teoria #ppAlumnoSim #simScore .fig-btn{ background:var(--t3-neutro) !important; border-color:transparent !important; }
+html.lm-fam-teoria #ppAlumnoSim #simScore .fig-btn.on{ background:var(--tr-rosa-f) !important; border-color:var(--tr-rosa-f) !important; }
+html.lm-fam-teoria #ppAlumnoSim #simScore .del-nota{ background:rgba(236,72,153,.16) !important; border-color:rgba(236,72,153,.5) !important; color:#fff !important; }
+/* botones de abajo */
+html.lm-fam-teoria #ppAlumnoSim .sim-btn-primary{
+  background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; box-shadow:none !important; border-radius:var(--lm-r-boton) !important;
+}
+html.lm-fam-teoria #ppAlumnoSim .sim-btn-primary:hover{ filter:brightness(1.08) !important; }
+html.lm-fam-teoria #ppAlumnoSim .sim-btn-ghost, html.lm-fam-teoria #ppAlumnoSim .sim-practica-btn{
+  background:var(--tr-vidrio) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important; border-radius:var(--lm-r-boton) !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-teoria #ppAlumnoSim .sim-btn-ghost:hover, html.lm-fam-teoria #ppAlumnoSim .sim-practica-btn:hover{ border-color:#fff !important; background:rgba(11,19,32,.88) !important; }
+/* portada de la ficha */
+html.lm-fam-teoria #ppAlumnoSim .intro-eyebrow{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria #ppAlumnoSim .intro-title{ color:#fff !important; }
+html.lm-fam-teoria #ppAlumnoSim .intro-sub{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria #ppAlumnoSim .intro-chip{ border-radius:var(--lm-r-chip) !important; background:rgba(255,255,255,.08) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important; }
+html.lm-fam-teoria #ppAlumnoSim .intro-go{
+  background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; box-shadow:none !important; border-radius:var(--lm-r-boton) !important;
+}
+/* corrigiendo · cartel · nota */
+html.lm-fam-teoria #ppAlumnoSim .corr-ring{ border-color:rgba(255,255,255,.14) !important; border-top-color:var(--tr-rosa) !important; border-right-color:var(--tr-rosa) !important; }
+html.lm-fam-teoria #ppAlumnoSim .corr-chip{ border-radius:8px !important; color:#fff !important; }
+html.lm-fam-teoria #ppAlumnoSim .corr-chip.on{ background:rgba(236,72,153,.22) !important; background-image:none !important; border-color:rgba(236,72,153,.6) !important; }
+html.lm-fam-teoria #ppAlumnoSim .corr-bar{ border-radius:3px !important; }
+html.lm-fam-teoria #ppAlumnoSim .corr-bar > i{ background:var(--tr-rosa) !important; border-radius:3px !important; }
+html.lm-fam-teoria #ppAlumnoSim .sim-cartel-eyebrow{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria #ppAlumnoSim .sim-cartel-num{ text-shadow:0 2px 12px rgba(0,0,0,.45) !important; }
+html.lm-fam-teoria #ppAlumnoSim .nota-del-pop{ border-radius:6px !important; background:var(--tr-rosa-f) !important; background-image:none !important; box-shadow:0 1px 3px rgba(0,0,0,.35) !important; }
+html.lm-fam-teoria #ppAlumnoSim .sim-refuerzo{ border-radius:12px !important; }
+/* ventana «¿Salir de la ficha?» */
+html.lm-fam-teoria #simSalirOv{ background:rgba(4,10,20,.6) !important; }
+html.lm-fam-teoria #simSalirOv .sim-card{ background:var(--tr-vidrio-o) !important; border:1px solid var(--tr-linea-f) !important; border-radius:var(--lm-r-tarjeta) !important; }
+html.lm-fam-teoria #simSalirOv .sim-card > div{ color:inherit; }
+html.lm-fam-teoria #simSalirSi{ background:rgba(255,255,255,.06) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important; border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-teoria #simSalirNo{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; border-radius:var(--lm-r-boton) !important; }
+
+/* × de borrar nota junto a las notas (sobre el papel): cuadradito, no círculo */
+html.lm-fam-teoria .gn-del-x span, html.lm-fam-teoria .gn-delx span{
+  border-radius:5px !important; background:var(--tr-tinta) !important; border-color:rgba(255,255,255,.6) !important; color:#fff !important;
+}
+
+/* ---------- 7. FICHA DEL ALUMNO · GP (#view-fichapro) ---------- */
+html.lm-fam-teoria #view-fichapro .fp-intro-card, html.lm-fam-teoria #view-fichapro .fp-alu-card{
+  background:var(--tr-vidrio-f) !important; background-image:none !important; border:1px solid var(--tr-linea) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important;
+  -webkit-backdrop-filter:blur(8px) !important; backdrop-filter:blur(8px) !important;
+}
+html.lm-fam-teoria #view-fichapro .fp-intro-eyebrow{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria #view-fichapro .fp-intro-title{ color:#fff !important; }
+html.lm-fam-teoria #view-fichapro .fp-intro-sub{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria #view-fichapro .fp-intro-chip{ border-radius:var(--lm-r-chip) !important; background:rgba(255,255,255,.08) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important; }
+html.lm-fam-teoria #view-fichapro .fp-intro-go, html.lm-fam-teoria .fp-enviar{
+  background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; box-shadow:none !important; border-radius:var(--lm-r-boton) !important;
+}
+html.lm-fam-teoria #view-fichapro .fp-intro-go:hover, html.lm-fam-teoria .fp-enviar:not(:disabled):hover{ filter:brightness(1.08); }
+html.lm-fam-teoria #view-fichapro .fp-alu-prog{ border-radius:3px !important; background:rgba(255,255,255,.14) !important; }
+html.lm-fam-teoria #view-fichapro .fp-alu-progfill{ border-radius:3px !important; background:var(--tr-rosa) !important; background-image:none !important; }
+html.lm-fam-teoria #view-fichapro .fp-kicker{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria #view-fichapro .fp-titulo, html.lm-fam-teoria .fp-titulo{ color:#fff !important; }
+html.lm-fam-teoria .fp-titulo b{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .fp-practica, html.lm-fam-teoria .fp-mini{
+  background:var(--tr-vidrio) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important; border-radius:10px !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-teoria .fp-practica:hover, html.lm-fam-teoria .fp-mini:hover{ border-color:#fff !important; background:rgba(11,19,32,.88) !important; }
+html.lm-fam-teoria .fp-mini.rojo{ border-color:rgba(255,110,110,.55) !important; color:#fecaca !important; }
+html.lm-fam-teoria #fpAluSalir{
+  border-radius:var(--lm-r-boton) !important; background:var(--tr-vidrio) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important;
+}
+html.lm-fam-teoria #fpAluSalir:hover{ border-color:#fff !important; }
+html.lm-fam-teoria #view-fichapro .fp-corr-ring{ border-color:rgba(255,255,255,.14) !important; border-top-color:var(--tr-rosa) !important; border-right-color:var(--tr-rosa) !important; }
+html.lm-fam-teoria #view-fichapro .fp-chip{ border-radius:8px !important; }
+html.lm-fam-teoria #view-fichapro .fp-chip.on{ background:rgba(236,72,153,.22) !important; background-image:none !important; border-color:rgba(236,72,153,.6) !important; color:#fff !important; }
+html.lm-fam-teoria #view-fichapro .fp-corr-barra{ border-radius:3px !important; }
+html.lm-fam-teoria #view-fichapro .fp-corr-barra > i{ background:var(--tr-rosa) !important; border-radius:3px !important; }
+html.lm-fam-teoria .fp-cartel-eyebrow{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .fp-cartel-num{ text-shadow:0 2px 12px rgba(0,0,0,.45) !important; }
+html.lm-fam-teoria .fp-refuerzo{ background:rgba(236,72,153,.12) !important; background-image:none !important; border-color:rgba(236,72,153,.5) !important; color:#fff !important; }
+html.lm-fam-teoria .ia-fp-acc{ background:rgba(255,255,255,.06) !important; border-color:var(--tr-linea-f) !important; color:#fff !important; border-radius:10px !important; box-shadow:none !important; }
+html.lm-fam-teoria .ia-fp-acc:hover{ background:rgba(255,255,255,.12) !important; border-color:rgba(255,255,255,.55) !important; }
+html.lm-fam-teoria .ia-fp-acc.on{ background:var(--tr-rosa-f) !important; background-image:none !important; border-color:var(--tr-rosa-f) !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-teoria #fpSalirOv > div, html.lm-fam-teoria #fpPrev .fp-prev-panel{
+  background:var(--tr-vidrio-o) !important; background-image:none !important; border:1px solid var(--tr-linea-f) !important; border-radius:var(--lm-r-tarjeta) !important;
+}
+
+/* ---------- 7b. CADENCIAS (GE, css que inyecta la app: #cad-css) ---------- */
+html.lm-fam-teoria .cad-stage{ background:#fff !important; border:0 !important; box-shadow:0 1px 2px rgba(0,0,0,.25) !important; }
+html.lm-fam-teoria .cad-cover{ background:rgba(11,19,32,.94) !important; background-image:none !important; border:1px solid var(--tr-linea-f); }
+html.lm-fam-teoria .cad-play{ border-radius:var(--lm-r-tarjeta) !important; background:var(--tr-rosa-f) !important; box-shadow:none !important; }
+html.lm-fam-teoria .cad-replay{ border-radius:10px !important; border-color:var(--tr-rosa-f) !important; color:var(--tr-rosa-f) !important; }
+html.lm-fam-teoria .cad-ans{ background:rgba(255,255,255,.06) !important; border:1px solid var(--tr-linea-f) !important; border-radius:12px !important; box-shadow:none !important; color:#fff !important; }
+html.lm-fam-teoria .cad-ans .lbl, html.lm-fam-teoria #ppAlumnoSim .cad-ans .lbl{ color:#fff !important; }
+html.lm-fam-teoria .cad-ans .ab, html.lm-fam-teoria .cad-ans .sens, html.lm-fam-teoria #ppAlumnoSim .cad-ans .ab, html.lm-fam-teoria #ppAlumnoSim .cad-ans .sens{ color:rgba(255,255,255,.6) !important; }
+html.lm-fam-teoria .cad-ans:hover{ border-color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .cad-ans.sel{ background:var(--tr-rosa-f) !important; border-color:var(--tr-rosa-f) !important; }
+html.lm-fam-teoria .cad-ans.ok{ background:#16a34a !important; border-color:#16a34a !important; }
+html.lm-fam-teoria .cad-ans.bad{ background:#dc2626 !important; border-color:#dc2626 !important; }
+html.lm-fam-teoria .cad-ans.sel .ab, html.lm-fam-teoria .cad-ans.ok .ab, html.lm-fam-teoria .cad-ans.bad .ab,
+html.lm-fam-teoria .cad-ans.sel .sens, html.lm-fam-teoria .cad-ans.ok .sens, html.lm-fam-teoria .cad-ans.bad .sens{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-teoria .cad-tonbar, html.lm-fam-teoria .cad-hint{ color:var(--tr-t2) !important; }
+
+/* ---------- 8. GP: vistas con piezas propias ---------- */
+/* Enarmonías (repaso): cabecera que pinta su JavaScript — título blanco y «Volver» de cristal */
+html.lm-fam-teoria #view-enarmonia > div:first-child h2{ color:#fff !important; }
+html.lm-fam-teoria #view-enarmonia > div:first-child > button:first-child{
+  background:var(--tr-vidrio) !important; border:1px solid var(--tr-linea-f) !important; color:#fff !important; border-radius:10px !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-teoria .cad-key, html.lm-fam-teoria .snd-btn, html.lm-fam-teoria .fp-chip.prox, html.lm-fam-teoria .fp-ref-chip{ border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-teoria .snd-btn.on{ background:var(--tr-rosa-f) !important; border-color:var(--tr-rosa-f) !important; color:#fff !important; }
+html.lm-fam-teoria .cad-modal-box, html.lm-fam-teoria .cad-inline{ background:var(--tr-vidrio-o) !important; background-image:none !important; border-color:var(--tr-linea-f) !important; }
+html.lm-fam-teoria .cad-modal-title, html.lm-fam-teoria .cad-inline-title{ color:#fff !important; }
+html.lm-fam-teoria .tr-tabs{ background:var(--tr-vidrio) !important; border-color:var(--tr-linea-f) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+html.lm-fam-teoria .tr-tab.active{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; }
+html.lm-fam-teoria .tr-modo.on, html.lm-fam-teoria .tr-dir.on, html.lm-fam-teoria .tr-nota.on{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; }
+html.lm-fam-teoria #view-indice .ia-key{ background:var(--t3-neutro) !important; background-image:none !important; border-color:transparent !important; }
+html.lm-fam-teoria #view-indice .ia-key.sel{ background:var(--tr-rosa-f) !important; color:#fff !important; }
+html.lm-fam-teoria #view-indice .ia-key.acc{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria #view-indice .ia-key.acc.sel{ color:#fff !important; }
+html.lm-fam-teoria #view-indice .ia-playbtn{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; box-shadow:none !important; border-radius:var(--lm-r-tarjeta) !important; }
+html.lm-fam-teoria #view-indice .ia-startoverlay{ background:rgba(11,19,32,.9) !important; }
+html.lm-fam-teoria #view-indice .ia-timerbar{ background:var(--tr-vidrio) !important; }
+html.lm-fam-teoria #view-indice .ia-timer-big{ color:#fff !important; }
+html.lm-fam-teoria #view-serie .st-acc.on, html.lm-fam-teoria #view-serie .b-acc.on{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; }
+html.lm-fam-teoria .codigo-card{ background:rgba(236,72,153,.08) !important; background-image:none !important; }
+
+/* ---------- 9. GP · compases.html ---------- */
+html.lm-fam-teoria .mode-tab{ background:var(--tr-vidrio) !important; background-image:none !important; border-color:var(--tr-linea) !important; border-radius:var(--lm-r-panel) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+html.lm-fam-teoria .mode-tab .mt-k{ color:var(--tr-t3) !important; }
+html.lm-fam-teoria .mode-tab .mt-t{ color:#fff !important; }
+html.lm-fam-teoria .mode-tab:hover{ border-color:rgba(255,255,255,.4) !important; }
+html.lm-fam-teoria .mode-tab.active{ border-color:var(--tr-rosa) !important; background:rgba(11,19,32,.84) !important; }
+html.lm-fam-teoria .mode-tab.active .mt-k{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .mode-tab.active::before{ background:var(--tr-rosa) !important; border-radius:2px !important; }
+html.lm-fam-teoria .cmp-enun h2{ color:#fff !important; }
+html.lm-fam-teoria .cmp-enun p{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .score-paper, html.lm-fam-teoria .cmp-cell.filled, html.lm-fam-teoria .cmp-cell.given, html.lm-fam-teoria .mb-preview, html.lm-fam-teoria .a-finish-card{
+  background:#ffffff !important; background-image:none !important; box-shadow:0 1px 2px rgba(0,0,0,.25) !important;
+}
+html.lm-fam-teoria .score-paper{ border-color:#e2e6f0 !important; }
+html.lm-fam-teoria .ts-frac .num .fr-sup, html.lm-fam-teoria .ts .num .fr-sup{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .score-paper .ts-frac .num .fr-sup, html.lm-fam-teoria .a-objsig .ts, html.lm-fam-teoria .a-objsig .ts-frac .num .fr-sup{ color:var(--tr-rosa-f) !important; }
+html.lm-fam-teoria .a-objsig .ts-plus, html.lm-fam-teoria .paper .ts-plus{ color:#8a93ab !important; }
+html.lm-fam-teoria .a-objsig{ border-right-color:#e2e6f0 !important; }
+html.lm-fam-teoria .a-dots i{ background:rgba(255,255,255,.2) !important; }
+html.lm-fam-teoria .a-dots i.done{ background:var(--green) !important; }
+html.lm-fam-teoria .a-dots i.cur{ background:var(--tr-rosa) !important; box-shadow:0 0 0 3px rgba(236,72,153,.22) !important; }
+html.lm-fam-teoria .a-round, html.lm-fam-teoria .cmp-label, html.lm-fam-teoria .ztag{ color:var(--tr-t3) !important; }
+html.lm-fam-teoria .a-bar{ background:rgba(255,255,255,.14) !important; border-radius:3px !important; }
+html.lm-fam-teoria .a-bar i{ background:var(--tr-rosa) !important; }
+html.lm-fam-teoria .a-bar.ok i{ background:var(--green) !important; }
+html.lm-fam-teoria .a-bar.over i{ background:var(--red) !important; }
+html.lm-fam-teoria .a-palette{ border-top-color:var(--tr-linea) !important; }
+html.lm-fam-teoria .fig-btn, html.lm-fam-teoria .a-tool, html.lm-fam-teoria .chip, html.lm-fam-teoria .b-opt, html.lm-fam-teoria .cmp-cell:not(.filled):not(.given), html.lm-fam-teoria .stepper{
+  background:var(--tr-vidrio) !important; background-image:none !important; border-color:var(--tr-linea-f) !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-teoria .fig-btn, html.lm-fam-teoria .a-tool{ border-radius:var(--lm-r-boton) !important; color:#fff !important; }
+html.lm-fam-teoria .fig-btn:hover, html.lm-fam-teoria .a-tool:hover, html.lm-fam-teoria .b-opt:hover, html.lm-fam-teoria .chip:hover{ border-color:var(--tr-rosa) !important; color:#fff !important; }
+html.lm-fam-teoria .fig-ic{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .a-tool.active, html.lm-fam-teoria .chip.sel{ background:var(--tr-rosa-f) !important; border-color:var(--tr-rosa-f) !important; color:#fff !important; }
+html.lm-fam-teoria .chip.sel small{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-teoria .b-opt.correct{ background:#16a34a !important; background-image:none !important; box-shadow:none !important; }
+html.lm-fam-teoria .b-opt.wrong{ background:#dc2626 !important; background-image:none !important; box-shadow:none !important; }
+html.lm-fam-teoria .b-opt.solution{ background:#2563eb !important; background-image:none !important; box-shadow:none !important; }
+html.lm-fam-teoria .btn{ border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-teoria .btn:not(.btn-primary){ background:var(--tr-vidrio) !important; border-color:var(--tr-linea-f) !important; color:#fff !important; }
+html.lm-fam-teoria .btn:not(.btn-primary):hover{ border-color:#fff !important; }
+html.lm-fam-teoria .btn-primary{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; }
+html.lm-fam-teoria .btn-primary:hover{ color:#fff !important; }
+html.lm-fam-teoria .cmp-status{ color:var(--tr-t2) !important; }
+html.lm-fam-teoria .cmp-status.solved{ color:#fff !important; }
+html.lm-fam-teoria .cmp-modal{ background:rgba(4,10,20,.55) !important; }
+html.lm-fam-teoria .cmp-modal-box{ background:var(--tr-vidrio-o) !important; background-image:none !important; border-color:var(--tr-linea-f) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.5) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+html.lm-fam-teoria .sign-pill, html.lm-fam-teoria .af-check{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; }
+html.lm-fam-teoria .af-check{ border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-teoria .fed-guide{ background:rgba(236,72,153,.55) !important; }
+html.lm-fam-teoria .stepper button{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .mx-term{ background:rgba(0,0,0,.2) !important; border-color:var(--tr-linea) !important; }
+html.lm-fam-teoria .mx-plus{ color:var(--tr-rosa) !important; }
+
+/* ---------- 10. GP · modulacion.html ---------- */
+html.lm-fam-teoria .modul-card{ background:var(--tr-vidrio-f) !important; background-image:none !important; }
+html.lm-fam-teoria .modul-card.nebula-on{ background:var(--tr-vidrio-f) !important; border-color:var(--tr-linea) !important; }
+html.lm-fam-teoria .modul-card .nebula{ display:none !important; }
+html.lm-fam-teoria .modul-card.nebula-on .foot-tip{ color:var(--tr-t3) !important; }
+html.lm-fam-teoria .modul-card.nebula-on .magic-cap, html.lm-fam-teoria .magic-cap{ color:var(--tr-rosa) !important; }
+html.lm-fam-teoria .slot{ box-shadow:0 1px 2px rgba(0,0,0,.25) !important; }
+html.lm-fam-teoria .slot:hover{ border-color:var(--tr-rosa-f) !important; box-shadow:0 0 0 2px rgba(219,39,119,.3) !important; }
+html.lm-fam-teoria .slot.fixed:hover{ border-color:#cdd2e6 !important; box-shadow:0 1px 2px rgba(0,0,0,.25) !important; }
+html.lm-fam-teoria .slot.sel{ border-color:var(--tr-rosa-f) !important; box-shadow:0 0 0 3px rgba(219,39,119,.4) !important; }
+html.lm-fam-teoria .slot .cif{ color:var(--tr-rosa-f) !important; }
+html.lm-fam-teoria .slot.magic{ background:#fff !important; background-image:none !important; border-color:var(--tr-rosa-f) !important; }
+html.lm-fam-teoria .slot.magic::after{ display:none !important; }
+html.lm-fam-teoria .slot.magic .spark{ color:var(--tr-rosa-f) !important; filter:none !important; }
+html.lm-fam-teoria .slot.magic.sel{ box-shadow:0 0 0 3px rgba(219,39,119,.45) !important; }
+html.lm-fam-teoria .editor{ background:rgba(255,255,255,.03) !important; border-color:rgba(255,255,255,.28) !important; border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-teoria .editor-head{ color:#fff !important; }
+html.lm-fam-teoria .editor-head .chip{ background:var(--tr-rosa-f) !important; background-image:none !important; color:#fff !important; border:0 !important; }
+html.lm-fam-teoria .pill{ border-radius:8px !important; }
+html.lm-fam-teoria .pill.on, html.lm-fam-teoria .pill.sev7.on{ background:var(--tr-rosa-f) !important; border-color:var(--tr-rosa-f) !important; color:#fff !important; }
+html.lm-fam-teoria .pill:not(.on):hover{ border-color:var(--tr-rosa) !important; background:rgba(236,72,153,.1) !important; }
+html.lm-fam-teoria .result-msg b, html.lm-fam-teoria .help-roman{ color:var(--tr-rosa) !important; }
+
+/* ---------- 11. SEGUNDA VUELTA (27-sep-2026, Iago) ----------
+   Copia de antes: teoria.css.bak-27sep. Compañero: teoria.js, sección 4. */
+/* a) «by Iago González Alonso» y «Optimizado para ordenador y tablet» → pie común (#lm-pie), abajo en el centro.
+      Arriba ya no queda nada de esa fila (GE .topinfo); en la portada GE no se repite el crédito del pie viejo. */
+html.lm-fam-teoria.lm-teo-pie .topinfo{ display:none !important; }
+html.lm-fam-teoria #view-home > .foot .lm-foot-orig, html.lm-fam-teoria #view-home > .foot .lm-foot-orig + br{ display:none !important; }
+html.lm-fam-teoria #view-home > .foot .foot-prof{ margin-top:0 !important; }
+/* el hueco de abajo de cada página ya lo pone el pie: que no quede un vacío enorme entre el contenido y el pie
+   (salvo en la ficha GP, que va DESPUÉS de .wrap: ahí .wrap se queda como estaba para no mover la ficha) */
+html.lm-fam-teoria.lm-teo-con-pie body:not(:has(> #view-fichapro[style*="block"])) > .wrap{ padding-bottom:20px !important; }
+
+/* tarjetas A también en compases.html: las pestañas «Ejercicio A / B / C» son lo que se elige en esa página →
+   la elegida, rellena de rosa liso (sin contorno ni franja lateral); las otras, cristal. Con ?tarjetas=b, como estaban. */
+html.lm-fam-teoria.lm-tarjetas-a .mode-tab.active{
+  background:color-mix(in srgb, var(--tr-rosa-f) 94%, transparent) !important; background-image:none !important; border-color:transparent !important;
+}
+html.lm-fam-teoria.lm-tarjetas-a .mode-tab.active::before{ display:none !important; }
+html.lm-fam-teoria.lm-tarjetas-a .mode-tab.active .mt-k{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-teoria.lm-tarjetas-a .mode-tab:not(.active){ border-color:rgba(255,255,255,.16) !important; }
+html.lm-fam-teoria.lm-tarjetas-a .mode-tab:not(.active):hover{ border-color:var(--tr-rosa-b) !important; }
+
+/* =====================================================================
+   12. TERCERA VUELTA (27-sep-2026, tarde, Iago) — manda sobre todo lo anterior
+   Copia de antes: teoria.css.bak-27sep-v2. Compañero: teoria.js (sección 4).
+   ===================================================================== */
+html.lm-fam-teoria{ --t3-neutro:#243044; --t3-neutro-h:#2d3b52; --t3-alto:40px; --t3-ancho:116px; }
+
+/* ---------- 12.1 TARJETAS (B, la de por defecto): cristal negro con SOLO el contorno rosa, entero;
+   al pasar el ratón, rosa liso opaco. También las de REPASO (GP) y las pestañas A/B/C de compases. ---------- */
+html.lm-fam-teoria.lm-tarjetas-b .pad,
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card,
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card.repaso,
+html.lm-fam-teoria.lm-tarjetas-b .mode-tab{
+  background-color:var(--lm-cristal) !important; background-image:none !important;
+  border:1.5px solid var(--lm-rosa) !important; box-shadow:none !important; filter:none !important;
+  -webkit-backdrop-filter:blur(8px) !important; backdrop-filter:blur(8px) !important;
+}
+html.lm-fam-teoria.lm-tarjetas-b .pad:not(.soon):hover,
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card:hover,
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card.repaso:hover{
+  background-color:var(--lm-rosa-f) !important; border-color:var(--lm-rosa) !important; transform:translateY(-3px) !important;
+}
+html.lm-fam-teoria.lm-tarjetas-b .mode-tab:hover, html.lm-fam-teoria.lm-tarjetas-b .mode-tab.active{ background-color:var(--lm-rosa-f) !important; }
+html.lm-fam-teoria .mode-tab::before, html.lm-fam-teoria .mode-tab.active::before{ display:none !important; }   /* sin franja lateral */
+/* GE · escalas: las tres familias («Escalas menores / mayores / otras») se eligen como tarjetas: cristal + contorno;
+   al pasar o elegida (.on), rosa liso */
+html.lm-fam-teoria.lm-tarjetas-b .esc-chip{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1.5px solid var(--lm-rosa) !important;
+  -webkit-backdrop-filter:blur(8px) !important; backdrop-filter:blur(8px) !important; box-shadow:none !important;
+}
+html.lm-fam-teoria.lm-tarjetas-b .esc-chip:not(.soon):hover, html.lm-fam-teoria.lm-tarjetas-b .esc-chip.on{ background:var(--lm-rosa-f) !important; }
+html.lm-fam-teoria .esc-chip:hover p, html.lm-fam-teoria .esc-chip.on p{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-teoria .esc-chip .chk{ color:#fff !important; }
+html.lm-fam-teoria.lm-tarjetas-b .mode-tab:hover .mt-k, html.lm-fam-teoria.lm-tarjetas-b .mode-tab.active .mt-k{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card.repaso h2{ font-weight:800 !important; }
+/* al pasar: todo lo de dentro, blanco */
+html.lm-fam-teoria.lm-tarjetas-b .pad:not(.soon):hover .pad-sub,
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card:hover .card-sub,
+html.lm-fam-teoria.lm-tarjetas-b .pad:hover .apx-btn, html.lm-fam-teoria.lm-tarjetas-b .mode-card:hover .apx-btn{ color:#fff !important; opacity:1 !important; }
+/* sello «AVANZADO» (indica nivel: se queda): rosa sobre el cristal; cristal blanco sobre el rosa */
+html.lm-fam-teoria.lm-tarjetas-b .home-grid .mode-card:hover .pro-seal{ background:rgba(255,255,255,.22) !important; }
+html.lm-fam-teoria .mode-card.repaso:hover .repaso-cinta span{ background:rgba(255,255,255,.18) !important; }
+
+/* ---------- 12.2 BOTONES lisos y opacos: 40px de alto, radio 10, icono de 16, texto en una línea ----------
+   normales (Ejemplo, Deshacer, Escuchar, Pista…) → neutro opaco #243044 · principal (Corregir, Siguiente, Empezar) → rosa
+   poco importantes (volver, salir, cerrar, anterior) → solo contorno blanco 35 % */
+html.lm-fam-teoria .iconbtn, html.lm-fam-teoria .gn-undo, html.lm-fam-teoria .serie-listen,
+html.lm-fam-teoria #ppAlumnoSim .sim-practica-btn, html.lm-fam-teoria .fp-practica, html.lm-fam-teoria .fp-mini,
+html.lm-fam-teoria .btn:not(.btn-primary), html.lm-fam-teoria .mc-btn, html.lm-fam-teoria .cad-replay{
+  box-sizing:border-box !important; height:var(--t3-alto) !important; min-height:var(--t3-alto) !important;
+  padding:0 14px !important; border-radius:10px !important; border:1px solid transparent !important;
+  background:var(--t3-neutro) !important; background-image:none !important; color:#fff !important; box-shadow:none !important;
+  font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important; white-space:nowrap !important;
+  align-items:center !important; justify-content:center !important; gap:7px !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; filter:none !important; opacity:1;
+}
+html.lm-fam-teoria .iconbtn, html.lm-fam-teoria .gn-undo, html.lm-fam-teoria .serie-listen, html.lm-fam-teoria .sim-practica-btn,
+html.lm-fam-teoria .fp-practica, html.lm-fam-teoria .fp-mini, html.lm-fam-teoria .btn, html.lm-fam-teoria .mc-btn, html.lm-fam-teoria .cad-replay{ display:inline-flex; }
+html.lm-fam-teoria .iconbtn:hover, html.lm-fam-teoria .gn-undo:not(:disabled):hover, html.lm-fam-teoria .serie-listen:hover,
+html.lm-fam-teoria #ppAlumnoSim .sim-practica-btn:hover, html.lm-fam-teoria .fp-practica:hover, html.lm-fam-teoria .fp-mini:hover,
+html.lm-fam-teoria .btn:not(.btn-primary):hover, html.lm-fam-teoria .mc-btn:hover, html.lm-fam-teoria .cad-replay:hover{
+  background:var(--t3-neutro-h) !important; border-color:transparent !important; color:#fff !important;
+}
+html.lm-fam-teoria .iconbtn:disabled, html.lm-fam-teoria .gn-undo:disabled{ opacity:.4 !important; }
+html.lm-fam-teoria .fp-mini.rojo{ border-color:rgba(255,110,110,.55) !important; color:#fecaca !important; }
+/* en cada grupo, mismos anchos: la rejilla queda alineada de una tarjeta a otra */
+html.lm-fam-teoria .iconbtn:not(.lm-dado), html.lm-fam-teoria .gn-undo{ min-width:var(--t3-ancho) !important; }
+html.lm-fam-teoria .iconbtn svg, html.lm-fam-teoria .gn-undo svg, html.lm-fam-teoria .serie-listen svg,
+html.lm-fam-teoria .iconbtn svg.pl-i, html.lm-fam-teoria .gn-undo svg.pl-i{ width:16px !important; height:16px !important; margin:0 !important; flex:none; color:#fff !important; vertical-align:middle; }
+/* «Ejemplo resuelto» / «Ejercicio resuelto» → «Ejemplo» (el texto original sigue dentro, oculto, y en title/aria-label) */
+html.lm-fam-teoria .lm-rotulado > .lm-txt-orig{ display:none !important; }
+html.lm-fam-teoria .lm-rotulado > .lm-txt-nuevo::before{ content:attr(data-t); }
+/* «Corregir» de cadencias (GP): la app lo pone como bloque centrado → en fila, con su ✓ */
+html.lm-fam-teoria #cadCorregir{ display:flex; width:max-content; }
+/* principal: rosa liso */
+html.lm-fam-teoria .iconbtn.btn-correct, html.lm-fam-teoria .btn.btn-primary, html.lm-fam-teoria .mc-btn.primary,
+html.lm-fam-teoria #ppAlumnoSim .sim-btn-primary, html.lm-fam-teoria .fp-enviar, html.lm-fam-teoria #simSalirNo{
+  background:var(--lm-rosa-f) !important; background-image:none !important; border:1px solid transparent !important; color:#fff !important; box-shadow:none !important;
+}
+html.lm-fam-teoria .iconbtn.btn-correct:not(:disabled):hover, html.lm-fam-teoria .btn.btn-primary:hover, html.lm-fam-teoria .mc-btn.primary:hover,
+html.lm-fam-teoria #ppAlumnoSim .sim-btn-primary:hover, html.lm-fam-teoria .fp-enviar:not(:disabled):hover, html.lm-fam-teoria #simSalirNo:hover{
+  background:var(--lm-rosa-f) !important; filter:brightness(1.08) !important;
+}
+html.lm-fam-teoria .btn.btn-primary{
+  box-sizing:border-box !important; height:var(--t3-alto) !important; padding:0 16px !important; border-radius:10px !important;
+  font:700 13px/1 var(--lm-fuente) !important; white-space:nowrap !important; align-items:center !important; gap:7px !important;
+}
+/* navegación de las fichas: la misma altura que el resto */
+html.lm-fam-teoria #ppAlumnoSim #simFoot button, html.lm-fam-teoria #aluNext, html.lm-fam-teoria #aluPrev{
+  box-sizing:border-box !important; height:var(--t3-alto) !important; padding:0 18px !important; border-radius:10px !important;
+  font:700 14px/1 var(--lm-fuente) !important; white-space:nowrap !important; display:inline-flex; align-items:center !important; gap:7px !important;
+}
+/* poco importantes: solo contorno */
+html.lm-fam-teoria .lmeav-link, html.lm-fam-teoria .to-portal, html.lm-fam-teoria #view-enarmonia > div:first-child > button:first-child,
+html.lm-fam-teoria .ex-modal-close, html.lm-fam-teoria .ej-close, html.lm-fam-teoria #ppAlumnoSim #simSalir, html.lm-fam-teoria #fpAluSalir,
+html.lm-fam-teoria #ppAlumnoSim .sim-btn-ghost, html.lm-fam-teoria #aluPrev, html.lm-fam-teoria #simSalirSi{
+  background:transparent !important; background-image:none !important; border:1px solid rgba(255,255,255,.35) !important;
+  color:#fff !important; box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  border-radius:10px !important; filter:none !important;
+}
+html.lm-fam-teoria .lmeav-link:hover, html.lm-fam-teoria .to-portal:hover, html.lm-fam-teoria #view-enarmonia > div:first-child > button:first-child:hover,
+html.lm-fam-teoria .ex-modal-close:hover, html.lm-fam-teoria .ej-close:hover, html.lm-fam-teoria #ppAlumnoSim #simSalir:hover, html.lm-fam-teoria #fpAluSalir:hover,
+html.lm-fam-teoria #ppAlumnoSim .sim-btn-ghost:hover, html.lm-fam-teoria #aluPrev:hover, html.lm-fam-teoria #simSalirSi:hover{
+  background:transparent !important; border-color:rgba(255,255,255,.75) !important; color:#fff !important;
+}
+html.lm-fam-teoria .lmeav-link, html.lm-fam-teoria .to-portal, html.lm-fam-teoria #view-enarmonia > div:first-child > button:first-child{
+  box-sizing:border-box !important; height:var(--t3-alto) !important; padding:0 14px !important;   /* display: el de la app (en la portada GE lo oculta) */
+  align-items:center !important; gap:7px !important; font:700 13px/1 var(--lm-fuente) !important; white-space:nowrap !important;
+}
+/* cerrar (✕): cuadrado 40×40, como el dado */
+html.lm-fam-teoria .ex-modal-close, html.lm-fam-teoria #ppAlumnoSim #simSalir, html.lm-fam-teoria #fpAluSalir{
+  box-sizing:border-box !important; width:40px !important; height:40px !important; padding:0 !important;
+  display:inline-flex; align-items:center !important; justify-content:center !important;
+}
+html.lm-fam-teoria .ex-modal-close svg, html.lm-fam-teoria #simSalir svg, html.lm-fam-teoria #fpAluSalir svg{ width:16px !important; height:16px !important; margin:0 !important; }
+
+/* botones de opción / alteración (♭ ♯, tipos, términos, sonidos, figuras…): neutro opaco, sin borde; el elegido, rosa */
+html.lm-fam-teoria :is(.acc-btn, .com-opt, .ac-invbtn, .inv-accgrid .acc-cell, .qz-opt, .ter-bop, .tipo-btn, .esc-acc, .esc-var-acc,
+  .tonpop .pbtn, .clave-fam-btn, .clave-sub-btn, .snd-btn, .cad-key, .st-acc, .b-acc, .tr-modo, .tr-dir, .tr-nota, .ia-key, .pill,
+  .fig-btn, .a-tool, .chip, .b-opt, .ena-tbtn, .ia-fp-acc, .cad-ans, .stepper):where(:not(.ok, .bad, .correct, .wrong, .solution)){
+  background:var(--t3-neutro) !important; background-image:none !important; border-color:transparent !important; color:#fff !important;
+  box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-teoria :is(.acc-btn, .com-opt, .ac-invbtn, .inv-accgrid .acc-cell, .qz-opt, .ter-bop, .tipo-btn, .esc-acc, .esc-var-acc,
+  .tonpop .pbtn, .clave-fam-btn, .clave-sub-btn, .snd-btn, .cad-key, .st-acc, .b-acc, .tr-modo, .tr-dir, .tr-nota, .ia-key, .pill,
+  .fig-btn, .a-tool, .b-opt, .ena-tbtn, .ia-fp-acc, .cad-ans):where(:not(.ok, .bad, .correct, .wrong, .solution, :disabled)):hover{
+  background:var(--t3-neutro-h) !important;
+}
+html.lm-fam-teoria :is(.acc-btn.on, .com-opt.on, .ac-invbtn.on, .inv-accgrid .acc-cell.on, .qz-opt.sel, .ter-bop.on, .tipo-btn.on, .tipo-btn.sel,
+  .esc-acc.on, .esc-var-acc.on, .tonpop .pbtn.on, .clave-fam-btn.on, .clave-sub-btn.on, .snd-btn.on, .st-acc.on, .b-acc.on,
+  .tr-modo.on, .tr-dir.on, .tr-nota.on, .ia-key.sel, .pill.on, .pill.sev7.on, .a-tool.active, .chip.sel, .ena-tbtn.on,
+  .ia-fp-acc.on, .cad-ans.sel){
+  background:var(--lm-rosa-f) !important; border-color:transparent !important; color:#fff !important;
+}
+html.lm-fam-teoria .fig-ic, html.lm-fam-teoria #view-indice .ia-key.acc{ color:#fff !important; }
+html.lm-fam-teoria .cad-ans .ab, html.lm-fam-teoria .cad-ans .sens{ color:rgba(255,255,255,.62) !important; }
+/* pestañas: la barra, neutro opaco; la elegida, rosa */
+html.lm-fam-teoria .tr-tabs, html.lm-fam-teoria .ac-tabs .in, html.lm-fam-teoria .inv-tabs .in, html.lm-fam-teoria .ena-tabs .ena-tabs-in{
+  background:var(--t3-neutro) !important; border-color:transparent !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+/* chips de la portada de la ficha (qué se va a practicar): etiquetas neutras opacas */
+html.lm-fam-teoria #ppAlumnoSim .intro-chip, html.lm-fam-teoria #view-fichapro .fp-intro-chip{
+  background:var(--t3-neutro) !important; border-color:transparent !important;
+}
+/* carteles «pulsa para empezar»: panel opaco y texto limpio */
+html.lm-fam-teoria #view-indice .ia-startoverlay, html.lm-fam-teoria .cad-cover{ background:#0f1827 !important; background-image:none !important; }
+
+/* compases (A · rellena): la paleta en rejilla simétrica — las 7 figuras llenan la primera fila con el mismo ancho;
+   debajo, en las mismas columnas, Puntillo · Silencio a la izquierda y Borrar · Limpiar a la derecha */
+html.lm-fam-teoria .a-palette{ gap:9px !important; }
+html.lm-fam-teoria .a-palette > .fig-btn{ flex:1 1 0 !important; min-width:0 !important; height:44px !important; border-color:transparent !important; }
+html.lm-fam-teoria .a-palette > .a-tool{ flex:0 0 calc((100% - 54px) / 7) !important; height:44px !important; padding:0 8px !important; justify-content:center; }
+html.lm-fam-teoria .a-palette > .a-sep{ flex:1 1 auto !important; width:auto !important; height:0 !important; margin:0 !important; background:none !important; }
+html.lm-fam-teoria .a-palette > .a-sep:nth-child(8){ flex:0 0 100% !important; }   /* tras las 7 figuras: salto de fila */
+
+/* ---------- 12.3 DADO: SOLO el dado, en un cuadrado 40×40 rosa liso; siempre el último de su fila ---------- */
+html.lm-fam-teoria .lm-dado, html.lm-fam-teoria .iconbtn.lm-dado, html.lm-fam-teoria .btn.lm-dado, html.lm-fam-teoria .ex-modal-otro.lm-dado{
+  box-sizing:border-box !important; width:40px !important; min-width:40px !important; max-width:40px !important;
+  height:40px !important; min-height:40px !important; padding:0 !important; gap:0 !important; flex:none !important; order:99;
+  align-items:center !important; justify-content:center !important;
+  background:var(--lm-rosa-f) !important; background-image:none !important; border:0 !important; border-radius:10px !important;
+  color:#fff !important; box-shadow:none !important; filter:none !important; font-size:0 !important; line-height:0 !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-teoria .lm-dado:hover, html.lm-fam-teoria .iconbtn.lm-dado:hover, html.lm-fam-teoria .btn.lm-dado:hover, html.lm-fam-teoria .ex-modal-otro.lm-dado:hover{
+  background:var(--lm-rosa-f) !important; filter:brightness(1.08) !important;
+}
+html.lm-fam-teoria .lm-dado > :not(svg.lm-ico-dice){ display:none !important; }
+html.lm-fam-teoria .lm-dado > svg.pl-i.lm-ico-dice{ display:block !important; width:20px !important; height:20px !important; margin:0 !important; color:#fff !important; stroke:#fff !important; }
+/* ventanas de ejemplo: el dado arriba a la derecha, junto al ✕ (el ✕ sigue en la esquina) */
+html.lm-fam-teoria .ex-modal-topbtns > .lm-dado{ order:0; }
+html.lm-fam-teoria .ex-modal-box > .ex-modal-otro.lm-dado{ position:absolute !important; top:14px !important; right:62px !important; margin:0 !important; z-index:3 !important; }
+html.lm-fam-teoria.lm-gp .ex-modal-box > .ex-modal-close{ top:14px !important; right:14px !important; }
+/* GE · términos: el dado estaba bajo el título, en el centro → a la derecha, en la línea de la explicación
+   (justo encima de la primera tarjeta; en la fila del título chocaría con «← LM at home») */
+html.lm-fam-teoria.lm-ge .iv-head{ position:relative; }
+html.lm-fam-teoria.lm-ge .iv-head > .lm-dado{ position:absolute !important; right:0; top:calc(100% - 8px); }
+html.lm-fam-teoria.lm-ge .iv-head:has(> .lm-dado) + .iv-sub{ margin-bottom:24px !important; padding-right:60px; }
+/* compases: arriba a la derecha de cada ejercicio (en la fila del título), como en todas partes */
+html.lm-fam-teoria section[id^="stage"]{ position:relative; }
+html.lm-fam-teoria .cmp-foot > .btn.lm-dado{ position:absolute !important; top:-6px; right:0; }
+/* en la tarjeta blanca de «ejercicio completado» (compases) va centrado, como estaba */
+html.lm-fam-teoria .a-finish-card .btn.lm-dado{ align-self:center; }
+
+/* ---------- 12.4 banda del rótulo de grado también en las fichas ---------- */
+/* GE: la ficha es una capa a pantalla completa → deja la banda libre y el rótulo va encima, fijo */
+html.lm-fam-teoria #ppAlumnoSim, html.lm-fam-teoria #ppAluCarga{ padding-top:var(--lm-grado-banda, 46px) !important; box-sizing:border-box !important; }
+html.lm-fam-teoria body:has(> #ppAlumnoSim) #lm-grado, html.lm-fam-teoria body:has(> #ppAluCarga) #lm-grado{ position:fixed !important; z-index:100001 !important; }
+/* GP: el ✕ de salir (fijo) baja por debajo de la banda */
+html.lm-fam-teoria #fpAluSalir{ top:56px !important; }
+
+/* ---------- 12.5 RUEDAS (armaduras, tonalidades, intervalos…; GE .wheel/.strip/.item/.mask/.center · GP .wheel/.wlist/.witem/.wband):
+   «que no haya las líneas esas»: sin bordes, sin líneas y sin cajas; el elegido (centro) en una caja rosa lisa y opaca
+   con el texto blanco; los demás, solo el nombre en blanco medio oscurecido (45 %) ---------- */
+html.lm-fam-teoria .dualsel, html.lm-fam-teoria.lm-ge .dualsel{ border:0 !important; background:transparent !important; box-shadow:none !important; }
+html.lm-fam-teoria .wheel, html.lm-fam-teoria.lm-ge .wheel, html.lm-fam-teoria.lm-gp .wheel, html.lm-fam-teoria #ppAlumnoSim #simScore .wheel{
+  background:transparent !important; background-image:none !important; border:0 !important; box-shadow:none !important; isolation:isolate;
+}
+html.lm-fam-teoria .wheel + .wheel, html.lm-fam-teoria.lm-ge .wheel + .wheel{ border-left:0 !important; }
+html.lm-fam-teoria .wheel .mask, html.lm-fam-teoria #ppAlumnoSim #simScore .wheel .mask,
+html.lm-fam-teoria .wheel::before, html.lm-fam-teoria .wheel::after{ display:none !important; }
+html.lm-fam-teoria .wheel .center, html.lm-fam-teoria #ppAlumnoSim #simScore .wheel .center,
+html.lm-fam-teoria .wheel .wband, html.lm-fam-teoria.lm-gp .wheel .wband{
+  background:var(--lm-rosa-f) !important; background-image:none !important; border:0 !important; border-radius:8px !important;
+  box-shadow:none !important; z-index:0 !important;
+}
+html.lm-fam-teoria .wheel .strip, html.lm-fam-teoria .wheel .wlist{ z-index:1 !important; }
+html.lm-fam-teoria .wheel .item, html.lm-fam-teoria .wheel .witem, html.lm-fam-teoria #ppAlumnoSim #simScore .wheel .item{ color:rgba(255,255,255,.45) !important; }
+html.lm-fam-teoria .wheel .item.sel, html.lm-fam-teoria .wheel .witem.sel, html.lm-fam-teoria #ppAlumnoSim #simScore .wheel .item.sel{ color:#fff !important; }
+
+/* ---------- 12.6 GP: nada dorado ni marrón; sin distintivos «PRO» (el grado ya se ve arriba) ---------- */
+/* portada GP: sin el cartel de «optimizada…» (ahora en el pie) el título quedaba muy separado del logo → como en GE */
+html.lm-fam-teoria.lm-gp #teoHome > .eva-hero:first-child{ margin-top:0 !important; }
+html.lm-fam-teoria.lm-gp .brand h1 span[aria-hidden="true"]{ color:rgba(255,255,255,.82) !important; }   /* «GRADO PROFESIONAL» bajo el logo */
+html.lm-fam-teoria .pro-seal-brand{ display:none !important; }
+html.lm-fam-teoria .wrap > header.top .brand-inline{ display:none !important; }   /* modulación: «Nivel Pro · Grado Profesional» */
+
+/* ---------- 12.7 solo horizontal: nada partido en dos líneas si cabe en una ---------- */
+html.lm-fam-teoria .iv-sub, html.lm-fam-teoria .cmp-enun p{ max-width:none !important; }
+/* portada GE: «INVERSIÓN DE INTERVALOS», «INVERSIÓN DE ACORDES» y los subtítulos largos, en una sola línea
+   también a 1280 y 1024 (menos margen lateral dentro de la tarjeta y la letra se ajusta al ancho) */
+html.lm-fam-teoria .pad{ padding-left:14px !important; padding-right:14px !important; }
+html.lm-fam-teoria .pad h3{ font-size:clamp(16px, 1.4vw, 20px) !important; letter-spacing:.03em !important; white-space:nowrap; }
+html.lm-fam-teoria .pad-sub{ max-width:100% !important; letter-spacing:0 !important; white-space:nowrap; font-size:clamp(9.5px, .75vw, 10.5px) !important; }
+/* (la etiqueta de la casilla en el editor de modulación no es un botón: sigue rosa) */
+html.lm-fam-teoria .editor .editor-head .chip{ background:var(--lm-rosa-f) !important; color:#fff !important; }

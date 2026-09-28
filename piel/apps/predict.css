@@ -1,0 +1,611 @@
+/* =====================================================================
+   LM at home · PIEL · PREDICT at home (GE, predict.ge) y PREDICT PRO (GP, predict.gp)
+   (26-sep-2026, Iago) Solo aspecto. Todo cuelga de html.lm-fam-predict.
+   Apartado AUDICIÓN → naranja #f97316 (contornos, acentos) · relleno liso #ea580c.
+   En GP nada dorado ni marrón salvo el rótulo «GRADO PROFESIONAL» del núcleo.
+   Se respetan los colores de corrección: verde = bien, rojo = mal, azul = la solución.
+   27-sep-2026 · 3ª vuelta (Iago):
+   · tarjetas de elegir (modos y ciclos) CUADRADAS, cristal negro con SOLO el contorno
+     naranja; al pasar el ratón, relleno naranja liso y opaco (opción B, la de por defecto);
+   · botones lisos y opacos: lo principal (¿Qué tal fue?, Solución, Corregir y seguir,
+     Mantener, Siguiente) en naranja; lo normal (Deshacer, escuchar, pista, opciones,
+     velocidades…) en gris azulado #243044 y naranja cuando está elegido o sonando;
+     lo poco importante (← Modos, ← volver, Edición, Cerrar, enlace a Elemental) solo contorno;
+   · el dado: SOLO el dado, cuadrado 40×40 naranja, en su sitio de siempre (arriba a la derecha);
+   · nada marrón: los naranjas translúcidos sobre oscuro pasan a naranja sólido o a neutro;
+   · el contenido empieza por debajo de la banda del rótulo de grado (46px).
+   Compañero: predict.js.
+   ===================================================================== */
+
+html.lm-fam-predict{
+  --bg:transparent; --panel:rgba(11,19,32,.72); --panel2:rgba(11,19,32,.72); --line:rgba(255,255,255,.12);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52); --paper:#ffffff;
+  --accent:#243044; --accent2:#f97316;
+  --green:#22c55e; --green-soft:rgba(34,197,94,.16); --red:#ef4444; --red-soft:rgba(239,68,68,.16);
+  --gold:#f97316; --gold1:#f97316; --gold2:#ea580c; --gold-soft:#f97316;
+  --shadow:none;
+  /* los «-soft» de la app eran tintes del color sobre oscuro (se veían marrones): ahora neutros y opacos */
+  --rit:#f97316; --rit-soft:#243044;
+  --mel:#f97316; --mel-soft:#243044;
+  --ton:#f97316; --ton-soft:#243044;
+  --arm:#f97316; --arm-soft:#243044; --arm2:#ea580c;
+  --lm-pd-f:#ea580c;            /* relleno naranja con texto blanco */
+  --lm-pd-f-hover:#fa5e0d;      /* el mismo con brillo 1.07 (sin filter: las tarjetas giran en 3D) */
+  --lm-pd-n:#243044;            /* botón normal: relleno neutro opaco */
+  --lm-pd-n-hover:#2d3b52;
+  --lm-pd-n-off:#1c2636;        /* desactivado: también opaco */
+  --lm-pd-linea:rgba(255,255,255,.35);
+  --lm-pd-ok:#16a34a; --lm-pd-bad:#dc2626; --lm-pd-sol:#2563eb;
+}
+html.lm-fam-predict body{ font-family:var(--lm-fuente); }
+/* lo que la piel oculta sin borrarlo (dibujos y rótulos originales de los botones) */
+html.lm-fam-predict .lm-pd-orig{ display:none !important; }
+
+/* ---------- banda del rótulo de grado: el contenido empieza por debajo (nada a sus lados) ---------- */
+html.lm-fam-predict body > .wrap{ padding-top:52px !important; }
+
+/* ---------- cabecera: marca y enlaces ---------- */
+html.lm-fam-predict .home2, html.lm-fam-predict .ath{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-predict .brand h1 .a{ color:#fff !important; }
+html.lm-fam-predict .brand h1 .eav, html.lm-fam-predict .brand h1 .eav-pro, html.lm-fam-predict .brand h1 .b{ color:rgba(255,255,255,.62) !important; }
+/* letritas «GRADO ELEMENTAL / PROFESIONAL» bajo LM at home: blancas también en GP (nada dorado) */
+html.lm-fam-predict .brand h1 span[aria-hidden="true"]{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-predict .brand-inline{ color:rgba(255,255,255,.6) !important; }
+/* distintivos «PRO» (si alguna vista los pinta): fuera, el grado ya se ve arriba */
+html.lm-fam-predict .pro-tag-mini, html.lm-fam-predict .pro-tag-big, html.lm-fam-predict .pro-tag, html.lm-fam-predict .pro-mini{ display:none !important; }
+/* «Trabaja lo fundamental en PREDICT Elemental →» (solo GP): enlace poco importante → solo contorno.
+   En la fila de la marca, alineado con el borde del contenido, lejos del rótulo; se va con la página
+   al bajar (antes, fijo, pisaba el dado y tapaba el contenido). */
+html.lm-fam-predict .to-elemental{
+  position:absolute !important; top:57px !important; right:max(26px, calc(50% - 594px)) !important;
+  background:transparent !important; background-image:none !important; border:1px solid var(--lm-pd-linea) !important;
+  border-radius:10px !important; box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  min-height:36px; padding:0 14px !important; box-sizing:border-box; transform:none !important;
+}
+html.lm-fam-predict .to-elemental:hover{ border-color:rgba(255,255,255,.7) !important; background:transparent !important; box-shadow:none !important; transform:none !important; }
+html.lm-fam-predict .to-elemental .te-icon{ color:#fff !important; display:inline-flex; }
+html.lm-fam-predict .to-elemental .te-icon svg.pl-i{ width:16px; height:16px; margin:0; }
+html.lm-fam-predict .to-elemental .te-text{ color:rgba(255,255,255,.8) !important; font-size:12px !important; }
+html.lm-fam-predict .to-elemental .te-text b{ color:#fff !important; }
+html.lm-fam-predict .to-elemental .te-go{ color:#fff !important; font-size:12px !important; }
+html.lm-fam-predict .pending-banner{ background:#1a2436 !important; background-image:none !important; border-color:var(--lm-naranja) !important; color:#fff !important; border-radius:10px !important; }
+
+/* ---------- pie común (LMPiel.alPie): hasta que predict.js los mueve, no se ven arriba ---------- */
+html.lm-fam-predict .wrap > header.top > .tagline:not(.lm-en-pie),
+html.lm-fam-predict #evaHome > .opt-banner:not(.lm-en-pie){ display:none !important; }
+/* la página acaba en el pie: sin el hueco de 80px que dejaba la app debajo */
+html.lm-fam-predict body > .wrap{ padding-bottom:24px !important; }
+html.lm-fam-predict body:has(> #cadenciasView.active) > .wrap{ padding-bottom:80px !important; }  /* Cadencias va fuera de .wrap */
+html.lm-fam-predict #modosView{ min-height:0 !important; }                                      /* su 100vh era para su fondo propio */
+html.lm-fam-predict #modosView .wrap{ padding-bottom:24px !important; }
+
+/* ---------- portada: PREDICT at home ---------- */
+html.lm-fam-predict .eva-hero{ margin:4px 0 22px !important; }
+html.lm-fam-predict .eva-big .pre{ color:rgba(255,255,255,.62) !important; }
+html.lm-fam-predict .eva-big .dict{ color:#fff !important; }
+html.lm-fam-predict.lm-gp .eva-big .pre{ color:#fff !important; }
+html.lm-fam-predict.lm-gp .eva-big .dict{ color:rgba(255,255,255,.62) !important; }
+html.lm-fam-predict .eva-big .home2{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-predict .eva-tag{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-predict .maint-link{ color:rgba(255,255,255,.55) !important; }
+
+/* =====================================================================
+   TARJETAS DE ELEGIR: modos (Rítmico, Melódico, TonCom, Armónico, Modos, Cadencias) y ciclos
+   formato cuadrado 1:1 — GE: las 4 en una fila · GP: 3 + 3
+   ===================================================================== */
+@media (min-width:861px){
+  html.lm-fam-predict .home-grid{ gap:20px !important; margin-top:0 !important; }
+  html.lm-fam-predict.lm-ge .home-grid{ grid-template-columns:repeat(4, minmax(0,1fr)) !important; max-width:1060px !important; margin-left:auto !important; margin-right:auto !important; }
+  html.lm-fam-predict.lm-gp .home-grid{ grid-template-columns:repeat(3, minmax(0,1fr)) !important; max-width:790px !important; margin-left:auto !important; margin-right:auto !important; }
+  html.lm-fam-predict .flip-inner{ min-height:0 !important; aspect-ratio:1 / 1; }
+  html.lm-fam-predict .mode-card{ min-height:0 !important; padding:26px 24px 22px !important; }
+  html.lm-fam-predict .mode-card h2{ font-size:30px !important; margin:0 0 10px !important; line-height:1.05 !important; white-space:nowrap; }
+  html.lm-fam-predict .mode-card p{ font-size:14px !important; line-height:1.45 !important; }
+  html.lm-fam-predict .mode-card .go{ margin-top:10px !important; font-size:13px !important; white-space:nowrap; }
+}
+@media (min-width:861px) and (max-width:1180px){
+  html.lm-fam-predict.lm-ge .mode-card{ padding:22px 20px 18px !important; }
+  html.lm-fam-predict.lm-ge .mode-card h2{ font-size:27px !important; }
+  html.lm-fam-predict.lm-ge .mode-card p{ font-size:13px !important; line-height:1.42 !important; }
+}
+html.lm-fam-predict .mode-card{
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; background-image:none !important;
+  transition:transform .18s ease, border-color .18s ease, background-color .18s ease !important;
+}
+html.lm-fam-predict .mode-card:focus-visible{ outline:2px solid #fff !important; outline-offset:3px; }
+html.lm-fam-predict .card-title .hl{ color:#fff !important; }
+html.lm-fam-predict .mode-card .edge{ display:none !important; }
+
+/* B (por defecto) · cristal negro con SOLO el contorno naranja; al pasar el ratón, naranja liso y opaco */
+html.lm-fam-predict.lm-tarjetas-b .mode-card{
+  background-color:var(--lm-cristal) !important; border:1.5px solid var(--lm-naranja) !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-predict.lm-tarjetas-b .mode-card .go{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict.lm-tarjetas-b .mode-card p{ color:rgba(255,255,255,.78) !important; }
+html.lm-fam-predict.lm-tarjetas-b .card-title .dim{ color:rgba(255,255,255,.62) !important; }
+html.lm-fam-predict.lm-tarjetas-b .mode-card:not(.flip-back):not(.soon):hover{
+  background-color:var(--lm-pd-f) !important; border-color:var(--lm-naranja) !important; transform:translateY(-3px) !important;
+}
+html.lm-fam-predict.lm-tarjetas-b .mode-card:not(.flip-back):not(.soon):hover .go,
+html.lm-fam-predict.lm-tarjetas-b .mode-card:not(.flip-back):not(.soon):hover p{ color:#fff !important; }
+html.lm-fam-predict.lm-tarjetas-b .mode-card:not(.flip-back):not(.soon):hover .card-title .dim{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-predict.lm-tarjetas-b .flip-back, html.lm-fam-predict.lm-tarjetas-b .flip-back:hover{ border-color:var(--lm-naranja) !important; background-color:var(--lm-cristal) !important; }
+
+/* A (?tarjetas=a) · relleno naranja liso y texto blanco */
+html.lm-fam-predict.lm-tarjetas-a .mode-card{
+  background-color:color-mix(in srgb, var(--lm-pd-f) 94%, transparent) !important; border:0 !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-predict.lm-tarjetas-a .mode-card:not(.flip-back):not(.soon):hover{ transform:translateY(-3px) !important; background-color:var(--lm-pd-f-hover) !important; }
+html.lm-fam-predict.lm-tarjetas-a .card-title .dim{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-predict.lm-tarjetas-a .mode-card p{ color:rgba(255,255,255,.92) !important; }
+html.lm-fam-predict.lm-tarjetas-a .mode-card .go{ color:#fff !important; }
+
+/* cara de atrás (GE · elegir ciclo): los ciclos son tarjetas pequeñas, una encima de otra, con el mismo trato */
+html.lm-fam-predict .flip-back{ padding:18px !important; gap:10px !important; justify-content:center !important; align-items:stretch; }
+html.lm-fam-predict .lvl{
+  flex-direction:column !important; align-items:center !important; justify-content:center !important; gap:3px !important;
+  padding:10px 8px !important; text-align:center; border-radius:12px !important; border:1.5px solid var(--lm-naranja) !important;
+  background:transparent !important; color:#fff !important; transition:background-color .15s, border-color .15s !important;
+}
+html.lm-fam-predict .lvl .lvl-nm{ display:block; font-size:15px !important; line-height:1.2 !important; white-space:nowrap; color:#fff !important; }
+html.lm-fam-predict .lvl .lvl-cur{ display:block; font-size:12px !important; line-height:1.2 !important; white-space:nowrap; color:rgba(255,255,255,.72) !important; opacity:1 !important; }
+@media (max-width:1180px){ html.lm-fam-predict .lvl .lvl-nm{ font-size:14px !important; } }
+html.lm-fam-predict .lvl:not(.locked):hover{ background:var(--lm-pd-f) !important; border-color:var(--lm-naranja) !important; }
+html.lm-fam-predict .lvl:not(.locked):hover .lvl-cur{ color:#fff !important; }
+html.lm-fam-predict .lvl.locked{ border-color:rgba(255,255,255,.2) !important; background:transparent !important; }
+html.lm-fam-predict .lvl.locked .lvl-nm, html.lm-fam-predict .lvl.locked .lvl-cur{ color:rgba(255,255,255,.4) !important; }
+html.lm-fam-predict.lm-tarjetas-a .lvl{ border-color:rgba(255,255,255,.55) !important; }
+html.lm-fam-predict.lm-tarjetas-a .lvl:not(.locked):hover{ background:rgba(255,255,255,.22) !important; border-color:#fff !important; }
+
+/* tarjetas apaisadas antiguas (hoy no salen) */
+html.lm-fam-predict .eva-card{ background:var(--lm-cristal) !important; background-image:none !important; border:1.5px solid var(--lm-naranja) !important; border-radius:var(--lm-r-tarjeta) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+html.lm-fam-predict .eva-card .edge{ display:none !important; }
+html.lm-fam-predict .eva-enter{ background:var(--lm-pd-f) !important; border-radius:10px !important; }
+
+/* =====================================================================
+   BOTONES — lisos y opacos, radio 10px, 36px de alto, icono blanco de 16px, texto en una línea
+   ===================================================================== */
+html.lm-fam-predict .check-link, html.lm-fam-predict .btn-sol, html.lm-fam-predict .drill-fwd, html.lm-fam-predict .btn-savecfg,
+html.lm-fam-predict #modosView .fb-nextbtn,
+html.lm-fam-predict .gn-undo, html.lm-fam-predict .btn-undo, html.lm-fam-predict .ton-stop, html.lm-fam-predict .clef-switch,
+html.lm-fam-predict #cadenciasView .iconbtn, html.lm-fam-predict #modosView .btn-play,
+html.lm-fam-predict .btn-back, html.lm-fam-predict .lvl-back, html.lm-fam-predict .btn-edit, html.lm-fam-predict .road-close,
+html.lm-fam-predict .arm-subback, html.lm-fam-predict #modosView .btn-ghost{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:36px; padding:0 14px !important; box-sizing:border-box; margin:0;
+  border-radius:10px !important; background-image:none !important; box-shadow:none !important; filter:none;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  font-family:var(--lm-fuente) !important; font-size:13px !important; font-weight:700 !important; line-height:1 !important;
+  letter-spacing:.01em !important; white-space:nowrap; text-decoration:none; cursor:pointer;
+  transition:background-color .15s, border-color .15s !important;
+}
+html.lm-fam-predict .check-link svg.pl-i, html.lm-fam-predict .btn-sol svg.pl-i, html.lm-fam-predict .drill-fwd svg.pl-i,
+html.lm-fam-predict .gn-undo svg.pl-i, html.lm-fam-predict .btn-undo svg.pl-i, html.lm-fam-predict #cadenciasView .iconbtn svg.pl-i,
+html.lm-fam-predict #modosView .btn-play svg.pl-i, html.lm-fam-predict .btn-back svg.pl-i, html.lm-fam-predict .lvl-back svg.pl-i,
+html.lm-fam-predict .road-close svg.pl-i, html.lm-fam-predict .arm-subback svg.pl-i{
+  width:16px !important; height:16px !important; margin:0 !important; flex:none; color:#fff;
+}
+html.lm-fam-predict #modosView .btn-play .play-ico{ display:inline-flex; align-items:center; font-size:inherit !important; }
+
+/* principal → naranja: ¿Qué tal fue? · Solución · Corregir y seguir · Mantener · Siguiente · Guardar */
+html.lm-fam-predict .check-link, html.lm-fam-predict .btn-sol, html.lm-fam-predict .drill-fwd, html.lm-fam-predict .btn-savecfg,
+html.lm-fam-predict #cadenciasView .iconbtn.btn-correct, html.lm-fam-predict #modosView .fb-nextbtn{
+  background:var(--lm-pd-f) !important; border:1px solid var(--lm-pd-f) !important; color:#fff !important;
+}
+html.lm-fam-predict .check-link:not(:disabled):hover, html.lm-fam-predict .btn-sol:not(:disabled):hover, html.lm-fam-predict .drill-fwd:not(:disabled):hover,
+html.lm-fam-predict .btn-savecfg:hover, html.lm-fam-predict #cadenciasView .iconbtn.btn-correct:hover, html.lm-fam-predict #modosView .fb-nextbtn:hover{
+  background:var(--lm-pd-f-hover) !important; border-color:var(--lm-pd-f-hover) !important; color:#fff !important; filter:none !important;
+}
+/* normal → neutro opaco */
+html.lm-fam-predict .gn-undo, html.lm-fam-predict .btn-undo, html.lm-fam-predict .ton-stop, html.lm-fam-predict .clef-switch,
+html.lm-fam-predict #cadenciasView .iconbtn:not(.btn-correct), html.lm-fam-predict #modosView .btn-play{
+  background:var(--lm-pd-n) !important; border:1px solid var(--lm-pd-n) !important; color:#fff !important;
+}
+html.lm-fam-predict .gn-undo:not(:disabled):hover, html.lm-fam-predict .btn-undo:not(:disabled):hover, html.lm-fam-predict .ton-stop:not(:disabled):hover,
+html.lm-fam-predict .clef-switch:hover, html.lm-fam-predict #cadenciasView .iconbtn:not(.btn-correct):not(:disabled):hover,
+html.lm-fam-predict #modosView .btn-play:not(:disabled):hover{
+  background:var(--lm-pd-n-hover) !important; border-color:var(--lm-pd-n-hover) !important; color:#fff !important;
+}
+/* poco importante → solo contorno, fondo transparente */
+html.lm-fam-predict .btn-back, html.lm-fam-predict .lvl-back, html.lm-fam-predict .btn-edit, html.lm-fam-predict .road-close,
+html.lm-fam-predict .arm-subback, html.lm-fam-predict #modosView .btn-ghost{
+  background:transparent !important; border:1px solid var(--lm-pd-linea) !important; color:#fff !important;
+}
+html.lm-fam-predict .btn-back:hover, html.lm-fam-predict .lvl-back:hover, html.lm-fam-predict .btn-edit:hover, html.lm-fam-predict .road-close:hover,
+html.lm-fam-predict .arm-subback:hover, html.lm-fam-predict #modosView .btn-ghost:hover{
+  background:transparent !important; border-color:rgba(255,255,255,.7) !important; color:#fff !important;
+}
+/* desactivado: también opaco, apagado */
+html.lm-fam-predict .check-link:disabled, html.lm-fam-predict .btn-sol:disabled, html.lm-fam-predict .drill-fwd:disabled,
+html.lm-fam-predict .gn-undo:disabled, html.lm-fam-predict .btn-undo:disabled, html.lm-fam-predict .ton-stop:disabled,
+html.lm-fam-predict #cadenciasView .iconbtn:disabled{
+  background:var(--lm-pd-n-off) !important; border-color:var(--lm-pd-n-off) !important; color:rgba(255,255,255,.42) !important;
+  opacity:1 !important; cursor:default !important; filter:none !important;
+}
+html.lm-fam-predict .lvl-back{ min-height:30px; padding:0 12px !important; font-size:12px !important; align-self:center !important; margin-top:2px !important; }
+html.lm-fam-predict .lvl-back svg.pl-i{ width:14px !important; height:14px !important; }
+html.lm-fam-predict .backbar .btn-back{ min-height:40px; }
+html.lm-fam-predict .drill-fwd{ min-height:40px; padding:0 22px !important; font-size:14px !important; }
+
+/* ¿Qué tal fue? · Solución · Deshacer: unos encima de otros, todos del mismo ancho y alto */
+html.lm-fam-predict .check-bar{ display:grid !important; grid-template-columns:minmax(0,1fr); gap:8px !important; align-items:stretch !important; justify-content:stretch !important; }
+html.lm-fam-predict .check-bar > button{ width:100%; }
+html.lm-fam-predict .check-bar > .ton-pts{ display:flex; align-items:center; justify-content:center; min-height:36px; box-sizing:border-box; }
+
+/* el DADO (nuevo ejercicio / nuevos ejercicios / nueva serie / otra serie de 5 / Modos): solo el dado,
+   cuadrado 40×40 naranja, en su sitio de siempre (arriba a la derecha de cada ejercicio) */
+html.lm-fam-predict .gen .dice-btn.lm-pd-dado, html.lm-fam-predict #modosView .dado.lm-pd-dado, html.lm-fam-predict .drill-restart.lm-pd-dado{
+  display:inline-grid; place-items:center; flex-direction:row !important;
+  width:40px !important; height:40px !important; min-width:40px; min-height:40px; flex:0 0 40px !important;
+  padding:0 !important; margin:0; box-sizing:border-box;
+  border-radius:10px !important; border:1px solid var(--lm-pd-f) !important; background:var(--lm-pd-f) !important; background-image:none !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; box-shadow:none !important;
+  color:#fff !important; cursor:pointer; transition:background-color .15s, transform .1s !important; animation:none !important;
+}
+html.lm-fam-predict .gen .dice-btn.lm-pd-dado:hover, html.lm-fam-predict #modosView .dado.lm-pd-dado:hover, html.lm-fam-predict .drill-restart.lm-pd-dado:hover{
+  background:var(--lm-pd-f-hover) !important; border-color:var(--lm-pd-f-hover) !important;
+}
+html.lm-fam-predict .gen .dice-btn.lm-pd-dado:active, html.lm-fam-predict #modosView .dado.lm-pd-dado:active, html.lm-fam-predict .drill-restart.lm-pd-dado:active{ transform:scale(.95) !important; }
+html.lm-fam-predict .gen .dice-btn.lm-pd-dado svg.pl-i, html.lm-fam-predict #modosView .dado.lm-pd-dado svg.pl-i, html.lm-fam-predict .drill-restart.lm-pd-dado svg.pl-i{
+  width:20px !important; height:20px !important; margin:0 !important; color:#fff; display:block;
+}
+html.lm-fam-predict .gen .dice-btn.lm-pd-dado:focus-visible, html.lm-fam-predict #modosView .dado.lm-pd-dado:focus-visible,
+html.lm-fam-predict .drill-restart.lm-pd-dado:focus-visible{ outline:2px solid #fff !important; outline-offset:2px; }
+html.lm-fam-predict #modosView .dado.lm-pd-dado{ margin-top:22px !important; }
+html.lm-fam-predict .drill-restart.lm-pd-dado{ margin-top:18px !important; }
+
+/* escuchar: cuadrado neutro con el play de trazo blanco; naranja al pasar el ratón y mientras suena */
+html.lm-fam-predict .play-btn, html.lm-fam-predict .ton-playcard .tpc-play, html.lm-fam-predict .drill-play, html.lm-fam-predict .cadx-play{
+  border-radius:10px !important; background:var(--lm-pd-n) !important; background-image:none !important;
+  border:1px solid var(--lm-pd-n) !important; box-shadow:none !important; color:#fff !important;
+}
+html.lm-fam-predict .play-btn:not(:disabled):hover, html.lm-fam-predict .play-btn.playing,
+html.lm-fam-predict .ton-playcard:not(:disabled):hover .tpc-play, html.lm-fam-predict .ton-playcard.playing .tpc-play,
+html.lm-fam-predict .drill-play:not(:disabled):hover, html.lm-fam-predict .drill-play.playing,
+html.lm-fam-predict .cadx-play:hover{
+  background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; color:#fff !important;
+}
+html.lm-fam-predict #armonicaView .play-btn:not(:disabled):hover, html.lm-fam-predict #armonicaView .play-btn.playing,
+html.lm-fam-predict #ritmicaView .play-btn:not(:disabled):hover, html.lm-fam-predict #ritmicaView .play-btn.playing,
+html.lm-fam-predict #melodicaView .play-btn:not(:disabled):hover, html.lm-fam-predict #melodicaView .play-btn.playing{ background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; }
+html.lm-fam-predict .play-btn:disabled{ background:var(--lm-pd-n-off) !important; border-color:var(--lm-pd-n-off) !important; color:rgba(255,255,255,.4) !important; opacity:1 !important; }
+html.lm-fam-predict .play-btn svg, html.lm-fam-predict .play-btn svg path, html.lm-fam-predict .play-btn svg rect{
+  fill:none !important; stroke:currentColor !important; stroke-width:2 !important; stroke-linejoin:round; stroke-linecap:round;
+}
+html.lm-fam-predict .play-btn svg{ width:24px !important; height:24px !important; }
+html.lm-fam-predict #armonicaView .play-btn svg{ width:20px !important; height:20px !important; }
+html.lm-fam-predict .play-btn.playing{ --pulse-color:rgba(249,115,22,.45) !important; }
+html.lm-fam-predict .ton-playcard .tpc-play svg.pl-i, html.lm-fam-predict .drill-play svg.pl-i{ width:22px; height:22px; margin:0; }
+html.lm-fam-predict .cadx-play{ width:56px !important; height:56px !important; }
+html.lm-fam-predict .cadx-play svg.pl-i{ width:24px; height:24px; margin:0; }
+html.lm-fam-predict .cadx-play:hover{ transform:none !important; }
+
+/* pestañas Dictado / Detección de errores: botones normales del mismo ancho; la elegida, naranja */
+html.lm-fam-predict .melmode-tab, html.lm-fam-predict .ritmode-tab{
+  min-height:40px; min-width:190px; padding:0 18px !important; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center;
+  background:var(--lm-pd-n) !important; background-image:none !important; border:1px solid var(--lm-pd-n) !important;
+  border-radius:10px !important; color:#fff !important; box-shadow:none !important; -webkit-backdrop-filter:none; backdrop-filter:none;
+  font-size:13px !important; white-space:nowrap;
+}
+html.lm-fam-predict .melmode-tab:hover, html.lm-fam-predict .ritmode-tab:hover{ background:var(--lm-pd-n-hover) !important; border-color:var(--lm-pd-n-hover) !important; color:#fff !important; }
+html.lm-fam-predict .melmode-tab.sel, html.lm-fam-predict .ritmode-tab.sel{ background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; color:#fff !important; box-shadow:none !important; }
+
+/* pequeños: − / + del metrónomo · Lento / Normal / Rápido */
+html.lm-fam-predict .tempo-btn{ width:28px !important; height:28px !important; border-radius:8px !important; border:1px solid var(--lm-pd-n) !important; background:var(--lm-pd-n) !important; color:#fff !important; }
+html.lm-fam-predict .tempo-btn:not(:disabled):hover{ background:var(--lm-pd-n-hover) !important; border-color:var(--lm-pd-n-hover) !important; }
+html.lm-fam-predict .tempo-btn:disabled{ background:var(--lm-pd-n-off) !important; border-color:var(--lm-pd-n-off) !important; color:rgba(255,255,255,.35) !important; opacity:1 !important; }
+html.lm-fam-predict .tempo-val{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict .melspeed-btn{ min-height:28px; min-width:58px; border-radius:8px !important; border:1px solid var(--lm-pd-n) !important; background:var(--lm-pd-n) !important; color:#fff !important; }
+html.lm-fam-predict .melspeed-btn:hover{ background:var(--lm-pd-n-hover) !important; border-color:var(--lm-pd-n-hover) !important; }
+html.lm-fam-predict .melspeed-btn.sel{ background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; color:#fff !important; }
+
+/* etiquetas (Dictado rítmico, Ejercicio 1, PREDICT · RÍTMICO, Ejercicio A/B, tonalidad, puntos): naranja liso */
+html.lm-fam-predict .exo-num, html.lm-fam-predict .now-tag, html.lm-fam-predict .arm-sec-title .ast-k,
+html.lm-fam-predict .cadx-key, html.lm-fam-predict .ton-pts, html.lm-fam-predict #modosView .fb-recipe{
+  background:var(--lm-pd-f) !important; background-image:none !important; border:1px solid var(--lm-pd-f) !important;
+  color:#fff !important; border-radius:6px !important; white-space:nowrap;
+}
+
+/* =====================================================================
+   OPCIONES DE RESPUESTA (botones): neutro opaco · elegida naranja · bien verde · mal rojo · solución azul
+   ===================================================================== */
+html.lm-fam-predict .arm-opt, html.lm-fam-predict .tipo-btn, html.lm-fam-predict .cadx-tipo, html.lm-fam-predict #modosView .mode-btn,
+html.lm-fam-predict .compas-opt, html.lm-fam-predict .acc-btn, html.lm-fam-predict #toncomView .mode-btn,
+html.lm-fam-predict .dbt, html.lm-fam-predict .cadx-snd-btn, html.lm-fam-predict .mel-accpop button,
+html.lm-fam-predict .road-key, html.lm-fam-predict .level-btn, html.lm-fam-predict .lvl-tab{
+  background:var(--lm-pd-n) !important; background-image:none !important; border:1px solid var(--lm-pd-n) !important;
+  color:#fff !important; box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+html.lm-fam-predict .arm-opt, html.lm-fam-predict .tipo-btn, html.lm-fam-predict .compas-opt, html.lm-fam-predict .acc-btn,
+html.lm-fam-predict #toncomView .mode-btn, html.lm-fam-predict .dbt, html.lm-fam-predict .cadx-snd-btn, html.lm-fam-predict .mel-accpop button{ border-radius:8px !important; }
+html.lm-fam-predict .cadx-tipo, html.lm-fam-predict #modosView .mode-btn, html.lm-fam-predict .road-key, html.lm-fam-predict .level-btn, html.lm-fam-predict .lvl-tab{ border-radius:10px !important; }
+html.lm-fam-predict .arm-opt:not(:disabled):hover, html.lm-fam-predict .tipo-btn:not(:disabled):hover, html.lm-fam-predict .cadx-tipo:not(:disabled):hover,
+html.lm-fam-predict #modosView .mode-btn:not(:disabled):hover, html.lm-fam-predict .compas-opt:hover, html.lm-fam-predict .acc-btn:not(:disabled):hover,
+html.lm-fam-predict #toncomView .mode-btn:not(:disabled):hover, html.lm-fam-predict .dbt:hover, html.lm-fam-predict .cadx-snd-btn:hover,
+html.lm-fam-predict .mel-accpop button:hover, html.lm-fam-predict .road-key:hover, html.lm-fam-predict .level-btn:not(.locked):hover, html.lm-fam-predict .lvl-tab:hover{
+  background:var(--lm-pd-n-hover) !important; border-color:var(--lm-pd-n-hover) !important; transform:none !important;
+}
+/* elegida / encendida */
+html.lm-fam-predict .compas-opt.sel, html.lm-fam-predict .acc-btn.sel, html.lm-fam-predict #toncomView .mode-btn.sel, html.lm-fam-predict .dbt.on,
+html.lm-fam-predict .cadx-snd-btn.on, html.lm-fam-predict .cadx-tipo.sel, html.lm-fam-predict .mel-accpop button.on,
+html.lm-fam-predict .lvl-tab.active{
+  background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; color:#fff !important;
+}
+html.lm-fam-predict .cadx-tipo.sel .ab{ color:rgba(255,255,255,.85) !important; }
+/* bien */
+html.lm-fam-predict .arm-opt.chosen-ok, html.lm-fam-predict .compas-opt.ok, html.lm-fam-predict .cadx-tipo.sel-ok-green, html.lm-fam-predict #modosView .mode-btn.ok{
+  background:var(--lm-pd-ok) !important; border-color:var(--lm-pd-ok) !important; color:#fff !important;
+}
+/* mal */
+html.lm-fam-predict .arm-opt.chosen-bad, html.lm-fam-predict .compas-opt.bad, html.lm-fam-predict .cadx-tipo.sel-bad, html.lm-fam-predict #modosView .mode-btn.bad{
+  background:var(--lm-pd-bad) !important; border-color:var(--lm-pd-bad) !important; color:#fff !important;
+}
+/* la correcta que no se eligió: azul (solución) · en el armónico, contorno verde (como en la app) */
+html.lm-fam-predict .cadx-tipo.sol-ok, html.lm-fam-predict #modosView .mode-btn.sol{
+  background:var(--lm-pd-sol) !important; border-color:var(--lm-pd-sol) !important; color:#fff !important;
+}
+html.lm-fam-predict .arm-opt.reveal-ok{ border-color:var(--lm-verde) !important; box-shadow:inset 0 0 0 1px var(--lm-verde) !important; color:#fff !important; }
+html.lm-fam-predict .arm-opt .ao-full, html.lm-fam-predict .tipo-btn .ab, html.lm-fam-predict .cadx-tipo .ab{ color:rgba(255,255,255,.62) !important; }
+html.lm-fam-predict .arm-opt.chosen-ok .ao-full, html.lm-fam-predict .arm-opt.chosen-bad .ao-full,
+html.lm-fam-predict .cadx-tipo.sel-ok-green .ab, html.lm-fam-predict .cadx-tipo.sel-bad .ab, html.lm-fam-predict .cadx-tipo.sol-ok .ab{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-predict #modosView .mode-btn .mb-recipe{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict #modosView .mode-btn.ok .mb-recipe, html.lm-fam-predict #modosView .mode-btn.bad .mb-recipe,
+html.lm-fam-predict #modosView .mode-btn.sol .mb-recipe{ color:#fff !important; }
+html.lm-fam-predict #modosView .mode-btn.sol::after{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-predict .road-key.major{ border-top:3px solid var(--lm-naranja) !important; }
+html.lm-fam-predict .road-key.minor{ border-top:3px solid rgba(255,255,255,.55) !important; }
+
+/* ---------- ejercicio: paneles de trabajo en cristal oscuro, partitura en papel blanco ---------- */
+html.lm-fam-predict .exo{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1px solid var(--lm-borde) !important;
+  border-radius:var(--lm-r-tarjeta) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-predict .exo-title .ts{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-predict .board{ border-radius:12px !important; box-shadow:none !important; }
+html.lm-fam-predict .play-row, html.lm-fam-predict .ton-playcard, html.lm-fam-predict .ton-pick{
+  background:rgba(0,0,0,.22) !important; background-image:none !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important;
+}
+html.lm-fam-predict .play-row .pr-edge, html.lm-fam-predict .ton-playcard .pr-edge{ display:none !important; }
+html.lm-fam-predict .ton-playcard:not(:disabled):hover{ border-color:var(--lm-naranja) !important; }
+html.lm-fam-predict .ton-playcard.playing{ border-color:var(--lm-naranja) !important; }
+html.lm-fam-predict .pr-label, html.lm-fam-predict .metro-lbl, html.lm-fam-predict .ton-pick h4, html.lm-fam-predict .ton-playcard .tpc-label{ color:rgba(255,255,255,.6) !important; }
+/* «LA + TÓNICA + ACORDES», «DICTADO COMPLETO»: en una línea también en iPad */
+html.lm-fam-predict .ton-playcard .tpc-label{ white-space:nowrap; }
+@media (max-width:1180px){
+  html.lm-fam-predict .ton-playcard .tpc-label, html.lm-fam-predict .ton-pick h4{ font-size:11px !important; letter-spacing:.04em !important; }
+  html.lm-fam-predict .ton-playcard{ padding-left:6px !important; padding-right:6px !important; }
+}
+html.lm-fam-predict .listens .dot{ border-color:var(--lm-naranja) !important; }
+html.lm-fam-predict .listens .dot.used{ background:var(--lm-naranja) !important; border-color:transparent !important; opacity:.45 !important; }
+html.lm-fam-predict .score-line{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-predict .btn-main, html.lm-fam-predict .btn-check,
+html.lm-fam-predict #ritmicaView .btn-check, html.lm-fam-predict #melodicaView .btn-check, html.lm-fam-predict #toncomView .btn-check{ background:var(--lm-pd-f) !important; color:#fff !important; border-radius:10px !important; }
+html.lm-fam-predict .beatmon .bm-count{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict .beatmon .bm-count.countin{ color:#fff !important; }
+html.lm-fam-predict .palette-head h3{ color:rgba(255,255,255,.62) !important; }
+html.lm-fam-predict .palette-head .hint{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-predict .palette .cell-card{ border-radius:10px !important; }
+
+/* sobre el papel: resaltados del apartado en naranja (los de corrección se quedan: verde, rojo y azul = solución) */
+html.lm-fam-predict .barhl{ background:rgba(249,115,22,.16) !important; border-color:rgba(249,115,22,.5) !important; }
+html.lm-fam-predict .melhl{ background:rgba(249,115,22,.16) !important; border-color:rgba(249,115,22,.5) !important; }
+html.lm-fam-predict .rit-click:hover{ background:rgba(249,115,22,.12) !important; }
+html.lm-fam-predict .beat-guide{ color:rgba(234,88,12,.5) !important; }
+html.lm-fam-predict .board.drop-active .beat-guide{ color:rgba(234,88,12,.95) !important; }
+html.lm-fam-predict .board.drop-active .dropzone{ background:rgba(249,115,22,.07) !important; border-color:rgba(249,115,22,.4) !important; }
+html.lm-fam-predict .board.drop-active .dropzone.over{ background:rgba(249,115,22,.22) !important; border-color:var(--lm-naranja) !important; }
+html.lm-fam-predict .mel-nums.taps .mel-tap.done .dot{ border-color:var(--lm-naranja-f) !important; background:#fff1e6 !important; color:var(--lm-naranja-f) !important; }
+html.lm-fam-predict .mel-nums.taps .mel-tap.active .dot{ border-color:var(--lm-naranja-f) !important; background:var(--lm-naranja-f) !important; color:#fff !important; box-shadow:0 0 0 3px rgba(234,88,12,.25) !important; }
+html.lm-fam-predict .mel-nums.taps .mel-tap.tonic .dot{ border-color:var(--lm-naranja) !important; color:var(--lm-naranja) !important; }
+html.lm-fam-predict .mel-nums.tablet span.done{ border-color:var(--lm-naranja-f) !important; color:var(--lm-naranja-f) !important; background:#fff1e6 !important; }
+html.lm-fam-predict .mel-nums.tablet span.active{ border-color:var(--lm-naranja-f) !important; color:#fff !important; background:var(--lm-naranja-f) !important; box-shadow:0 0 0 3px rgba(234,88,12,.25) !important; }
+html.lm-fam-predict .gn-delx span{ background:#243044 !important; border-color:rgba(255,255,255,.55) !important; color:#fff !important; }
+/* notas del apartado dibujadas en la partitura: tónica dada, nota seleccionada y nota-guía del cursor */
+html.lm-fam-predict .board [fill="#5b9dff"], html.lm-fam-predict .mel-ghost [fill="#5b9dff"]{ fill:var(--lm-naranja) !important; }
+html.lm-fam-predict .board [stroke="#5b9dff"], html.lm-fam-predict .mel-ghost [stroke="#5b9dff"]{ stroke:var(--lm-naranja) !important; }
+html.lm-fam-predict #melodicaView:has(#melTabDictado.sel) .board [fill="#2563eb"]{ fill:var(--lm-naranja-f) !important; }
+html.lm-fam-predict #melodicaView:has(#melTabDictado.sel) .board [stroke="#2563eb"]{ stroke:var(--lm-naranja-f) !important; }
+html.lm-fam-predict .board [fill="#d4af37"], html.lm-fam-predict .mel-ghost [fill="#d4af37"]{ fill:var(--lm-naranja-f) !important; }
+html.lm-fam-predict .board [stroke="#d4af37"], html.lm-fam-predict .mel-ghost [stroke="#d4af37"]{ stroke:var(--lm-naranja-f) !important; }
+/* armónico: rótulos de los acordes y nota resaltada sobre el papel (eran morados/dorados): naranja, nada marrón */
+html.lm-fam-predict .arm-staff-wrap [fill="#6a44c0"], html.lm-fam-predict .arm-staff-wrap [fill="#7a5c0e"],
+html.lm-fam-predict .arm-staff-wrap [fill="#8a73c8"], html.lm-fam-predict .arm-staff-wrap [fill="#9a7c2e"],
+html.lm-fam-predict .arm-staff-wrap [fill="#3a74ff"], html.lm-fam-predict .arm-staff-wrap [fill="#c8941a"]{ fill:var(--lm-naranja-f) !important; }
+html.lm-fam-predict .arm-staff-wrap [stroke="#3a74ff"], html.lm-fam-predict .arm-staff-wrap [stroke="#c8941a"]{ stroke:var(--lm-naranja-f) !important; }
+html.lm-fam-predict .arm-staff-wrap, html.lm-fam-predict .cadx-score{ background:#fff !important; border-radius:12px !important; }
+
+/* ---------- resultado global ---------- */
+html.lm-fam-predict .global-score{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+html.lm-fam-predict .gs-kicker{ color:rgba(255,255,255,.6) !important; }
+html.lm-fam-predict .gs-nota{ color:var(--lm-verde) !important; }
+html.lm-fam-predict .gs-nota.lm-susp{ color:#ef4444 !important; }
+html.lm-fam-predict .gs-sep{ background:var(--lm-borde) !important; }
+html.lm-fam-predict .toast{ background:#1a2436 !important; border-color:var(--lm-borde-fuerte) !important; border-radius:10px !important; box-shadow:none !important; }
+
+/* ---------- TonCom (GE: tarjetas; GP: serie de 5 rondas) ---------- */
+html.lm-fam-predict .ton-input{ background:rgba(0,0,0,.25) !important; border-color:var(--lm-borde-fuerte) !important; }
+html.lm-fam-predict .ton-input.ok{ border-color:var(--lm-verde) !important; background:rgba(34,197,94,.16) !important; color:var(--lm-verde) !important; }
+html.lm-fam-predict .ton-input.bad{ border-color:#ef4444 !important; background:rgba(239,68,68,.16) !important; color:#ef4444 !important; }
+html.lm-fam-predict .note-item, html.lm-fam-predict .arm-item{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-predict .note-item.on, html.lm-fam-predict .arm-item.on{ color:#fff !important; }
+html.lm-fam-predict .ton-pick-key.key-ok .note-item.on, html.lm-fam-predict .arm-wheel.ok .arm-item.on{ color:var(--lm-verde) !important; }
+html.lm-fam-predict .ton-pick-key.key-bad .note-item.on, html.lm-fam-predict .arm-wheel.bad .arm-item.on{ color:#ef4444 !important; }
+html.lm-fam-predict .note-wheel-center, html.lm-fam-predict .arm-wheel-center{ border-color:var(--lm-borde-fuerte) !important; }
+html.lm-fam-predict .note-wheel:hover .note-wheel-center, html.lm-fam-predict .arm-wheel:hover .arm-wheel-center{ border-color:var(--lm-naranja) !important; }
+html.lm-fam-predict .ton-playcard .uses .dot{ border-color:rgba(255,255,255,.5) !important; }
+html.lm-fam-predict .ton-playcard:hover .uses .dot, html.lm-fam-predict .ton-playcard.playing .uses .dot{ border-color:var(--lm-naranja) !important; }
+html.lm-fam-predict .ton-playcard .uses .dot.used{ background:rgba(255,255,255,.5) !important; }
+html.lm-fam-predict .ton-playcard:hover .uses .dot.used{ background:var(--lm-naranja) !important; }
+html.lm-fam-predict .ton-playcard.beat, html.lm-fam-predict .ton-playcard.beat-strong{ animation-name:lm-pd-beat !important; }
+@keyframes lm-pd-beat{0%{border-color:var(--lm-naranja)}100%{border-color:rgba(255,255,255,.12)}}
+/* GP · serie TonCom */
+html.lm-fam-predict .drill-round{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-predict .drill-round b{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict .drill-play.beat, html.lm-fam-predict .drill-play.beat-strong{ background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; }
+html.lm-fam-predict .drill-play.ready{ animation-name:lm-pd-ready !important; }
+@keyframes lm-pd-ready{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.45)}50%{box-shadow:0 0 0 7px rgba(249,115,22,0)}}
+html.lm-fam-predict .dsec, html.lm-fam-predict .sum-cell{ background:var(--lm-cristal) !important; border-color:var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+html.lm-fam-predict .sum-cell{ border-radius:12px !important; }
+html.lm-fam-predict .sum-cell.ok{ border-color:var(--lm-verde-f) !important; background:rgba(22,163,74,.18) !important; }
+html.lm-fam-predict .sum-cell.no{ border-color:#dc2626 !important; background:rgba(220,38,38,.16) !important; }
+html.lm-fam-predict .dsec-t, html.lm-fam-predict .dsum-lab, html.lm-fam-predict .finaltab th{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-predict .dwheel-it{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-predict .dwheel-it.sel{ color:#fff !important; }
+html.lm-fam-predict .dwheel-r::after{ border-color:rgba(249,115,22,.7) !important; }
+html.lm-fam-predict .dbt.wide{ min-height:40px; }
+html.lm-fam-predict .sum-val{ color:#fff !important; }
+html.lm-fam-predict .sum-cell.ok .sum-val{ color:#4ade80 !important; }
+html.lm-fam-predict .sum-cell.no .sum-val{ color:#f87171 !important; }
+html.lm-fam-predict .drill-cd{ background:rgba(11,19,32,.86) !important; }
+html.lm-fam-predict #drill-cdn{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict .drill-cin span{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict .drill-final h2{ color:#fff !important; }
+html.lm-fam-predict .drill-final{
+  background:var(--lm-cristal-fuerte); border:1px solid var(--lm-borde-fuerte); border-radius:var(--lm-r-tarjeta);
+  padding:20px 26px 26px; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+html.lm-fam-predict .finaltab td.rn, html.lm-fam-predict .finaltab td.res{ color:#fff !important; }
+html.lm-fam-predict .finaltab td .good{ color:#60a5fa !important; }
+
+/* ---------- Armónico ---------- */
+html.lm-fam-predict .arm-seventh, html.lm-fam-predict .arm-panel, html.lm-fam-predict .arm-pick-card{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1px solid var(--lm-borde) !important;
+  border-radius:var(--lm-r-panel) !important; box-shadow:none !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-predict .arm-pick-card::before{ display:none !important; }
+html.lm-fam-predict .arm-panel.ok{ border-color:var(--lm-verde) !important; box-shadow:inset 0 0 0 1px rgba(34,197,94,.35) !important; }
+html.lm-fam-predict .arm-panel.bad{ border-color:#ef4444 !important; box-shadow:inset 0 0 0 1px rgba(239,68,68,.35) !important; }
+html.lm-fam-predict .arm-panel .ap-num, html.lm-fam-predict .arm-grouplab{ color:rgba(255,255,255,.6) !important; }
+/* títulos de los dos ejercicios en una línea («EJERCICIO A  Tipo de acorde») */
+html.lm-fam-predict .arm-sec-title{ flex-wrap:nowrap !important; align-items:center !important; white-space:nowrap; }
+/* opciones del Armónico en una línea: GE «PM / Perfecto Mayor» (dos líneas a propósito, abreviatura + nombre);
+   GP «7ª dominante  7D», «Cuarta susp.  sus4»: si no caben, la letra baja un poco antes de partirse */
+html.lm-fam-predict .tipo-btn{ min-height:34px; padding:0 9px !important; white-space:nowrap; }
+html.lm-fam-predict .tipo-btn .tn{ white-space:nowrap; overflow:hidden; text-overflow:clip; }
+@media (max-width:1180px){
+  html.lm-fam-predict .arm-panels{ gap:10px !important; }
+  html.lm-fam-predict .arm-panel{ padding:12px 10px !important; }
+  html.lm-fam-predict .arm-fams{ gap:6px !important; }
+  html.lm-fam-predict .tipo-btn{ font-size:10.5px !important; padding:0 7px !important; gap:4px !important; }
+  html.lm-fam-predict .tipo-btn .ab{ font-size:10.5px; }
+}
+/* interruptor de 7ª de dominante: gris apagado / naranja encendido, bolita blanca */
+html.lm-fam-predict .arm-switch{ border-radius:9px !important; border-color:var(--lm-pd-n) !important; background:var(--lm-pd-n) !important; }
+html.lm-fam-predict .arm-switch::after{ border-radius:6px !important; background:rgba(255,255,255,.75) !important; }
+html.lm-fam-predict .arm-switch.on{ background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; }
+html.lm-fam-predict .arm-switch.on::after{ background:#fff !important; }
+html.lm-fam-predict .arm-play{ background:var(--lm-pd-n) !important; background-image:none !important; color:#fff !important; border:1px solid var(--lm-pd-n) !important; border-radius:10px !important; }
+html.lm-fam-predict .arm-play:hover{ background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; filter:none !important; }
+html.lm-fam-predict .arm-play.spent{ background:var(--lm-pd-n-off) !important; border-color:var(--lm-pd-n-off) !important; color:rgba(255,255,255,.4) !important; }
+html.lm-fam-predict .mel-accpop{ background:#1a2436 !important; border-color:var(--lm-borde-fuerte) !important; border-radius:10px !important; box-shadow:none !important; }
+
+/* ---------- ventanas y avisos ---------- */
+html.lm-fam-predict .road-backdrop, html.lm-fam-predict .level-backdrop, html.lm-fam-predict .cadx-overlay{ background:rgba(4,10,20,.55) !important; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+html.lm-fam-predict .road, html.lm-fam-predict .level-modal, html.lm-fam-predict .cadx-overlay-box{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.45) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-predict .level-soon{ background:#1a2436 !important; border:1px solid var(--lm-naranja) !important; color:#fff !important; border-radius:10px !important; }
+html.lm-fam-predict .countdown, html.lm-fam-predict .countdown.rit, html.lm-fam-predict .countdown.mel, html.lm-fam-predict .countdown.ton{ background:rgba(4,10,20,.5) !important; }
+html.lm-fam-predict .countdown span{ color:var(--lm-naranja) !important; }
+
+/* =====================================================================
+   GP · MODOS (vista con sus propias variables y fondo)
+   ===================================================================== */
+html.lm-fam-predict #modosView{
+  --bg:transparent; --panel:rgba(11,19,32,.72); --panel2:#243044; --line:rgba(255,255,255,.14);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52); --paper:#ffffff;
+  --gold1:#f97316; --gold2:#ea580c; --gold-soft:#f97316;
+  --ok:#22c55e; --okbg:#16a34a; --bad:#ef4444; --badbg:#dc2626; --sol:#4a9eff; --solbg:#2563eb;
+  background:transparent !important; background-image:none !important;
+}
+html.lm-fam-predict #modosView .hero h2 .home2{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-predict #modosView .hero p{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-predict #modosView .card{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1px solid var(--lm-borde) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-predict #modosView .progress .dot{ background:rgba(255,255,255,.16) !important; }
+html.lm-fam-predict #modosView .progress .dot.done{ background:var(--lm-naranja) !important; }
+html.lm-fam-predict #modosView .progress .dot.cur{ background:#fff !important; }
+html.lm-fam-predict #modosView .progress .dot.ok{ background:var(--lm-verde) !important; }
+html.lm-fam-predict #modosView .progress .dot.bad{ background:#ef4444 !important; }
+html.lm-fam-predict #modosView .play-bar{ background:rgba(255,255,255,.1) !important; border-color:var(--lm-borde) !important; border-radius:4px !important; box-shadow:none !important; }
+html.lm-fam-predict #modosView .play-bar::after{ background:rgba(255,255,255,.55) !important; }
+html.lm-fam-predict #modosView .play-fill{ background:var(--lm-naranja) !important; background-image:none !important; border-radius:4px !important; }
+html.lm-fam-predict #modosView .play-phrases{ color:rgba(255,255,255,.6) !important; }
+/* Escuchar: botón normal (neutro) con el play; mientras suena, naranja; gastado, apagado */
+html.lm-fam-predict #modosView .btn-play{ min-height:40px; padding:0 22px !important; font-size:14px !important; gap:8px; }
+html.lm-fam-predict #modosView .btn-play svg.pl-i{ width:17px !important; height:17px !important; }
+html.lm-fam-predict #modosView .btn-play:disabled:not(.spent){ background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; color:#fff !important; opacity:1 !important; cursor:default; }
+html.lm-fam-predict #modosView .btn-play.spent{ background:var(--lm-pd-n-off) !important; border-color:var(--lm-pd-n-off) !important; color:rgba(255,255,255,.42) !important; opacity:1 !important; cursor:default; }
+html.lm-fam-predict #modosView .listens .dot{ border-color:var(--lm-naranja) !important; }
+html.lm-fam-predict #modosView .listens .dot.used{ background:var(--lm-naranja) !important; }
+html.lm-fam-predict #modosView .modes-q .q-label{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-predict #modosView .feedback{ background:var(--lm-cristal) !important; background-image:none !important; border-color:var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-predict #modosView .feedback.ok{ background:rgba(22,163,74,.14) !important; border-color:var(--lm-verde) !important; }
+html.lm-fam-predict #modosView .feedback.bad{ background:rgba(37,99,235,.14) !important; border-color:var(--lm-azul) !important; }
+html.lm-fam-predict #modosView .fb-body{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-predict #modosView .fb-body .charword{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-predict #modosView .fb-body .charword .sym{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict #modosView .feedback.ring .fb-body .charword, html.lm-fam-predict #modosView .feedback.ring .fb-body .charword .sym{ color:#fff !important; }
+html.lm-fam-predict #modosView .fb-nextbtn{ font-size:13px !important; }
+html.lm-fam-predict #modosView .next-flash .nf-inner{ background:var(--lm-pd-f) !important; background-image:none !important; color:#fff !important; box-shadow:none !important; border-radius:12px !important; }
+html.lm-fam-predict #modosView .fb-hint{ color:rgba(255,255,255,.6) !important; }
+html.lm-fam-predict #modosView .final-score{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict #modosView .final-lbl{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-predict #modosView .foot{ color:rgba(255,255,255,.55) !important; }
+
+/* =====================================================================
+   GP · CADENCIAS
+   ===================================================================== */
+html.lm-fam-predict #cadenciasView .section-title .hl{ color:#fff !important; }
+html.lm-fam-predict .cadx-card{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1px solid var(--lm-borde) !important;
+  border-radius:var(--lm-r-tarjeta) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+html.lm-fam-predict .cadx-letter b{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict .cadx-letter span, html.lm-fam-predict .cadx-cap, html.lm-fam-predict .cadx-snd-label, html.lm-fam-predict .cadx-loading{ color:rgba(255,255,255,.74) !important; }
+html.lm-fam-predict .cadx-repro{ background:rgba(0,0,0,.28) !important; background-image:none !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-predict .cadx-snd-btn{ min-height:32px; padding:0 12px !important; white-space:nowrap; }
+html.lm-fam-predict .cadx-tipo{ min-height:40px; }
+html.lm-fam-predict .cadx-answers.cadx-flash{ animation-name:lm-pd-flash !important; }
+html.lm-fam-predict .cadx-tipo.cadx-pending{ animation-name:lm-pd-pulse !important; }
+@keyframes lm-pd-flash{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 3px rgba(249,115,22,.55)}}
+@keyframes lm-pd-pulse{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}50%{box-shadow:0 0 0 4px rgba(249,115,22,.55)}}
+/* aviso («Partitura revelada · ¿mantienes tu respuesta?»): panel opaco con contorno naranja, texto limpio */
+html.lm-fam-predict .cadx-msg{ background:#1a2436 !important; border:1px solid var(--lm-naranja) !important; color:#fff !important; border-radius:12px !important; }
+html.lm-fam-predict .cadx-msg.flash{ animation-name:lm-pd-flash !important; }
+html.lm-fam-predict .cadx-result{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-predict .cadx-result.good{ color:#dcfce7 !important; }
+html.lm-fam-predict .cadx-result.bad{ color:#fee2e2 !important; }
+html.lm-fam-predict .cadx-result b{ color:var(--lm-naranja) !important; }
+html.lm-fam-predict .cadx-overlay-title{ color:#fff !important; }
+html.lm-fam-predict .cadx-tipo:focus-visible, html.lm-fam-predict .cadx-snd-btn:focus-visible, html.lm-fam-predict .cadx-play:focus-visible,
+html.lm-fam-predict #cadAudNew:focus-visible{ outline-color:#fff !important; }
+/* visualizador de Cadencias (lo dibuja la app en un canvas en tonos dorados y marrones): en blanco y gris, neutro */
+html.lm-fam-predict canvas.cadx-viz{ filter:grayscale(1) brightness(1.45); }
+/* Cadencias va fuera del contenedor de la app: en pantallas estrechas se quedaba pegada a los bordes */
+@media (max-width:1031px){
+  html.lm-fam-predict #cadenciasView{ padding-left:26px; padding-right:26px; box-sizing:border-box; }
+}
+
+/* ---------- edición (profesor) ---------- */
+html.lm-fam-predict .crit-box{ background:var(--lm-cristal) !important; border-color:var(--lm-borde) !important; }
+html.lm-fam-predict .cell-grid .cell-card.on{ border-color:var(--lm-naranja) !important; background:var(--lm-pd-n) !important; }
+html.lm-fam-predict .cell-grid .cell-card.on .cell-chk{ background:var(--lm-pd-f) !important; border-color:var(--lm-pd-f) !important; }
+html.lm-fam-predict .cell-drag-ghost{ background:#1a2436 !important; border-color:var(--lm-naranja) !important; }
+
+/* ---------- pantallas estrechas (PreDict es para ordenador y tablet: solo que no se pise nada) ---------- */
+@media (max-width:640px){
+  html.lm-fam-predict .melmode-tabs, html.lm-fam-predict .ritmode-tabs{ flex-wrap:wrap; row-gap:12px; }
+  html.lm-fam-predict .mode-gen{ position:static !important; transform:none !important; flex:0 0 100%; justify-content:center; }
+  html.lm-fam-predict .melmode-tab, html.lm-fam-predict .ritmode-tab{ min-width:0; }
+  html.lm-fam-predict .backbar{ flex-wrap:wrap; row-gap:10px; }
+  html.lm-fam-predict .backbar .ex-meta{ flex:1 1 100%; font-size:14px; }
+}

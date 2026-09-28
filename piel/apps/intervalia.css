@@ -1,0 +1,195 @@
+/* =====================================================================
+   LM at home · PIEL · INTERVALIA (GE, intervalia.ge) e INTERVALIA PRO (GP, intervalia.gp)
+   (26-sep-2026 · v2 27-sep · v3 27-sep-2026 noche, Iago) Solo aspecto. Todo cuelga de html.lm-fam-intervalia.
+   Apartado ENTONACIÓN → azul #4a9eff (contornos) · relleno liso #2563eb con texto blanco.
+   Los colores de los intervalos (los del libro) y los del canto sobre el pentagrama NO se tocan:
+   son el código de la app.
+   3ª vuelta (Iago):
+   · «Intervalia opaca, sin restos marrones»: los cuadros de intervalo ELEGIDOS van rellenos de
+     su color del libro, liso y opaco (antes eran una mezcla translúcida sobre oscuro que se veía
+     marrón/oliva); los no elegidos, cristal negro con el contorno de su color y la letra atenuada.
+     En los colores claros del libro la letra va en tinta oscura para que se lea.
+   · Botones lisos y opacos, radio 10px: ▶ Cantar y ✓ Aceptar en azul (principal); Al azar y Todos
+     en gris azulado #243044 (normal); mismos altos y anchos en cada fila.
+   · El DADO (antes «Generar ejercicios»): SOLO el dado, cuadrado 40×40 azul, arriba a la derecha
+     del ejercicio (el mismo sitio que en PreDict). El texto original queda en title/aria-label.
+   · El contenido empieza por debajo de la banda del rótulo de grado (46px): nada a sus lados.
+   · GP: nada dorado ni marrón (letritas del logo en blanco, fuera la franja lateral del ejercicio
+     y el distintivo «Pro · interválico»: el grado ya se ve arriba).
+   · Sin sombras de texto; iconos planos y blancos.
+   Compañero: intervalia.js.
+   ===================================================================== */
+
+html.lm-fam-intervalia{
+  --bg:transparent; --panel:rgba(11,19,32,.72); --panel2:rgba(11,19,32,.72); --line:rgba(255,255,255,.12);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52); --paper:#ffffff;
+  --accent:#4a9eff; --accent-soft:rgba(74,158,255,.14);
+  --green:#22c55e; --green-soft:rgba(34,197,94,.16);
+  --gold1:#4a9eff; --gold2:#2563eb; --gold-soft:#4a9eff;
+  --iv-f:#2563eb;              /* relleno azul (principal y dado) con texto blanco */
+  --iv-f-hover:#286afb;        /* el mismo con brillo 1.07 */
+  --iv-n:#243044;              /* botón normal: relleno neutro opaco */
+  --iv-n-hover:#2d3b52;
+  --iv-n-off:#1c2636;          /* desactivado: también opaco */
+  --iv-linea:rgba(255,255,255,.35);
+}
+html.lm-fam-intervalia body{ font-family:var(--lm-fuente); }
+/* la app pintaba su propio fondo (azul en GE, dorado en GP) en una capa fija: fuera, para que se vea la foto */
+html.lm-fam-intervalia body::before{ display:none !important; }
+
+/* ---------- banda del rótulo de grado: el contenido empieza por debajo (46px) y nada queda a sus lados ---------- */
+html.lm-fam-intervalia body{ padding-top:54px !important; padding-bottom:0 !important; }
+
+/* ---------- cabecera ---------- */
+html.lm-fam-intervalia .home2, html.lm-fam-intervalia .ath{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-intervalia .brand .lm{ color:#fff !important; }
+/* letritas «GRADO ELEMENTAL / PROFESIONAL» bajo LM at home: blancas (en GP eran doradas) */
+html.lm-fam-intervalia .brand h1 span[aria-hidden="true"]{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-intervalia .brand-sub{ color:rgba(255,255,255,.62) !important; white-space:nowrap; }
+html.lm-fam-intervalia .appname-top .post{ color:#fff !important; opacity:1 !important; }
+html.lm-fam-intervalia .appname-top .pre{ color:#fff !important; opacity:.62 !important; }
+html.lm-fam-intervalia .pro-tag{ display:none !important; }
+html.lm-fam-intervalia .intro p{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-intervalia .intro b{ color:#fff !important; }
+
+/* ---------- pie común: «by…» y «Optimizado…» abajo del todo (intervalia.js los lleva a #lm-pie) ---------- */
+html.lm-fam-intervalia .topinfo{ display:none !important; }
+/* el cuerpo de la app es una columna de alto mínimo la pantalla: el pie, abajo del todo */
+html.lm-fam-intervalia body > #lm-pie{ margin-top:auto !important; }
+
+/* =====================================================================
+   BOTONES — lisos y opacos, radio 10px, icono blanco de 16px, texto en una línea
+   ===================================================================== */
+html.lm-fam-intervalia .lm-ico-orig, html.lm-fam-intervalia .lm-txt-orig{ display:none !important; }
+html.lm-fam-intervalia :is(.gen-btn, .ip-btn, .wm-accept, .ex-play){
+  display:inline-flex !important; align-items:center; justify-content:center; gap:7px !important;
+  box-sizing:border-box; margin:0; border-radius:10px !important;
+  background-image:none !important; box-shadow:none !important; filter:none;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  font-family:var(--lm-fuente) !important; font-size:13px !important; font-weight:700 !important; line-height:1 !important;
+  letter-spacing:.01em !important; white-space:nowrap; color:#fff !important; cursor:pointer;
+  transition:background-color .15s ease, border-color .15s ease, transform .05s ease !important;
+}
+html.lm-fam-intervalia :is(.gen-btn, .ip-btn, .wm-accept, .ex-play) svg.pl-i{
+  display:block; flex:none; width:16px !important; height:16px !important; margin:0 !important;
+  fill:none !important; stroke:currentColor; color:#fff !important;
+}
+/* normal → neutro opaco: Al azar · Todos */
+html.lm-fam-intervalia .ip-btn{ background:var(--iv-n) !important; border:1px solid var(--iv-n) !important; }
+html.lm-fam-intervalia .ip-btn:hover{ background:var(--iv-n-hover) !important; border-color:var(--iv-n-hover) !important; }
+html.lm-fam-intervalia .ip-btn:active{ transform:scale(.97); }
+/* principal → azul: ▶ Cantar este ejercicio · ✓ Aceptar */
+html.lm-fam-intervalia .wm-accept, html.lm-fam-intervalia .ex-play{ background:var(--iv-f) !important; border:1px solid var(--iv-f) !important; }
+html.lm-fam-intervalia .wm-accept:hover, html.lm-fam-intervalia .ex-play:not(:disabled):hover{ background:var(--iv-f-hover) !important; border-color:var(--iv-f-hover) !important; }
+html.lm-fam-intervalia .wm-accept:active, html.lm-fam-intervalia .ex-play:not(:disabled):active{ transform:scale(.96); }
+
+/* ---------- el DADO (Generar ejercicios): solo el dado, cuadrado 40×40 azul, arriba a la derecha del ejercicio ---------- */
+/* su fila (la de encima del ejercicio) toma el ancho del ejercicio y lo deja en el borde derecho */
+html.lm-fam-intervalia .topgen{ width:100%; max-width:960px; margin:14px auto 10px !important; justify-content:flex-end !important; gap:0 !important; }
+html.lm-fam-intervalia .gen-btn.lm-iv-dado{
+  display:inline-grid !important; place-items:center; flex:0 0 40px;
+  width:40px !important; height:40px !important; min-width:40px; padding:0 !important; gap:0 !important;
+  background:var(--iv-f) !important; border:1px solid var(--iv-f) !important;
+}
+html.lm-fam-intervalia .gen-btn.lm-iv-dado:hover{ background:var(--iv-f-hover) !important; border-color:var(--iv-f-hover) !important; }
+html.lm-fam-intervalia .gen-btn.lm-iv-dado:active{ transform:scale(.95); }
+html.lm-fam-intervalia .gen-btn.lm-iv-dado svg.pl-i{ width:20px !important; height:20px !important; }
+html.lm-fam-intervalia .gen-btn:focus-visible, html.lm-fam-intervalia .ip-btn:focus-visible,
+html.lm-fam-intervalia .wm-accept:focus-visible, html.lm-fam-intervalia .ex-play:focus-visible,
+html.lm-fam-intervalia .ival:focus-visible{ outline:2px solid #fff !important; outline-offset:2px; }
+
+/* ---------- ▶ Cantar este ejercicio: cuadrado 1×1 azul; desactivado (mientras canta otro), neutro apagado ---------- */
+html.lm-fam-intervalia .ex-play{ width:40px !important; height:40px !important; flex:0 0 40px !important; padding:0 !important; }
+html.lm-fam-intervalia .ex-play svg.pl-i{ margin-left:2px !important; }
+html.lm-fam-intervalia .ex-play:disabled{ background:var(--iv-n-off) !important; border-color:var(--iv-n-off) !important; color:rgba(255,255,255,.42) !important; opacity:1 !important; cursor:default; }
+html.lm-fam-intervalia .ex-play:disabled svg.pl-i{ color:rgba(255,255,255,.42) !important; }
+/* el ejercicio que se está cantando: su ▶ sigue azul */
+html.lm-fam-intervalia .ex.active .ex-play{ background:var(--iv-f) !important; border-color:var(--iv-f) !important; opacity:1 !important; }
+html.lm-fam-intervalia .ex.active .ex-play svg.pl-i{ color:#fff !important; }
+
+/* =====================================================================
+   CUADROS DE INTERVALO (panel y ventana «Antes de empezar»)
+   el color del libro lo pone la app en cada cuadro (var(--ic)); aquí solo se decide cómo se pinta
+   ===================================================================== */
+html.lm-fam-intervalia .ivals{ gap:8px !important; }
+html.lm-fam-intervalia .ival{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1.5px solid var(--ic) !important;
+  color:rgba(255,255,255,.6) !important; border-radius:10px !important; box-shadow:none !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  font-family:var(--lm-fuente) !important; font-weight:800 !important;
+  transition:background-color .15s ease, color .15s ease, transform .1s ease !important;
+}
+html.lm-fam-intervalia .ival:not(.locked):hover{ color:#fff !important; transform:translateY(-2px); }
+/* elegido: relleno liso y opaco de su color, letra blanca… */
+html.lm-fam-intervalia .ival.on{
+  background:var(--ic) !important; color:#fff !important;
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+}
+/* …o en tinta oscura sobre los colores claros del libro (2M, 3M, 4A/5D, 5J, 6M, 7M y el gris de la 8J) */
+html.lm-fam-intervalia .ival.on:is([style*="ed732e"], [style*="9ed649"], [style*="f3ec4e"], [style*="5ac4f7"], [style*="d796f8"], [style*="c98a1e"], [style*="9aa0b5"]){
+  color:var(--lm-tinta) !important;
+}
+html.lm-fam-intervalia .ival.locked{ cursor:default; }
+
+/* ---------- panel de intervalos: [cuadros] … [🎲 Al azar] [Todos] ---------- */
+html.lm-fam-intervalia .ipanel-label{ color:rgba(255,255,255,.62) !important; }
+html.lm-fam-intervalia .ipanel{ gap:12px !important; }
+html.lm-fam-intervalia .ipanel-btns{ gap:8px !important; align-items:center !important; }
+/* el rótulo de debajo de cada botón («Intervalos al / azar», partido en dos) pasa a ser el texto del botón */
+html.lm-fam-intervalia .ip-cap{ display:none !important; }
+/* los dos botones: del mismo alto que los cuadros y del mismo ancho entre sí */
+html.lm-fam-intervalia .ipanel .ip-btn{ width:100px !important; min-width:0 !important; height:54px !important; padding:0 12px !important; }
+
+/* =====================================================================
+   EJERCICIO (panel de trabajo: cristal con el pentagrama en papel blanco)
+   ===================================================================== */
+html.lm-fam-intervalia .ex{
+  background:var(--lm-cristal) !important; background-image:none !important; border:1px solid var(--lm-borde) !important;
+  border-radius:var(--lm-r-panel) !important; box-shadow:none !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+/* la franja lateral (solo existía en GP, dorada): fuera, con A y con B */
+html.lm-fam-intervalia .ex::before{ display:none !important; }
+html.lm-fam-intervalia .ex.active{ border-color:var(--lm-azul) !important; box-shadow:inset 0 0 0 1px var(--lm-azul) !important; }
+html.lm-fam-intervalia .ex-head{ gap:12px !important; }
+html.lm-fam-intervalia .ex-title{ color:#fff !important; font-size:14px !important; }
+html.lm-fam-intervalia .ex-status{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-intervalia .ex-key{ color:rgba(255,255,255,.62) !important; }
+/* GP: «Pro · interválico» era un distintivo del grado (el grado ya se ve arriba) */
+html.lm-fam-intervalia.lm-gp .ex-key{ display:none !important; }
+html.lm-fam-intervalia .scoreBox{ background:#fff !important; border-radius:10px !important; }
+
+/* =====================================================================
+   VENTANA «ANTES DE EMPEZAR» (ventana de trabajo: cristal)
+   ===================================================================== */
+html.lm-fam-intervalia #welcomeModal{ background:rgba(4,10,20,.55) !important; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+html.lm-fam-intervalia .wm-card{
+  background:var(--lm-cristal-fuerte) !important; background-image:none !important; border:1px solid var(--lm-borde-fuerte) !important;
+  border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.45) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html.lm-fam-intervalia .wm-title{ color:#fff !important; }
+html.lm-fam-intervalia .wm-sub{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-intervalia .wm-card .ivals{ gap:8px !important; }
+/* sus tres botones, en fila, del mismo alto y del mismo ancho: [🎲 Al azar] [Todos] [✓ Aceptar] */
+html.lm-fam-intervalia .wm-btns{ gap:10px !important; }
+html.lm-fam-intervalia .wm-btns > button{ width:136px !important; min-width:0 !important; height:40px !important; padding:0 14px !important; }
+
+/* ---------- resultado a pantalla completa: aprobado en verde, suspenso en rojo (sin ámbar ni naranja) ---------- */
+html.lm-fam-intervalia #resultOverlay{ background:rgba(4,10,20,.6) !important; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+/* el mensaje en UNA línea si cabe («¡Sigue intentándolo!» salía partido: la app lo limitaba a 18 caracteres) */
+html.lm-fam-intervalia .result-msg{ max-width:min(92vw, 960px) !important; }
+html.lm-fam-intervalia #resultOverlay.good .result-score, html.lm-fam-intervalia #resultOverlay.good .result-msg,
+html.lm-fam-intervalia #resultOverlay.mid .result-score, html.lm-fam-intervalia #resultOverlay.mid .result-msg{ color:var(--lm-verde) !important; }
+html.lm-fam-intervalia #resultOverlay.low .result-score, html.lm-fam-intervalia #resultOverlay.low .result-msg,
+html.lm-fam-intervalia #resultOverlay.bad .result-score, html.lm-fam-intervalia #resultOverlay.bad .result-msg{ color:#ef4444 !important; }
+
+/* ---------- avisos del micrófono ---------- */
+html.lm-fam-intervalia .signal-warn, html.lm-fam-intervalia .debug{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-intervalia .signal-warn .tip{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-intervalia .signal-warn.low{ color:var(--amber) !important; }
+html.lm-fam-intervalia .signal-warn.none{ color:var(--red) !important; }
+html.lm-fam-intervalia .vumsg.ok{ color:rgba(255,255,255,.6) !important; }
+
+/* ---------- conmutador PRO (hoy no sale; por si vuelve): sin dorado ---------- */
+html.lm-fam-intervalia .pro-btn{ background:var(--iv-n) !important; background-image:none !important; border:1px solid var(--iv-n) !important; color:#fff !important; box-shadow:none !important; border-radius:10px !important; }
+html.lm-fam-intervalia .pro-btn.active{ background:var(--iv-f) !important; border-color:var(--iv-f) !important; color:#fff !important; }
+html.lm-fam-intervalia .pro-note{ color:rgba(255,255,255,.74) !important; }

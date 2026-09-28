@@ -1,0 +1,775 @@
+/* =====================================================================
+   LM at home · PIEL · RITMO at home (GE, 4º) y RITMO ENTONADO at home (GP, 2º)
+   (26-sep-2026, Iago) Solo aspecto: nada de funcionamiento ni de flujos.
+   Todo cuelga de html.lm-fam-ritmo:not(.lm-sin-piel):
+   mientras se ve un QUIZ (fondo psicodélico: el quiz por carta en su
+   iframe y el quiz 6.3 de equivalencias) ritmo.js pone lm-sin-piel en
+   <html> y NINGUNA regla de este fichero se aplica: el quiz se queda
+   exactamente como estaba.
+   Color de la app: VERDE de Ritmo (#22c55e; rellenos #16a34a con texto
+   blanco). En GP no hay dorado salvo el rótulo «GRADO PROFESIONAL».
+   27-sep-2026 · 3ª vuelta (manda sobre la 2ª; copia de antes: ritmo.css.bak-27sep-v2):
+   · tarjetas de elegir (mundos, cartas) = B por defecto: cristal negro con SOLO el contorno verde; al pasar el
+     ratón, verde liso opaco (§2B). La A (rellenas) sigue con ?tarjetas=a (§2A).
+   · selector de curso (1º…4º GE · 1º/2º GP): botones verdes lisos y opacos; los que no existen, apagados (§2C).
+   · botones lisos y opacos: principal verde, normales neutro #243044, volver/salir solo contorno; el DADO,
+     cuadrado verde con solo el dado (§9 y ritmo.js).
+   · rótulo de grado en la banda fija del núcleo: la pantalla de entrada y la lección empiezan debajo (§2, §3).
+   · GP sin dorado; sin sombras de texto; en Ritmo no hay «by Iago…» ni «Optimizado para…» que llevar al pie.
+   Quitar: borrar este fichero (y ritmo.js).
+   ===================================================================== */
+
+/* ---------- 1. Paleta: las variables de la app pasan a la del Diario ----------
+   (las apps llaman --gold* a su color de destacar: en GE ya era verde, en GP dorado;
+   aquí las dos pasan al verde de Ritmo) */
+html.lm-fam-ritmo:not(.lm-sin-piel){
+  --panel:rgba(11,19,32,.72); --panel2:rgba(11,19,32,.72); --line:rgba(255,255,255,.12);
+  --ink:#ffffff; --muted:rgba(255,255,255,.74); --muted2:rgba(255,255,255,.52);
+  --gold1:#22c55e; --gold2:#16a34a; --gold-soft:#22c55e;
+  --green:#22c55e; --green-soft:rgba(34,197,94,.18);
+  --shadow:none;
+}
+
+/* ---------- 2. Pantalla de entrada (curso · mundos · cartas): la foto se ve a través ---------- */
+html.lm-fam-ritmo:not(.lm-sin-piel) .entry{ background:transparent !important; }
+/* 27-sep-2026 (3ª vuelta) · el rótulo de grado va en la banda fija de arriba del núcleo (46px) y a sus lados no puede
+   haber nada. La pantalla de entrada va a pantalla completa y tiene su propio scroll: empieza DEBAJO de la banda, así
+   el logo y el título quedan por debajo del rótulo y, al desplazarla, nada pasa por detrás de él. */
+html.lm-fam-ritmo:not(.lm-sin-piel) .entry{ top:var(--lm-grado-banda, 46px) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) #lm-grado{ z-index:55; }
+
+html.lm-fam-ritmo:not(.lm-sin-piel) .entry-card .lead{ color:rgba(255,255,255,.8); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .entry-card .lead b{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .brand-title .h,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ritmo-home .ho,
+html.lm-fam-ritmo:not(.lm-sin-piel) .lmeav-link .ho{ color:rgba(255,255,255,.72); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .lmeav-link .eav{ color:rgba(255,255,255,.62); }
+/* GP: sin dorado. El «GRADO PROFESIONAL» pequeñito del logo (dorado escrito en la propia página) pasa a blanco suave */
+html.lm-fam-ritmo.lm-gp:not(.lm-sin-piel) .lmeav-link span[aria-hidden="true"]{ color:rgba(255,255,255,.62) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .entry-count{ color:#fff; }
+
+/* barra de arriba de mundos/cartas: «Un mundo | Combina mundos» como botón doble liso y opaco (el elegido, verde) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-q{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-mode{
+  box-sizing:border-box; height:40px; padding:3px !important; align-items:stretch;
+  background:#243044 !important; background-image:none !important; border:0 !important; border-radius:10px !important;
+  -webkit-backdrop-filter:none; backdrop-filter:none; box-shadow:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-tab{
+  display:inline-flex; align-items:center; gap:7px; padding:0 14px !important; border-radius:8px !important;
+  color:rgba(255,255,255,.74) !important; background:transparent !important; box-shadow:none !important;
+  font:700 13px/1 var(--lm-fuente) !important; white-space:nowrap;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-tab:hover{ color:#fff !important; background:#2d3b52 !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-tab.on{ background:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .beta-tag,
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-tab.on .beta-tag{ background:rgba(255,255,255,.16) !important; color:#fff !important; border-radius:4px !important; margin-left:0 !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tab-wip{ background:rgba(255,255,255,.16) !important; color:#fff !important; border-radius:4px !important; }
+
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-chosen .w-num{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-chosen .w-name{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-desc{ color:rgba(255,255,255,.78); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-desc b,
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-hint b{ color:var(--lm-verde); }
+/* aviso de «Combina mundos»: panel de cristal con borde fino entero (sin franja de color a la izquierda) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-hint{
+  background:var(--lm-cristal) !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-chip) !important; color:rgba(255,255,255,.8);
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-cardhint{ color:rgba(255,255,255,.62); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-cardhint.warn{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gp1-trimlab,
+html.lm-fam-ritmo:not(.lm-sin-piel) .slot-label{ color:rgba(255,255,255,.62); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .slot-label.cards{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .slot-label .ab-tag{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:4px !important; }
+
+/* la cinta de ritmos y el ejemplo de cada carta siguen en PAPEL BLANCO (A y B) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .gp1-world .w-tape{ border-radius:10px; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-card .sc-ex{ border-radius:10px; }
+/* aviso de la estrella del quiz (sale al pasar el ratón) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .card-qstar .cqtip{ background:#243044 !important; color:#fff !important; border:0; border-radius:var(--lm-r-chip) !important; }
+/* la estrella del quiz: botón liso y opaco con la estrella de trazo (la entrada al quiz; el quiz en sí no se toca) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .card-qstar{ border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .card-qstar svg path{ fill:none !important; stroke:#fff !important; stroke-width:1.8px !important; stroke-linejoin:round; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .card-qstar:hover{ transform:none; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .card-istar{ box-shadow:none !important; animation:none !important; border-radius:6px !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .card-istar:hover{ transform:none; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gp1-tag{ border-radius:4px !important; }
+
+/* 3ª vuelta · «ninguna frase partida en dos líneas si cabe en una»: los nombres de mundo y de carta caben en su línea
+   (algo menos de espaciado; en pantallas de 1024–1180px, un punto más pequeños). El título de la carta puede usar
+   también el hueco que la app reservaba a la estrella del quiz (la estrella queda en la fila de arriba). */
+html.lm-fam-ritmo:not(.lm-sin-piel) .gp1-world .w-name{ font-size:15px !important; letter-spacing:.01em !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-card.has-quiz .sc-head > .c-n{ flex-basis:calc(100% + 32px) !important; margin-right:-32px !important; }
+/* mundo elegido en «Combina mundos»: su ✓ (arriba a la derecha) no pisa el nombre */
+html.lm-fam-ritmo:not(.lm-sin-piel) .gp1-world:has(> .w-badge) .w-head{ padding-right:26px; }
+@media (max-width:1180px){
+  html.lm-fam-ritmo:not(.lm-sin-piel) .gp1-world .w-name{ font-size:13px !important; letter-spacing:0 !important; }
+  html.lm-fam-ritmo:not(.lm-sin-piel) .gp1-world{ padding-left:12px !important; padding-right:12px !important; }
+  html.lm-fam-ritmo:not(.lm-sin-piel) .gp1-world .w-head{ gap:9px !important; }
+  html.lm-fam-ritmo:not(.lm-sin-piel) .setup-card .c-n{ font-size:14.5px !important; }
+}
+
+/* ===== 2B · TARJETAS «B» — LA DE POR DEFECTO (3ª vuelta, 27-sep-2026 tarde) =====
+   «En ritmo, lo de los mundos y las tarjetas me gustan más, en vez de verde opaco, traslúcido negro».
+   Mundos, cartas (y la lista antigua): cristal negro con SOLO el contorno verde, entero (1,5px), sin franja;
+   al pasar el ratón, verde liso OPACO (#16a34a), todo lo de dentro en blanco, y sube 3px.
+   ELEGIDA (mundo en «Combina mundos», carta activada): verde liso + anillo blanco por fuera.
+   La cinta de ritmos y el ejemplo de cada carta siguen en papel blanco. */
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-card{
+  background:var(--lm-cristal) !important; background-image:none !important;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border:1.5px solid var(--lm-verde) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; color:#fff !important;
+  filter:none !important; transition:transform .18s ease, background-color .18s ease, box-shadow .18s ease !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world .edge{ display:none !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world:hover,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card:not(.pend):not(.base):not(.disabled):hover,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-card:hover{
+  background:var(--lm-verde-f) !important; border-color:var(--lm-verde) !important; transform:translateY(-3px) !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world.on,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.on,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-card.on,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-card.multi.on{
+  background:var(--lm-verde-f) !important; border-color:var(--lm-verde) !important;
+  box-shadow:0 0 0 2px rgba(11,19,32,.85), 0 0 0 4.5px #fff !important; color:#fff !important;
+}
+/* mundo: número en recuadro verde; al pasar (o elegido), todo blanco */
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world .w-num{
+  background:transparent !important; border:1.5px solid var(--lm-verde) !important; color:#fff !important; border-radius:var(--lm-r-chip) !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world:hover .w-num{ border-color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world.on .w-num{ background:#fff !important; border-color:#fff !important; color:#15803d !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world .w-name,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world.on .w-name,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world .w-n,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world .w-glyph,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world .w-clef{ color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world .w-badge,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card .w-badge{ background:#fff !important; color:#15803d !important; border-radius:6px !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-world .w-trim{ border-radius:6px !important; background:transparent !important; border-color:rgba(255,255,255,.35) !important; color:#fff !important; }
+/* carta */
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card .c-n,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.on .c-n,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.pend .c-n{ color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card .c-num{
+  background:transparent !important; border:1.5px solid var(--lm-verde) !important; color:#fff !important; border-radius:6px !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card:hover .c-num{ border-color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.on .c-num{ background:#fff !important; border-color:#fff !important; color:#15803d !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card .c-lecs{ color:rgba(255,255,255,.55) !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card:hover .c-lecs,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.on .c-lecs{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card .c-chk{ border-color:rgba(255,255,255,.4) !important; border-radius:5px !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.on .c-chk,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.base .c-chk{ background:#fff !important; border-color:#fff !important; color:#15803d !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card .gp1-tag,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.multi .gp1-tag{ background:transparent !important; border-color:rgba(255,255,255,.35) !important; color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card .c-pend{ border-radius:6px !important; background:transparent !important; border-color:rgba(255,255,255,.45) !important; color:rgba(255,255,255,.8) !important; }
+/* «▸ INTRO»: el botoncito verde de la carta; sobre la carta verde (al pasar o elegida) pasa a blanco con letra verde */
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .card-istar{ background:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card:hover .card-istar,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .setup-card.on .card-istar{ background:#fff !important; color:#15803d !important; }
+/* estrella del quiz: botón liso y opaco (neutro); al pasar por ella, blanco con la estrella verde */
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .card-qstar{ background:#243044 !important; border:0 !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .card-qstar:hover{ background:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .card-qstar:hover svg path{ stroke:#15803d !important; }
+/* (lista antigua de cartas, por si aparece) */
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-card .c-s,
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-card .c-chk{ color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-b:not(.lm-sin-piel) .gp1-tag{ background:rgba(255,255,255,.1) !important; color:rgba(255,255,255,.8) !important; }
+
+/* ===== 2A · TARJETAS «A» (?tarjetas=a, 2ª vuelta): RELLENAS del verde liso de Ritmo, texto blanco =====
+   Se quedan tal cual por si Iago quiere volver a verlas (el selector de curso va aparte, §2C). */
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-card{
+  background:color-mix(in srgb, var(--lm-verde-f) 94%, transparent) !important; background-image:none !important;
+  border:0 !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important; color:#fff !important;
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+  transition:transform .18s ease, filter .18s ease, background-color .18s ease, box-shadow .18s ease !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world:hover,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card:not(.pend):not(.base):not(.disabled):hover,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-card:hover{
+  transform:translateY(-3px) !important; filter:brightness(1.07); background:var(--lm-verde-f) !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world.on,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card.on,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-card.on{
+  background:var(--lm-verde-f) !important; box-shadow:0 0 0 2px rgba(11,19,32,.85), 0 0 0 4.5px #fff !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world .edge{ display:none !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world .w-num{
+  background:rgba(255,255,255,.2) !important; border:0 !important; color:#fff !important; border-radius:var(--lm-r-chip) !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world.on .w-num{ background:#fff !important; color:#15803d !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world .w-name,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world.on .w-name,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world .w-n,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world .w-glyph,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world .w-clef{ color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world .w-badge,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card .w-badge{ background:#fff !important; color:#15803d !important; border-radius:6px !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-world .w-trim{ border-radius:6px !important; background:rgba(255,255,255,.2) !important; border-color:rgba(255,255,255,.35) !important; color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card .c-n,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card.on .c-n,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card.pend .c-n{ color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card .c-num{
+  background:rgba(255,255,255,.2) !important; border:0 !important; color:#fff !important; border-radius:6px !important; padding:1px 7px !important;
+}
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card.on .c-num{ background:#fff !important; color:#15803d !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card .c-lecs{ color:rgba(255,255,255,.8) !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card .c-chk{ border-color:rgba(255,255,255,.6) !important; border-radius:5px !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card.on .c-chk,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card.base .c-chk{ background:#fff !important; border-color:#fff !important; color:#15803d !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card .gp1-tag,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card.multi .gp1-tag{ background:rgba(255,255,255,.2) !important; border-color:rgba(255,255,255,.35) !important; color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .setup-card .c-pend{ border-radius:6px !important; background:rgba(255,255,255,.2) !important; border-color:rgba(255,255,255,.55) !important; color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .card-istar{ background:#fff !important; color:#15803d !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .card-istar:hover{ background:#dcfce7 !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .card-qstar{ background:rgba(255,255,255,.18) !important; border:1px solid rgba(255,255,255,.45) !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .card-qstar:hover{ background:#fff !important; border-color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .card-qstar:hover svg path{ stroke:#15803d !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-card .c-s,
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-card .c-chk{ color:#fff !important; }
+html.lm-fam-ritmo.lm-tarjetas-a:not(.lm-sin-piel) .gp1-card .gp1-tag{ background:rgba(255,255,255,.2) !important; color:#fff !important; }
+
+/* ===== 2C · SELECTOR DE CURSO (1º…4º GE · 1º/2º GP): botones verdes LISOS y OPACOS (3ª vuelta) =====
+   «En ritmo at home, cuando entras en el selector de curso, quiero que sean botones opacos y lisos».
+   Verde liso #16a34a con el texto blanco, sin franja ni contorno; al pasar, un poco más claro.
+   Los cursos que aún no existen, APAGADOS: el mismo botón, opaco pero oscuro, con el texto tenue. Igual en A y en B. */
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick{
+  background:var(--lm-verde-f) !important; background-image:none !important; border:0 !important;
+  border-radius:var(--lm-r-boton) !important; box-shadow:none !important; color:#fff !important; opacity:1 !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; filter:none;
+  transition:filter .15s ease, background-color .15s ease !important; transform:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick .edge{ display:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick .tp-n,
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick.course-on .tp-n{ color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick .tp-d{ color:rgba(255,255,255,.88) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick:not(.course-soon):hover{ filter:brightness(1.08); box-shadow:none !important; transform:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick.picked{ box-shadow:0 0 0 2px rgba(11,19,32,.85), 0 0 0 4.5px #fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick.course-soon{ background:#1c2a24 !important; cursor:not-allowed; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .trim-pick.course-soon .tp-n{ color:rgba(255,255,255,.3) !important; }
+
+/* ---------- 3. Pantalla de la lección ---------- */
+/* 3ª vuelta: nada a los lados del rótulo de grado (banda de 46px del núcleo): «← RITMO at home» empieza debajo */
+html.lm-fam-ritmo:not(.lm-sin-piel) #app.wrap{ padding-top:56px !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ritmo-home .back{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .hairline{ background:rgba(255,255,255,.16) !important; opacity:1 !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tab{
+  background:var(--lm-cristal) !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-boton) !important; color:rgba(255,255,255,.74) !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .tab:hover{ color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tab[aria-selected=true]{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) #trimName{ color:#fff; }
+
+/* la partitura sigue en papel blanco (el compás que suena se marca en verde liso, sin halo) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .barhl{ fill:#22c55e !important; filter:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .sheet{ border-radius:var(--lm-r-panel) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .sheet-cap{ color:rgba(255,255,255,.74); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .lesson-tags span{ border-radius:var(--lm-r-chip) !important; background:var(--lm-cristal) !important; border-color:var(--lm-borde) !important; color:rgba(255,255,255,.8); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .analysis{
+  background:var(--lm-cristal-fuerte) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important; box-shadow:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .analysis h3{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) footer{ color:rgba(255,255,255,.55); }
+html.lm-fam-ritmo:not(.lm-sin-piel) footer .lock{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .disclaimer{ color:rgba(255,255,255,.5); }
+
+/* cartel del 2º trimestre, selector plegable y grupos */
+html.lm-fam-ritmo:not(.lm-sin-piel) #t2card,
+html.lm-fam-ritmo:not(.lm-sin-piel) details.selector{
+  background:var(--lm-cristal) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) #t2card .edge{ display:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) #t2card p{ color:rgba(255,255,255,.78); }
+html.lm-fam-ritmo:not(.lm-sin-piel) details.selector>summary{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .sel-fam-name{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gve-item{ background:rgba(255,255,255,.05) !important; border-color:var(--lm-borde) !important; border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gve-item.on{ border-color:var(--lm-verde-f) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gve-item.on .gve-main{ background:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gve-item.on .gve-main .vs{ color:rgba(255,255,255,.85) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gve-irr{ background:rgba(0,0,0,.25) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .sel-mini{ background:var(--lm-cristal) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-chip) !important; color:rgba(255,255,255,.85) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .sel-mini:hover{ border-color:#fff !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .diff-seg{ background:var(--lm-cristal) !important; border-color:var(--lm-borde) !important; border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .diff-seg button.on{ background:var(--lm-verde-f) !important; color:#fff !important; }
+
+/* ---------- 4. Estudio por fases / prueba directa ---------- */
+/* pasos del estudio (1. Escucha las cartas · 2. Ritmo aislado…): pestañas lisas y opacas, a la altura de los botones
+   de la misma fila (40px); la de ahora, verde; las ya hechas, con el texto blanco */
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-step{
+  box-sizing:border-box; display:inline-flex; align-items:center; height:40px; padding:0 14px !important; white-space:nowrap;
+  border-radius:10px !important; background:#243044 !important; border:0 !important; color:rgba(255,255,255,.62) !important;
+  font:700 13px/1 var(--lm-fuente) !important; box-shadow:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-step:hover{ background:#2d3b52 !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-step.done{ color:#fff !important; background:#243044 !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-step.cur{ background:var(--lm-verde-f) !important; color:#fff !important; }
+
+/* tarjeta informativa de cada fase (sobre la lección) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-cardscrim{ background:rgba(8,14,24,.62) !important; border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner{
+  background:#131c2b !important; background-image:none !important; -webkit-backdrop-filter:none; backdrop-filter:none;
+  border:1px solid rgba(255,255,255,.16) !important; border-radius:var(--lm-r-panel) !important;
+  box-shadow:0 18px 50px rgba(0,0,0,.45) !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner::before, html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner::after{ display:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner .pb-t,
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner .pb-t2{ color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner .pb-k{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner .pb-d{ color:rgba(255,255,255,.82); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .pb-x{ color:rgba(255,255,255,.6) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .pb-count{ border-radius:var(--lm-r-chip) !important; background:rgba(34,197,94,.12) !important; border-color:var(--lm-verde) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner .vb-btns button,
+html.lm-fam-ritmo:not(.lm-sin-piel) .voice-banner .vb-btns button{ background:#243044 !important; border:0 !important; border-radius:10px !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-banner .vb-btns button.on,
+html.lm-fam-ritmo:not(.lm-sin-piel) .voice-banner .vb-btns button.on{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .card-cd,
+html.lm-fam-ritmo:not(.lm-sin-piel) .voice-cd{ border-radius:6px !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .voice-banner{
+  background:#131c2b !important; border:1px solid rgba(255,255,255,.16) !important; border-radius:var(--lm-r-panel) !important; box-shadow:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .voice-banner .pb-t{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .voice-banner .pb-d b{ color:var(--lm-verde); }
+/* barra espaciadora animada (ordenador): tecla blanca lisa con borde verde */
+html.lm-fam-ritmo:not(.lm-sin-piel) .kbd-space .key{
+  background:#fff !important; border-color:var(--lm-verde-f) !important; color:#15803d !important;
+  border-radius:10px !important; animation-name:lmRitmoTecla !important;
+}
+@keyframes lmRitmoTecla{0%,70%,100%{transform:translateY(0);box-shadow:0 4px 0 #16a34a}80%{transform:translateY(4px);box-shadow:0 0 0 #16a34a;background:#dcfce7}}
+html.lm-fam-ritmo:not(.lm-sin-piel) .kbd-space .lbl{ color:rgba(255,255,255,.74) !important; }
+
+/* barra de controles de la fase (velocidad, subdivisión, referencia) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-controls{
+  background:var(--lm-cristal) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .seg-l,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tempo-ctl,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ref-ctl{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .seg button,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ref-ctl button{
+  background:#243044 !important; border:0 !important; border-radius:8px !important; color:#fff !important; box-shadow:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .seg button:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ref-ctl button:hover{ background:#2d3b52 !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .seg button.on,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ref-ctl button.on{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .velbar{ background:rgba(255,255,255,.05) !important; border-color:var(--lm-borde) !important; border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .veldot{ background:rgba(255,255,255,.1) !important; border-color:rgba(255,255,255,.28) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .veldot:hover{ border-color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .veldot.on{ background:var(--lm-verde) !important; border-color:var(--lm-verde) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .veldot.on.neg,
+html.lm-fam-ritmo:not(.lm-sin-piel) .veldot.on.pos{ background:var(--lm-verde) !important; border-color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .velsub.pulse{ animation:none; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tempo-ctl input{ accent-color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ex-btn{ background:#243044 !important; border:0 !important; border-radius:8px !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ex-btn:hover{ background:#2d3b52 !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ex-btn.on{ background:var(--lm-verde-f) !important; border:0 !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ex-help{ border-color:rgba(255,255,255,.5) !important; color:rgba(255,255,255,.8) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ex-tip{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-boton) !important; color:rgba(255,255,255,.85) !important; }
+/* aviso instantáneo al pasar el ratón */
+html.lm-fam-ritmo:not(.lm-sin-piel) .tipw::after{ background:rgba(11,19,32,.95) !important; color:#fff !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tipw::before{ border-top-color:rgba(255,255,255,.3) !important; }
+
+/* «Escucha las cartas» */
+/* (van sobre el papel blanco de la partitura: cristal casi opaco para que no se vea gris) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card{
+  background:rgba(11,19,32,.95) !important; border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-tarjeta) !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-num{ background:transparent !important; border:1.5px solid var(--lm-verde); color:#fff !important; border-radius:6px !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-n{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-var{ border-radius:6px !important; background:rgba(34,197,94,.12) !important; border-color:rgba(34,197,94,.5) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-dot{ background:rgba(255,255,255,.2) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-dot.on{ background:var(--lm-verde) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-wave{ border-radius:var(--lm-r-boton) !important; border-color:var(--lm-verde) !important; }
+
+/* secuenciador de grupos (preparar) y cuenta atrás */
+html.lm-fam-ritmo:not(.lm-sin-piel) .prep-dot{ border-color:rgba(255,255,255,.28) !important; color:rgba(255,255,255,.8) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .prep-dot.lit{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .countin{ color:var(--lm-verde-f); }
+
+/* ritmo aislado en tablet: pads verdes lisos */
+html.lm-fam-ritmo:not(.lm-sin-piel) .rpad{
+  background:var(--lm-verde-f) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 5px 0 #14532d !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .rpad svg{ fill:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .rpad.hit,
+html.lm-fam-ritmo:not(.lm-sin-piel) .rpad:active{ background:var(--lm-verde) !important; box-shadow:0 0 0 #14532d !important; }
+
+/* tarjeta de precisión tras tocar el ritmo (deja ver las cabezas de color debajo) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb{
+  background:rgba(19,28,43,.96) !important; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 18px 50px rgba(0,0,0,.4) !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb h3{ color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .fb-step{ color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb p{ color:rgba(255,255,255,.82) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .score.good{ color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb button{ border-radius:var(--lm-r-boton) !important; }
+
+/* GP · módulo de velocidad de las fusas */
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-mod{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-boton) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-light{ background:rgba(255,255,255,.12) !important; border-color:var(--lm-borde-fuerte) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-light.on{ animation-name:lmRitmoLuz !important; }
+@keyframes lmRitmoLuz{0%{background:#22c55e}100%{background:rgba(255,255,255,.12)}}
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-lbl{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-track{ background:rgba(0,0,0,.35) !important; border-color:var(--lm-borde-fuerte) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-fill{ background:var(--lm-verde-f) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-fill.full{ background:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-goal{ background:rgba(255,255,255,.55) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-btn{ background:#243044 !important; border:1px solid transparent !important; color:#fff !important; border-radius:10px !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-btn:hover{ background:#2d3b52 !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-plus.ready{ border-color:var(--lm-verde) !important; box-shadow:none !important; animation:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-adv{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:10px !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-pat{ background:var(--lm-cristal-fuerte) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(249,115,22,.7) !important; border-radius:var(--lm-r-panel) !important; color:#fff !important; }
+
+/* ---------- 5. Ventanas: grupos de valoración especial y ayuda ---------- */
+html.lm-fam-ritmo:not(.lm-sin-piel) .modal-scrim,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pop-scrim{ background:rgba(4,10,20,.6) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gmodal,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pop{
+  background:var(--lm-cristal-fuerte) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 60px rgba(0,0,0,.5) !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .gmodal .gm-lead b,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gm-foot .gm-count b{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gm-secname{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .prev-chip{ background:rgba(255,255,255,.05) !important; border-color:var(--lm-verde) !important; border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .prev-chip:not(.on){ border-color:var(--lm-borde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .prev-chip .cbx{ border-color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .prev-chip.on .cbx{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gcard{ background:rgba(255,255,255,.04) !important; border:1.5px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gcard:hover{ border-color:color-mix(in srgb, var(--lm-verde) 70%, transparent) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gcard.on{ border-color:var(--lm-verde) !important; background:rgba(34,197,94,.08) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gcard .gc-check{ border-radius:5px !important; border-color:rgba(255,255,255,.35) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gcard.on .gc-check{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gcard.on .gc-vs{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gc-irrbtn{ border-radius:var(--lm-r-chip) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gc-irrbtn.irron{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .pop h4{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .pop p{ color:rgba(255,255,255,.8); }
+
+/* ---------- 6. INTRO por carta (la explicación / presentación de clase; NO es el quiz) ----------
+   Fondo del conservatorio como el resto de la app. El «recordatorio de la semana anterior»
+   (ov-repaso) se queda en GRIS, como lo pidió Iago. */
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov:not(.ov-repaso){ background:#0b1320 !important; isolation:isolate; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov:not(.ov-repaso)::before{
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:url("../fondo-vertical.jpg") center 62% / cover no-repeat; filter:blur(4px) saturate(1.08); transform:scale(1.04);
+}
+@media (min-aspect-ratio: 1/1){ html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov:not(.ov-repaso)::before{ background-image:url("../fondo-apaisado.jpg"); background-position:center; } }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov:not(.ov-repaso)::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(8,22,40,.56); }
+/* «recordatorio de la semana anterior» (ov-repaso): Iago lo quiso TODO EN GRIS («el fondo deja de ser
+   el de siempre y todo va desaturado»): aquí es la misma foto del conservatorio pero en blanco y negro,
+   con un velo neutro (sin degradado). El contenido ya lo desatura la propia app. */
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov.ov-repaso{ background:#17191d !important; isolation:isolate; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov.ov-repaso::before{
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:url("../fondo-vertical.jpg") center 62% / cover no-repeat; filter:blur(4px) grayscale(1); transform:scale(1.04);
+}
+@media (min-aspect-ratio: 1/1){ html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov.ov-repaso::before{ background-image:url("../fondo-apaisado.jpg"); background-position:center; } }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov.ov-repaso::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(20,22,26,.72); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov.ov-repaso .intro-bar{ background:rgba(20,22,26,.6); border-bottom:1px solid rgba(255,255,255,.1) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-ov:not(.ov-repaso) .intro-bar{ background:rgba(11,19,32,.6); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border-bottom:1px solid var(--lm-borde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-brand{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-brand span{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .idot{ background:rgba(255,255,255,.22) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .idot.done{ background:var(--lm-verde-f) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .idot.cur{ background:var(--lm-verde) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-hint{ color:rgba(255,255,255,.6); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn{ border-radius:var(--lm-r-boton) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.seg,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.wgroup{ background:var(--lm-cristal) !important; border:1px solid var(--lm-borde-fuerte) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.seg{ border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.seg.on,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.wgroup.on{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.wgroup.pend{ border-color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ikicker:not(.ikicker-repaso){ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .isub, html.lm-fam-ritmo:not(.lm-sin-piel) .igen-cap{ color:rgba(255,255,255,.8); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .igen-cap b, html.lm-fam-ritmo:not(.lm-sin-piel) .ifact-a b,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ifact-prompt b{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ifact,
+html.lm-fam-ritmo:not(.lm-sin-piel) .iplayer,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ieq-box,
+html.lm-fam-ritmo:not(.lm-sin-piel) .itnode{
+  background:var(--lm-cristal) !important; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  border-color:var(--lm-borde) !important; box-shadow:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .ifact{ border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .iplayer, html.lm-fam-ritmo:not(.lm-sin-piel) .ieq-box{ border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .itnode{ border-radius:var(--lm-r-boton) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .itnode:hover{ border-color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .itnode.on{ border-color:var(--lm-verde) !important; box-shadow:inset 0 0 0 1px var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .itnode.on .itnode-lab{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .iplayer.playing, html.lm-fam-ritmo:not(.lm-sin-piel) .ieq-box.playing{ border-color:var(--lm-verde) !important; box-shadow:inset 0 0 0 1px var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .itree-side{ background:var(--lm-cristal) !important; border-color:var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-panel) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .itree-link{ background:rgba(255,255,255,.35) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ifact-q, html.lm-fam-ritmo:not(.lm-sin-piel) .iside-t,
+html.lm-fam-ritmo:not(.lm-sin-piel) .iplayer-z, html.lm-fam-ritmo:not(.lm-sin-piel) .ieq-m{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .imeter{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .imeter.iopt{ background:rgba(255,255,255,.06) !important; border:1px solid var(--lm-borde-fuerte) !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .imeter.iopt:hover{ border-color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .imeter.iopt.good{ background:var(--lm-verde-f) !important; border-color:var(--lm-verde-f) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .imeter.iopt.bad{ box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ipaper.iopt.good{ box-shadow:0 0 0 3px var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ipaper.iopt.bad{ box-shadow:0 0 0 3px var(--red) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ieq-badge{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:var(--lm-r-boton) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ieq-badge.fig .beq{ color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ieq-tag{ border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ilamp{ background:rgba(255,255,255,.12) !important; border-color:var(--lm-borde-fuerte) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ilamp.ihit{ background:var(--lm-verde) !important; border-color:var(--lm-verde) !important; box-shadow:none !important; }
+/* GP · intros de método (mundos 1–4): tarjetas y botones al lenguaje común */
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-cap .paso,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-veil .paso{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:6px !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-reto{ border-radius:var(--lm-r-chip) !important; border-color:var(--lm-verde) !important; color:var(--lm-verde) !important; background:var(--lm-cristal-fuerte) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-reto b{ color:#fff; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-cover .kicker{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-cover .sub b, html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-veil p b{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-veil{ background:rgba(4,10,20,.78) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-veil:not(.m33-dv) .card{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-verde) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 30px 90px rgba(0,0,0,.6) !important; }
+/* 3.3 · la tarjeta de ALERTA roja sigue roja (es su significado), pero lisa, sin degradado */
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-veil.m33-dv .card{ background:rgba(20,10,8,.94) !important; border-radius:var(--lm-r-tarjeta) !important; box-shadow:0 24px 70px rgba(0,0,0,.55) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-veil.m33-dv .vReto{ border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-veil.m33-dv .paso,
+html.lm-fam-ritmo:not(.lm-sin-piel) .m33-alert .gvx-cap .paso{ background:#c8452e !important; color:#fff !important; border-radius:6px !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m33-alert .gvx-reto{ border-color:#c8452e !important; color:#ff8d6b !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m33-alert .gvx-paper.playing{ border-color:#c8452e !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-veil:not(.m33-dv) .vReto{ border-radius:var(--lm-r-chip) !important; border-color:var(--lm-verde) !important; color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-sdots span.done{ background:var(--lm-verde-f) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-sdots span.cur{ background:var(--lm-verde) !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-paper.playing, html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-paper.model{ border-color:var(--lm-verde) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-paper .gvx-pp{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:8px !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-chip{ border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-chip.on{ background:var(--lm-verde-f) !important; color:#fff !important; box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-qtip{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:var(--lm-r-chip) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-side{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-verde) !important; border-radius:var(--lm-r-tarjeta) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-side p b{ color:var(--lm-verde); }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-veilspot{ background:rgba(4,10,20,.62) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m33-jump{ background:var(--lm-verde-f) !important; color:#fff !important; border-radius:var(--lm-r-boton) !important; box-shadow:none !important; }
+/* los resaltados DORADOS dentro de la partitura (papel blanco) pasan al verde de Ritmo */
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-hit, html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-hit *,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-goldnote, html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-goldnote *,
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-gold, html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-gold *,
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-now, html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-now *{ fill:#16a34a !important; stroke:#16a34a !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-slash, html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-ptick,
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-ptick, html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-grp,
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-sym path, html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-playhead{ stroke:#16a34a !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-playhead{ filter:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-parr, html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-grpn,
+html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-mlbl, html.lm-fam-ritmo:not(.lm-sin-piel) .m1x-plab,
+html.lm-fam-ritmo:not(.lm-sin-piel) text.m33-acc{ fill:#16a34a !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-aura{ fill:rgba(34,197,94,.32) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) circle.m33-wave{ stroke:#22c55e !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .m33-cnt{ color:rgba(22,163,74,.85) !important; }
+
+/* 3ª vuelta · GP sin dorado: los últimos resplandores dorados de las intros de método pasan a verde liso (sin halo) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .ipaper-play.on{ box-shadow:0 0 0 2px var(--lm-verde) inset !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-paper.playing{ box-shadow:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-pp.attn{ animation-name:lmRitmoPp !important; }
+@keyframes lmRitmoPp{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-spot.gvx-spot{ box-shadow:0 0 0 1.5px var(--lm-verde) !important; }
+
+/* ---------- 7. Iconos planos: el ▶ relleno, como en el Diario ---------- */
+html.lm-fam-ritmo:not(.lm-sin-piel) svg.pl-i path[d^="M7 4l13 8"]{ fill:currentColor; }
+
+/* ---------- 8. Mientras se ve un QUIZ (lm-sin-piel): los emojis vuelven a verse tal cual ----------
+   (el núcleo cambia emojis por iconos al vuelo; dentro del quiz se deshace visualmente para que
+   quede idéntico al original) */
+html.lm-fam-ritmo.lm-sin-piel .pl-emo{ display:inline !important; }
+html.lm-fam-ritmo.lm-sin-piel svg.pl-i{ display:none !important; }
+
+/* ---------- 9. BOTONES (3ª vuelta, 27-sep-2026 tarde): LISOS Y OPACOS ----------
+   «Los botones en general los prefiero lisos, opacos, y muy puntualmente solo contorno, para cosas que no son tan
+   importantes». Radio 10px, 40px de alto en cada fila (la del dado), icono de 16px, texto en una línea.
+   · principal (Generar lectura, Siguiente, Siguiente fase, Entendido, Paso 2, Terminar…) → verde liso #16a34a;
+   · normales (Estudiar por fases, Prueba directa, reproducir ▶, escala 🔊, Escuchar, Repetir, Más lento…) → neutro
+     opaco #243044 (al pasar #2d3b52), texto e icono blancos; lo que está sonando / elegido → verde;
+   · poco importantes (← Inicio, ← Otros mundos, ← Paso anterior, ←, ✕ salir) → solo contorno blanco al 35 %.
+   · DADO (nueva lección, «Otro ejemplo», «Sorpréndeme»): cuadrado 40×40 verde liso con SOLO el dado blanco
+     (ritmo.js; el texto original queda oculto dentro y en title/aria-label). Ya es lo más a la derecha de su fila.
+   Los QUIZ (lm-sin-piel) no se tocan. */
+html.lm-fam-ritmo{ --r3-neutro:#243044; --r3-neutro-h:#2d3b52; --r3-alto:40px; }
+
+/* medidas comunes */
+html.lm-fam-ritmo:not(.lm-sin-piel) .course-back,
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-backworlds,
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-go,
+html.lm-fam-ritmo:not(.lm-sin-piel) .study-btn,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn,
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-close,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb button,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.ghost,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.action,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.primary,
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-x,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-btn.ghost,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-btn.primary,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pb-go,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gm-go{
+  box-sizing:border-box !important; height:var(--r3-alto) !important; min-height:var(--r3-alto) !important;
+  padding:0 16px !important; border-radius:10px !important; align-items:center !important; justify-content:center !important;
+  gap:7px !important; font:700 13px/1 var(--lm-fuente) !important; letter-spacing:.01em !important; white-space:nowrap !important;
+  box-shadow:none !important; animation:none !important; background-image:none !important; transform:none !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+/* (display: el de la app, sin !important, para que lo que la app oculta siga oculto) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .course-back, html.lm-fam-ritmo:not(.lm-sin-piel) .setup-backworlds,
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-go, html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb button,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.ghost, html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.action, html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.primary,
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-x, html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-btn, html.lm-fam-ritmo:not(.lm-sin-piel) .pb-go,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gm-go{ display:inline-flex; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-go{ font-size:14px !important; padding:0 20px !important; }
+
+/* normales: neutro opaco */
+html.lm-fam-ritmo:not(.lm-sin-piel) .study-btn,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn:not(.primary),
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-play,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .b-re,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .b-slow,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.ghost:not(.lm-dado),
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.action:not(.lm-dado){
+  background:var(--r3-neutro) !important; border:1px solid transparent !important; color:#fff !important; filter:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .study-btn:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn:not(.primary):hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-play:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .b-re:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .b-slow:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.ghost:not(.lm-dado):hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.action:not(.lm-dado):hover{
+  background:var(--r3-neutro-h) !important; border-color:transparent !important; color:#fff !important; filter:none !important;
+}
+/* «Estudiar por fases» y «Prueba directa»: el mismo ancho, uno junto al otro */
+html.lm-fam-ritmo:not(.lm-sin-piel) .study-btn{ min-width:176px !important; }
+/* sonando / elegido: verde */
+html.lm-fam-ritmo:not(.lm-sin-piel) .study-btn.on,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn.stop,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn.stop:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) #phaseScaleTop:not(.glow),
+html.lm-fam-ritmo:not(.lm-sin-piel) #phaseScaleTop:not(.glow):hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-play.on,
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-play.on:hover{
+  background:var(--lm-verde-f) !important; border-color:transparent !important; color:#fff !important;
+}
+
+/* principal: verde liso */
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-go,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn.primary,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .b-go,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pb-go,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.primary,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-btn.primary,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gm-go,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pop .pop-x button,
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-adv,
+html.lm-fam-ritmo:not(.lm-sin-piel) .m33-jump{
+  background:var(--lm-verde-f) !important; background-image:none !important; border:1px solid transparent !important;
+  color:#fff !important; border-radius:10px !important; box-shadow:none !important; animation:none !important; filter:none;
+  font-family:var(--lm-fuente) !important; font-weight:700 !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-go:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn.primary:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .b-go:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pb-go:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.primary:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-btn.primary:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gm-go:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pop .pop-x button:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .fm-adv:not(:disabled):hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .m33-jump:hover{ background:var(--lm-verde-f) !important; filter:brightness(1.08) !important; transform:none !important; }
+
+/* poco importantes (volver, salir): solo contorno blanco al 35 % */
+html.lm-fam-ritmo:not(.lm-sin-piel) .course-back,
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-backworlds,
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-close,
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-x,
+html.lm-fam-ritmo:not(.lm-sin-piel) #introPrev,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-btn.ghost{
+  background:transparent !important; background-image:none !important; border:1px solid rgba(255,255,255,.35) !important;
+  color:#fff !important; box-shadow:none !important; filter:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .course-back:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-backworlds:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-close:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-x:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) #introPrev:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-btn.ghost:hover{ background:transparent !important; border-color:rgba(255,255,255,.75) !important; color:#fff !important; }
+/* «← Inicio» a la altura de «Generar lectura» (la app le pone 16px de margen arriba) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-topright .course-back{ margin-top:0 !important; }
+/* «← Otros mundos»: botón de volver normal, a la izquierda (no una barra de lado a lado) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-backworlds{ align-self:flex-start; width:auto !important; }
+
+/* solo icono: cuadrados 40×40 (reproducir, escala, salir, anterior) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn.play,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn.stop,
+html.lm-fam-ritmo:not(.lm-sin-piel) #phaseScaleTop,
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-close,
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-x,
+html.lm-fam-ritmo:not(.lm-sin-piel) #introPrev,
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-play{
+  width:var(--r3-alto) !important; min-width:0 !important; height:var(--r3-alto) !important; padding:0 !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-play{ display:inline-flex; align-items:center; justify-content:center; border-radius:10px !important; box-shadow:none !important; }
+/* tarjeta de precisión: los dos botones, del mismo ancho */
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .fb-actions{ display:flex; justify-content:center; gap:10px; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb .fb-actions button{ min-width:168px !important; }
+
+/* DADO: cuadrado 40×40 verde liso, solo el dado blanco */
+html.lm-fam-ritmo:not(.lm-sin-piel) .gen.gen,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.lm-dado.lm-dado{
+  box-sizing:border-box !important; width:var(--r3-alto) !important; min-width:var(--r3-alto) !important;
+  height:var(--r3-alto) !important; min-height:var(--r3-alto) !important; padding:0 !important; flex:none !important;
+  background:var(--lm-verde-f) !important; background-image:none !important; border:0 !important; border-radius:10px !important;
+  color:#fff !important; box-shadow:none !important; animation:none !important; transform:none !important; filter:none;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; align-items:center !important; justify-content:center !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.lm-dado{ display:inline-flex; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .gen.gen:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.lm-dado.lm-dado:hover{ background:var(--lm-verde-f) !important; filter:brightness(1.08) !important; transform:none !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .lm-dado svg.lm-dado-ico{ width:18px !important; height:18px !important; margin:0 !important; color:#fff !important; stroke:#fff !important; flex:none; }
+/* el contenido original del botón (el dado de la app, «Otro ejemplo», «Sorpréndeme») se queda, oculto */
+html.lm-fam-ritmo:not(.lm-sin-piel) .lm-dado .lm-txt-orig,
+html.lm-fam-ritmo:not(.lm-sin-piel) .lm-ico-orig{ display:none !important; }
+
+/* iconos: 16px, blancos, sin margen (el hueco lo pone el botón) */
+html.lm-fam-ritmo:not(.lm-sin-piel) .course-back svg.pl-i,
+html.lm-fam-ritmo:not(.lm-sin-piel) .setup-backworlds svg.pl-i,
+html.lm-fam-ritmo:not(.lm-sin-piel) .study-btn svg.pl-i,
+html.lm-fam-ritmo:not(.lm-sin-piel) .pc-btn svg.pl-i,
+html.lm-fam-ritmo:not(.lm-sin-piel) .phase-close svg.pl-i,
+html.lm-fam-ritmo:not(.lm-sin-piel) .listen-card .lc-play svg.pl-i,
+html.lm-fam-ritmo:not(.lm-sin-piel) .tap-fb button svg.pl-i,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn svg.pl-i:not(.lm-dado-ico),
+html.lm-fam-ritmo:not(.lm-sin-piel) .intro-x svg.pl-i,
+html.lm-fam-ritmo:not(.lm-sin-piel) .gvx-btn svg.pl-i{
+  width:16px !important; height:16px !important; margin:0 !important; vertical-align:-3px; flex:none; color:#fff !important;
+}
+
+/* opciones de la intro (compases, equivalencias, grupos…): lisas y opacas; la elegida, verde */
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.seg,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.wgroup{
+  background:var(--r3-neutro) !important; background-image:none !important; border:1px solid transparent !important; color:#fff !important; box-shadow:none !important;
+}
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.seg:hover,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.wgroup:hover{ background:var(--r3-neutro-h) !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.seg.on,
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.wgroup.on{ background:var(--lm-verde-f) !important; border-color:transparent !important; color:#fff !important; }
+html.lm-fam-ritmo:not(.lm-sin-piel) .ibtn.wgroup.pend{ border-color:var(--lm-verde) !important; }
+
+/* ---------- 10. Móvil ----------
+   3ª vuelta: «no está pensado para móviles, ahí me da igual». Se deja solo lo de la 1ª vuelta que evitaba que el título
+   de GP quedara fuera de la pantalla. */
+html.lm-fam-ritmo:not(.lm-sin-piel) .entry:not(.gp1-wide){ align-items:safe center; }
+@media (max-width:560px){
+  html.lm-fam-ritmo.lm-app-ritmo-gp:not(.lm-sin-piel) .course-grid{ grid-template-columns:200px !important; justify-content:center !important; }
+  html.lm-fam-ritmo.lm-app-ritmo-gp:not(.lm-sin-piel) .course-grid .trim-pick .tp-n{ font-size:34px !important; }
+}
