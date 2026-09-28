@@ -40,7 +40,9 @@ html.lm-fam-portal .hero .tag{ color:rgba(255,255,255,.9) !important; }
 html.lm-fam-portal .hero .tag b{ color:#fff !important; }
 html.lm-fam-portal .hero .tag .tag-grade{ color:rgba(255,255,255,.74) !important; }
 /* la cabecera queda donde estaba aunque la barra de arriba ahora sea más baja */
-html.lm-fam-portal .hero{ margin-top:66px !important; }
+/* (28-sep-2026, tarde, Iago) «demasiada distancia» entre la hilera de arriba y «LM at home»: la hilera baja 12px (no pegada
+   al techo) y la cabecera sube (antes margin-top:66px) */
+html.lm-fam-portal .hero{ margin-top:30px !important; }
 
 /* ---------- pie: «by Iago González Alonso» / «Optimizado para ordenador y tablet», abajo del todo y centrados ---------- */
 html.lm-fam-portal .topbar .opt-mini, html.lm-fam-portal .topbar .by{ display:none !important; }
@@ -58,7 +60,7 @@ html.lm-fam-portal .foot .lm-opt::before{ content:none !important; }
 /* =====================================================================
    BARRA DE ARRIBA · una sola fila alineada (centro a 23px, como el rótulo de las apps)
    ===================================================================== */
-html.lm-fam-portal .wrap{ padding-top:0 !important; }
+html.lm-fam-portal .wrap{ padding-top:12px !important; }   /* (28-sep-2026, tarde, Iago) la hilera de arriba, no pegada al techo (antes 0) */
 html.lm-fam-portal .topbar{
   position:relative !important; display:flex !important; align-items:center !important; justify-content:flex-end !important;
   height:var(--lm-barra) !important; min-height:var(--lm-barra) !important; padding:0 !important; margin:0 !important;
@@ -527,7 +529,17 @@ html.lm-fam-portal .carrusel-btn.lm-carr{ width:var(--lm-ctl) !important; min-wi
 html.lm-fam-portal .carrusel-btn.lm-carr .lm-carr-txt{ display:none !important; }
 
 /* (28-sep-2026, Iago) SOLO Tester/Protester: el cartel de grado cambia de portal; pantalla completa; el otro portal dentro */
-html.lm-fam-portal #lm-iconos .lm-ic-pantalla{ background:var(--lm-neutro); }
+/* «Pantalla completa»: a la derecha de todo, después de la campana (28-sep-2026, tarde, Iago) */
+html.lm-fam-portal .topbar-right > #lm-pantalla{ order:9 !important; }
+html.lm-fam-portal #lm-pantalla{ position:relative; display:inline-flex; }
+html.lm-fam-portal #lm-pantalla .lm-ic{
+  position:relative; box-sizing:border-box; width:var(--lm-ctl); height:var(--lm-ctl); min-width:var(--lm-ctl); padding:0; margin:0;
+  display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:10px; cursor:pointer;
+  background:var(--lm-neutro); color:#fff; box-shadow:none; transform:none; font-size:0; line-height:0;
+}
+html.lm-fam-portal #lm-pantalla .lm-ic:hover{ filter:brightness(1.1); }
+html.lm-fam-portal #lm-pantalla .lm-ic:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+html.lm-fam-portal #lm-pantalla .lm-ic svg{ width:19px; height:19px; margin:0; stroke:currentColor; pointer-events:none; }
 html.lm-fam-portal .hero-grade.lm-grado-cambia{ cursor:pointer; border-radius:8px; transition:opacity .15s; }
 html.lm-fam-portal .hero-grade.lm-grado-cambia:hover{ opacity:.8; }
 html.lm-fam-portal .hero-grade.lm-grado-cambia:focus-visible{ outline:2px solid #fff; outline-offset:4px; }
@@ -535,20 +547,14 @@ html.lm-fam-portal .hero-grade.lm-grado-cambia:focus-visible{ outline:2px solid 
 #lm-marco.lm-on{ display:block; }
 html.lm-marco-on, html.lm-marco-on body{ overflow:hidden !important; }
 
-/* ---------- (28-sep-2026, Iago) LIBROS · «Pantalla completa»: la página ocupa toda la pantalla; arriba a la derecha solo
-   quedan ‹ pág › y la ✕ que sale de pantalla completa ---------- */
-html.lm-fam-portal #lm-lb-max, html.lm-fam-portal #lm-lb-salir{ padding:0 !important; width:40px; }
-html.lm-fam-portal #lm-lb-max svg, html.lm-fam-portal #lm-lb-salir svg{ width:18px; height:18px; pointer-events:none; }
-html.lm-fam-portal #lm-lb-salir{ display:none; }
-html.lm-fam-portal .lb-ov.lm-lb-max .lb-top{
-  position:absolute; top:12px; right:12px; left:auto; z-index:3; padding:6px; gap:6px;
-  background:rgba(11,18,32,.72); border:1px solid rgba(255,255,255,.14); border-radius:12px;
-  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
-}
-html.lm-fam-portal .lb-ov.lm-lb-max .lb-tabs, html.lm-fam-portal .lb-ov.lm-lb-max .lb-tit, html.lm-fam-portal .lb-ov.lm-lb-max #lb-lista,
-html.lm-fam-portal .lb-ov.lm-lb-max #lb-x, html.lm-fam-portal .lb-ov.lm-lb-max #lm-lb-max{ display:none !important; }
-html.lm-fam-portal .lb-ov.lm-lb-max #lm-lb-salir{ display:inline-flex; }
-html.lm-fam-portal .lb-ov.lm-lb-max .lb-body{ position:absolute; inset:0; }
+/* ---------- (28-sep-2026, tarde, Iago) LIBROS · la lista en una columna a la derecha (el portal la pone; aquí, su aspecto).
+   La página que se está viendo, en blanco; la de esta semana, con el contorno del color del libro. ---------- */
+html.lm-fam-portal #lb-ov .lb-col{ background:var(--lm-cristal-fuerte) !important; border-left:1px solid var(--lm-borde) !important; -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+html.lm-fam-portal #lb-ov .lb-col-h{ color:rgba(255,255,255,.6) !important; }
+html.lm-fam-portal #lb-ov .lb-it.act{ border-color:var(--c) !important; box-shadow:inset 0 0 0 1px var(--c) !important; }
+html.lm-fam-portal #lb-ov .lb-it.cur{ background:#fff !important; color:var(--lm-tinta) !important; border-color:#fff !important; box-shadow:none !important; }
+html.lm-fam-portal #lb-ov .lb-it.cur small{ color:rgba(11,19,32,.62) !important; }
+html.lm-fam-portal #lb-ov .lb-vis{ background:#e9ecf1 !important; }
 
 /* ---------- (28-sep-2026, Iago) VISOR DE LAS LECCIONES DE RITMO: el fondo de la piel (en GP ya no es marrón), UNA sola
    hilera arriba con solo iconos (rueda de tonalidad horizontal, ♯ ♭ M m en verde, rotuladores, nota, goma, deshacer,

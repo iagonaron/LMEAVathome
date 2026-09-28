@@ -22,10 +22,12 @@
    9) los botones del Tester/Protester pasan a CUADRADOS 1×1 con icono, a la izquierda de Mis resultados y la
       campana: Pentagrama · Libros · Ritmo · Entonación (GE) · Dictado activo (· Sorteo en su temporada). Los botones
       de siempre siguen ahí, ocultos (la hilera #lm-tester), y los cuadrados los pulsan: no cambia lo que hacen.
-   10) Libros: botón «Pantalla completa» con un libro abierto (la página ocupa toda la pantalla; ✕ o Esc para salir).
+   10) (retirado la tarde del 28-sep: los Libros ya abren siempre a pantalla completa, al ancho, con «Lista» en columna)
    11) SOLO Tester/Protester (nunca para alumnos): cuadrado «Pantalla completa» (a la izquierda de Libros) y el cartel
        «GRADO ELEMENTAL / PROFESIONAL» de la portada pasa al otro portal al pulsarlo. Con la pantalla completa puesta, el
        otro portal se abre DENTRO de este (sin salir de pantalla completa) y el cartel vuelve.
+   (28-sep, tarde) «Pantalla completa» pasa a la derecha de la campana (solo Tester/Protester) y la hilera de arriba baja
+       un poco (no pegada al techo), con la cabecera «LM at home» más cerca.
    12) Visor de las lecciones de ritmo: UNA hilera arriba solo con iconos (rueda de tonalidad horizontal, ♯ ♭ M m en
        verde, rotuladores, nota, goma, deshacer, borrar todo), pantalla completa con cada página entera, y el fondo de
        la piel (GP sin marrón). La barra de siempre sigue debajo, oculta, y es la que guarda.
@@ -215,11 +217,10 @@
     if (!barra) { barra = document.createElement('div'); barra.id = 'lm-iconos'; barra.setAttribute('role', 'toolbar'); barra.setAttribute('aria-label', 'Herramientas del profesor'); }
     if (barra.parentNode !== host) host.insertBefore(barra, host.firstChild);
     var firma = JSON.stringify([!!penta, !!libros, intros.map(function (b) { return b.getAttribute('data-carta') + '|' + b.title; }), !!resR, !!resE,
-      dicts.map(function (b) { return b.getAttribute('data-curso') + '|' + b.textContent; }), puedePantalla()]);
+      dicts.map(function (b) { return b.getAttribute('data-curso') + '|' + b.textContent; })]);
     if (barra.getAttribute('data-firma') === firma) return;
     cerrarMenu(); barra.setAttribute('data-firma', firma); barra.innerHTML = '';
     if (penta) barra.appendChild(cuadro('lm-ic-penta', 'pentagrama', 'Pentagrama · pizarra para el aula', function () { pulsa(q('#pz-mini .da-btn')); }));
-    if (puedePantalla()) barra.appendChild(cuadro('lm-ic-pantalla', enPantalla() ? 'contraer' : 'expandir', 'Pantalla completa', function () { alternarPantalla(); }));
     if (libros) barra.appendChild(cuadro('lm-ic-libros', 'book', 'Libros del aula', function (b) {
       abrirMenu(b, LIBROS.map(function (l) { return { t: l[1], fn: function () { abrirLibro(l[0]); } }; }));
     }, true));
@@ -291,7 +292,8 @@
     }
     setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 80);
   }
-  try { new MutationObserver(function () { if (document.getElementById('lb-ov') && !document.getElementById('lm-lb-max')) librosMax(); }).observe(document.body, { childList: true }); } catch (e) {}
+  /* (28-sep-2026, tarde, Iago) los Libros ya se abren siempre a pantalla completa y con la lista en columna (portal): este
+     botón de pantalla completa sobra y no se pone; librosMax() se queda por si hubiera que volver a él. */
 
   /* ---------- 11 (28-sep-2026, Iago): SOLO Tester/Protester · pantalla completa y cambio de grado en la portada ----------
      «Esto nunca lo voy a querer desplegar a los alumnos»: se comprueba la cuenta (nombre de la sesión de este portal).
@@ -321,8 +323,21 @@
       else { var p = (d.requestFullscreen || d.webkitRequestFullscreen).call(d); if (p && p.catch) p.catch(function () {}); }
     } catch (e) {}
   }
+  /* (28-sep-2026, Iago) «Pantalla completa»: a la DERECHA de todo, después de la campana. SOLO Tester/Protester
+     («esto solo para tester, ¿eh? Y protester»): se comprueba la cuenta, no basta con que el aparato lo permita. */
+  function cuadroPantalla() {
+    var bell = document.getElementById('alu-campana-btn'); if (!bell || !bell.parentNode) return;
+    var host = bell.parentNode, w = document.getElementById('lm-pantalla');
+    if (!(esProfe() && puedePantalla())) { if (w && w.parentNode) w.parentNode.removeChild(w); return; }
+    if (!w) {
+      var on = enPantalla();
+      w = cuadro('lm-ic-pantalla', on ? 'contraer' : 'expandir', on ? 'Salir de pantalla completa' : 'Pantalla completa', function () { alternarPantalla(); });
+      w.id = 'lm-pantalla';
+    }
+    if (w.parentNode !== host) host.appendChild(w);
+  }
   function pintarPantalla() {
-    var b = document.querySelector('#lm-iconos .lm-ic-pantalla'); if (!b) return;
+    var b = document.querySelector('#lm-pantalla .lm-ic-pantalla'); if (!b) return;
     var on = enPantalla(); b.innerHTML = ico(on ? 'contraer' : 'expandir');
     b.title = on ? 'Salir de pantalla completa' : 'Pantalla completa'; b.setAttribute('aria-label', b.title);
   }
@@ -666,7 +681,7 @@
     try { carrusel(); } catch (e) {} try { pie(); } catch (e) {} try { colorNavegador(); } catch (e) {}
     try { cartelGrado(); } catch (e) {}
     try { hileraIconos(); } catch (e) {}
-    try { librosMax(); } catch (e) {}
+    try { cuadroPantalla(); } catch (e) {}
     try { visorLecciones(); } catch (e) {}
   }
   todo();
