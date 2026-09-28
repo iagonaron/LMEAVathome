@@ -549,3 +549,99 @@ html.lm-fam-portal .lb-ov.lm-lb-max .lb-tabs, html.lm-fam-portal .lb-ov.lm-lb-ma
 html.lm-fam-portal .lb-ov.lm-lb-max #lb-x, html.lm-fam-portal .lb-ov.lm-lb-max #lm-lb-max{ display:none !important; }
 html.lm-fam-portal .lb-ov.lm-lb-max #lm-lb-salir{ display:inline-flex; }
 html.lm-fam-portal .lb-ov.lm-lb-max .lb-body{ position:absolute; inset:0; }
+
+/* ---------- (28-sep-2026, Iago) VISOR DE LAS LECCIONES DE RITMO: el fondo de la piel (en GP ya no es marrón), UNA sola
+   hilera arriba con solo iconos (rueda de tonalidad horizontal, ♯ ♭ M m en verde, rotuladores, nota, goma, deshacer,
+   borrar todo, pantalla completa, ✕) y «pantalla completa» con cada página entera. La barra de siempre sigue debajo,
+   oculta, y es la que guarda (portal.js, 12). ---------- */
+html.lm-fam-portal #ts-visor{ background:#0b1320 !important; isolation:isolate; overscroll-behavior:contain; }
+html.lm-fam-portal #ts-visor::before{ content:""; position:fixed; inset:0; z-index:-2; pointer-events:none; background:url("../fondo-vertical.jpg") center 62% / cover no-repeat; filter:blur(4px) saturate(1.08); transform:scale(1.04); }
+@media (min-aspect-ratio: 1/1){ html.lm-fam-portal #ts-visor::before{ background-image:url("../fondo-apaisado.jpg"); background-position:center; } }
+html.lm-fam-portal #ts-visor::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(8,22,40,.62); }
+/* lo de siempre, vestido (también cuando no hay capturas y no sale la hilera) */
+html.lm-fam-portal #ts-visor #tsVisorCerrar, html.lm-fam-portal #ts-visor #tsVisorCerrar2{ background:transparent !important; border:1px solid rgba(255,255,255,.35) !important; color:#fff !important; border-radius:12px !important; font-family:var(--lm-fuente) !important; }
+html.lm-fam-portal #ts-visor #tsVisorCerrar:hover, html.lm-fam-portal #ts-visor #tsVisorCerrar2:hover{ border-color:#fff !important; }
+
+/* la hilera */
+html.lm-fam-portal #ts-visor.lm-vl{ padding:0 0 30px !important; --vl-b:40px; --vl-celda:36px; --vl-gap:6px; }
+html.lm-fam-portal #ts-visor.lm-vl .anot-bar, html.lm-fam-portal #ts-visor.lm-vl #tsVisorCerrar{ display:none !important; }
+html.lm-fam-portal .lm-vl-bar{
+  position:sticky; top:0; z-index:6; display:flex; align-items:center; gap:var(--vl-gap); box-sizing:border-box; width:100%;
+  padding:8px max(12px, calc((100% - 1280px) / 2)); margin:0;
+  background:rgba(11,19,32,.9); border-bottom:1px solid rgba(255,255,255,.12);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); font-family:var(--lm-fuente);
+}
+html.lm-fam-portal .lm-vl-g1, html.lm-fam-portal .lm-vl-fin{ display:flex; align-items:center; gap:var(--vl-gap); flex:none; }
+html.lm-fam-portal .lm-vl-her{
+  display:flex; align-items:center; gap:var(--vl-gap); flex:0 1 auto; min-width:0; overflow-x:auto; overflow-y:hidden;
+  scrollbar-width:none; overscroll-behavior-x:contain; touch-action:pan-x;
+}
+html.lm-fam-portal .lm-vl-her::-webkit-scrollbar{ display:none; }
+html.lm-fam-portal .lm-vl-esp{ flex:1 1 0; min-width:0; }
+html.lm-fam-portal .lm-vl-sep{ flex:none; width:1px; height:calc(var(--vl-b) * .6); background:rgba(255,255,255,.18); margin:0 3px; }
+html.lm-fam-portal .lm-vl-b{
+  flex:none; box-sizing:border-box; width:var(--vl-b); height:var(--vl-b); min-width:0; padding:0; margin:0; border:0; border-radius:10px;
+  background:var(--lm-neutro); color:#fff; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+  font:800 17px/1 var(--lm-fuente); letter-spacing:0; text-transform:none; box-shadow:none;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent; transition:background-color .12s ease;
+}
+html.lm-fam-portal .lm-vl-b:hover{ background:var(--lm-neutro-h); }
+html.lm-fam-portal .lm-vl-b:focus-visible, html.lm-fam-portal .lm-vl-rueda:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+html.lm-fam-portal .lm-vl-b.on, html.lm-fam-portal .lm-vl-b.on:hover{ background:var(--lm-verde-f); }
+html.lm-fam-portal .lm-vl-b svg.pl-i{ width:20px; height:20px; margin:0; pointer-events:none; }
+html.lm-fam-portal .lm-vl-b span{ pointer-events:none; }
+html.lm-fam-portal .lm-vl-t-s span, html.lm-fam-portal .lm-vl-t-b span{ font-size:21px; font-weight:700; }
+html.lm-fam-portal .lm-vl-sw{ display:block; width:20px; height:20px; border-radius:6px; }
+html.lm-fam-portal .lm-vl-fina{ position:relative; background:#fff; border-radius:50%; }
+html.lm-fam-portal .lm-vl-fina i{ position:absolute; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:#000; }
+html.lm-fam-portal .lm-vl-borra.armado, html.lm-fam-portal .lm-vl-borra.armado:hover{ background:#dc2626; }
+html.lm-fam-portal .lm-vl-x, html.lm-fam-portal .lm-vl-x:hover{ background:transparent; box-shadow:inset 0 0 0 1px rgba(255,255,255,.4); }
+html.lm-fam-portal .lm-vl-x:hover{ box-shadow:inset 0 0 0 1px #fff; }
+/* rueda de tonalidad horizontal */
+html.lm-fam-portal .lm-vl-rueda{
+  position:relative; flex:none; width:calc(var(--vl-celda) * 5); height:var(--vl-b); border-radius:10px; background:var(--lm-neutro);
+  overflow:hidden; touch-action:none; cursor:ew-resize; user-select:none; -webkit-user-select:none; outline:none;
+}
+html.lm-fam-portal .lm-vl-tira{ position:absolute; left:0; top:0; bottom:0; display:flex; transition:transform .16s cubic-bezier(.22,.61,.36,1); will-change:transform; }
+html.lm-fam-portal .lm-vl-it{ flex:none; width:var(--vl-celda); display:flex; align-items:center; justify-content:center; font:800 14px/1 var(--lm-fuente); color:rgba(255,255,255,.42); white-space:nowrap; }
+html.lm-fam-portal .lm-vl-it.sel{ color:#fff; font-size:16px; font-weight:900; }
+html.lm-fam-portal .lm-vl-marco{ position:absolute; top:4px; bottom:4px; left:50%; width:var(--vl-celda); margin-left:calc(var(--vl-celda) / -2); box-sizing:border-box; border-radius:8px; border:1.5px solid rgba(255,255,255,.3); pointer-events:none; }
+html.lm-fam-portal .lm-vl-rueda.con-nota .lm-vl-marco{ border-color:var(--lm-verde); background:rgba(34,197,94,.2); }
+html.lm-fam-portal .lm-vl-vela{ position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg, #243044 0, rgba(36,48,68,0) calc(50% - var(--vl-celda) / 2), rgba(36,48,68,0) calc(50% + var(--vl-celda) / 2), #243044 100%); }
+/* «¿Borrar todo? Toca otra vez» */
+html.lm-fam-portal .lm-vl-aviso{ display:none; position:absolute; top:calc(100% + 6px); left:0; transform:translateX(-50%); z-index:7; padding:7px 11px; border-radius:9px; background:#dc2626; color:#fff; font:700 13px/1.2 var(--lm-fuente); white-space:nowrap; box-shadow:0 6px 18px rgba(0,0,0,.35); pointer-events:none; }
+html.lm-fam-portal .lm-vl-bar.lm-vl-armado .lm-vl-aviso{ display:block; }
+/* debajo de la hilera: título, «Página n», las páginas y «Salir» */
+html.lm-fam-portal #ts-visor .lm-vl-host{ margin-top:12px !important; }
+html.lm-fam-portal #ts-visor .lm-vl-cab > div:first-child{ color:rgba(255,255,255,.8) !important; font-family:var(--lm-fuente) !important; }
+html.lm-fam-portal #ts-visor .lm-vl-cab span{ color:#4ade80 !important; font-family:var(--lm-fuente) !important; }
+html.lm-fam-portal #ts-visor .lm-vl-pag{ color:rgba(255,255,255,.58) !important; font-family:var(--lm-fuente) !important; }
+/* puntitos de página (solo en pantalla completa y con varias páginas) */
+html.lm-fam-portal .lm-vl-puntos{ display:none; position:fixed; right:4px; top:50%; transform:translateY(-50%); z-index:7; flex-direction:column; gap:2px; }
+html.lm-fam-portal #ts-visor.lm-vl-max .lm-vl-puntos.varias{ display:flex; }
+html.lm-fam-portal .lm-vl-punto{ width:26px; height:26px; padding:0; margin:0; border:0; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+html.lm-fam-portal .lm-vl-punto::before{ content:""; width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.38); box-shadow:0 0 0 1px rgba(0,0,0,.3); }
+html.lm-fam-portal .lm-vl-punto.on::before{ background:#fff; }
+/* pantalla completa: cada página entra entera debajo de la hilera; se pasa de página deslizando */
+html.lm-fam-portal #ts-visor.lm-vl.lm-vl-max{ padding:0 !important; scroll-snap-type:y mandatory; scroll-padding-top:calc(var(--vl-bar-h, 56px) + 8px); }
+html.lm-fam-portal #ts-visor.lm-vl-max .lm-vl-host{ width:auto !important; max-width:none !important; margin:0 !important; padding:0 8px 8px; box-sizing:border-box; }
+html.lm-fam-portal #ts-visor.lm-vl-max .lm-vl-cab, html.lm-fam-portal #ts-visor.lm-vl-max .lm-vl-pag, html.lm-fam-portal #ts-visor.lm-vl-max .lm-vl-salir{ display:none !important; }
+html.lm-fam-portal #ts-visor.lm-vl-max .anot-wrap{ margin:8px auto 0 !important; scroll-snap-align:start; }
+/* entre página y página, hueco de sobra: al pasar de página, la anterior queda entera por encima de la hilera (no asoma por debajo) */
+html.lm-fam-portal #ts-visor.lm-vl-max .anot-wrap ~ .anot-wrap{ margin-top:calc(var(--vl-bar-h, 56px) + 16px) !important; }
+/* tamaños: generosos en ordenador y tableta; en pantallas estrechas, un poco menos y la rueda enseña 3 notas */
+@media (min-width: 1200px){ html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:42px; --vl-celda:38px; } }
+@media (max-width: 900px){
+  html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:36px; --vl-celda:34px; --vl-gap:4px; }
+  html.lm-fam-portal .lm-vl-rueda{ width:calc(var(--vl-celda) * 3); }
+}
+@media (max-width: 720px){ html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:34px; --vl-celda:32px; --vl-gap:3px; } html.lm-fam-portal .lm-vl-sep{ margin:0 1px; } }
+/* móvil en vertical: dos hileras (arriba la tonalidad, pantalla completa y ✕; debajo las herramientas) */
+@media (max-width: 600px){
+  html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:36px; --vl-celda:34px; --vl-gap:5px; }
+  html.lm-fam-portal .lm-vl-bar{ flex-wrap:wrap; row-gap:6px; padding:8px 10px; }
+  html.lm-fam-portal .lm-vl-g1{ order:1; } html.lm-fam-portal .lm-vl-esp{ order:2; } html.lm-fam-portal .lm-vl-fin{ order:3; }
+  html.lm-fam-portal .lm-vl-sep.s1{ display:none; }
+  html.lm-fam-portal .lm-vl-her{ order:4; flex:1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce){ html.lm-fam-portal .lm-vl-tira{ transition:none; } }
