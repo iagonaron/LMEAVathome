@@ -6771,5 +6771,58 @@ document.addEventListener('click', function(ev){
 })();
 </script>
 <!-- (28-sep-2026, Iago) fin del PENTAGRAMA -->
+<style>
+/* ===== ESPIRAL · EL CARRUSEL ELEMENTAL DEL iPad EN ESTA PANTALLA (Iago 28-sep-2026) ======================
+   Solo cuenta tester. «En tester solo quiero icono de espiral arriba, como ocurre en Protester, pero con una app
+   totalmente diferente». El mismo cuadrado naranja con la espiral blanca que el «Carrusel PRO» de GP, en su mismo
+   sitio (a la izquierda de «Mis resultados»). Abre el Carrusel Elemental en MODO PANTALLA (?pantalla=1): el último
+   carrusel generado en el iPad, directamente, sin ventanas y sin dado. Siempre en la misma pestaña.
+   Para quitarlo: borrar estos estilos y el script de debajo (hasta «fin de la ESPIRAL»).
+   ====================================================================================================== */
+#ge-espiral{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:34px;height:34px;min-width:34px;
+  padding:0;margin:0;border:0;border-radius:10px;background:#ea580c;color:#fff;text-decoration:none;flex:0 0 auto;cursor:pointer;
+  transition:filter .15s}
+#ge-espiral:hover{filter:brightness(1.08)}
+#ge-espiral:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#ge-espiral svg{width:17px;height:17px;display:block;pointer-events:none}
+body.tester-sin-by .topbar-right #ge-espiral{order:-2}
+html.lm-fam-portal .topbar-right > #ge-espiral{order:-3 !important;width:var(--lm-ctl) !important;height:var(--lm-ctl) !important;
+  min-width:var(--lm-ctl) !important;background:var(--lm-naranja-f,#ea580c) !important}
+/* en pantallas estrechas (el iPad en vertical) no cabe sin pisar «Formato digital»; la espiral es para la pantalla de clase */
+@media (max-width: 900px){ #ge-espiral{display:none !important} }
+</style>
+<script>
+(function () {
+  'use strict';
+  var KEY = 'lmeav_session', TESTER = 'iago gonzalez tester';
+  var URL_PANTALLA = 'https://iagonaron.github.io/PredictCarrusel/?pantalla=1';
+  function norm(s) { return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
+  function ses() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
+  function esTester() { var s = ses(); return !!(s && s.estado === 'validado' && norm(s.nombre) === TESTER); }
+  var ESPIRAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                '<path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>';
+  function pintar() {
+    var host = document.querySelector('.topbar .topbar-right'); if (!host) return;
+    var a = document.getElementById('ge-espiral');
+    if (!esTester()) { if (a) a.remove(); return; }
+    if (a) return;
+    a = document.createElement('a'); a.id = 'ge-espiral';
+    a.href = URL_PANTALLA; a.target = 'lm-carrusel-pantalla';
+    a.title = 'Carrusel Elemental · el del iPad, en esta pantalla';
+    a.setAttribute('aria-label', 'Abrir en esta pantalla el Carrusel Elemental del iPad');
+    a.innerHTML = ESPIRAL;
+    /* cada vez, la página recién pedida (nunca una copia guardada de antes) y en la misma pestaña de siempre */
+    a.addEventListener('click', function () { a.href = URL_PANTALLA + '&t=' + Date.now(); });
+    host.insertBefore(a, host.firstChild);
+  }
+  function arrancar() { try { pintar(); } catch (e) { console.warn('[espiral]', e); } }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') arrancar(); });
+  var _ss = window.setSession;
+  if (typeof _ss === 'function') { window.setSession = function (s) { var r = _ss(s); setTimeout(arrancar, 300); return r; }; }
+  setInterval(arrancar, 3000);
+})();
+</script>
+<!-- (28-sep-2026, Iago) fin de la ESPIRAL -->
 </body>
 </html>
