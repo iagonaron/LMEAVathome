@@ -124,6 +124,9 @@
     c.appendChild(i); c.appendChild(t);
     c.classList.add('lm-carr');
     if (!c.getAttribute('title')) c.setAttribute('title', 'Carrusel PRO');   /* (28-sep) en pantallas medianas solo se ve el icono */
+    /* (28-sep-2026, noche) el Carrusel vive en iagonaron.github.io, donde no llega la marca de lmathome.es: se le pasa
+       «piel=1» en el enlace para que tu pantalla salga con la estética nueva (y la recuerde en ese navegador). */
+    try { if (c.href && !/[?&]piel=1\b/.test(c.href)) c.href = c.href + (c.href.indexOf('?') < 0 ? '?' : '&') + 'piel=1'; } catch (e) {}
   }
 
   /* ---------- 7: el pie, como en las apps (dos líneas centradas, abajo del todo) ---------- */
@@ -251,49 +254,119 @@
     /* (28-sep, Iago) el Sorteo NO va en la portada: su botón sigue en la hilera oculta */
   }
 
-  /* ---------- 10 (28-sep-2026, Iago): LIBROS · botón «Pantalla completa» ----------
-     Con un libro abierto, junto a «Lista» sale un botón de pantalla completa: la página ocupa toda la pantalla (se
-     vuelve a dibujar a ese tamaño) y arriba a la derecha solo quedan ‹ pág › y una ✕ para salir. Esc también sale. */
+  /* ---------- 10 (28-sep-2026, noche, Iago): LIBROS · «AMPLIAR» ----------
+     «Que hubiese el botón de ampliar a toda pantalla, como ocurre con el visor de las lecciones de ritmo, y que se
+     aumente hasta ocupar el ancho» (foto de Iago con Intervalia PRO). Junto a «Lista» sale un cuadrado con el icono
+     de ampliar. Al pulsarlo: fuera la barra de arriba y la lista, pantalla completa (si el aparato deja) y el
+     CONTENIDO de la página, sin sus márgenes blancos, al ancho de la pantalla; si queda más alto, se baja con el dedo.
+     Arriba a la derecha, pequeño: ‹ pág › y reducir. Deslizar de lado sigue pasando página. Esc o reducir vuelven a
+     como estaba. Solo aspecto: la página la sigue dibujando el visor de siempre (esto solo la encuadra). */
+  var LBX = { on: false, fs: false };
+  function lbOv() { return document.getElementById('lb-ov'); }
   function librosMax() {
-    var o = document.getElementById('lb-ov'); if (!o) return;
+    var o = lbOv(); if (!o) return;
     var top = o.querySelector('.lb-top'); if (!top) return;
     var b = document.getElementById('lm-lb-max');
     if (!b) {
-      b = document.createElement('button'); b.id = 'lm-lb-max'; b.type = 'button'; b.className = 'lb-b';
-      b.title = 'Pantalla completa'; b.setAttribute('aria-label', 'Pantalla completa'); b.innerHTML = ico('expandir');
-      b.addEventListener('click', function () { entrarMax(o); });
+      b = document.createElement('button'); b.id = 'lm-lb-max'; b.type = 'button'; b.className = 'lb-b lm-lb-ic';
+      b.title = 'Ampliar a toda la pantalla'; b.setAttribute('aria-label', b.title); b.innerHTML = ico('expandir');
+      b.addEventListener('click', function () { ampliarLibro(true); });
       var lista = document.getElementById('lb-lista'); top.insertBefore(b, lista || null);
-      var x = document.createElement('button'); x.id = 'lm-lb-salir'; x.type = 'button'; x.className = 'lb-b';
-      x.title = 'Salir de pantalla completa'; x.setAttribute('aria-label', 'Salir de pantalla completa'); x.innerHTML = ico('x');
-      x.addEventListener('click', function () { salirMax(o); });
-      top.appendChild(x);
-      var fuera = function () { if (!(document.fullscreenElement || document.webkitFullscreenElement) && o.classList.contains('lm-lb-max')) salirMax(o, true); };
-      document.addEventListener('fullscreenchange', fuera); document.addEventListener('webkitfullscreenchange', fuera);
-      /* si el visor se cierra (✕ de siempre, Esc), también se sale de pantalla completa */
-      new MutationObserver(function () { if (!o.classList.contains('open') && o.classList.contains('lm-lb-max')) salirMax(o); }).observe(o, { attributes: true, attributeFilter: ['class'] });
-      var body = document.getElementById('lb-body');
-      if (body) new MutationObserver(function () { librosMax(); }).observe(body, { childList: true });
+      var f = document.createElement('div'); f.id = 'lm-lb-flot'; f.setAttribute('role', 'toolbar'); f.setAttribute('aria-label', 'Página');
+      f.innerHTML = '<button type="button" class="lm-lb-f" data-a="prev" title="Página anterior" aria-label="Página anterior">‹</button>' +
+                    '<span class="lm-lb-p" id="lm-lb-pag"></span>' +
+                    '<button type="button" class="lm-lb-f" data-a="next" title="Página siguiente" aria-label="Página siguiente">›</button>' +
+                    '<button type="button" class="lm-lb-f" data-a="min" title="Reducir" aria-label="Reducir">' + ico('contraer') + '</button>';
+      f.addEventListener('click', function (e) {
+        var x = e.target.closest && e.target.closest('.lm-lb-f'); if (!x) return;
+        e.stopPropagation();
+        var a = x.getAttribute('data-a');
+        if (a === 'prev') pulsa(document.getElementById('lb-prev'));
+        else if (a === 'next') pulsa(document.getElementById('lb-next'));
+        else ampliarLibro(false);
+      });
+      o.appendChild(f);
+      /* la página se vuelve a dibujar (otra página, otro libro, otro tamaño): se encuadra otra vez */
+      new MutationObserver(function (ms) {
+        for (var k = 0; k < ms.length; k++) { var ad = ms[k].addedNodes; for (var q = 0; q < ad.length; q++) { if (ad[q].tagName === 'CANVAS') { encuadrarLibro(); return; } } }
+      }).observe(o, { childList: true, subtree: true });
+      var pg = document.getElementById('lb-pag');
+      if (pg) new MutationObserver(numeroLibro).observe(pg, { childList: true, characterData: true, subtree: true });
+      /* si el visor se cierra por otro lado, se reduce */
+      new MutationObserver(function () { if (!o.classList.contains('open') && LBX.on) ampliarLibro(false); }).observe(o, { attributes: true, attributeFilter: ['class'] });
+      document.addEventListener('fullscreenchange', finFSLibro); document.addEventListener('webkitfullscreenchange', finFSLibro);
+      /* Esc: primero reduce (el visor, con Esc, se cierra) */
+      window.addEventListener('keydown', function (e) {
+        if (!LBX.on || (e.key !== 'Escape' && e.key !== 'Esc')) return;
+        e.preventDefault(); e.stopImmediatePropagation(); ampliarLibro(false);
+      }, true);
     }
     var enVis = !!document.getElementById('lb-vis');
     b.style.display = enVis ? '' : 'none';
-    if (!enVis && o.classList.contains('lm-lb-max')) salirMax(o);
+    if (!enVis && LBX.on) ampliarLibro(false);
+    numeroLibro();
   }
-  function entrarMax(o) {
-    o.classList.add('lm-lb-max');
-    var rq = o.requestFullscreen || o.webkitRequestFullscreen;
-    if (rq) { try { var p = rq.call(o); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
-    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 80);
-    try { document.getElementById('lm-lb-salir').focus({ preventScroll: true }); } catch (e) {}
+  function numeroLibro() {
+    var a = document.getElementById('lb-pag'), b = document.getElementById('lm-lb-pag');
+    if (a && b && b.textContent !== a.textContent) b.textContent = a.textContent;
   }
-  function salirMax(o, yaFuera) {
-    o.classList.remove('lm-lb-max');
-    if (!yaFuera && (document.fullscreenElement || document.webkitFullscreenElement)) {
+  function finFSLibro() {
+    var enFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if (enFS) { LBX.fs = true; return; }
+    if (LBX.fs && LBX.on) { LBX.fs = false; ampliarLibro(false, true); }
+    LBX.fs = false;
+  }
+  function ampliarLibro(on, yaFuera) {
+    var o = lbOv(); if (!o || on === LBX.on) return;
+    LBX.on = on;
+    o.classList.toggle('lm-lb-max', on);
+    if (on) {
+      var rq = o.requestFullscreen || o.webkitRequestFullscreen;
+      if (rq) { try { var p = rq.call(o); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+    } else if (!yaFuera && (document.fullscreenElement || document.webkitFullscreenElement)) {
       try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {}
     }
-    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 80);
+    numeroLibro();
+    /* el visor vuelve a dibujar la página al tamaño nuevo (su «resize»); al llegar el lienzo, se encuadra */
+    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 60);
+    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 450);   /* tras la animación de pantalla completa */
   }
-  /* (28-sep-2026, tarde, Iago) los Libros ya se abren siempre a pantalla completa y con la lista en columna (portal): este
-     botón de pantalla completa sobra y no se pone; librosMax() se queda por si hubiera que volver a él. */
+  /* dónde hay tinta en la página (sin los márgenes blancos), en píxeles del lienzo */
+  function tintaLibro(c) {
+    try {
+      var sw = Math.min(600, c.width), s = sw / c.width, sh = Math.max(1, Math.round(c.height * s));
+      var t = document.createElement('canvas'); t.width = sw; t.height = sh;
+      var x = t.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, sw, sh); x.drawImage(c, 0, 0, sw, sh);
+      var d = x.getImageData(0, 0, sw, sh).data, x0 = sw, y0 = sh, x1 = -1, y1 = -1;
+      for (var y = 0; y < sh; y++) {
+        for (var i = 0; i < sw; i++) {
+          var p = (y * sw + i) * 4;
+          if (d[p] < 200 || d[p + 1] < 200 || d[p + 2] < 200) { if (i < x0) x0 = i; if (i > x1) x1 = i; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+        }
+      }
+      if (x1 < 0) return null;
+      var m = Math.round(sw * 0.015);
+      x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m); x1 = Math.min(sw - 1, x1 + m); y1 = Math.min(sh - 1, y1 + m);
+      return { x: x0 / s, y: y0 / s, w: (x1 - x0 + 1) / s, h: (y1 - y0 + 1) / s };
+    } catch (e) { return null; }
+  }
+  function encuadrarLibro() {
+    if (!LBX.on) return;
+    var vis = document.getElementById('lb-vis'); if (!vis) return;
+    var c = vis.querySelector('canvas'); if (!c || c._lmRec) return;
+    c._lmRec = true;
+    var cw = parseFloat(c.style.width) || c.clientWidth, ch = parseFloat(c.style.height) || c.clientHeight;
+    var bb = tintaLibro(c); if (!bb || !cw) return;
+    var k = cw / c.width, pad = 10;
+    var f = Math.min(3, (vis.clientWidth - 2 * pad) / (bb.w * k));
+    var alto = bb.h * k * f, H = vis.clientHeight;
+    var caja = document.createElement('div'); caja.className = 'lm-lb-rec';
+    caja.style.height = Math.ceil(alto + 2 * pad) + 'px';
+    if (alto + 2 * pad < H) caja.style.marginTop = Math.floor((H - alto - 2 * pad) / 2) + 'px';   /* si cabe, centrada */
+    c.style.width = (cw * f) + 'px'; c.style.height = (ch * f) + 'px';
+    c.style.left = (pad - bb.x * k * f) + 'px'; c.style.top = (pad - bb.y * k * f) + 'px';
+    vis.insertBefore(caja, c); caja.appendChild(c);
+  }
 
   /* ---------- 11 (28-sep-2026, Iago): SOLO Tester/Protester · pantalla completa y cambio de grado en la portada ----------
      «Esto nunca lo voy a querer desplegar a los alumnos»: se comprueba la cuenta (nombre de la sesión de este portal).
@@ -675,6 +748,7 @@
     requestAnimationFrame(function () { rueda.pos(); ov.style.setProperty('--vl-bar-h', nb.offsetHeight + 'px'); });
   }
   try { new MutationObserver(function () { visorLecciones(); }).observe(document.body, { childList: true }); } catch (e) {}
+  try { new MutationObserver(function () { librosMax(); }).observe(document.body, { childList: true }); } catch (e) {}   /* (28-sep) el visor de Libros se crea al abrirlo */
 
   function todo() {
     try { tarjetas(); } catch (e) {} try { misResultados(); } catch (e) {} try { hileraTester(); } catch (e) {}
@@ -683,6 +757,7 @@
     try { hileraIconos(); } catch (e) {}
     try { cuadroPantalla(); } catch (e) {}
     try { visorLecciones(); } catch (e) {}
+    try { librosMax(); } catch (e) {}
   }
   todo();
   var n = 0, t = setInterval(function () { todo(); if (++n > 240) clearInterval(t); }, 500);

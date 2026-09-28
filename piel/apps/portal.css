@@ -651,3 +651,20 @@ html.lm-fam-portal #ts-visor.lm-vl-max .anot-wrap ~ .anot-wrap{ margin-top:calc(
   html.lm-fam-portal .lm-vl-her{ order:4; flex:1 1 100%; }
 }
 @media (prefers-reduced-motion: reduce){ html.lm-fam-portal .lm-vl-tira{ transition:none; } }
+
+/* ---------- (28-sep-2026, noche, Iago) LIBROS · «Ampliar»: el contenido de la página al ancho de la pantalla ---------- */
+html.lm-fam-portal #lb-ov .lb-b.lm-lb-ic{ width:40px; padding:0 !important; display:inline-flex; align-items:center; justify-content:center; }
+html.lm-fam-portal #lb-ov .lb-b.lm-lb-ic svg{ width:20px; height:20px; }
+html.lm-fam-portal #lb-ov #lm-lb-flot{ display:none; }
+html.lm-fam-portal #lb-ov.lm-lb-max .lb-top,
+html.lm-fam-portal #lb-ov.lm-lb-max .lb-col{ display:none !important; }
+html.lm-fam-portal #lb-ov.lm-lb-max .lb-vis{ padding:0 !important; background:#fff !important; }
+html.lm-fam-portal #lb-ov.lm-lb-max #lm-lb-flot{ display:flex; align-items:center; gap:6px; position:fixed; top:10px; right:10px; z-index:10;
+  padding:6px; border-radius:14px; background:rgba(11,19,32,.62); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+html.lm-fam-portal #lb-ov #lm-lb-flot .lm-lb-f{ width:40px; height:40px; padding:0; border:0; border-radius:10px; background:rgba(255,255,255,.14);
+  color:#fff; font:700 22px/1 system-ui,-apple-system,"Helvetica Neue",sans-serif; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+html.lm-fam-portal #lb-ov #lm-lb-flot .lm-lb-f:hover{ background:rgba(255,255,255,.26); }
+html.lm-fam-portal #lb-ov #lm-lb-flot .lm-lb-f svg{ width:20px; height:20px; }
+html.lm-fam-portal #lb-ov #lm-lb-flot .lm-lb-p{ min-width:58px; text-align:center; color:#fff; font:700 13px/1 system-ui,-apple-system,"Helvetica Neue",sans-serif; font-variant-numeric:tabular-nums; }
+html.lm-fam-portal #lb-ov .lm-lb-rec{ position:relative; overflow:hidden; width:100%; }
+html.lm-fam-portal #lb-ov .lm-lb-rec canvas{ position:absolute; margin:0 !important; box-shadow:none !important; max-width:none !important; max-height:none !important; }

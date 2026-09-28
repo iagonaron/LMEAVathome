@@ -747,6 +747,15 @@ html.lm-fam-teoria .a-palette > .fig-btn{ flex:1 1 0 !important; min-width:0 !im
 html.lm-fam-teoria .a-palette > .a-tool{ flex:0 0 calc((100% - 54px) / 7) !important; height:44px !important; padding:0 8px !important; justify-content:center; }
 html.lm-fam-teoria .a-palette > .a-sep{ flex:1 1 auto !important; width:auto !important; height:0 !important; margin:0 !important; background:none !important; }
 html.lm-fam-teoria .a-palette > .a-sep:nth-child(8){ flex:0 0 100% !important; }   /* tras las 7 figuras: salto de fila */
+/* (28-sep-2026) en el MÓVIL las 7 figuras en una fila no caben: se montaban unas encima de otras y al
+   pulsar «corchea» salía «semicorchea». En pantallas estrechas, tres por fila y con su ancho entero. */
+@media (max-width: 700px){
+  html.lm-fam-teoria .a-palette{ gap:8px !important; }
+  html.lm-fam-teoria .a-palette > .fig-btn{ flex:0 0 calc((100% - 16px) / 3) !important; min-width:0 !important; max-width:calc((100% - 16px) / 3) !important; padding:0 4px !important; gap:4px !important; font-size:12.5px !important; overflow:hidden; }
+  html.lm-fam-teoria .a-palette > .fig-btn > span:last-child{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  html.lm-fam-teoria .a-palette > .a-sep:not(:nth-child(8)){ display:none !important; }   /* las herramientas, las cuatro en una fila */
+  html.lm-fam-teoria .a-palette > .a-tool{ flex:1 1 calc((100% - 24px) / 4) !important; min-width:0 !important; padding:0 4px !important; }
+}
 
 /* ---------- 12.3 DADO: SOLO el dado, en un cuadrado 40×40 rosa liso; siempre el último de su fila ---------- */
 html.lm-fam-teoria .lm-dado, html.lm-fam-teoria .iconbtn.lm-dado, html.lm-fam-teoria .btn.lm-dado, html.lm-fam-teoria .ex-modal-otro.lm-dado{

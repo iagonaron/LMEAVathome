@@ -1,24 +1,24 @@
 /* =====================================================================
    LM at home · PIEL · CARRUSEL (PreDict Carrusel GE y PreDict PRO Carrusel GP)
-   (26-sep-2026, Iago) SE DEJAN COMO ESTÁN, a propósito:
-   · PreDict Carrusel (GE) es el tablero que se PROYECTA en clase («trabajo
-     auditivo de clase»), con su logo, su degradado de colores y un color por
-     módulo; no lo enlaza el portal de alumnos.
-   · PreDict PRO Carrusel (GP) es el juego EN DIRECTO con sala, QR, móviles de
-     los alumnos, cuenta atrás, podio y confeti; su identidad es el propio
-     espectáculo (y el portal GP ya lo presenta con su distintivo dorado).
-   La piel del Diario (foto + cristal) no pinta nada ahí y taparía la proyección
-   con el rótulo de grado. Lo más limpio es NO poner las dos líneas de la piel en
-   estas dos apps; si se ponen, este fichero anula TODO lo que hace el núcleo
-   (fondo, velo, rótulo e iconos) y devuelve a cada app su fondo original.
+   · GE (PreDict Carrusel, el tablero que se proyecta en clase): SE QUEDA COMO ESTÁ (26-sep-2026). Este fichero
+     anula todo lo del núcleo (fondo, velo, rótulo e iconos) y le devuelve su fondo original.
+   · GP (PreDict PRO Carrusel, el juego en directo con QR y móviles): (28-sep-2026, Iago) ESTÉTICA NUEVA.
+     «Funcionamiento igual, las cosas en el mismo sitio; el cambio de fondo y de estética». Tanto la pantalla del
+     profe como los móviles: fondo del conservatorio, cristal oscuro, texto blanco, botones lisos, y el NARANJA de
+     PreDict (el del botón «Carrusel PRO» del portal) donde antes estaba el dorado. El papel de las partituras y
+     de las tarjetas de ritmo pasa de crema a blanco. Las medallas 🥇🥈🥉 se quedan con su color.
+     Solo aspecto: ni un dato ni una regla del juego cambian.
    ===================================================================== */
-html.lm-fam-carrusel::before, html.lm-fam-carrusel::after{ display:none !important; content:none !important; }
-html.lm-fam-carrusel #lm-grado{ display:none !important; }
-/* los emojis vuelven a verse tal cual (el núcleo los habría cambiado por iconos de trazo) */
-html.lm-fam-carrusel .pl-emo{ display:inline !important; }
-html.lm-fam-carrusel svg.pl-i{ display:none !important; }
 
-/* fondos originales de cada app (copiados tal cual de su propio CSS) */
+/* ---------- los dos: sin el rótulo de grado (taparía el juego) ---------- */
+html.lm-fam-carrusel #lm-grado{ display:none !important; }
+
+/* =====================================================================
+   GE · como estaba (26-sep-2026)
+   ===================================================================== */
+html.lm-app-carrusel-ge::before, html.lm-app-carrusel-ge::after{ display:none !important; content:none !important; }
+html.lm-app-carrusel-ge .pl-emo{ display:inline !important; }
+html.lm-app-carrusel-ge svg.pl-i{ display:none !important; }
 @media screen{
   html.lm-fam-carrusel.lm-app-carrusel-ge{ background:#0c0926 !important; }
   html.lm-fam-carrusel.lm-app-carrusel-ge body{
@@ -33,11 +33,207 @@ html.lm-fam-carrusel svg.pl-i{ display:none !important; }
       linear-gradient(160deg, #1d1545 0%, #140f34 36%, #0c0926 70%, #070512 100%) !important;
     background-attachment:fixed !important;
   }
-  html.lm-fam-carrusel.lm-app-carrusel-gp{ background:#0a0702 !important; }
-  html.lm-fam-carrusel.lm-app-carrusel-gp body{
-    background:
-      radial-gradient(1100px 520px at 50% -6%, #4d3a0b 0%, transparent 60%),
-      linear-gradient(180deg,#4d3a0b 0%,#2e2308 32%,#160f04 70%,#0a0702 100%) !important;
-    background-attachment:fixed !important;
-  }
+}
+
+/* =====================================================================
+   GP · PreDict PRO Carrusel · ESTÉTICA NUEVA (28-sep-2026)
+   ===================================================================== */
+/* ---------- la paleta del juego pasa a la de la piel: el dorado → naranja de PreDict ---------- */
+html.lm-app-carrusel-gp{
+  --bg:#0b1320; --panel:rgba(11,19,32,.74); --panel2:#243044; --line:rgba(255,255,255,.14);
+  --ink:#ffffff; --muted:rgba(255,255,255,.76); --muted2:rgba(255,255,255,.55);
+  --gold:#fb923c; --gold2:#ea580c; --gold-soft:#fdba74;
+  --paper:#ffffff; --paper-ink:#0b1320;
+  --ok:#22c55e; --ok-soft:rgba(34,197,94,.18); --bad:#ef4444; --bad-soft:rgba(239,68,68,.16);
+  --shadow:0 12px 34px rgba(0,0,0,.35);
+  --cc-naranja:#ea580c; --cc-naranja-h:#f97316; --cc-neutro:#243044; --cc-neutro-h:#2d3b52; --cc-cristal:rgba(11,19,32,.74);
+  background:#0b1320 !important;
+}
+html.lm-app-carrusel-gp body{ font-family:var(--lm-fuente) !important; }
+/* los brillos que cruzaban los botones dorados, fuera (botones lisos) */
+html.lm-app-carrusel-gp .btn-gold::after, html.lm-app-carrusel-gp .btn-listen::after, html.lm-app-carrusel-gp .btn-send::after{ content:none !important; display:none !important; }
+
+/* ---------- botones ---------- */
+html.lm-app-carrusel-gp button{ border-color:transparent; }
+html.lm-app-carrusel-gp .btn-gold, html.lm-app-carrusel-gp .btn-listen, html.lm-app-carrusel-gp .btn-send,
+html.lm-app-carrusel-gp .cell-send, html.lm-app-carrusel-gp .mel-send, html.lm-app-carrusel-gp .palette-grid .cell-send,
+html.lm-app-carrusel-gp .tc-foot .mel-send, html.lm-app-carrusel-gp .pause-act.resume{
+  background:var(--cc-naranja) !important; color:#fff !important; border:0 !important; box-shadow:none !important; filter:none !important;
+}
+html.lm-app-carrusel-gp .btn-gold:hover:not(:disabled), html.lm-app-carrusel-gp .btn-listen:hover:not(:disabled),
+html.lm-app-carrusel-gp .cell-send:hover:not(:disabled), html.lm-app-carrusel-gp .pause-act.resume:hover{ background:var(--cc-naranja-h) !important; }
+html.lm-app-carrusel-gp .btn-gold:disabled, html.lm-app-carrusel-gp .cell-send:disabled, html.lm-app-carrusel-gp .mel-send:disabled{
+  background:var(--cc-neutro) !important; color:rgba(255,255,255,.5) !important; opacity:1;
+}
+html.lm-app-carrusel-gp .cell-send.remind, html.lm-app-carrusel-gp .mel-send.remind{ animation-name:ccEnviar; }
+@keyframes ccEnviar{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.55)}50%{box-shadow:0 0 0 7px rgba(249,115,22,.28)}}
+/* «Configurar»: poco importante → solo contorno */
+html.lm-app-carrusel-gp .btn-cfg{ color:#fff; background:transparent; border:1px solid rgba(255,255,255,.4); }
+html.lm-app-carrusel-gp .btn-cfg:hover{ background:rgba(255,255,255,.06); border-color:#fff; }
+html.lm-app-carrusel-gp .land-code button{ background:var(--cc-neutro); border:0; }
+html.lm-app-carrusel-gp .land-host{ color:rgba(255,255,255,.7); }
+html.lm-app-carrusel-gp input[type=text]{ background:var(--cc-cristal); border:1px solid rgba(255,255,255,.22); color:#fff; }
+html.lm-app-carrusel-gp input[type=text]:focus{ border-color:var(--gold); }
+html.lm-app-carrusel-gp input[type=text]::placeholder{ color:rgba(255,255,255,.4); }
+
+/* ---------- cristal: tarjetas y paneles ---------- */
+html.lm-app-carrusel-gp .qcard, html.lm-app-carrusel-gp .staffwrap, html.lm-app-carrusel-gp .rank, html.lm-app-carrusel-gp .tc-card,
+html.lm-app-carrusel-gp .exrow, html.lm-app-carrusel-gp .cfg-box, html.lm-app-carrusel-gp .exit-box, html.lm-app-carrusel-gp .pod-row,
+html.lm-app-carrusel-gp .tcrev .tcr-card, html.lm-app-carrusel-gp .a2col, html.lm-app-carrusel-gp .tc-ans{
+  background:var(--cc-cristal) !important; border:1px solid var(--line) !important; box-shadow:none;
+}
+html.lm-app-carrusel-gp .qcard{ animation:none; }
+/* ventanas encima de todo (Configurar, ¿Salir?): casi opacas, que no se lea lo de debajo */
+html.lm-app-carrusel-gp .cfg-box, html.lm-app-carrusel-gp .exit-box{ background:rgba(11,19,32,.96) !important; }
+html.lm-app-carrusel-gp .qbox{ background:#fff; }
+/* el QR sale crema y marrón (lo pinta el juego): en blanco y negro, igual de legible */
+html.lm-app-carrusel-gp .qbox img, html.lm-app-carrusel-gp .qbox canvas{ filter:saturate(0) brightness(1.07) contrast(1.08); }
+html.lm-app-carrusel-gp .chip{ background:var(--cc-neutro); border:0; }
+html.lm-app-carrusel-gp .seg{ border-color:var(--line); }
+html.lm-app-carrusel-gp .seg button.on{ background:var(--cc-naranja); color:#fff; }
+html.lm-app-carrusel-gp .stepper{ border-color:var(--line); background:rgba(255,255,255,.03); }
+html.lm-app-carrusel-gp .stepper .st{ background:transparent; color:var(--gold); }
+html.lm-app-carrusel-gp .stepper .st:active{ background:rgba(255,255,255,.12); }
+html.lm-app-carrusel-gp .arm-pill input:checked + span{ color:#fff; border-color:transparent; background:var(--cc-naranja); box-shadow:none; }
+html.lm-app-carrusel-gp .dice-row input{ accent-color:var(--cc-naranja); }
+html.lm-app-carrusel-gp .cfg-overlay, html.lm-app-carrusel-gp .exit-confirm{ background:rgba(5,10,20,.82); }
+html.lm-app-carrusel-gp .exit-btns button{ background:var(--cc-neutro); border:0; }
+
+/* ---------- la marca: PreDict · PRO · Carrusel ---------- */
+html.lm-app-carrusel-gp .wm .pro{ color:#fff; background:var(--cc-naranja); border:0; box-shadow:none; }
+html.lm-app-carrusel-gp .wm .carr{ color:rgba(255,255,255,.82); }
+/* la espiral: de oro a naranja */
+html.lm-app-carrusel-gp #heroSp stop:nth-child(1), html.lm-app-carrusel-gp #heroSp2 stop:nth-child(1){ stop-color:#fed7aa; }
+html.lm-app-carrusel-gp #heroSp stop:nth-child(2), html.lm-app-carrusel-gp #heroSp2 stop:nth-child(2){ stop-color:#f97316; }
+html.lm-app-carrusel-gp #heroSp stop:nth-child(3), html.lm-app-carrusel-gp #heroSp2 stop:nth-child(3){ stop-color:#c2410c; }
+html.lm-app-carrusel-gp .hero-spiral circle, html.lm-app-carrusel-gp .ex-intro-spiral circle{ fill:#fed7aa; }
+html.lm-app-carrusel-gp .hero-spiral{ filter:none; }
+
+/* ---------- el papel: partituras y tarjetas de ritmo, en blanco ---------- */
+html.lm-app-carrusel-gp .staffbox{ background:#fff; box-shadow:none; }
+html.lm-app-carrusel-gp .cell-card, html.lm-app-carrusel-gp .drag-ghost{ background:#fff; border-color:rgba(11,19,32,.1); }
+html.lm-app-carrusel-gp .palette-grid .cell-card{ box-shadow:none; }
+html.lm-app-carrusel-gp .palette-grid .cell-card.over, html.lm-app-carrusel-gp .drag-ghost{ outline-color:var(--gold2); border-color:var(--gold2); }
+html.lm-app-carrusel-gp .palette-cards::-webkit-scrollbar-thumb{ background:rgba(249,115,22,.45); }
+html.lm-app-carrusel-gp .cad-score, html.lm-app-carrusel-gp .arm2-host, html.lm-app-carrusel-gp .arm2-rev, html.lm-app-carrusel-gp .arm2-top{ background:#fff; }
+/* sobre el papel: números y flechas de las casillas, en gris; la casilla activa, en naranja */
+html.lm-app-carrusel-gp .hit .pn{ color:rgba(71,85,105,.55); }
+html.lm-app-carrusel-gp .hit .pn.lit, html.lm-app-carrusel-gp .hit.current .pn{ color:var(--gold2); }
+html.lm-app-carrusel-gp .hit .parrow{ color:rgba(100,116,139,.45); }
+html.lm-app-carrusel-gp .hit.current .parrow{ color:var(--gold2); }
+html.lm-app-carrusel-gp .hit.over{ background:rgba(249,115,22,.16); box-shadow:inset 0 0 0 2px var(--gold-soft); }
+html.lm-app-carrusel-gp .hit.flash{ animation-name:ccCasilla; }
+@keyframes ccCasilla{0%{background:rgba(249,115,22,.45)}100%{background:transparent}}
+html.lm-app-carrusel-gp .hit .clr{ background:#dc2626; }
+html.lm-app-carrusel-gp .slot.current{ animation-name:ccActual; }
+@keyframes ccActual{0%,100%{outline-color:#fb923c;box-shadow:0 0 0 4px rgba(249,115,22,.16)}50%{box-shadow:0 0 0 9px rgba(249,115,22,.3)}}
+/* notas que el juego pinta en dorado (melódico: la nota elegida y la dada) → naranja */
+html.lm-app-carrusel-gp .staffbox [fill="#d4af37"], html.lm-app-carrusel-gp .staffbox [fill="#b8860b"]{ fill:#ea580c !important; }
+html.lm-app-carrusel-gp .staffbox [stroke="#d4af37"], html.lm-app-carrusel-gp .staffbox [stroke="#b8860b"]{ stroke:#ea580c !important; }
+/* textos sobre el papel */
+html.lm-app-carrusel-gp .tc-hostcard{ color:#0b1320; }
+html.lm-app-carrusel-gp .tc-hostcard b, html.lm-app-carrusel-gp .tc-hoststep{ color:#ea580c; }
+html.lm-app-carrusel-gp .tc-hoststep b{ color:#0b1320; }
+html.lm-app-carrusel-gp .tc-hostcard span, html.lm-app-carrusel-gp .tc-hostsub{ color:#64748b; }
+html.lm-app-carrusel-gp .cad-msg, html.lm-app-carrusel-gp .arm2-cap{ color:#0b1320; }
+html.lm-app-carrusel-gp .cad-msg span, html.lm-app-carrusel-gp .arm2-revcap{ color:#64748b; }
+html.lm-app-carrusel-gp #s-host-reveal.cad .cad-rn{ color:#0b1320; border-top-color:rgba(11,19,32,.14); }
+
+/* ---------- pantalla del profe: escuchando, contador, ranking y podio ---------- */
+html.lm-app-carrusel-gp .staffwrap.listening{ animation-name:ccEscucha; }
+@keyframes ccEscucha{from{box-shadow:none}to{box-shadow:0 0 46px rgba(249,115,22,.32)}}
+html.lm-app-carrusel-gp .staffwrap.listening .tsig{ animation-name:ccCompas; }
+@keyframes ccCompas{from{transform:scale(1)}to{transform:scale(1.12)}}
+html.lm-app-carrusel-gp .eq i{ background:var(--gold); }
+html.lm-app-carrusel-gp .autocorr{ color:#fdba74; background:transparent; border-color:var(--gold2); }
+html.lm-app-carrusel-gp .rrow{ background:rgba(255,255,255,.04); }
+html.lm-app-carrusel-gp .rrow.p1{ background:rgba(255,255,255,.1); }   /* sin tintes naranjas sobre oscuro: salen marrones */
+html.lm-app-carrusel-gp .rrow.p1.in{ animation-name:ccGanador; }
+@keyframes ccGanador{0%,100%{box-shadow:0 0 0 rgba(249,115,22,0)}50%{box-shadow:0 0 22px rgba(249,115,22,.38)}}
+html.lm-app-carrusel-gp .pod-block{ background:#eab308; box-shadow:none; }
+html.lm-app-carrusel-gp .pod2 .pod-block{ background:#94a3b8; }
+html.lm-app-carrusel-gp .pod3 .pod-block{ background:#b45309; }
+html.lm-app-carrusel-gp .pod-block.empty{ background:transparent; }
+/* medallas: con su color de siempre (el núcleo cambiaría 🥇 por un icono de trazo y 🥈 🥉 no) */
+html.lm-app-carrusel-gp .pos-medal svg.pl-i, html.lm-app-carrusel-gp .pod-medal svg.pl-i, html.lm-app-carrusel-gp #pRank svg.pl-i, html.lm-app-carrusel-gp #pMini svg.pl-i{ display:none !important; }
+html.lm-app-carrusel-gp .pos-medal .pl-emo, html.lm-app-carrusel-gp .pod-medal .pl-emo, html.lm-app-carrusel-gp #pRank .pl-emo, html.lm-app-carrusel-gp #pMini .pl-emo{ display:inline !important; }
+html.lm-app-carrusel-gp .podium-title svg.pl-i, html.lm-app-carrusel-gp .rank h3 svg.pl-i{ color:var(--gold); }
+
+/* ---------- presentaciones, cuenta atrás, «CORRECCIÓN», pausa ---------- */
+html.lm-app-carrusel-gp .ex-intro{ background:radial-gradient(circle at 50% 42%, rgba(24,40,68,.99), rgba(5,9,18,1)); }
+html.lm-app-carrusel-gp .ex-intro-center{ background:radial-gradient(ellipse 72% 62% at 50% 50%, rgba(5,9,18,.62), transparent 74%); }
+html.lm-app-carrusel-gp .ex-intro-spiral svg{ filter:none; }
+html.lm-app-carrusel-gp .countdown{ background:radial-gradient(circle at 50% 44%, rgba(24,40,68,.55), rgba(5,9,18,.9)); }
+html.lm-app-carrusel-gp .countdown .n{ color:#fff; }
+html.lm-app-carrusel-gp .countdown .n.go{ color:var(--gold); }
+html.lm-app-carrusel-gp .big-remind-txt{ background:var(--cc-naranja); color:#fff; box-shadow:0 22px 70px rgba(0,0,0,.55); }
+html.lm-app-carrusel-gp .char-glow{ background:radial-gradient(circle at 50% 42%, rgba(255,255,255,.09), transparent 62%); }
+html.lm-app-carrusel-gp .pause-btn{ background:var(--cc-neutro); color:#fff; border:0; box-shadow:none; }
+html.lm-app-carrusel-gp .pause-ov{ background:rgba(5,10,20,.84); }
+html.lm-app-carrusel-gp .pause-card{ color:#fff; }
+html.lm-app-carrusel-gp .pause-act.end{ color:rgba(255,255,255,.82); border-color:rgba(255,255,255,.35); background:transparent; }
+html.lm-app-carrusel-gp .rejoin-note{ background:var(--cc-naranja); color:#fff; }
+/* pantalla completa (el ⛶ del juego pasa a icono) y su aviso */
+html.lm-app-carrusel-gp .fs-btn{ background:var(--cc-naranja); color:#fff; border:0; font-size:0 !important; box-shadow:none; animation-name:ccPantalla; }
+html.lm-app-carrusel-gp .fs-btn.pressed{ animation:none; }
+@keyframes ccPantalla{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.7)}50%{box-shadow:0 0 0 9px rgba(249,115,22,0)}}
+html.lm-app-carrusel-gp .fs-btn::before{
+  content:""; width:18px; height:18px; background:currentColor;
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5'/></svg>") center / contain no-repeat;
+          mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5'/></svg>") center / contain no-repeat;
+}
+html.lm-app-carrusel-gp:fullscreen .fs-btn::before{
+  -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5'/></svg>");
+          mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5'/></svg>");
+}
+html.lm-app-carrusel-gp:-webkit-full-screen .fs-btn::before{
+  -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5'/></svg>");
+}
+html.lm-app-carrusel-gp .fs-toast{ background:var(--cc-cristal); border-color:var(--gold2); }
+html.lm-app-carrusel-gp .fs-arrow-hint .fsa-ar{ color:var(--gold); }
+html.lm-app-carrusel-gp .fs-arrow-hint .fsa-lb{ background:var(--cc-naranja); color:#fff; }
+
+/* ---------- móviles de los alumnos ---------- */
+html.lm-app-carrusel-gp .exit-btn{ background:var(--cc-cristal); border:1px solid rgba(255,255,255,.3); color:#fff; }
+html.lm-app-carrusel-gp .exit-btn:hover{ background:var(--cc-neutro); color:#fff; }
+html.lm-app-carrusel-gp .rotate-hint{ background:rgba(8,14,26,.97) !important; }
+/* TonCom: ruedas, ♭ ♯ M m y compás */
+html.lm-app-carrusel-gp .tc-acc, html.lm-app-carrusel-gp .tc-mm, html.lm-app-carrusel-gp .tc-compas button{ background:var(--cc-neutro); color:#fff; border:0; }
+html.lm-app-carrusel-gp .tc-acc.on, html.lm-app-carrusel-gp .tc-mm.on, html.lm-app-carrusel-gp .tc-compas button.on{ background:var(--cc-naranja); color:#fff; box-shadow:none; }
+html.lm-app-carrusel-gp .wheel-center{ background:rgba(255,255,255,.07); border-color:var(--gold); }
+html.lm-app-carrusel-gp .tc-spin-cur{ border-color:var(--gold-soft); background:rgba(255,255,255,.05); }
+html.lm-app-carrusel-gp .tc-spin-prev:active, html.lm-app-carrusel-gp .tc-spin-next:active{ background:rgba(255,255,255,.12); }
+/* Cadencias, Modos y Armónico: las opciones, lisas; la elegida, en naranja */
+html.lm-app-carrusel-gp .cad-opt, html.lm-app-carrusel-gp .mode-opt, html.lm-app-carrusel-gp .arm-opt{ background:var(--cc-neutro) !important; border:0 !important; }
+html.lm-app-carrusel-gp .cad-opt.on, html.lm-app-carrusel-gp .mode-opt.on, html.lm-app-carrusel-gp .arm-opt.on,
+html.lm-app-carrusel-gp .a2accs button.on, html.lm-app-carrusel-gp .a2inv button.on{ background:var(--cc-naranja) !important; color:#fff !important; box-shadow:none !important; border-color:transparent !important; }
+html.lm-app-carrusel-gp .cad-opt.on .cad-opt-rn, html.lm-app-carrusel-gp .mode-opt.on .mode-opt-recipe, html.lm-app-carrusel-gp .arm-opt.on .arm-opt-sym{ color:rgba(255,255,255,.9); }
+html.lm-app-carrusel-gp .a2accs button, html.lm-app-carrusel-gp .a2inv button{ background:var(--cc-neutro); border:0; }
+/* melódico: teclado de piano en blanco y negro de verdad; la tecla pulsada, en naranja */
+html.lm-app-carrusel-gp .piano, html.lm-app-carrusel-gp .piano-keys{ background:#0b1320; }
+html.lm-app-carrusel-gp .pk.white{ background:#fff; }
+html.lm-app-carrusel-gp .pk.white:active, html.lm-app-carrusel-gp .pk.white.hit{ background:#fed7aa; }
+html.lm-app-carrusel-gp .pk.white .pk-lbl{ color:#64748b; }
+html.lm-app-carrusel-gp .pk.black{ background:#111827; }
+html.lm-app-carrusel-gp .pk.black:active, html.lm-app-carrusel-gp .pk.black.hit{ background:#c2410c; }
+html.lm-app-carrusel-gp .mel-del{ background:var(--cc-neutro); border:0; color:#fff; }
+/* escáner del QR */
+html.lm-app-carrusel-gp .scan-frame{ border-color:var(--gold); }
+
+/* =====================================================================
+   (28-sep-2026, noche, Iago) dos detalles vistos al repasar las fotos
+   1) La presentación de cada ejercicio: el nombre («Rítmico», «Cadencias»…) se salía del círculo. Ahora cabe dentro.
+   2) Móvil tumbado, «Tu resultado»: si no cabía, se cortaba arriba («Tu resultado») y abajo (la clasificación).
+      Ahora se centra si cabe y, si no, empieza arriba y se baja con el dedo; en pantallas bajas, todo algo más compacto.
+   ===================================================================== */
+html.lm-app-carrusel-gp .ex-intro-center .intro-name{ font-size:clamp(22px, 6vh, 52px) !important; }
+html.lm-app-carrusel-gp .ex-intro-center .intro-sub{ font-size:clamp(11px, 1.9vh, 15px) !important; }
+html.lm-app-carrusel-gp #s-player-reveal.on{ justify-content:flex-start !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch; }
+html.lm-app-carrusel-gp #s-player-reveal > :first-child{ margin-top:auto !important; }
+html.lm-app-carrusel-gp #s-player-reveal > :last-child{ margin-bottom:auto !important; }
+@media (max-height: 500px){
+  html.lm-app-carrusel-gp #s-player-reveal{ gap:8px !important; padding:12px 26px !important; }
+  html.lm-app-carrusel-gp #s-player-reveal #pMelWrap{ height:clamp(118px, 40vh, 170px) !important; }
+  html.lm-app-carrusel-gp #s-player-reveal .pscore{ font-size:40px !important; line-height:1.05 !important; }
+  html.lm-app-carrusel-gp #s-player-reveal .prank{ font-size:17px !important; }
 }
