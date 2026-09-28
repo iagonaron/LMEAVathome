@@ -5,6 +5,18 @@
    destacar e iconos planos como los del Diario.
    SOLO aspecto: este fichero no toca ningún dato ni ninguna lógica de las apps.
 
+   28-sep-2026 (noche) · PARA TODOS LOS ALUMNOS (Iago: «estoy preparado para que hagamos ya la aportación
+   de la estética a todo el portal… a los alumnos o a los que accedan como invitados»).
+   - El portal carga este fichero SIEMPRE y la piel se enciende para cualquier cuenta (y en la entrada).
+   - El portal deja puesta la marca lm_piel=1 en *.lmathome.es: así las apps que se abren desde él
+     también salen con la piel. Las funciones de Tester/Protester siguen siendo solo suyas: eso lo
+     decide el propio portal, no la piel (la piel solo cambia el aspecto).
+   - ?piel=0 en la dirección la apaga EN ESE NAVEGADOR (queda apuntado: lm_piel_no=1); ?piel=1 la vuelve a encender.
+   - El Ojeador del Diario (#visor=<alumno>) sale CON piel, como lo ve ya el alumno, sin tocar marcas.
+   - Lo que se abre desde el Diario (proyectar en clase, generar fichas…) sigue como siempre en esa pestaña.
+   PARA VOLVER A «SOLO TESTER/PROTESTER»: subir otra vez la versión anterior de este fichero
+   (lm-piel.js del commit 09642bf de LMEAVathome); en 10 minutos todo el mundo vuelve a lo de siempre.
+   ---- lo que decía antes (27-sep-2026, solo para Iago Tester e Iago Protester): ----
    27-sep-2026 · DE MOMENTO SOLO PARA IAGO TESTER E IAGO PROTESTER
    - Cada app lleva en su <head> UNA línea («LM piel») que solo carga este
      fichero si el navegador tiene la marca lm_piel=1 (cookie de *.lmathome.es).
@@ -25,7 +37,7 @@
   var yo = document.currentScript || (function () { var s = document.getElementsByTagName('script'); for (var i = s.length - 1; i >= 0; i--) { if (/lm-piel\.js/.test(s[i].src)) return s[i]; } return null; })();
   var BASE = (yo && yo.src) ? yo.src.replace(/[?#].*$/, '').replace(/[^\/]*$/, '') : 'https://ge.lmathome.es/piel/';
   /* versión de las hojas de estilo: cambiarla cuando se actualicen los ficheros de apps/ */
-  var V = (yo && yo.src && /[?&]v=([^&]+)/.exec(yo.src)) ? /[?&]v=([^&]+)/.exec(yo.src)[1] : '2026-09-27b';
+  var V = (yo && yo.src && /[?&]v=([^&]+)/.exec(yo.src)) ? /[?&]v=([^&]+)/.exec(yo.src)[1] : '2026-09-28a';
 
   /* ---------- qué app es ---------- */
   var HOSTS = {
@@ -316,24 +328,31 @@
   /* ---------- 27-sep-2026 (noche) · Ojeador (#visor=<alumno>, lo abre el Diario): la piel NO se enciende
      y no se toca la marca. Así Iago ve el portal exactamente como lo ve ese alumno, y el portal (que en
      el Ojeador lee la sesión del alumno) no confunde la cuenta ni recarga la página. ---------- */
+  /* (28-sep-2026, noche) ya con la piel para todos: el Ojeador la enseña, porque es lo que ve el alumno. No toca
+     ninguna marca ni vigila la cuenta (en el Ojeador la sesión es la del alumno). */
+  var NO_PIEL = /(?:^|;\s*)lm_piel_no=1/.test(document.cookie || '');
+  function ponerNo(v) {
+    try { document.cookie = 'lm_piel_no=' + v + '; path=/; max-age=' + (v === '1' ? 31536000 : 0) + '; SameSite=Lax' + DOMINIO + (location.protocol === 'https:' ? '; Secure' : ''); } catch (e) {}
+  }
   if (ES_PORTAL && /visor=([0-9a-fA-F-]{36})/.test(location.hash || '')) {       /* el mismo criterio que el portal */
-    window.LMPiel = { activo: false, app: app, grado: grado, familia: familia, visor: true };
+    if (!NO_PIEL && q.piel !== '0') encender(document.readyState === 'loading');
+    else window.LMPiel = { activo: false, app: app, grado: grado, familia: familia, visor: true };
+    if (window.LMPiel) window.LMPiel.visor = true;
     return;
   }
 
-  /* ---------- decisión ---------- */
+  /* ---------- decisión (28-sep-2026, noche: PARA TODOS) ----------
+     Antes: el portal ponía la marca solo a Tester/Protester. Ahora el portal la pone a TODO el mundo (así la ven
+     también las apps que se abren desde él), salvo en el navegador donde alguien la haya apagado con ?piel=0. */
   var marca = leerMarca();
-  if (q.piel === '1' || q.piel === '0') {                  /* a mano, en la dirección */
-    if (marca !== q.piel) ponerMarca(q.piel);
-    marca = q.piel;
-  } else if (ES_PORTAL) {                                  /* el portal decide según la cuenta */
-    var s0 = sesion();
-    if (idSesion(s0)) {
-      var t0 = esTester(s0) ? '1' : '0';
-      if (t0 === '1' || marca === '1') { if (marca !== t0) ponerMarca(t0); marca = t0; }
-    }
+  if (q.piel === '0') { ponerNo('1'); NO_PIEL = true; }            /* a mano: apagada en este navegador */
+  else if (q.piel === '1') { ponerNo('0'); NO_PIEL = false; }      /* a mano: encendida otra vez */
+  if (ES_PORTAL || q.piel === '1' || q.piel === '0') {
+    var quiere = NO_PIEL ? '0' : '1';
+    if (marca !== quiere) ponerMarca(quiere);
+    marca = quiere;
   }
-  var activo = marca === '1';
+  var activo = marca === '1' && !NO_PIEL;
   /* lo abierto desde el Diario (clase, proyector, generar fichas…) se queda como siempre en esa pestaña */
   if (activo && !ES_PORTAL && q.piel !== '1') {
     var deDonde = ''; try { deDonde = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
@@ -346,5 +365,5 @@
   }
   if (activo) encender(document.readyState === 'loading');
   else window.LMPiel = { activo: false, app: app, grado: grado, familia: familia };
-  if (ES_PORTAL) vigilarPortal();
+  /* (28-sep-2026, noche) ya no hace falta vigilar qué cuenta entra: la piel es para todas */
 })();
