@@ -105,7 +105,16 @@
     pin: '<path d="M9 3h6l-1 6 4 4H6l4-4z"/><path d="M12 13v8"/>',
     star: '<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1 6.3L12 17.5 6.5 20.4l1-6.3L3 9.7l6.2-.9z"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
-    dice: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 15h.01M15 9h.01M9 15h.01" stroke-width="3"/>',
+    dice: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 15h.01M15 9h.01M9 15h.01M12 12h.01" stroke-width="3"/>',   /* (28-sep-2026, Iago) cinco puntos */
+    /* (28-sep-2026, Iago) botones del profesor en el portal y herramientas de las lecciones */
+    metronomo: '<path d="M9 3h6l4.5 18h-15z"/><path d="M7 16h10"/><path d="M12 16 17.5 5.5"/><path d="M15.2 9.2l2.2 1.2"/>',
+    diapason: '<path d="M8.5 2.5v7.5a3.5 3.5 0 0 0 7 0V2.5"/><path d="M12 13.5v8"/><path d="M10 21.5h4"/>',
+    clavesol: '<path d="M12.6 21.2c-.3 1.4-2.8 1.5-3.2.1-.3-1 .5-1.8 1.4-1.6"/><path d="M11.8 21.5 13 3.6c.1-1.4-1.4-1.6-2.1-.4-1.1 1.9-.6 4.3 1 5.9"/><path d="M11.9 9.1c-2.6 2-4.3 3.7-4.1 6.1.2 2.4 2.4 3.6 4.5 3.4 2-.2 3.3-1.8 3.1-3.6-.2-1.8-1.8-2.9-3.4-2.6-1.4.2-2.3 1.4-2 2.7"/>',
+    pentagrama: '<path d="M3 5.5h18M3 9h18M3 12.5h18M3 16h18M3 19.5h18"/>',
+    goma: '<path d="M4.5 14.5 13.8 5.2a1.8 1.8 0 0 1 2.5 0l3 3a1.8 1.8 0 0 1 0 2.5L12 18H8z"/><path d="M9.2 9.8l5.5 5.5"/><path d="M8 18h12"/>',
+    deshacer: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+    expandir: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+    contraer: '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
     clock: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 3h6"/>',
     lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
     unlock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/>',

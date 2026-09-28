@@ -81,3 +81,10 @@ html.lm-piel svg.pl-i{ width:1.15em; height:1.15em; display:inline-block; vertic
 
 /* ---------- utilidades comunes que pueden usar las pieles de cada app ---------- */
 html.lm-piel .lm-cristal{ background:var(--lm-cristal) !important; -webkit-backdrop-filter:blur(var(--lm-blur)); backdrop-filter:blur(var(--lm-blur)); border:1px solid var(--lm-borde) !important; border-radius:var(--lm-r-panel); color:var(--lm-texto); }
+
+/* (28-sep-2026, Iago) Lo que la piel mete DENTRO de un botón (iconos y textos) no se queda con el clic: el clic llega
+   al botón, igual que sin la piel. Había botones (la ✕ de los vídeos de Teoría) que solo cerraban si el clic caía en
+   el propio botón y no en su icono, y había que darles varias veces. */
+html.lm-piel svg.pl-i, html.lm-piel .pl-emo, html.lm-piel .lm-txt, html.lm-piel .lm-txt-nuevo, html.lm-piel .lm-txt-orig,
+html.lm-piel .lm-en-orig, html.lm-piel .lm-pd-orig, html.lm-piel .lm-mr-ico, html.lm-piel .lm-carr-ico, html.lm-piel .lm-carr-txt,
+html.lm-piel .lm-ico-orig{ pointer-events:none !important; }
