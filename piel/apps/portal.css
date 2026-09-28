@@ -668,3 +668,37 @@ html.lm-fam-portal #lb-ov #lm-lb-flot .lm-lb-f svg{ width:20px; height:20px; }
 html.lm-fam-portal #lb-ov #lm-lb-flot .lm-lb-p{ min-width:58px; text-align:center; color:#fff; font:700 13px/1 system-ui,-apple-system,"Helvetica Neue",sans-serif; font-variant-numeric:tabular-nums; }
 html.lm-fam-portal #lb-ov .lm-lb-rec{ position:relative; overflow:hidden; width:100%; }
 html.lm-fam-portal #lb-ov .lm-lb-rec canvas{ position:absolute; margin:0 !important; box-shadow:none !important; max-width:none !important; max-height:none !important; }
+
+/* ---------- (28-sep-2026, Iago) DICTADO ACTIVO (solo Tester/Protester) · «fíjate que el fondo no está ni la estética
+   actualizada. Quiero que lo simplifiques con la iconografía simple». Mismo fondo y cristal que Libros y Mis resultados,
+   botones lisos con iconos planos (los pone la piel sola), la partitura en su tarjeta blanca y el naranja de Audición. ---------- */
+html.lm-fam-portal #dcOverlay{ background:#0b1320 !important; isolation:isolate; font-family:var(--lm-fuente) !important; }
+html.lm-fam-portal #dcOverlay::before{ content:""; position:fixed; inset:0; z-index:-2; pointer-events:none; background:url("../fondo-vertical.jpg") center 62% / cover no-repeat; filter:blur(4px) saturate(1.08); transform:scale(1.04); }
+@media (min-aspect-ratio: 1/1){ html.lm-fam-portal #dcOverlay::before{ background-image:url("../fondo-apaisado.jpg"); background-position:center; } }
+html.lm-fam-portal #dcOverlay::after{ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(8,22,40,.62); }
+html.lm-fam-portal #dcOverlay .dc-top{ background:var(--lm-cristal-fuerte); border-bottom:1px solid var(--lm-borde); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); padding:10px 18px; }
+html.lm-fam-portal #dcOverlay .dc-bottom{ background:var(--lm-cristal-fuerte); border-top:1px solid var(--lm-borde); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); padding-top:12px; gap:16px; }
+html.lm-fam-portal #dcOverlay .dc-titulo{ color:#fff; }
+html.lm-fam-portal #dcOverlay .dc-icobtn, html.lm-fam-portal #dcOverlay .dc-mini{ background:var(--lm-neutro) !important; border:0 !important; color:#fff !important; border-radius:10px !important; box-shadow:none !important; display:inline-flex; align-items:center; justify-content:center; gap:7px; }
+html.lm-fam-portal #dcOverlay .dc-icobtn:hover, html.lm-fam-portal #dcOverlay .dc-mini:hover{ background:var(--lm-neutro-h) !important; }
+html.lm-fam-portal #dcOverlay .dc-icobtn:disabled{ opacity:.45; }
+html.lm-fam-portal #dcOverlay .dc-top-derecha .dc-icobtn:last-child{ background:transparent !important; border:1px solid rgba(255,255,255,.35) !important; }
+html.lm-fam-portal #dcOverlay .dc-top-derecha .dc-icobtn:last-child:hover{ border-color:#fff !important; }
+html.lm-fam-portal #dcOverlay .dc-icobtn .pl-i, html.lm-fam-portal #dcOverlay .dc-ver-res .pl-i{ width:18px; height:18px; }
+html.lm-fam-portal #dcOverlay .dc-score-panel{ border-radius:var(--lm-r-tarjeta); box-shadow:0 18px 50px rgba(0,0,0,.4); }
+html.lm-fam-portal #dcOverlay .dc-playbtn{ background:var(--lm-naranja) !important; box-shadow:0 8px 22px rgba(0,0,0,.35) !important; width:68px; height:68px; }
+html.lm-fam-portal #dcOverlay .dc-playbtn .pl-i{ width:30px; height:30px; }
+html.lm-fam-portal #dcOverlay .dc-ctl-lbl{ color:var(--lm-texto-3); }
+html.lm-fam-portal #dcOverlay .dc-val{ color:#fff; }
+html.lm-fam-portal #dcOverlay .dc-dur{ color:#fdba74; }
+html.lm-fam-portal #dcOverlay .dc-dur.dc-dur-pasa{ color:var(--lm-amarillo); }
+html.lm-fam-portal #dcOverlay .dc-progress{ background:rgba(255,255,255,.14); }
+html.lm-fam-portal #dcOverlay .dc-progress-fill{ background:var(--lm-naranja); }
+html.lm-fam-portal #dcOverlay .dc-ver-res{ background:var(--lm-naranja) !important; border:0 !important; border-radius:12px !important; color:#fff !important; display:inline-flex; align-items:center; gap:8px; padding:12px 20px; }
+html.lm-fam-portal #dcOverlay .dc-cartel-sub{ color:#fdba74; }
+html.lm-fam-portal #dcOverlay .dc-reps{ background:rgba(4,10,20,.55); }
+html.lm-fam-portal #dcOverlay .dc-reps-box{ background:var(--lm-cristal-fuerte) !important; border:1px solid var(--lm-borde-fuerte) !important; border-radius:var(--lm-r-tarjeta) !important; -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+html.lm-fam-portal #dcOverlay .dc-reps-tit{ color:#fff; }
+html.lm-fam-portal #dcOverlay .dc-rueda{ background:rgba(0,0,0,.28); border-color:var(--lm-borde-fuerte); }
+html.lm-fam-portal #dcOverlay .dc-rueda-it.on{ color:#fdba74; }
+html.lm-fam-portal #dcOverlay .dc-reps-ok{ background:var(--lm-naranja) !important; color:#fff !important; box-shadow:none !important; }
