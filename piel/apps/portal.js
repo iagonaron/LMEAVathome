@@ -36,6 +36,10 @@
    29-sep-2026 (Iago):
    14) CAMPANA TRANQUILA: las ondas (y el balanceo de la campana) solo 5 segundos al entrar o cuando llega algo
        nuevo; después se queda quieta con su numerito. «Es una desconcentración.»
+   15) (29-sep-2026) MOROSOS solo durante la clase del grupo que debe algo (ver la sección 15, al final).
+   16) (29-sep-2026, Iago) ATAJOS EN LA MISMA VENTANA (solo Tester/Protester): las pantallas de Resultados de las apps
+       de corrección se abren DENTRO del portal, con una ✕ arriba a la derecha (o Esc) para volver. Y el «Ampliar» de
+       Libros es ya del propio visor: la sección 10 se queda quieta si lo encuentra.
    Copia de la versión anterior: portal.js.bak-27sep-v2
    ===================================================================== */
 (function () {
@@ -269,6 +273,7 @@
   var LBX = { on: false, fs: false };
   function lbOv() { return document.getElementById('lb-ov'); }
   function librosMax() {
+    if (document.getElementById('lb-amp')) return;   /* (29-sep-2026) el visor de Libros ya trae su botón «Ampliar» */
     var o = lbOv(); if (!o) return;
     var top = o.querySelector('.lb-top'); if (!top) return;
     var b = document.getElementById('lm-lb-max');
@@ -971,6 +976,59 @@
     try { calmaIcono(b, function () { var x = b.querySelector('.lm-ic-badge'); return x ? (parseInt(x.textContent, 10) || 0) : 0; }); } catch (e) {}
   }
   setInterval(function () { try { pintarMorosos(); } catch (e) {} }, 60000);   /* la hora de clase cambia sola */
+
+  /* ---------- 16 (29-sep-2026, Iago): ATAJOS DEL PROFESOR EN LA MISMA VENTANA ----------
+     «Preferiría que en lugar de una pestaña nueva sea como la misma ventana y que sea así con todos los atajos que
+      hago desde pantalla. Con una x arriba a la derecha, por ejemplo.» SOLO Tester/Protester: lo que el portal abría
+     en otra pestaña (las pantallas de Resultados de Ritmo, Entonación, Ritmo entonado y Dictado) se abre DENTRO del
+     portal, a toda pantalla, con una barra fina arriba y la ✕ a la derecha (también Esc). Si el portal está en
+     pantalla completa, sigue en pantalla completa. Al cerrar, la pantalla se descarga (deja de escuchar notas).
+     Los enlaces de los alumnos no cambian. Para quitarlo: borrar esta sección (y su CSS en portal.css). */
+  var MARCO_RE = /^https:\/\/correccion[a-z]*\.lmathome\.es\//i;
+  function nombreMarco(url) {
+    var h = ''; try { h = new URL(url).hostname; } catch (e) {}
+    if (/ritmoentonado/.test(h)) return 'Resultados · Ritmo entonado';
+    if (/ritmo/.test(h)) return 'Resultados · Ritmo';
+    if (/entonacion/.test(h)) return 'Resultados · Entonación';
+    if (/dictado/.test(h)) return 'Resultados · Dictado';
+    return 'Resultados';
+  }
+  function abrirMarco(url) {
+    var ov = document.getElementById('lm-marco-app');
+    if (!ov) {
+      ov = document.createElement('div'); ov.id = 'lm-marco-app';
+      ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+      ov.innerHTML = '<div class="lm-ma-bar"><span class="lm-ma-tit"></span>' +
+        '<button type="button" class="lm-ma-x" title="Cerrar (Esc)" aria-label="Cerrar y volver al portal">' + (ico('x') || '✕') + '</button></div>' +
+        '<iframe class="lm-ma-if" title="Resultados" allow="fullscreen; autoplay; clipboard-write"></iframe>';
+      document.body.appendChild(ov);
+      ov.querySelector('.lm-ma-x').addEventListener('click', cerrarMarco);
+      document.addEventListener('keydown', function (e) {
+        if ((e.key === 'Escape' || e.key === 'Esc') && ov.classList.contains('abierto')) { e.preventDefault(); e.stopPropagation(); cerrarMarco(); }
+      }, true);
+    }
+    var tit = nombreMarco(url);
+    ov.querySelector('.lm-ma-tit').textContent = tit;
+    ov.setAttribute('aria-label', tit);
+    ov.querySelector('.lm-ma-if').src = url;
+    ov.classList.add('abierto'); document.documentElement.classList.add('lm-ma-on');
+    try { ov.querySelector('.lm-ma-x').focus({ preventScroll: true }); } catch (e) {}
+  }
+  function cerrarMarco() {
+    var ov = document.getElementById('lm-marco-app'); if (!ov) return;
+    ov.classList.remove('abierto'); document.documentElement.classList.remove('lm-ma-on');
+    var f = ov.querySelector('.lm-ma-if'); if (f) f.src = 'about:blank';
+  }
+  (function () {
+    var abrirOriginal = window.open;
+    if (typeof abrirOriginal !== 'function' || abrirOriginal.__lmMarco) return;
+    var nuevo = function (url) {
+      try { if (esProfe() && MARCO_RE.test(String(url || ''))) { abrirMarco(String(url)); return null; } } catch (e) {}
+      return abrirOriginal.apply(window, arguments);
+    };
+    nuevo.__lmMarco = true;
+    window.open = nuevo;
+  })();
 
   function todo() {
     try { campanaCalma(); } catch (e) {}

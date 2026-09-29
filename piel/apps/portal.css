@@ -806,3 +806,23 @@ html.lm-fam-portal .lm-mor-alu + .lm-mor-alu{ margin-top:4px; }
 html.lm-fam-portal .lm-mor-n{ margin-right:auto; font-weight:700; }
 html.lm-fam-portal .lm-mor-f{ padding:2px 6px; border-radius:6px; border:1px solid rgba(248,113,113,.55); background:rgba(220,38,38,.22); color:#fecaca; font-size:11.5px; font-weight:700; white-space:nowrap; }
 html.lm-fam-portal .lm-mor-vacio{ padding:2px 2px 4px; color:rgba(255,255,255,.7); font-size:12.5px; }
+
+/* ---------- (29-sep-2026, Iago) reclamaciones ya LEÍDAS en gris: «que se oscurezca gris para que no genere ruido» ----------
+   Las que aún no ha leído el alumno siguen con su contorno rosa y el botón «Marcar como leído»; al marcarlas (o si ya
+   estaban leídas) se quedan en gris y apagadas, sin desaparecer. Al pasar por encima se leen bien. */
+html.lm-fam-portal .alu-item.alu-recl:not(.no-leido){ --lm-av:rgba(255,255,255,.16); opacity:.5; filter:grayscale(1); transition:opacity .2s; }
+html.lm-fam-portal .alu-item.alu-recl:not(.no-leido):hover, html.lm-fam-portal .alu-item.alu-recl:not(.no-leido):focus-within{ opacity:.85; }
+
+/* ---------- 16 (29-sep-2026, Iago): atajos del profesor DENTRO del portal, con ✕ arriba a la derecha ---------- */
+#lm-marco-app{ position:fixed; inset:0; z-index:2147483100; display:none; flex-direction:column; background:#0b1320; }
+#lm-marco-app.abierto{ display:flex; }
+#lm-marco-app .lm-ma-bar{ flex:0 0 auto; height:46px; display:flex; align-items:center; gap:10px; padding:0 8px 0 16px; box-sizing:border-box;
+  background:rgba(11,19,32,.96); border-bottom:1px solid rgba(255,255,255,.14); color:#fff; font:700 14px/1 system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif; }
+#lm-marco-app .lm-ma-tit{ flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:rgba(255,255,255,.82); letter-spacing:.02em; }
+#lm-marco-app .lm-ma-x{ flex:0 0 auto; width:38px; height:38px; border-radius:10px; border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff;
+  display:inline-flex; align-items:center; justify-content:center; padding:0; cursor:pointer; font:800 18px/1 system-ui,sans-serif; }
+#lm-marco-app .lm-ma-x:hover{ border-color:#fff; background:rgba(255,255,255,.1); }
+#lm-marco-app .lm-ma-x:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+#lm-marco-app .lm-ma-x svg{ width:20px; height:20px; margin:0; }
+#lm-marco-app .lm-ma-if{ flex:1 1 auto; width:100%; min-height:0; border:0; display:block; background:#0b1020; }
+html.lm-ma-on, html.lm-ma-on body{ overflow:hidden !important; }
