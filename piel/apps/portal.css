@@ -743,3 +743,23 @@ html.lm-piel #lm-bv .lm-bv-card:focus{ outline:none; }
 @keyframes lmBvFondo{ from{ opacity:0 } to{ opacity:1 } }
 @keyframes lmBvEntra{ from{ opacity:0; transform:translateY(10px) scale(.98) } to{ opacity:1; transform:none } }
 @media (prefers-reduced-motion:reduce){ html.lm-piel #lm-bv, html.lm-piel #lm-bv .lm-bv-card{ animation:none; } }
+
+/* =====================================================================
+   (29-sep-2026, Iago) 14 · CAMPANA TRANQUILA: las ondas solo 5 s (portal.js pone .lm-calma al acabar)
+   Sin prefijo de la piel a propósito: vale también si la piel no carga en ese aparato.
+   ===================================================================== */
+.portal-bell.lm-calma::before, .portal-bell.lm-calma::after{ animation:none !important; opacity:0 !important; }
+.portal-bell.lm-calma .pb-bell, .portal-bell.lm-calma .portal-bell-prog{ animation:none !important; }
+
+/* =====================================================================
+   (29-sep-2026, Iago) MIS RESULTADOS · «Volver» amarillo opaco (solo «Volver») y un guiño amarillo:
+   el título lleva el mismo cuadrado amarillo del botón que abre esta pantalla.
+   ===================================================================== */
+html.lm-fam-portal #mr-overlay .mr-volver{ background:var(--lm-amarillo) !important; border:0 !important; color:var(--lm-tinta) !important;
+  font-size:0 !important; letter-spacing:0 !important; padding:0 18px !important; min-width:92px; display:inline-flex !important;
+  align-items:center !important; justify-content:center !important; cursor:pointer; }
+html.lm-fam-portal #mr-overlay .mr-volver::after{ content:"Volver"; font:800 14px/1 var(--lm-fuente); color:var(--lm-tinta); }
+html.lm-fam-portal #mr-overlay .mr-volver:hover{ filter:brightness(1.07); border:0 !important; }
+html.lm-fam-portal #mr-overlay .mr-volver:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+html.lm-fam-portal #mr-overlay .mr-titulo svg.pl-i{ box-sizing:border-box; width:30px !important; height:30px !important; padding:6px;
+  background:var(--lm-amarillo); color:var(--lm-tinta) !important; stroke:var(--lm-tinta) !important; border-radius:9px; stroke-width:2.2; }

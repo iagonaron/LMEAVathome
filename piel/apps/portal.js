@@ -33,6 +33,9 @@
        la piel (GP sin marrón). La barra de siempre sigue debajo, oculta, y es la que guarda.
    13) (28-sep-2026) Ventana de BIENVENIDA a la estética nueva, una sola vez por cuenta y aparato («Hemos hecho una
        reforma estética…», de Iago). Para verla otra vez: ?bienvenida=1.
+   29-sep-2026 (Iago):
+   14) CAMPANA TRANQUILA: las ondas (y el balanceo de la campana) solo 5 segundos al entrar o cuando llega algo
+       nuevo; después se queda quieta con su numerito. «Es una desconcentración.»
    Copia de la versión anterior: portal.js.bak-27sep-v2
    ===================================================================== */
 (function () {
@@ -800,7 +803,40 @@
     try { var cj = d.querySelector('.lm-bv-card'); cj.setAttribute('tabindex', '-1'); cj.focus({ preventScroll: true }); } catch (e) {}   /* el foco en la ventana (sin anillo en el botón) */
   }
 
+  /* ---------- 14 (29-sep-2026, Iago): CAMPANA TRANQUILA ----------
+     «Que la campana solo haga la animación de ondas expansivas durante cinco segundos; después, que mantenga el
+     numerito de las cosas pendientes pero sin estar ahí animando, porque es una desconcentración.»
+     Se anima 5 s al entrar al portal y cada vez que SUBE el número (llega algo nuevo); si baja o no cambia, quieta.
+     La clase lm-calma para las ondas (::before/::after) y el balanceo; el numerito rojo no se toca.
+     Sirve para cualquier icono con avisos que use las mismas clases (hay-avisos / ficha-pendiente). */
+  var CALMA_MS = 5000;
+  function calmaIcono(el, cuenta) {
+    if (!el || el._lmCalma) return;
+    var st = el._lmCalma = { n: 0, cl: '', hasta: 0, t: null };
+    function activas() { return ['hay-avisos', 'ficha-pendiente'].filter(function (c) { return el.classList.contains(c); }).join(' '); }
+    function revisar() {
+      var n = cuenta(), cl = activas();
+      var nuevo = !!cl && (n > st.n || cl.split(' ').some(function (c) { return c && (' ' + st.cl + ' ').indexOf(' ' + c + ' ') < 0; }));
+      st.n = n; st.cl = cl;
+      if (nuevo) { st.hasta = Date.now() + CALMA_MS; clearTimeout(st.t); st.t = setTimeout(revisar, CALMA_MS + 60); }
+      var calma = Date.now() >= st.hasta;
+      if (el.classList.contains('lm-calma') !== calma) el.classList.toggle('lm-calma', calma);
+    }
+    revisar();
+    try { new MutationObserver(revisar).observe(el, { attributes: true, attributeFilter: ['class'], childList: true, characterData: true, subtree: true }); } catch (e) {}
+  }
+  function campanaCalma() {
+    var b = document.getElementById('alu-campana-btn'); if (!b) return;
+    calmaIcono(b, function () {
+      var bd = document.getElementById('alu-campana-badge');
+      if (!bd || bd.classList.contains('hidden')) return 0;
+      var n = parseInt(bd.textContent, 10); return isNaN(n) ? 0 : n;
+    });
+  }
+  try { window.LMCalmaIcono = calmaIcono; } catch (e) {}
+
   function todo() {
+    try { campanaCalma(); } catch (e) {}
     try { tarjetas(); } catch (e) {} try { misResultados(); } catch (e) {} try { hileraTester(); } catch (e) {}
     try { carrusel(); } catch (e) {} try { pie(); } catch (e) {} try { colorNavegador(); } catch (e) {}
     try { cartelGrado(); } catch (e) {}
