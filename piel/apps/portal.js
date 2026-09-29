@@ -760,7 +760,7 @@
      reforma estética, espero que te guste! Por lo demás todo funciona igual que hasta ahora. Un abrazo, Iago».
      Sale con la sesión abierta y la portada a la vista (sin la puerta de entrada ni el aviso del móvil, sin la visita
      guiada ni otra ventana encima). Queda apuntado en el aparato: localStorage «lm_piel_bienvenida:<cuenta>».
-     Para volver a verla: ?bienvenida=1 en la dirección. */
+     Para volver a verla: ?bienvenida=1 en la dirección. (29-sep-2026) Desde el lunes 6-oct-2026 ya no sale a nadie. */
   var _bvHecha = false;
   function bienvenida() {
     if (_bvHecha || document.getElementById('lm-bv')) return;
@@ -769,6 +769,9 @@
     var id = s && (s.id || s.cuenta_id); if (!id) return;
     if (/visor=/.test(location.hash || '')) return;                        /* el Ojeador del Diario: nunca */
     var forzar = /[?&]bienvenida=1(&|$)/.test(location.search);
+    /* (29-sep-2026, Iago) «a partir del 6 de octubre, por si acaso»: desde el lunes 6-oct-2026 (00:00, hora del aparato)
+       ya no sale a nadie, lo haya visto o no. Con ?bienvenida=1 se puede seguir viendo. */
+    if (!forzar && Date.now() >= new Date(2026, 9, 6).getTime()) { _bvHecha = true; return; }
     var K = 'lm_piel_bienvenida:' + id;
     try { if (!forzar && localStorage.getItem(K)) { _bvHecha = true; return; } } catch (e) { return; }
     var gate = document.getElementById('gate');                              /* la puerta (o el aviso del móvil) a la vista */
