@@ -1150,8 +1150,9 @@
      · La lección: la de entonación de la semana docente del Diario (semanas.entonacion_leccion; cambia el viernes a
        las 19:00). El libro: el PDF del Diario (tabla «libros», tipo entonacion), pintado con pdf.js, como en Libros.
      · Dónde empieza cada lección y dónde está la música en cada página: medido sobre ese PDF (29-sep-2026, EN_GEO).
-     · Dos vistas: «a todo el ancho» (cada página ocupa la pantalla, sin márgenes blancos; se abre en el rótulo de la
-       lección) y «dos páginas» (el libro abierto: la par a la izquierda y la impar a la derecha).
+     · Dos vistas: «a todo el ancho» (la música de cada página, sin márgenes blancos, al 80 % del ancho, con un carril a
+       cada lado para desplazar sin pintar; se abre en el rótulo de la lección) y «dos páginas» (el libro abierto: la par
+       a la izquierda y la impar a la derecha).
      · Las marcas van en coordenadas de la PÁGINA del libro, no de la vista: lo marcado en una sale en el mismo sitio
        en la otra. Se guardan en este aparato: localStorage «lm_ento_anot:<curso>:p<página>».
      · Para quitarlo: borrar esta sección (y su CSS en portal.css) y dejar en la sección 9 el cuadro de Entonación
@@ -1168,6 +1169,10 @@
     ['6M', '#d796f8', '6ª mayor'], ['7m', '#5a2d05', '7ª menor'], ['7M', '#c98a1e', '7ª mayor'], ['8J', '#000000', '8ª justa']];
   var EN_TINTA = '#2563eb';                               /* punta fina opaca: el azul de entonación */
   var EN_FINA = 0.0022, EN_GRUESA = 0.010, EN_ALFA = 0.42; /* grosor en fracción del ancho de la página; subrayado traslúcido */
+  /* (29-sep-2026, tarde, Iago) «a todo el ancho» con menos zoom («la grande se ve demasiado grande para la calidad que tiene
+     el libro») y, a los lados, dos carriles para desplazar sin pintar: la música ocupa EN_ANCHO_K del ancho y cada carril lo
+     que queda (como poco EN_CARRIL px). */
+  var EN_ANCHO_K = 0.8, EN_CARRIL = 56;
   var EN_PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
   var EN_PDFW = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   var EN_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -1347,6 +1352,7 @@
     var zona = st.zona = document.createElement('div'); zona.className = 'lm-en-zona'; zona.tabIndex = -1;
     pp.forEach(function (P) { var pg = enPagina(P); st.pags.push(pg); zona.appendChild(pg.el); });
     ov.appendChild(zona);
+    enCarriles(zona);
     st.carga = document.createElement('div'); st.carga.className = 'lm-en-carga'; st.carga.setAttribute('role', 'status');
     st.carga.textContent = 'Abriendo la lección ' + d.leccion + '…';
     ov.appendChild(st.carga);
@@ -1445,10 +1451,11 @@
     var H = z.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
     var A = st.A;
     if (ancho) {
+      var Wv = Math.round(Math.max(200, Math.min(W * EN_ANCHO_K, W - 2 * EN_CARRIL)));   /* la música, centrada; a los lados, los carriles */
       st.pags.forEach(function (pg) {
         var x = EN_GEO.X[pg.P] || [0, 1000], f0 = x[0] / 1000, f1 = x[1] / 1000;
-        pg.Wp = W / (f1 - f0); pg.Hp = pg.Wp * A;
-        pg.el.style.width = W + 'px'; pg.el.style.height = pg.Hp + 'px';
+        pg.Wp = Wv / (f1 - f0); pg.Hp = pg.Wp * A;
+        pg.el.style.width = Wv + 'px'; pg.el.style.height = pg.Hp + 'px';
         pg.hoja.style.left = (-f0 * pg.Wp) + 'px';
       });
     } else {
@@ -1471,8 +1478,58 @@
     var pg = st.pags.filter(function (p) { return p.P === st.P0; })[0]; if (!pg) return;
     st.zona.scrollTop = Math.max(0, pg.el.offsetTop + st.y0 * pg.Hp - 18);
   }
+  /* ---- (29-sep-2026, tarde, Iago) los carriles de los lados, en «a todo el ancho»: ahí se desplaza y nunca se pinta ----
+     «Que a los lados, a la derecha y a la izquierda, haya una barra en la que pueda hacer scroll sin miedo a pintar la
+      partitura… o que simplemente, si quiero deslizar ahí, que ya lo haga: lo que sea más cómodo.»
+     Con el dedo desplaza el propio navegador (con su inercia), como siempre fuera de la página. Con ratón o lápiz (y con
+     la pizarra que manda ratón) se arrastra el papel y, al soltar con impulso, sigue un poco. Sin herramienta (la mano),
+     también sobre la página. */
+  function enCarriles(zona) {
+    var a = null;   /* el arrastre en curso */
+    zona.addEventListener('pointerdown', function (e) {
+      var st = EN.st; if (!st) return;
+      enParaInercia();
+      if (st.vista !== 'ancho' || e.pointerType === 'touch' || (e.pointerType === 'pen' && EN_IOS)) return;   /* el dedo (y el lápiz del iPad) ya desplazan solos */
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      var t = e.target;
+      if (t && t.closest && (t.closest('.lm-en-nota') || (st.herr !== 'mano' && t.closest('.lm-en-pag')))) return;   /* sobre la página con herramienta: se pinta */
+      e.preventDefault();
+      a = { id: e.pointerId, y: e.clientY, s: zona.scrollTop, v: 0, t: e.timeStamp, ly: e.clientY };
+      try { zona.setPointerCapture(e.pointerId); } catch (x) {}
+      zona.classList.add('arrastra');
+    });
+    zona.addEventListener('pointermove', function (e) {
+      if (!a || e.pointerId !== a.id) return;
+      zona.scrollTop = a.s - (e.clientY - a.y);
+      var dt = e.timeStamp - a.t;
+      if (dt > 0) { a.v = 0.8 * ((e.clientY - a.ly) / dt) + 0.2 * a.v; a.t = e.timeStamp; a.ly = e.clientY; }
+    });
+    function suelta(e, anula) {
+      if (!a || e.pointerId !== a.id) return;
+      var v = a.v, quieto = e.timeStamp - a.t; a = null; zona.classList.remove('arrastra');
+      if (!anula && quieto < 90 && Math.abs(v) > 0.25) enInercia(v);
+    }
+    zona.addEventListener('pointerup', function (e) { suelta(e, false); });
+    zona.addEventListener('pointercancel', function (e) { suelta(e, true); });
+    zona.addEventListener('wheel', enParaInercia, { passive: true });
+  }
+  function enInercia(v) {   /* v en px/ms: sigue un poco y se para, como con el dedo */
+    var st = EN.st; if (!st) return;
+    enParaInercia();
+    var t0 = 0;
+    function paso(t) {
+      if (EN.st !== st) return;
+      if (t0) { var dt = Math.min(40, t - t0); v *= Math.pow(0.94, dt / 16.7); st.zona.scrollTop -= v * dt; }
+      t0 = t;
+      if (Math.abs(v) < 0.02) { st.rafI = 0; return; }
+      st.rafI = requestAnimationFrame(paso);
+    }
+    st.rafI = requestAnimationFrame(paso);
+  }
+  function enParaInercia() { var st = EN.st; if (st && st.rafI) { cancelAnimationFrame(st.rafI); st.rafI = 0; } }
   function enVista(v) {
     var st = EN.st; if (!st || st.vista === v) return;
+    enParaInercia();
     if (st.vista === 'ancho') st.scrollAncho = st.zona.scrollHeight ? st.zona.scrollTop / st.zona.scrollHeight : null;
     st.vista = v; try { localStorage.setItem('lm_ento_vista', v); } catch (e) {}
     enAnula(); enPintaVista(); enColoca();
@@ -1738,6 +1795,7 @@
   function cerrarEnto() {
     var st = EN.st; if (!st) return;
     var ae = document.activeElement; if (ae && st.ov.contains(ae)) { try { ae.blur(); } catch (e) {} }   /* la nota que se estaba escribiendo se guarda */
+    enParaInercia();
     EN.st = null;
     document.removeEventListener('keydown', st.onKey, true); window.removeEventListener('resize', st.onResize);
     document.removeEventListener('fullscreenchange', st.onFS); document.removeEventListener('webkitfullscreenchange', st.onFS);

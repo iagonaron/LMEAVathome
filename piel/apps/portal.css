@@ -951,6 +951,9 @@ html.lm-fam-portal #lm-ento .lm-en-zona{ position:relative; flex:1 1 auto; min-h
 html.lm-fam-portal #lm-ento .lm-en-zona.ancho{
   overflow-y:auto; overflow-x:hidden; padding:10px 10px 24px; scrollbar-gutter:stable; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
 }
+/* (29-sep-2026, tarde) los carriles de los lados: se arrastra el papel (nunca se pinta) */
+html.lm-fam-portal #lm-ento .lm-en-zona.ancho{ cursor:grab; }
+html.lm-fam-portal #lm-ento .lm-en-zona.ancho.arrastra, html.lm-fam-portal #lm-ento .lm-en-zona.ancho.arrastra *{ cursor:grabbing !important; }
 html.lm-fam-portal #lm-ento .lm-en-zona.dos{ overflow:hidden; display:flex; align-items:center; justify-content:center; gap:2px; padding:12px; }
 html.lm-fam-portal #lm-ento .lm-en-pag{ position:relative; flex:none; overflow:hidden; background:#fff; }
 html.lm-fam-portal #lm-ento .lm-en-zona.ancho .lm-en-pag{ margin:0 auto 14px; border-radius:4px; }
