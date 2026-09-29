@@ -793,7 +793,7 @@ html.lm-fam-portal #lm-morosos .lm-ic.lm-calma::before, html.lm-fam-portal #lm-m
 @keyframes lmMorOnda{ 0%{ transform:scale(1); opacity:.75; } 100%{ transform:scale(2.6); opacity:0; } }
 @media (prefers-reduced-motion: reduce){ html.lm-fam-portal #lm-morosos .lm-ic::before, html.lm-fam-portal #lm-morosos .lm-ic::after{ animation:none !important; opacity:0 !important; } }
 html.lm-fam-portal .lm-mor-panel{
-  position:fixed; z-index:5000; width:min(340px, calc(100vw - 24px)); max-height:min(70vh, 520px); overflow:auto; box-sizing:border-box;
+  position:fixed; z-index:5000; width:min(430px, calc(100vw - 24px)); max-height:min(76vh, 620px); overflow:auto; box-sizing:border-box;
   padding:10px 12px 12px; background:var(--lm-cristal-fuerte); border:1px solid var(--lm-borde-fuerte); border-radius:12px;
   -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); color:#fff; font:500 13px/1.35 var(--lm-fuente); text-align:left;
 }
@@ -801,9 +801,16 @@ html.lm-fam-portal .lm-mor-tit{ margin:2px 2px 8px; font-size:11px; font-weight:
 html.lm-fam-portal .lm-mor-grupo + .lm-mor-grupo{ margin-top:10px; padding-top:10px; border-top:1px solid var(--lm-borde); }
 html.lm-fam-portal .lm-mor-g{ display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px; font-weight:800; }
 html.lm-fam-portal .lm-mor-ahora{ padding:2px 6px; border-radius:6px; background:var(--lm-amarillo); color:var(--lm-tinta); font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
-html.lm-fam-portal .lm-mor-alu{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,.05); }
-html.lm-fam-portal .lm-mor-alu + .lm-mor-alu{ margin-top:4px; }
-html.lm-fam-portal .lm-mor-n{ margin-right:auto; font-weight:700; }
+/* (29-sep-2026, tarde) cada fila: icono · nombre · (en papel + ficha) · botón a la derecha */
+html.lm-fam-portal .lm-mor-alu{ display:grid; grid-template-columns:28px minmax(0,1fr) auto; grid-template-areas:"i n b" "i f b";
+  column-gap:10px; row-gap:4px; align-items:center; padding:8px 10px; border-radius:10px; background:rgba(255,255,255,.05); border:1px solid transparent; }
+html.lm-fam-portal .lm-mor-alu + .lm-mor-alu{ margin-top:5px; }
+html.lm-fam-portal .lm-mor-n{ grid-area:n; min-width:0; font-weight:700; overflow-wrap:anywhere; }
+html.lm-fam-portal .lm-mor-i{ grid-area:i; width:28px; height:28px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; }
+html.lm-fam-portal .lm-mor-i svg{ width:17px; height:17px; margin:0; flex:none; }
+html.lm-fam-portal .lm-mor-fs{ grid-area:f; display:flex; flex-wrap:wrap; align-items:center; gap:5px; min-width:0; }
+html.lm-fam-portal .lm-mor-papel{ padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,.5); background:rgba(255,255,255,.14); color:#fff;
+  font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; white-space:nowrap; }
 html.lm-fam-portal .lm-mor-f{ padding:2px 6px; border-radius:6px; border:1px solid rgba(248,113,113,.55); background:rgba(220,38,38,.22); color:#fecaca; font-size:11.5px; font-weight:700; white-space:nowrap; }
 html.lm-fam-portal .lm-mor-vacio{ padding:2px 2px 4px; color:rgba(255,255,255,.7); font-size:12.5px; }
 
@@ -826,3 +833,84 @@ html.lm-fam-portal .alu-item.alu-recl:not(.no-leido):hover, html.lm-fam-portal .
 #lm-marco-app .lm-ma-x svg{ width:20px; height:20px; margin:0; }
 #lm-marco-app .lm-ma-if{ flex:1 1 auto; width:100%; min-height:0; border:0; display:block; background:#0b1020; }
 html.lm-ma-on, html.lm-ma-on body{ overflow:hidden !important; }
+
+/* ---------- (29-sep-2026, tarde, Iago) MOROSOS: alerta para el moroso, calavera para el 0, «Ya entregó» del papel ---------- */
+/* (29-sep-2026, Iago) los morosos del periodo extra: «fondo rojo opaco (me parece bien que haya texto amarillo)»; el recuadro
+   del periodo extra, «amarillo sólido con texto negro» (como el de TIEMPO EXTRA que ve el alumno) */
+html.lm-fam-portal .lm-mor-alu.lm-mor-gracia{ background:#b91c1c; border-color:#ef4444; }
+html.lm-fam-portal .lm-mor-gracia .lm-mor-n{ color:#fff; }
+html.lm-fam-portal .lm-mor-gracia .lm-mor-i{ background:rgba(0,0,0,.22); color:#fde047; }
+html.lm-fam-portal .lm-mor-gracia .lm-mor-f{ border-color:#fde047; background:#fde047; color:#000; }
+html.lm-fam-portal .lm-mor-gracia .lm-mor-papel{ border-color:rgba(255,255,255,.85); background:rgba(0,0,0,.2); color:#fff; }
+/* (29-sep-2026, Iago) marcado «Ya entregó»: «que su tarjeta se ponga verde» (hasta cerrar la lista; al volver a abrirla ya no está) */
+html.lm-fam-portal .lm-mor-alu.lm-mor-verde{ background:#15803d; border-color:#22c55e; }
+html.lm-fam-portal .lm-mor-verde .lm-mor-n{ color:#fff; }
+html.lm-fam-portal .lm-mor-verde .lm-mor-i{ background:rgba(0,0,0,.2); color:#fff; }
+html.lm-fam-portal .lm-mor-verde .lm-mor-f{ border-color:rgba(255,255,255,.85); background:transparent; color:#fff; }
+html.lm-fam-portal .lm-mor-verde .lm-mor-papel{ border-color:rgba(255,255,255,.85); background:rgba(0,0,0,.18); color:#fff; }
+html.lm-fam-portal .lm-mor-panel .lm-mor-verde .lm-mor-des{ height:26px; padding:0 9px; font-size:11.5px; border-color:rgba(255,255,255,.55); }
+/* (29-sep-2026, Iago) los que ya pasaron el periodo extra, abajo de todo: «simplemente la calavera, el nombre de la ficha
+   y el 0; fondo negro, contorno blanco» */
+html.lm-fam-portal .lm-mor-ceros{ margin-top:12px; padding-top:12px; border-top:1px solid var(--lm-borde); }
+html.lm-fam-portal .lm-mor-alu.lm-mor-cero{ grid-template-columns:22px minmax(0,1fr) auto auto; grid-template-areas:"i n f z";
+  padding:7px 10px; background:#000; border:1px solid #fff; color:#fff; }
+html.lm-fam-portal .lm-mor-cero .lm-mor-i{ width:22px; height:22px; background:none; color:#fff; }
+html.lm-fam-portal .lm-mor-cero .lm-mor-i svg{ width:19px; height:19px; }
+html.lm-fam-portal .lm-mor-cero .lm-mor-fn{ grid-area:f; font-size:12.5px; font-weight:700; color:rgba(255,255,255,.85); white-space:nowrap; }
+html.lm-fam-portal .lm-mor-cero .lm-mor-0{ grid-area:z; box-sizing:border-box; min-width:26px; height:24px; padding:0 6px; border:1px solid #fff; border-radius:6px;
+  display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums; }
+html.lm-fam-portal .lm-mor-cero .lm-mor-gc{ margin-right:6px; font-size:11px; font-weight:800; letter-spacing:.06em; color:rgba(255,255,255,.6); }
+html.lm-fam-portal .lm-mor-panel .lm-mor-ya, html.lm-fam-portal .lm-mor-panel .lm-mor-des{
+  grid-area:b; box-sizing:border-box; height:30px; margin:0; padding:0 11px; border-radius:8px; cursor:pointer; white-space:nowrap;
+  font:800 12px/1 var(--lm-fuente); letter-spacing:0; box-shadow:none; transform:none; }
+/* (29-sep-2026, Iago) «Ya entregó» más discreto: solo contorno blanco y el ✓ */
+html.lm-fam-portal .lm-mor-panel .lm-mor-ya{ height:26px; padding:0 9px 0 7px; display:inline-flex; align-items:center; gap:5px;
+  border:1px solid rgba(255,255,255,.55); background:transparent; color:#fff; font-weight:700; font-size:11.5px; }
+html.lm-fam-portal .lm-mor-panel .lm-mor-ya svg{ width:14px; height:14px; margin:0; }
+html.lm-fam-portal .lm-mor-panel .lm-mor-ya:hover{ border-color:#fff; background:rgba(255,255,255,.14); }
+html.lm-fam-portal .lm-mor-panel .lm-mor-des{ border:1px solid rgba(255,255,255,.45); background:transparent; color:#fff; font-weight:700; }
+html.lm-fam-portal .lm-mor-panel .lm-mor-des:hover{ border-color:#fff; background:rgba(255,255,255,.1); }
+html.lm-fam-portal .lm-mor-panel .lm-mor-ya:focus-visible, html.lm-fam-portal .lm-mor-panel .lm-mor-des:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+html.lm-fam-portal .lm-mor-error{ margin-top:8px; padding:6px 8px; border-radius:8px; background:rgba(220,38,38,.25); color:#fecaca; font-size:12px; font-weight:700; }
+/* (29-sep-2026, Iago) el aviso del 0 al alumno, «al igual que en la ventana de morosos: negro opaco y contorno blanco», el mismo
+   contorno en los cuatro lados (nada de raya a un lado). */
+html.lm-fam-portal .alu-item.alu-cero{ background:#000 !important; background-image:none !important; box-shadow:none !important;
+  border:1.5px solid #fff !important; border-radius:var(--lm-r-panel, 14px) !important; --lm-av:#fff; animation:none !important; }
+html.lm-fam-portal .alu-item.alu-cero .alu-item-tit, html.lm-fam-portal .alu-item.alu-cero .alu-item-cuerpo{ color:#fff !important; }
+html.lm-fam-portal .alu-item.alu-cero .alu-item-fecha{ color:rgba(255,255,255,.7) !important; }
+html.lm-fam-portal .alu-item.alu-cero .alu-dot{ background:#fff !important; box-shadow:none !important; }
+/* (29-sep-2026, Iago) el aviso del PERIODO EXTRA al alumno: rojo opaco con texto amarillo. «Que la tarjeta sea menos alta,
+   recolocando cosas: Hacer la ficha a la derecha con botón amarillo; el de tiempo extra, un recuadro de contorno y texto amarillo
+   sobre el rojo (así destaca más del de hacer ficha); y te quedan X, debajo del recuadro tiempo extra, a la izquierda.»
+   Tres columnas: recuadro + «te quedan» · título + texto · botón. */
+html.lm-fam-portal .alu-item.alu-extra-pin{ background:#b91c1c !important; background-image:none !important; box-shadow:none !important;
+  border:1.5px solid #ef4444 !important; --lm-av:#ef4444; animation:none !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-tit, html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-cuerpo{ color:#fff !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-plazo{ color:#fde047 !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-fecha{ color:rgba(255,255,255,.75) !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-dot{ background:#fde047 !important; box-shadow:none !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-main{ display:grid !important; grid-template-columns:auto minmax(0,1fr) auto;
+  grid-template-areas:"chip tit boton" "plazo cuerpo boton"; column-gap:16px; row-gap:4px; align-items:start; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-main > *{ grid-column:1 / 3; margin:0 !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-extra-chip{ grid-area:chip; justify-self:start; display:inline-flex; align-items:center; gap:6px;
+  background:transparent !important; background-image:none !important; color:#fde047 !important; border:1.5px solid #fde047 !important;
+  border-radius:6px !important; box-shadow:none !important; animation:none !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-extra-chip svg{ color:#fde047 !important; stroke:#fde047 !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-plazo{ grid-area:plazo; white-space:nowrap; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-tit{ grid-area:tit; align-self:center; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-cuerpo{ grid-area:cuerpo; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-hacer{ grid-area:boton; grid-column:auto; align-self:center; justify-self:end; white-space:nowrap;
+  background:#fde047 !important; color:#000 !important; }
+html.lm-fam-portal .alu-item.alu-extra-pin .alu-hacer:hover{ background:#facc15 !important; }
+@media (max-width: 600px){
+  html.lm-fam-portal .alu-item.alu-extra-pin .alu-item-main{ grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"chip boton" "plazo boton" "tit tit" "cuerpo cuerpo"; }
+}
+html.lm-fam-portal .alu-item-tit .lm-calavera-t{ width:1.2em; height:1.2em; vertical-align:-.25em; margin:0 .35em 0 0; }
+/* (29-sep-2026) iPad en vertical con la hilera del profesor: «Formato digital» (centrado en la barra) tapaba el icono de
+   morosos. En pantallas estrechas, y solo si está esa hilera, baja debajo de «Bienvenido/a», a la izquierda (encima del
+   título tampoco: lo pisaba). Los alumnos, igual que antes. */
+@media (max-width: 1000px){
+  html.lm-fam-portal:has(#lm-iconos) #lm-fmt-centro{ top:calc(100% + 6px) !important; left:0 !important; transform:none !important; }
+}
+/* la calavera del aviso del alumno («ahí sí que la liaste») */
+html.lm-fam-portal .alu-item-cuerpo .lm-calavera{ display:inline-block; width:1.15em; height:1.15em; margin:0 0 0 .15em; vertical-align:-.22em; }

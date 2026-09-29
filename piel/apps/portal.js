@@ -37,6 +37,7 @@
    14) CAMPANA TRANQUILA: las ondas (y el balanceo de la campana) solo 5 segundos al entrar o cuando llega algo
        nuevo; después se queda quieta con su numerito. «Es una desconcentración.»
    15) (29-sep-2026) MOROSOS solo durante la clase del grupo que debe algo (ver la sección 15, al final).
+       (29-sep-2026, tarde) también los de PAPEL sin nota («en papel» y botón «Ya entregó») y los CEROS (calavera).
    16) (29-sep-2026, Iago) ATAJOS EN LA MISMA VENTANA (solo Tester/Protester): las pantallas de Resultados de las apps
        de corrección se abren DENTRO del portal, con una ✕ arriba a la derecha (o Esc) para volver. Y el «Ampliar» de
        Libros es ya del propio visor: la sección 10 se queda quieta si lo encuentra.
@@ -846,16 +847,38 @@
   /* ---------- 15 (29-sep-2026, Iago): MOROSOS · SOLO Tester/Protester ----------
      «Los morosos, fuera de la escaleta del Diario: un icono con globito en Tester y Protester». Cuadrado rojo con ⚠, a la
      IZQUIERDA de todo (antes del Pentagrama). El globito: cuántos alumnos del GRUPO QUE ESTÁ EN CLASE AHORA (de 30 min
-     antes de empezar hasta que acaba, según el horario del Diario) tienen una ficha DIGITAL en la semana de gracia (solo
-     fichas; los quizzes no). Al tocarlo, la lista (primero el grupo en clase); al cerrarla, el icono se queda sin globito
-     hasta la próxima clase de ese grupo (visto por grupo y día, en este aparato). Las ondas, solo 5 s (como la campana).
-     Los datos: suite_morosos_fichas_token con la llave «lm_profe» que deja el Diario en este navegador (derivada del
-     secreto, solo sirve para esto). Si este navegador no ha abierto el Diario, no hay llave y el icono no sale.
+     antes de empezar hasta que acaba, según el horario del Diario) deben una ficha (solo fichas; los quizzes no). Al
+     tocarlo, la lista (primero el grupo en clase); al cerrarla, el icono se queda sin globito hasta la próxima clase de
+     ese grupo (visto por grupo y día, en este aparato). Las ondas, solo 5 s (como la campana).
+     Los datos: con la llave «lm_profe» que deja el Diario en este navegador (derivada del secreto, solo sirve para
+     esto). Si este navegador no ha abierto el Diario, no hay llave y el icono no sale.
      (29-sep-2026, más tarde) El icono SOLO está durante la clase de un grupo que debe algo (de 30 min antes a que
-     acaba); si nadie de los grupos en clase debe nada, no aparece. Tras ver la lista, sigue ahí sin globito. */
-  var MOR = { d: null, t: 0, cargando: false, panel: null };
+     acaba); si nadie de los grupos en clase debe nada, no aparece. Tras ver la lista, sigue ahí sin globito.
+     (29-sep-2026, tarde, Iago) PAPEL, «YA ENTREGÓ» Y CEROS: «Incluye también los que están en formato papel que no
+     tienen nota puesta en la ficha que ahora se encuentra en periodo de gracia, con una etiqueta que ponga "en papel"
+     y un botón a la derecha que ponga "ya entregó" por si me entregó y todavía no le puse nota. Y si alguien terminó
+     su periodo de gracia y ya tiene un cero, que también salga, con otro aspecto más trágico: alerta para moroso,
+     calavera para 0.»
+     · Datos: suite_morosos_v2_token (si la base aún no la tiene, la de siempre: solo digitales en la gracia). Cada
+       fila es alumno + ficha, con su formato (digital / papel) y su estado: gracia · entrego · cero.
+     · «Ya entregó» (SOLO papel, en el periodo extra; (29-sep, Iago) «los digitales, si entregan, ya no están en morosos»; «más
+       discreto; si lo pulso, que su tarjeta se ponga verde; y si salgo de la lista y vuelvo a entrar, que ya no aparezca»):
+       suite_morosos_ya_entrego_token. La fila pasa a gris («entregó, falta la
+       nota») con «Deshacer», y a ese alumno no se le pone el 0 al acabar la gracia. Con la nota puesta, desaparece.
+     · Ceros: los de la ficha cuya gracia acabó en los últimos 7 días, con calavera.
+     (29-sep-2026, tarde, Iago, 2) «Que no diga periodo de gracia sino PERIODO EXTRA: quizá los niños no entienden la
+     expresión «de gracia». Los que ya pasaron el periodo extra, abajo de todo: simplemente la calavera, el nombre de
+     la ficha y el 0. Fondo negro, contorno blanco.» (En el código, «gracia» sigue siendo el nombre interno del estado.)
+     · El globito cuenta alumnos con ficha en el periodo extra o con un 0 (los «entregó», no). Si en la clase solo quedan
+       «entregó», el icono sigue, sin globito, para poder deshacer. */
+  var MOR = { d: null, t: 0, cargando: false, panel: null, v2: true, error: '', verdes: {} };   /* verdes: marcados con la lista abierta */
   var MOR_SB = 'https://woiptkyrxkbpnvioypit.supabase.co';
   var MOR_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
+  /* la calavera (icono sencillo, el mismo que ve el alumno en «ya sí que la liaste») */
+  var CALAVERA = '<svg class="pl-i lm-calavera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M12 2.8c-4.6 0-8.3 3.4-8.3 8 0 2.6 1.2 4.6 3.2 5.9v2.4c0 1 .8 1.8 1.8 1.8h6.6c1 0 1.8-.8 1.8-1.8v-2.4c2-1.3 3.2-3.3 3.2-5.9 0-4.6-3.7-8-8.3-8z"/>' +
+    '<circle cx="8.9" cy="11.2" r="1.9" fill="currentColor" stroke="none"/><circle cx="15.1" cy="11.2" r="1.9" fill="currentColor" stroke="none"/>' +
+    '<path d="M12 13.9l-1 1.9h2z" fill="currentColor" stroke-width="1.2"/><path d="M10.3 18.4v2.4M13.7 18.4v2.4"/></svg>';
   function llaveProfe() { var m = /(?:^|;\s*)lm_profe=([0-9a-f]{64})(?:;|$)/.exec(document.cookie || ''); return m ? m[1] : null; }
   function delPortal(g) { return GP ? /gp/i.test(String(g || '')) : !/gp/i.test(String(g || '')); }
   function hoyISO() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
@@ -872,31 +895,52 @@
     });
     return out;
   }
-  function morososDe(grupo) {   /* [{nombre, fichas:[{numero,titulo,fin_gracia}]}] */
-    var por = {};
-    ((MOR.d && MOR.d.fichas) || []).forEach(function (f) {
-      if (!f || f.grupo !== grupo) return;
-      (por[f.nombre] = por[f.nombre] || { nombre: f.nombre, fichas: [] }).fichas.push(f);
-    });
-    return Object.keys(por).sort(function (a, b) { return a.localeCompare(b, 'es'); }).map(function (k) { return por[k]; });
+  /* la v1 no trae estado ni formato: son todos digitales en el periodo extra */
+  function normalizarMorosos(d) {
+    (d.fichas || []).forEach(function (f) { if (!f) return; f.estado = f.estado || 'gracia'; f.formato = f.formato || 'digital'; });
+    return d;
+  }
+  var ORDEN_MOR = { gracia: 0, entrego: 0, cero: 2 };   /* la que se pone verde no cambia de sitio */
+  function claveFila(f) { return String(f.alumno) + '|' + String(f.ficha); }
+  function filasDe(grupo) {   /* alumno + ficha, en orden: en el periodo extra, «entregó» (solo los verdes de ahora) y ceros */
+    return ((MOR.d && MOR.d.fichas) || []).filter(function (f) { return f && f.grupo === grupo && (f.estado !== 'entrego' || MOR.verdes[claveFila(f)]); })
+      .sort(function (a, b) {
+        return ((ORDEN_MOR[a.estado] || 0) - (ORDEN_MOR[b.estado] || 0)) || String(a.nombre).localeCompare(String(b.nombre), 'es') || ((+a.numero || 0) - (+b.numero || 0));
+      });
+  }
+  function cuentanDe(grupo) {   /* alumnos distintos con una ficha en el periodo extra o con un 0 */
+    var v = {};
+    filasDe(grupo).forEach(function (f) { if (f.estado !== 'entrego') v[f.alumno || f.nombre] = 1; });
+    return Object.keys(v).length;
   }
   function claveVisto(g) { return 'lm_morosos_visto:' + g + '|' + hoyISO(); }
   function visto(g) { try { return localStorage.getItem(claveVisto(g)) === '1'; } catch (e) { return false; } }
   function marcarVisto(gs) { gs.forEach(function (g) { try { localStorage.setItem(claveVisto(g), '1'); } catch (e) {} }); }
   function cuentaMorosos() {
-    return gruposEnClase().filter(function (g) { return !visto(g); }).reduce(function (s, g) { return s + morososDe(g).length; }, 0);
+    return gruposEnClase().filter(function (g) { return !visto(g); }).reduce(function (s, g) { return s + cuentanDe(g); }, 0);
   }
-  /* (29-sep-2026, Iago) los que deben algo en los grupos que están en clase ahora, se haya visto la lista o no */
+  /* ¿hay algo que enseñar en los grupos que están en clase ahora? (los verdes de la lista abierta cuentan: no se cierra sola) */
   function morososEnClase() {
-    return gruposEnClase().reduce(function (s, g) { return s + morososDe(g).length; }, 0);
+    return gruposEnClase().reduce(function (s, g) { return s + filasDe(g).length; }, 0);
   }
-  function cargarMorosos() {
+  function pedirMor(fn, cuerpo) {
+    return fetch(MOR_SB + '/rest/v1/rpc/' + fn, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: MOR_ANON, Authorization: 'Bearer ' + MOR_ANON }, body: JSON.stringify(cuerpo) })
+      .then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { st: r.status, d: d }; }); });
+  }
+  function cargarMorosos(forzar) {
     var k = llaveProfe(); if (!k || MOR.cargando) return;
-    if (MOR.d && Date.now() - MOR.t < 120000) return;
+    if (!forzar && MOR.d && Date.now() - MOR.t < 120000) return;
     MOR.cargando = true;
-    fetch(MOR_SB + '/rest/v1/rpc/suite_morosos_fichas_token', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: MOR_ANON, Authorization: 'Bearer ' + MOR_ANON }, body: JSON.stringify({ p_token: k }) })
-      .then(function (r) { return r.json(); })
-      .then(function (d) { if (d && d.ok) { MOR.d = d; MOR.t = Date.now(); pintarMorosos(); } else { MOR.t = Date.now(); } })
+    pedirMor(MOR.v2 ? 'suite_morosos_v2_token' : 'suite_morosos_fichas_token', { p_token: k })
+      .then(function (x) {
+        if (MOR.v2 && x && x.st === 404) { MOR.v2 = false; return pedirMor('suite_morosos_fichas_token', { p_token: k }); }   /* la base aún sin la v2 */
+        return x;
+      })
+      .then(function (x) {
+        var d = x && x.d;
+        if (d && d.ok) { MOR.d = normalizarMorosos(d); MOR.t = Date.now(); pintarMorosos(); if (MOR.panel) pintarPanelMorosos(); }
+        else MOR.t = Date.now();
+      })
       .catch(function () { MOR.t = Date.now() - 90000; })
       .then(function () { MOR.cargando = false; });
   }
@@ -904,41 +948,94 @@
   function cerrarPanelMorosos() {
     var p = MOR.panel; if (!p) return;
     MOR.panel = null; if (p.parentNode) p.parentNode.removeChild(p);
+    MOR.verdes = {};   /* (29-sep-2026, Iago) al volver a abrir la lista, los que ya entregaron no aparecen */
     var b = document.querySelector('#lm-morosos .lm-ic'); if (b) b.setAttribute('aria-expanded', 'false');
     marcarVisto(gruposEnClase());   /* cerrada la lista, el globito de ese grupo no vuelve hasta su próxima clase */
     pintarMorosos();
   }
-  function abrirPanelMorosos(btn) {
-    if (MOR.panel) { cerrarPanelMorosos(); return; }
-    cerrarMenu();
+  function filaCeroHTML(f, conGrupo) {   /* abajo de todo: la calavera, el alumno, la ficha y el 0 */
+    return '<div class="lm-mor-alu lm-mor-cero" title="Un 0: se acabó el periodo extra sin entregarla">' +
+      '<span class="lm-mor-i">' + CALAVERA + '</span>' +
+      '<span class="lm-mor-n">' + (conGrupo ? '<span class="lm-mor-gc">' + esc(f.grupo) + '</span>' : '') + esc(f.nombre) + '</span>' +
+      '<span class="lm-mor-fn">Ficha ' + esc(f.numero) + '</span><span class="lm-mor-0">0</span></div>';
+  }
+  function filaMorosoHTML(f) {
+    var papel = f.formato === 'papel', est = f.estado, n = esc(f.numero);
+    var icono = est === 'cero' ? CALAVERA : est === 'entrego' ? ico('check') : ico('alert');
+    var chip = est === 'cero' ? '0 · Ficha ' + n
+      : est === 'entrego' ? 'Ficha ' + n + ' · ya entregó'
+      : 'Ficha ' + n + (f.fin_gracia ? ' · periodo extra hasta el ' + fechaCorta(f.fin_gracia) : ' · periodo extra');
+    var datos = ' data-alu="' + esc(f.alumno || '') + '" data-ficha="' + esc(f.ficha || '') + '"';
+    var boton = '';
+    if (papel && f.alumno && f.ficha && est === 'gracia') boton = '<button type="button" class="lm-mor-ya"' + datos + ' title="Me la entregó en papel y aún no tiene nota: no se le pone el 0">' + ico('check') + 'Ya entregó</button>';
+    else if (papel && f.alumno && f.ficha && est === 'entrego' && !(f.fin_gracia && Date.now() > Date.parse(f.fin_gracia))) boton = '<button type="button" class="lm-mor-des"' + datos + ' title="Quitar «Ya entregó»">Deshacer</button>';
+    var titulo = est === 'cero' ? 'Un 0: se acabó el periodo extra sin entregarla' : est === 'entrego' ? 'Marcada «Ya entregó»: no se le pondrá el 0' : 'En el periodo extra, sin entregar';
+    return '<div class="lm-mor-alu lm-mor-' + esc(est) + (est === 'entrego' ? ' lm-mor-verde' : '') + '">' +
+      '<span class="lm-mor-i" title="' + titulo + '">' + icono + '</span>' +
+      '<span class="lm-mor-n">' + esc(f.nombre) + '</span>' +
+      '<span class="lm-mor-fs">' + (papel ? '<span class="lm-mor-papel">en papel</span>' : '') + '<span class="lm-mor-f">' + chip + '</span></span>' +
+      boton + '</div>';
+  }
+  function pintarPanelMorosos() {
+    var p = MOR.panel; if (!p) return;
     var enClase = gruposEnClase();
     var grupos = [];
     ((MOR.d && MOR.d.fichas) || []).forEach(function (f) { if (f && delPortal(f.grupo) && grupos.indexOf(f.grupo) < 0) grupos.push(f.grupo); });
     enClase.forEach(function (g) { if (grupos.indexOf(g) < 0) grupos.push(g); });
     grupos.sort(function (a, b) { return (enClase.indexOf(b) >= 0) - (enClase.indexOf(a) >= 0) || a.localeCompare(b, 'es'); });
-    var p = document.createElement('div'); p.className = 'lm-mor-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Morosos · fichas en la semana de gracia');
-    var h = '<div class="lm-mor-tit">Fichas en la semana de gracia</div>';
-    if (!grupos.length) h += '<div class="lm-mor-vacio">Nadie debe ninguna ficha.</div>';
-    grupos.forEach(function (g) {
-      var L = morososDe(g);
+    var h = '<div class="lm-mor-tit">Morosos · fichas</div>';
+    var ceros = [], gruposCero = [];
+    var conDeuda = grupos.filter(function (g) { return enClase.indexOf(g) >= 0 || filasDe(g).some(function (f) { return f.estado !== 'cero'; }); });
+    if (!conDeuda.length) h += '<div class="lm-mor-vacio">Nadie en el periodo extra.</div>';
+    conDeuda.forEach(function (g) {
+      var L = filasDe(g).filter(function (f) { return f.estado !== 'cero'; });
       h += '<div class="lm-mor-grupo"><div class="lm-mor-g">' + esc(g) + (enClase.indexOf(g) >= 0 ? '<span class="lm-mor-ahora">en clase</span>' : '') + '</div>';
-      if (!L.length) h += '<div class="lm-mor-vacio">Nadie debe ninguna ficha.</div>';
-      L.forEach(function (a) {
-        h += '<div class="lm-mor-alu"><span class="lm-mor-n">' + esc(a.nombre) + '</span>' + a.fichas.map(function (f) {
-          return '<span class="lm-mor-f">Ficha ' + esc(f.numero) + (f.fin_gracia ? ' · hasta el ' + fechaCorta(f.fin_gracia) : '') + '</span>';
-        }).join('') + '</div>';
-      });
+      if (!L.length) h += '<div class="lm-mor-vacio">Nadie en el periodo extra.</div>';
+      L.forEach(function (f) { h += filaMorosoHTML(f); });
       h += '</div>';
     });
+    /* (29-sep-2026, Iago) los que ya pasaron el periodo extra: abajo de todo, en negro con contorno blanco */
+    grupos.forEach(function (g) { filasDe(g).forEach(function (f) { if (f.estado === 'cero') { ceros.push(f); if (gruposCero.indexOf(g) < 0) gruposCero.push(g); } }); });
+    if (ceros.length) {
+      h += '<div class="lm-mor-ceros">';
+      ceros.forEach(function (f) { h += filaCeroHTML(f, gruposCero.length > 1); });
+      h += '</div>';
+    }
+    if (MOR.error) h += '<div class="lm-mor-error" role="alert">' + esc(MOR.error) + '</div>';
     p.innerHTML = h;
+    colocarPanelMorosos();
+  }
+  function abrirPanelMorosos(btn) {
+    if (MOR.panel) { cerrarPanelMorosos(); return; }
+    cerrarMenu();
+    var p = document.createElement('div'); p.className = 'lm-mor-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Morosos · fichas');
+    p.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('.lm-mor-ya, .lm-mor-des') : null; if (!b) return;
+      e.preventDefault(); e.stopPropagation();
+      marcarEntrego(b.getAttribute('data-alu'), b.getAttribute('data-ficha'), b.classList.contains('lm-mor-ya'));
+    });
     /* en el <body>: la barra de arriba es de cristal (backdrop-filter) y dentro de ella «fixed» no sería la pantalla */
     document.body.appendChild(p); MOR.panel = p; btn.setAttribute('aria-expanded', 'true');
-    colocarPanelMorosos();
+    MOR.error = '';
+    pintarPanelMorosos();
+  }
+  /* «Ya entregó» / «Deshacer»: se ve al momento; si la base no lo guarda, vuelve como estaba y lo dice */
+  function marcarEntrego(alu, ficha, si) {
+    var k = llaveProfe(); if (!k || !alu || !ficha) return;
+    var fila = ((MOR.d && MOR.d.fichas) || []).filter(function (f) { return f && String(f.alumno) === String(alu) && String(f.ficha) === String(ficha); })[0];
+    if (!fila) return;
+    var antes = fila.estado, kf = claveFila(fila);
+    fila.estado = si ? 'entrego' : 'gracia'; MOR.error = '';
+    if (si) MOR.verdes[kf] = 1; else delete MOR.verdes[kf];
+    pintarPanelMorosos(); pintarMorosos();
+    pedirMor('suite_morosos_ya_entrego_token', { p_token: k, p_alumno_canon_id: alu, p_ficha_id: ficha, p_entrego: !!si })
+      .then(function (x) { if (!(x && x.d && x.d.ok)) throw new Error('no'); cargarMorosos(true); })
+      .catch(function () { fila.estado = antes; if (si) delete MOR.verdes[kf]; else MOR.verdes[kf] = 1; MOR.error = 'No se ha podido guardar. Prueba otra vez.'; pintarPanelMorosos(); pintarMorosos(); });
   }
   /* la lista, debajo del icono y siempre dentro de la pantalla */
   function colocarPanelMorosos() {
     var p = MOR.panel, b = document.querySelector('#lm-morosos .lm-ic'); if (!p || !b) return;
-    var r = b.getBoundingClientRect(), w = p.offsetWidth || 320;
+    var r = b.getBoundingClientRect(), w = p.offsetWidth || 420;
     p.style.top = Math.round(r.bottom + 8) + 'px';
     p.style.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - w - 12))) + 'px';
   }
@@ -960,7 +1057,7 @@
       return;
     }
     if (!w) {
-      w = cuadro('lm-ic-morosos', 'alert', 'Morosos · fichas en la semana de gracia', function (b) { abrirPanelMorosos(b); }, true);
+      w = cuadro('lm-ic-morosos', 'alert', 'Morosos · fichas', function (b) { abrirPanelMorosos(b); }, true);
       w.id = 'lm-morosos';
     }
     if (w.parentNode !== host) host.insertBefore(w, host.firstChild);
@@ -971,7 +1068,7 @@
       if (bd.textContent !== String(n)) bd.textContent = String(n);
     } else if (bd) bd.parentNode.removeChild(bd);
     if (b.classList.contains('hay-avisos') !== (n > 0)) b.classList.toggle('hay-avisos', n > 0);
-    b.title = n > 0 ? (n === 1 ? '1 alumno del grupo en clase debe una ficha' : n + ' alumnos del grupo en clase deben fichas') : 'Morosos · fichas en la semana de gracia';
+    b.title = n > 0 ? (n === 1 ? '1 alumno del grupo en clase debe una ficha o tiene un 0' : n + ' alumnos del grupo en clase deben fichas o tienen un 0') : 'Morosos · fichas';
     b.setAttribute('aria-label', b.title);
     try { calmaIcono(b, function () { var x = b.querySelector('.lm-ic-badge'); return x ? (parseInt(x.textContent, 10) || 0) : 0; }); } catch (e) {}
   }
