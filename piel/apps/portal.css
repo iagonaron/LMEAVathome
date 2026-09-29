@@ -763,3 +763,46 @@ html.lm-fam-portal #mr-overlay .mr-volver:hover{ filter:brightness(1.07); border
 html.lm-fam-portal #mr-overlay .mr-volver:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
 html.lm-fam-portal #mr-overlay .mr-titulo svg.pl-i{ box-sizing:border-box; width:30px !important; height:30px !important; padding:6px;
   background:var(--lm-amarillo); color:var(--lm-tinta) !important; stroke:var(--lm-tinta) !important; border-radius:9px; stroke-width:2.2; }
+
+/* =====================================================================
+   (29-sep-2026, Iago) 15 · MOROSOS · SOLO Tester/Protester (portal.js pinta #lm-morosos)
+   Cuadrado ROJO con ⚠, a la izquierda de todo; el globito blanco con cuántos alumnos del grupo en clase deben una
+   ficha; ondas solo 5 s (como la campana: portal.js pone .lm-calma al acabar). La lista, en un panel de cristal.
+   ===================================================================== */
+html.lm-fam-portal .topbar-right > #lm-morosos{ order:-5 !important; }
+html.lm-fam-portal #lm-morosos{ position:relative; display:inline-flex; }
+html.lm-fam-portal #lm-morosos .lm-ic{
+  position:relative; box-sizing:border-box; width:var(--lm-ctl); height:var(--lm-ctl); min-width:var(--lm-ctl); padding:0; margin:0;
+  display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:10px; cursor:pointer;
+  background:#dc2626; color:#fff; box-shadow:none; transform:none; font-size:0; line-height:0;
+}
+html.lm-fam-portal #lm-morosos .lm-ic:hover{ filter:brightness(1.1); }
+html.lm-fam-portal #lm-morosos .lm-ic:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+html.lm-fam-portal #lm-morosos .lm-ic svg{ width:19px; height:19px; margin:0; stroke:currentColor; pointer-events:none; }
+html.lm-fam-portal #lm-morosos .lm-ic-badge{
+  position:absolute; top:-7px; right:-8px; min-width:18px; height:18px; box-sizing:border-box; padding:0 5px; border-radius:9px;
+  background:#fff; color:#0b1320; font:800 10px/18px var(--lm-fuente); letter-spacing:0; white-space:nowrap; text-align:center;
+  box-shadow:0 0 0 2px #0b1320; pointer-events:none; z-index:1;
+}
+html.lm-fam-portal #lm-morosos .lm-ic.hay-avisos::before, html.lm-fam-portal #lm-morosos .lm-ic.hay-avisos::after{
+  content:""; position:absolute; inset:0; border-radius:10px; border:2px solid rgba(248,113,113,.75);
+  animation:lmMorOnda 2.4s ease-out infinite; pointer-events:none;
+}
+html.lm-fam-portal #lm-morosos .lm-ic.hay-avisos::after{ animation-delay:1.2s; }
+html.lm-fam-portal #lm-morosos .lm-ic.lm-calma::before, html.lm-fam-portal #lm-morosos .lm-ic.lm-calma::after{ animation:none !important; opacity:0 !important; }
+@keyframes lmMorOnda{ 0%{ transform:scale(1); opacity:.75; } 100%{ transform:scale(2.6); opacity:0; } }
+@media (prefers-reduced-motion: reduce){ html.lm-fam-portal #lm-morosos .lm-ic::before, html.lm-fam-portal #lm-morosos .lm-ic::after{ animation:none !important; opacity:0 !important; } }
+html.lm-fam-portal .lm-mor-panel{
+  position:fixed; z-index:5000; width:min(340px, calc(100vw - 24px)); max-height:min(70vh, 520px); overflow:auto; box-sizing:border-box;
+  padding:10px 12px 12px; background:var(--lm-cristal-fuerte); border:1px solid var(--lm-borde-fuerte); border-radius:12px;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); color:#fff; font:500 13px/1.35 var(--lm-fuente); text-align:left;
+}
+html.lm-fam-portal .lm-mor-tit{ margin:2px 2px 8px; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.7); }
+html.lm-fam-portal .lm-mor-grupo + .lm-mor-grupo{ margin-top:10px; padding-top:10px; border-top:1px solid var(--lm-borde); }
+html.lm-fam-portal .lm-mor-g{ display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px; font-weight:800; }
+html.lm-fam-portal .lm-mor-ahora{ padding:2px 6px; border-radius:6px; background:var(--lm-amarillo); color:var(--lm-tinta); font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+html.lm-fam-portal .lm-mor-alu{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,.05); }
+html.lm-fam-portal .lm-mor-alu + .lm-mor-alu{ margin-top:4px; }
+html.lm-fam-portal .lm-mor-n{ margin-right:auto; font-weight:700; }
+html.lm-fam-portal .lm-mor-f{ padding:2px 6px; border-radius:6px; border:1px solid rgba(248,113,113,.55); background:rgba(220,38,38,.22); color:#fecaca; font-size:11.5px; font-weight:700; white-space:nowrap; }
+html.lm-fam-portal .lm-mor-vacio{ padding:2px 2px 4px; color:rgba(255,255,255,.7); font-size:12.5px; }

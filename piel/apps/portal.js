@@ -835,6 +835,128 @@
   }
   try { window.LMCalmaIcono = calmaIcono; } catch (e) {}
 
+  /* ---------- 15 (29-sep-2026, Iago): MOROSOS · SOLO Tester/Protester ----------
+     «Los morosos, fuera de la escaleta del Diario: un icono con globito en Tester y Protester». Cuadrado rojo con ⚠, a la
+     IZQUIERDA de todo (antes del Pentagrama). El globito: cuántos alumnos del GRUPO QUE ESTÁ EN CLASE AHORA (de 30 min
+     antes de empezar hasta que acaba, según el horario del Diario) tienen una ficha DIGITAL en la semana de gracia (solo
+     fichas; los quizzes no). Al tocarlo, la lista (primero el grupo en clase); al cerrarla, el icono se queda sin globito
+     hasta la próxima clase de ese grupo (visto por grupo y día, en este aparato). Las ondas, solo 5 s (como la campana).
+     Los datos: suite_morosos_fichas_token con la llave «lm_profe» que deja el Diario en este navegador (derivada del
+     secreto, solo sirve para esto). Si este navegador no ha abierto el Diario, no hay llave y el icono no sale. */
+  var MOR = { d: null, t: 0, cargando: false, panel: null };
+  var MOR_SB = 'https://woiptkyrxkbpnvioypit.supabase.co';
+  var MOR_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
+  function llaveProfe() { var m = /(?:^|;\s*)lm_profe=([0-9a-f]{64})(?:;|$)/.exec(document.cookie || ''); return m ? m[1] : null; }
+  function delPortal(g) { return GP ? /gp/i.test(String(g || '')) : !/gp/i.test(String(g || '')); }
+  function hoyISO() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function minutos(hhmm) { var m = /^(\d{1,2}):(\d{2})/.exec(String(hhmm || '')); return m ? (+m[1]) * 60 + (+m[2]) : NaN; }
+  /* grupos de este portal que están en clase ahora: de 30 min antes de empezar hasta que acaba */
+  function gruposEnClase() {
+    var d = MOR.d; if (!d || !Array.isArray(d.horario)) return [];
+    var ahora = new Date(), dia = ((ahora.getDay() + 6) % 7) + 1, min = ahora.getHours() * 60 + ahora.getMinutes();
+    var out = [];
+    d.horario.forEach(function (h) {
+      if (!h || +h.dia !== dia || !delPortal(h.grupo)) return;
+      var ini = minutos(h.ini), fin = minutos(h.fin);
+      if (isFinite(ini) && isFinite(fin) && min >= ini - 30 && min <= fin && out.indexOf(h.grupo) < 0) out.push(h.grupo);
+    });
+    return out;
+  }
+  function morososDe(grupo) {   /* [{nombre, fichas:[{numero,titulo,fin_gracia}]}] */
+    var por = {};
+    ((MOR.d && MOR.d.fichas) || []).forEach(function (f) {
+      if (!f || f.grupo !== grupo) return;
+      (por[f.nombre] = por[f.nombre] || { nombre: f.nombre, fichas: [] }).fichas.push(f);
+    });
+    return Object.keys(por).sort(function (a, b) { return a.localeCompare(b, 'es'); }).map(function (k) { return por[k]; });
+  }
+  function claveVisto(g) { return 'lm_morosos_visto:' + g + '|' + hoyISO(); }
+  function visto(g) { try { return localStorage.getItem(claveVisto(g)) === '1'; } catch (e) { return false; } }
+  function marcarVisto(gs) { gs.forEach(function (g) { try { localStorage.setItem(claveVisto(g), '1'); } catch (e) {} }); }
+  function cuentaMorosos() {
+    return gruposEnClase().filter(function (g) { return !visto(g); }).reduce(function (s, g) { return s + morososDe(g).length; }, 0);
+  }
+  function cargarMorosos() {
+    var k = llaveProfe(); if (!k || MOR.cargando) return;
+    if (MOR.d && Date.now() - MOR.t < 120000) return;
+    MOR.cargando = true;
+    fetch(MOR_SB + '/rest/v1/rpc/suite_morosos_fichas_token', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: MOR_ANON, Authorization: 'Bearer ' + MOR_ANON }, body: JSON.stringify({ p_token: k }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d && d.ok) { MOR.d = d; MOR.t = Date.now(); pintarMorosos(); } else { MOR.t = Date.now(); } })
+      .catch(function () { MOR.t = Date.now() - 90000; })
+      .then(function () { MOR.cargando = false; });
+  }
+  function fechaCorta(iso) { var d = new Date(iso); return isNaN(d) ? '' : ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2); }
+  function cerrarPanelMorosos() {
+    var p = MOR.panel; if (!p) return;
+    MOR.panel = null; if (p.parentNode) p.parentNode.removeChild(p);
+    var b = document.querySelector('#lm-morosos .lm-ic'); if (b) b.setAttribute('aria-expanded', 'false');
+    marcarVisto(gruposEnClase());   /* cerrada la lista, el globito de ese grupo no vuelve hasta su próxima clase */
+    pintarMorosos();
+  }
+  function abrirPanelMorosos(btn) {
+    if (MOR.panel) { cerrarPanelMorosos(); return; }
+    cerrarMenu();
+    var enClase = gruposEnClase();
+    var grupos = [];
+    ((MOR.d && MOR.d.fichas) || []).forEach(function (f) { if (f && delPortal(f.grupo) && grupos.indexOf(f.grupo) < 0) grupos.push(f.grupo); });
+    enClase.forEach(function (g) { if (grupos.indexOf(g) < 0) grupos.push(g); });
+    grupos.sort(function (a, b) { return (enClase.indexOf(b) >= 0) - (enClase.indexOf(a) >= 0) || a.localeCompare(b, 'es'); });
+    var p = document.createElement('div'); p.className = 'lm-mor-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Morosos · fichas en la semana de gracia');
+    var h = '<div class="lm-mor-tit">Fichas en la semana de gracia</div>';
+    if (!grupos.length) h += '<div class="lm-mor-vacio">Nadie debe ninguna ficha.</div>';
+    grupos.forEach(function (g) {
+      var L = morososDe(g);
+      h += '<div class="lm-mor-grupo"><div class="lm-mor-g">' + esc(g) + (enClase.indexOf(g) >= 0 ? '<span class="lm-mor-ahora">en clase</span>' : '') + '</div>';
+      if (!L.length) h += '<div class="lm-mor-vacio">Nadie debe ninguna ficha.</div>';
+      L.forEach(function (a) {
+        h += '<div class="lm-mor-alu"><span class="lm-mor-n">' + esc(a.nombre) + '</span>' + a.fichas.map(function (f) {
+          return '<span class="lm-mor-f">Ficha ' + esc(f.numero) + (f.fin_gracia ? ' · hasta el ' + fechaCorta(f.fin_gracia) : '') + '</span>';
+        }).join('') + '</div>';
+      });
+      h += '</div>';
+    });
+    p.innerHTML = h;
+    /* en el <body>: la barra de arriba es de cristal (backdrop-filter) y dentro de ella «fixed» no sería la pantalla */
+    document.body.appendChild(p); MOR.panel = p; btn.setAttribute('aria-expanded', 'true');
+    colocarPanelMorosos();
+  }
+  /* la lista, debajo del icono y siempre dentro de la pantalla */
+  function colocarPanelMorosos() {
+    var p = MOR.panel, b = document.querySelector('#lm-morosos .lm-ic'); if (!p || !b) return;
+    var r = b.getBoundingClientRect(), w = p.offsetWidth || 320;
+    p.style.top = Math.round(r.bottom + 8) + 'px';
+    p.style.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - w - 12))) + 'px';
+  }
+  window.addEventListener('resize', colocarPanelMorosos);
+  document.addEventListener('click', function (e) {
+    if (MOR.panel && !MOR.panel.contains(e.target) && !(e.target.closest && e.target.closest('#lm-morosos'))) cerrarPanelMorosos();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (MOR.panel && (e.key === 'Escape' || e.key === 'Esc')) cerrarPanelMorosos(); });
+  function pintarMorosos() {
+    var bell = document.getElementById('alu-campana-btn'); if (!bell || !bell.parentNode) return;
+    var host = bell.parentNode, w = document.getElementById('lm-morosos');
+    if (!(esProfe() && llaveProfe())) { if (w && w.parentNode) { cerrarPanelMorosos(); w.parentNode.removeChild(w); } return; }
+    cargarMorosos();
+    if (!MOR.d) return;
+    if (!w) {
+      w = cuadro('lm-ic-morosos', 'alert', 'Morosos · fichas en la semana de gracia', function (b) { abrirPanelMorosos(b); }, true);
+      w.id = 'lm-morosos';
+    }
+    if (w.parentNode !== host) host.insertBefore(w, host.firstChild);
+    var b = w.querySelector('.lm-ic'); if (!b) return;
+    var n = cuentaMorosos(), bd = b.querySelector('.lm-ic-badge');
+    if (n > 0) {
+      if (!bd) { bd = document.createElement('span'); bd.className = 'lm-ic-badge'; bd.setAttribute('aria-hidden', 'true'); b.appendChild(bd); }
+      if (bd.textContent !== String(n)) bd.textContent = String(n);
+    } else if (bd) bd.parentNode.removeChild(bd);
+    if (b.classList.contains('hay-avisos') !== (n > 0)) b.classList.toggle('hay-avisos', n > 0);
+    b.title = n > 0 ? (n === 1 ? '1 alumno del grupo en clase debe una ficha' : n + ' alumnos del grupo en clase deben fichas') : 'Morosos · fichas en la semana de gracia';
+    b.setAttribute('aria-label', b.title);
+    try { calmaIcono(b, function () { var x = b.querySelector('.lm-ic-badge'); return x ? (parseInt(x.textContent, 10) || 0) : 0; }); } catch (e) {}
+  }
+  setInterval(function () { try { pintarMorosos(); } catch (e) {} }, 60000);   /* la hora de clase cambia sola */
+
   function todo() {
     try { campanaCalma(); } catch (e) {}
     try { tarjetas(); } catch (e) {} try { misResultados(); } catch (e) {} try { hileraTester(); } catch (e) {}
@@ -842,6 +964,7 @@
     try { cartelGrado(); } catch (e) {}
     try { hileraIconos(); } catch (e) {}
     try { cuadroPantalla(); } catch (e) {}
+    try { pintarMorosos(); } catch (e) {}
     try { visorLecciones(); } catch (e) {}
     try { librosMax(); } catch (e) {}
     try { bienvenida(); } catch (e) {}
