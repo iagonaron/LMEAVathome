@@ -608,7 +608,8 @@ html.lm-fam-portal .lm-vl-b span{ pointer-events:none; }
 html.lm-fam-portal .lm-vl-t-s span, html.lm-fam-portal .lm-vl-t-b span{ font-size:21px; font-weight:700; }
 html.lm-fam-portal .lm-vl-sw{ display:block; width:20px; height:20px; border-radius:6px; }
 html.lm-fam-portal .lm-vl-fina{ position:relative; background:#fff; border-radius:50%; }
-html.lm-fam-portal .lm-vl-fina i{ position:absolute; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:#000; }
+/* (29-sep-2026, Iago) la punta fina de ritmo, VERDE (la de entonación es azul) */
+html.lm-fam-portal .lm-vl-fina i{ position:absolute; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:var(--lm-verde-f); }
 html.lm-fam-portal .lm-vl-borra.armado, html.lm-fam-portal .lm-vl-borra.armado:hover{ background:#dc2626; }
 html.lm-fam-portal .lm-vl-x, html.lm-fam-portal .lm-vl-x:hover{ background:transparent; box-shadow:inset 0 0 0 1px rgba(255,255,255,.4); }
 html.lm-fam-portal .lm-vl-x:hover{ box-shadow:inset 0 0 0 1px #fff; }
@@ -914,3 +915,95 @@ html.lm-fam-portal .alu-item-tit .lm-calavera-t{ width:1.2em; height:1.2em; vert
 }
 /* la calavera del aviso del alumno («ahí sí que la liaste») */
 html.lm-fam-portal .alu-item-cuerpo .lm-calavera{ display:inline-block; width:1.15em; height:1.15em; margin:0 0 0 .15em; vertical-align:-.22em; }
+
+/* ---------- 17 (29-sep-2026, Iago) · LIBRO DE ENTONACIÓN · lección activa (solo Tester, GE) ----------
+   La hilera es la de las lecciones de ritmo (las mismas piezas lm-vl-*), con lo marcado en AZUL (entonación).
+   UNA hilera: la tonalidad a la izquierda, lo de anotar a continuación (centrado en el hueco), vistas, pantalla y ✕.
+   Los tamaños bajan con el ancho de la pantalla para que siempre quepa en una (solo la tableta en vertical usa dos). */
+html.lm-en-on, html.lm-en-on body{ overflow:hidden !important; }
+html.lm-fam-portal #lm-ento{
+  position:fixed; inset:0; z-index:2147483100; display:flex; flex-direction:column; box-sizing:border-box;
+  background:#0b1320; color:#fff; font-family:var(--lm-fuente); overscroll-behavior:contain;
+  --vl-b:40px; --vl-gap:6px; --en-sw:34px; --en-swi:26px; --vl-celda:36px; --en-celdas:5;
+}
+html.lm-fam-portal #lm-ento *{ box-sizing:border-box; }
+html.lm-fam-portal #lm-ento .lm-en-bar{ position:relative; top:auto; flex:none; flex-wrap:nowrap; padding:8px 12px; background:#0f1a2c; -webkit-backdrop-filter:none; backdrop-filter:none; }
+html.lm-fam-portal #lm-ento .lm-en-her{ flex:0 1 auto; }
+html.lm-fam-portal #lm-ento .lm-vl-b.on, html.lm-fam-portal #lm-ento .lm-vl-b.on:hover{ background:var(--lm-azul-f); }
+html.lm-fam-portal #lm-ento .lm-vl-b:disabled{ opacity:.38; cursor:default; }
+html.lm-fam-portal #lm-ento .lm-vl-b:disabled:hover{ background:var(--lm-neutro); }
+/* la tonalidad (la rueda de ritmo), con la nota marcada en azul */
+html.lm-fam-portal #lm-ento .lm-vl-rueda{ width:calc(var(--vl-celda) * var(--en-celdas)); }
+html.lm-fam-portal #lm-ento .lm-vl-rueda.con-nota .lm-vl-marco{ border-color:var(--lm-azul); background:rgba(37,99,235,.24); }
+/* punta fina opaca azul · los 12 intervalos (colores de Intervalia, de menor a mayor) */
+html.lm-fam-portal #lm-ento .lm-en-fina{ position:relative; display:block; width:20px; height:20px; border-radius:50%; background:#fff; }
+html.lm-fam-portal #lm-ento .lm-en-fina i{ position:absolute; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:var(--lm-azul-f); }
+html.lm-fam-portal #lm-ento .lm-en-int{ width:var(--en-sw); }
+html.lm-fam-portal #lm-ento .lm-en-sw{
+  display:flex; align-items:center; justify-content:center; width:var(--en-swi); height:var(--en-swi); border-radius:6px;
+  font:800 11.5px/1 var(--lm-fuente); letter-spacing:-.01em; text-align:center;
+}
+html.lm-fam-portal #lm-ento .lm-en-sw.dos{ font-size:8.5px; line-height:1.08; }
+html.lm-fam-portal #lm-ento .lm-en-sw.negro{ box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7); }
+html.lm-fam-portal #lm-ento .lm-en-int.on .lm-en-sw{ box-shadow:0 0 0 2px #fff; }
+/* las páginas */
+html.lm-fam-portal #lm-ento .lm-en-zona{ position:relative; flex:1 1 auto; min-height:0; outline:none; }
+html.lm-fam-portal #lm-ento .lm-en-zona.ancho{
+  overflow-y:auto; overflow-x:hidden; padding:10px 10px 24px; scrollbar-gutter:stable; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+}
+html.lm-fam-portal #lm-ento .lm-en-zona.dos{ overflow:hidden; display:flex; align-items:center; justify-content:center; gap:2px; padding:12px; }
+html.lm-fam-portal #lm-ento .lm-en-pag{ position:relative; flex:none; overflow:hidden; background:#fff; }
+html.lm-fam-portal #lm-ento .lm-en-zona.ancho .lm-en-pag{ margin:0 auto 14px; border-radius:4px; }
+html.lm-fam-portal #lm-ento .lm-en-zona.dos .lm-en-pag:first-child{ border-radius:4px 0 0 4px; }
+html.lm-fam-portal #lm-ento .lm-en-zona.dos .lm-en-pag:last-child{ border-radius:0 4px 4px 0; }
+html.lm-fam-portal #lm-ento .lm-en-hoja{ position:absolute; top:0; left:0; isolation:isolate; }
+html.lm-fam-portal #lm-ento .lm-en-hoja canvas{ position:absolute; left:0; top:0; width:100%; height:100%; display:block; pointer-events:none; }
+html.lm-fam-portal #lm-ento .lm-en-anot, html.lm-fam-portal #lm-ento .lm-en-vivo{ mix-blend-mode:multiply; }
+html.lm-fam-portal #lm-ento .lm-en-toque{ position:absolute; inset:0; pointer-events:none; }
+html.lm-fam-portal #lm-ento.lm-en-dibuja .lm-en-toque{ pointer-events:auto; touch-action:none; }
+/* notas de texto: crecen con la página (su tamaño lo pone la hoja) */
+html.lm-fam-portal #lm-ento .lm-en-notas{ position:absolute; inset:0; pointer-events:none; }
+html.lm-fam-portal #lm-ento .lm-en-nota{
+  position:absolute; pointer-events:auto; min-width:3.2em; max-width:45%; padding:.45em .55em .3em; background:#fff; color:#0b1320;
+  border:2px solid var(--lm-azul-f); border-radius:.35em; font:700 1em/1.25 var(--lm-fuente);
+}
+html.lm-fam-portal #lm-ento .lm-en-nota-asa{
+  position:absolute; left:-2px; top:-.72em; width:2.2em; height:.72em; background:var(--lm-azul-f); border-radius:.3em .3em 0 0; cursor:move; touch-action:none;
+}
+html.lm-fam-portal #lm-ento .lm-en-nota-x{
+  position:absolute; right:-.6em; top:-.6em; width:1.25em; height:1.25em; padding:0; margin:0; border:0; border-radius:50%; background:#0b1320; color:#fff;
+  font:700 .9em/1 var(--lm-fuente); display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+html.lm-fam-portal #lm-ento .lm-en-nota-t{ outline:none; white-space:pre-wrap; word-break:break-word; min-height:1.25em; cursor:text; }
+/* abriendo… */
+html.lm-fam-portal #lm-ento .lm-en-carga{
+  position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); text-align:center; pointer-events:none;
+  font:700 15px/1.4 var(--lm-fuente); color:rgba(255,255,255,.8);
+}
+html.lm-fam-portal #lm-ento .lm-en-reint{
+  pointer-events:auto; margin-left:8px; height:34px; padding:0 14px; border-radius:9px; border:0; background:var(--lm-azul-f); color:#fff;
+  font:800 14px/1 var(--lm-fuente); cursor:pointer;
+}
+/* tamaños: que quepa en una hilera (1920 · 1366/1280 · iPad apaisado 1180/1133 · 1024) */
+@media (min-width: 1600px){ html.lm-fam-portal #lm-ento{ --vl-b:42px; --en-sw:36px; --en-swi:28px; --vl-celda:38px; } }
+@media (max-width: 1399px){ html.lm-fam-portal #lm-ento{ --vl-b:38px; --vl-gap:5px; --en-sw:32px; --en-swi:25px; --vl-celda:34px; } }
+@media (max-width: 1259px){
+  html.lm-fam-portal #lm-ento{ --vl-b:34px; --vl-gap:4px; --en-sw:28px; --en-swi:23px; --vl-celda:30px; --en-celdas:3; }
+  html.lm-fam-portal #lm-ento .lm-en-sw{ font-size:10px; } html.lm-fam-portal #lm-ento .lm-en-sw.dos{ font-size:7.5px; }
+  html.lm-fam-portal #lm-ento .lm-vl-t-s span, html.lm-fam-portal #lm-ento .lm-vl-t-b span{ font-size:19px; }
+}
+@media (max-width: 1099px){
+  html.lm-fam-portal #lm-ento{ --vl-b:32px; --vl-gap:3px; --en-sw:26px; --en-swi:22px; --vl-celda:28px; }
+  html.lm-fam-portal #lm-ento .lm-en-bar{ padding:6px 8px; }
+  html.lm-fam-portal #lm-ento .lm-vl-b svg.pl-i{ width:18px; height:18px; }
+  html.lm-fam-portal #lm-ento .lm-vl-sep{ margin:0 1px; }
+}
+/* tableta en vertical: no cabe en una → dos hileras (arriba la tonalidad, las vistas, pantalla y ✕; debajo, todo lo de anotar) */
+@media (max-width: 1000px) and (orientation: portrait){
+  html.lm-fam-portal #lm-ento{ --vl-b:38px; --vl-gap:5px; --en-sw:32px; --en-swi:26px; --vl-celda:34px; --en-celdas:5; }
+  html.lm-fam-portal #lm-ento .lm-en-bar{ flex-wrap:wrap; row-gap:8px; padding:8px 12px; }
+  html.lm-fam-portal #lm-ento .lm-en-her{ order:4; flex:1 1 100%; justify-content:space-between; }
+  html.lm-fam-portal #lm-ento .lm-en-sw{ font-size:11px; } html.lm-fam-portal #lm-ento .lm-en-sw.dos{ font-size:8.5px; }
+  html.lm-fam-portal #lm-ento .lm-vl-t-s span, html.lm-fam-portal #lm-ento .lm-vl-t-b span{ font-size:21px; }
+  html.lm-fam-portal #lm-ento .lm-vl-b svg.pl-i{ width:20px; height:20px; }
+}

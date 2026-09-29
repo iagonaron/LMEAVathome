@@ -41,6 +41,9 @@
    16) (29-sep-2026, Iago) ATAJOS EN LA MISMA VENTANA (solo Tester/Protester): las pantallas de Resultados de las apps
        de corrección se abren DENTRO del portal, con una ✕ arriba a la derecha (o Esc) para volver. Y el «Ampliar» de
        Libros es ya del propio visor: la sección 10 se queda quieta si lo encuentra.
+   17) (29-sep-2026, tarde) LIBRO DE ENTONACIÓN (solo Tester, GE): el cuadro de la clave de sol da «Lección activa · N»
+       (el libro abierto por la lección de la semana, con dos vistas y la barra de anotar) y «Resultados». Y la punta
+       fina de las lecciones de ritmo pasa a VERDE («que el puntero opaco de ritmo sea verde»).
    Copia de la versión anterior: portal.js.bak-27sep-v2
    ===================================================================== */
 (function () {
@@ -164,7 +167,8 @@
   /* ---------- 9 (28-sep-2026, Iago): botones del profesor en cuadrados 1×1 con icono ----------
      De izquierda a derecha, antes de [Carrusel PRO] [Mis resultados] [campana]:
      Pentagrama (blanco, líneas grises, como la pizarra) · Libros (elige el libro antes de abrir) · Ritmo (metrónomo: «Ver intro activa»
-     y «Resultados») · Entonación (clave de sol, GE) · Dictado activo (diapasón con «Nº x») · Sorteo (si está).
+     y «Resultados») · Entonación (clave de sol, GE: «Lección activa · N» y «Resultados», sección 17) · Dictado activo (diapasón con
+     «Nº x») · Sorteo (si está).
      Cada cuadrado PULSA el botón de siempre (que sigue en la página, oculto): mismo comportamiento que antes. */
   var GP = document.documentElement.classList.contains('lm-gp');
   var LIBROS = GP ? [['intervalia_pro', 'Intervalia PRO'], ['teoria', 'Apuntes de teoría']]
@@ -251,7 +255,14 @@
       if (rr) ops.push({ t: 'Resultados', s: GP ? 'Ritmo entonado · pantalla de corrección' : 'Pantalla de corrección de ritmo', fn: function () { pulsa(q('#rs-mini .rs-btn.verde') || q('#rs-mini .rs-btn.violeta')); } });
       abrirMenu(b, ops);
     }, true));
-    if (resE) barra.appendChild(cuadro('lm-ic-ento', 'clavesol', 'Entonación · resultados', function () { pulsa(q('#rs-mini .rs-btn.azul')); }));
+    /* (29-sep-2026, tarde) GE: «Lección activa · N» (el libro de entonación, sección 17) y «Resultados» */
+    if (resE) {
+      barra.appendChild(cuadro('lm-ic-ento', 'clavesol', GP ? 'Entonación · resultados' : 'Entonación · lección activa y resultados', function (b) {
+        if (GP) { pulsa(q('#rs-mini .rs-btn.azul')); return; }
+        menuEntonacion(b);
+      }, !GP));
+      if (!GP) { try { enCargar(); } catch (e) {} }   /* así el número ya está al abrir el menú */
+    }
     if (dicts.length) {
       var nums = dicts.map(function (b) { var m = /nº\s*(\d+)/i.exec(b.textContent); return m ? m[1] : ''; });
       var badge = dicts.length === 1 ? (nums[0] ? 'Nº' + nums[0] : '') : (nums.every(function (x) { return x && x === nums[0]; }) ? 'Nº' + nums[0] : String(dicts.length));
@@ -592,7 +603,8 @@
       mH[d[0]] = boton('lm-vl-col', '<span class="lm-vl-sw" style="background:' + d[1] + '"></span>', d[2], function () { pulsaO(o(d[0])); });
       her.appendChild(mH[d[0]]);
     });
-    mH.k = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina"><i></i></span>', 'Punta fina negra', function () { pulsaO(o('k')); }); her.appendChild(mH.k);
+    /* (29-sep-2026, Iago) «que el puntero opaco de ritmo sea verde» (y el de entonación, azul): coherencia de los apartados */
+    mH.k = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina"><i></i></span>', 'Punta fina verde', function () { pulsaO(o('k')); }); her.appendChild(mH.k);
     mH.nota = boton('', svgI(ICO_NOTA), 'Nota de texto', function () { pulsaO(o('nota')); }); her.appendChild(mH.nota);
     mH.goma = boton('', ico('goma'), 'Goma', function () { pulsaO(o('goma')); }); her.appendChild(mH.goma);
     her.appendChild(sep('s2'));
@@ -1126,6 +1138,621 @@
     nuevo.__lmMarco = true;
     window.open = nuevo;
   })();
+
+  /* ---------- 17 (29-sep-2026, Iago): LIBRO DE ENTONACIÓN · LECCIÓN ACTIVA (solo Tester, GE) ----------
+     «Añade al portal elemental (solo a tester) el libro de entonación con las lecciones… en el botón de entonación
+      (clave de sol azul), y al pulsar que me dé la opción de lección activa (con el número) y de resultados. Al entrar
+      en lección activa, dos opciones de vista: una aprovechando todo el ancho y otra en la que se vean las dos hojas,
+      tal y como las ven los alumnos. Y que si marqué algo en la versión ampliada, se mantenga donde lo apunté en la
+      versión alejada de dos páginas: que sea coherente. Necesito aquí también la interfaz de anotar de ritmo […]:
+      anotado fino opaco en azul (por defecto) y, más grueso y traslúcido, un color para cada intervalo de Intervalia,
+      desde el rojo de la 2m hasta la 8J, ordenados de menor a mayor.»
+     · La lección: la de entonación de la semana docente del Diario (semanas.entonacion_leccion; cambia el viernes a
+       las 19:00). El libro: el PDF del Diario (tabla «libros», tipo entonacion), pintado con pdf.js, como en Libros.
+     · Dónde empieza cada lección y dónde está la música en cada página: medido sobre ese PDF (29-sep-2026, EN_GEO).
+     · Dos vistas: «a todo el ancho» (cada página ocupa la pantalla, sin márgenes blancos; se abre en el rótulo de la
+       lección) y «dos páginas» (el libro abierto: la par a la izquierda y la impar a la derecha).
+     · Las marcas van en coordenadas de la PÁGINA del libro, no de la vista: lo marcado en una sale en el mismo sitio
+       en la otra. Se guardan en este aparato: localStorage «lm_ento_anot:<curso>:p<página>».
+     · Para quitarlo: borrar esta sección (y su CSS en portal.css) y dejar en la sección 9 el cuadro de Entonación
+       como estaba (abría Resultados directamente). */
+  var EN_GEO = {
+    /* lección: [página del libro, altura del rótulo «Lección N» en ‰ de la página (su borde de arriba)] */
+    L: {1:[8,570],2:[10,567],3:[12,68],4:[14,570],5:[16,571],6:[18,305],7:[20,341],8:[22,72],9:[24,68],10:[26,566],11:[28,311],12:[30,315],13:[32,568],14:[34,68],15:[36,568],16:[38,566],17:[40,291],18:[42,68],19:[44,566],20:[46,314],21:[48,68],22:[50,567],23:[52,566],24:[54,308],25:[56,338],26:[58,292],27:[60,68],28:[62,565],29:[64,314],30:[66,311],31:[68,358],32:[70,570],33:[72,70],34:[74,568],35:[76,299],36:[78,305],37:[80,358],38:[82,568],39:[84,71],40:[86,568],41:[88,292],42:[90,70],43:[92,591],44:[94,72],45:[96,571],46:[98,71],47:[100,584],48:[102,68],49:[104,570],50:[106,289],51:[109,128],52:[110,69],53:[111,69],54:[112,68],55:[113,69]},
+    /* página: [izquierda, derecha] de la música en ‰ del ancho, con un pelín de margen (vista «a todo el ancho») */
+    X: {8:[84,918],9:[106,945],10:[80,916],11:[104,945],12:[78,912],13:[106,945],14:[80,916],15:[106,945],16:[86,922],17:[108,945],18:[86,922],19:[106,947],20:[84,918],21:[108,947],22:[86,926],23:[108,945],24:[80,918],25:[110,949],26:[78,914],27:[110,949],28:[84,920],29:[108,949],30:[76,912],31:[110,947],32:[86,922],33:[106,941],34:[86,924],35:[102,938],36:[82,916],37:[110,947],38:[86,922],39:[106,943],40:[92,926],41:[110,947],42:[84,920],43:[110,947],44:[86,922],45:[116,951],46:[78,922],47:[114,951],48:[84,920],49:[106,941],50:[80,916],51:[120,957],52:[84,920],53:[120,959],54:[74,914],55:[116,953],56:[82,920],57:[120,959],58:[84,920],59:[116,955],60:[86,924],61:[118,955],62:[90,928],63:[112,949],64:[84,928],65:[112,949],66:[94,930],67:[110,945],68:[88,928],69:[116,951],70:[98,938],71:[110,945],72:[94,932],73:[108,943],74:[96,934],75:[110,945],76:[92,932],77:[100,936],78:[98,934],79:[106,941],80:[96,934],81:[102,938],82:[96,934],83:[104,938],84:[94,938],85:[100,934],86:[102,938],87:[104,938],88:[94,938],89:[102,941],90:[100,936],91:[100,936],92:[106,949],93:[98,934],94:[92,936],95:[92,928],96:[98,938],97:[98,934],98:[96,934],99:[94,932],100:[96,936],101:[96,934],102:[96,932],103:[94,932],104:[94,934],105:[96,932],106:[98,934],107:[94,930],108:[102,928],109:[96,934],110:[88,928],111:[98,934],112:[88,926],113:[94,930]}
+  };
+  /* los colores de Intervalia (su paleta «extraída del libro»), de menor a mayor */
+  var EN_INT = [['2m', '#a62c17', '2ª menor'], ['2M', '#ed732e', '2ª mayor'], ['3m', '#2f6b1e', '3ª menor'], ['3M', '#9ed649', '3ª mayor'],
+    ['4J', '#2355ce', '4ª justa'], ['4A/5D', '#f3ec4e', '4ª aumentada · 5ª disminuida'], ['5J', '#5ac4f7', '5ª justa'], ['6m', '#8c33b6', '6ª menor'],
+    ['6M', '#d796f8', '6ª mayor'], ['7m', '#5a2d05', '7ª menor'], ['7M', '#c98a1e', '7ª mayor'], ['8J', '#000000', '8ª justa']];
+  var EN_TINTA = '#2563eb';                               /* punta fina opaca: el azul de entonación */
+  var EN_FINA = 0.0022, EN_GRUESA = 0.010, EN_ALFA = 0.42; /* grosor en fracción del ancho de la página; subrayado traslúcido */
+  var EN_PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  var EN_PDFW = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  var EN_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var EN_ICO_ANCHO = '<path d="M3 4v16M21 4v16"/><path d="M7 12h10"/><path d="M10 9l-3 3 3 3M14 9l3 3-3 3"/>';
+  var EN = { datos: null, t: 0, cargando: null, pj: null, doc: null, docPath: '', st: null };
+
+  /* ---- datos: el curso de GE activo, la lección de la semana docente y el PDF del libro ---- */
+  function enRest(q) {
+    return fetch(MOR_SB + '/rest/v1/' + q, { cache: 'no-store', headers: { apikey: MOR_ANON, Authorization: 'Bearer ' + MOR_ANON } })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  }
+  function enSemana() {   /* la semana docente, como Libros y el Diario: el viernes a las 19:00 ya cuenta la siguiente */
+    var now = new Date(), lun = new Date(now); lun.setHours(0, 0, 0, 0); lun.setDate(lun.getDate() - ((lun.getDay() + 6) % 7));
+    var vie = new Date(lun); vie.setDate(lun.getDate() + 4); vie.setHours(19, 0, 0, 0);
+    var d = (now > vie) ? new Date(lun.getTime() + 7 * 864e5) : now;
+    var u = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), dia = u.getUTCDay() || 7; u.setUTCDate(u.getUTCDate() + 4 - dia);
+    var y0 = new Date(Date.UTC(u.getUTCFullYear(), 0, 1));
+    return { anio: u.getUTCFullYear(), semana: Math.ceil((((u - y0) / 864e5) + 1) / 7) };
+  }
+  function enCargar(forzar) {
+    if (!forzar && EN.datos && Date.now() - EN.t < 5 * 60e3) return Promise.resolve(EN.datos);
+    if (EN.cargando) return EN.cargando;
+    var w = enSemana(), d = { curso: '', leccion: null, pdf: '', error: '' };
+    EN.cargando = enRest('cursos?select=codigo,activo').then(function (cs) {
+      var act = (cs || []).filter(function (c) { return c && c.activo && /Ge$/.test(c.codigo || ''); }).map(function (c) { return c.codigo; }).sort().reverse();
+      d.curso = act[0] || '4Ge';
+      return Promise.all([
+        enRest('semanas?select=entonacion_leccion&curso=eq.' + encodeURIComponent(d.curso) + '&anio=eq.' + w.anio + '&semana_iso=eq.' + w.semana),
+        enRest('libros?select=storage_path&tipo=eq.entonacion&curso=eq.' + encodeURIComponent(d.curso))
+      ]);
+    }).then(function (r) {
+      var s = r[0] && r[0][0], l = r[1] && r[1][0];
+      d.leccion = (s && s.entonacion_leccion) ? +s.entonacion_leccion : null;
+      d.pdf = (l && l.storage_path) || '';
+      EN.datos = d; EN.t = Date.now(); return d;
+    }).catch(function () { d.error = 'red'; EN.datos = null; return d; })
+      .then(function (x) { EN.cargando = null; return x; });
+    return EN.cargando;
+  }
+  function enPaginas(N) {   /* el libro abierto por esa lección: la par a la izquierda, la impar a la derecha */
+    var g = EN_GEO.L[N]; if (!g) return null;
+    var izq = (g[0] % 2 === 0) ? g[0] : g[0] - 1; return [izq, izq + 1];
+  }
+
+  /* ---- el menú del cuadro de Entonación (sección 9): «Lección activa · N» y «Resultados» ---- */
+  function menuEntonacion(b) {
+    var res = { t: 'Resultados', s: 'Pantalla de corrección de entonación', fn: function () { pulsa(q('#rs-mini .rs-btn.azul')); } };
+    if (EN.datos && !EN.cargando) {
+      abrirMenu(b, [opLeccion(EN.datos), res]);
+      if (Date.now() - EN.t > 5 * 60e3) enCargar(true);
+      return;
+    }
+    abrirMenu(b, [{ t: 'Lección activa', s: 'Buscando la de esta semana…', fn: function () { enCargar().then(function (x) { if (x && x.leccion && enPaginas(x.leccion) && x.pdf) abrirEnto(x); }); } }, res]);
+    enCargar().then(function (x) { if (_menu && _menu._de === b) { cerrarMenu(); abrirMenu(b, [opLeccion(x), res]); } });
+  }
+  function opLeccion(d) {
+    if (!d || d.error) return { t: 'Lección activa', s: 'No se ha podido leer la semana · tocar para reintentar', fn: function () {
+      enCargar(true).then(function (x) { if (x && x.leccion && enPaginas(x.leccion) && x.pdf) abrirEnto(x); });
+    } };
+    if (!d.leccion) return { t: 'Sin lección de entonación esta semana', off: true };
+    var pp = enPaginas(d.leccion);
+    if (d.curso !== '4Ge' || !pp || !d.pdf) return { t: 'Lección activa · ' + d.leccion, s: 'Este libro aún no está en el portal', off: true };
+    return { t: 'Lección activa · ' + d.leccion, s: 'Entonación 4 · páginas ' + pp[0] + ' y ' + pp[1], fn: function () { abrirEnto(d); } };
+  }
+
+  /* ---- pdf.js (el mismo que usa Libros) y el libro ---- */
+  function enPdfLib() { return window.pdfjsLib || window['pdfjs-dist/build/pdf'] || null; }
+  function enPdfjs() {
+    var L0 = enPdfLib(); if (L0) return Promise.resolve(L0);
+    if (EN.pj) return EN.pj;
+    EN.pj = new Promise(function (ok, ko) {
+      var s = document.createElement('script'); s.src = EN_PDFJS;
+      s.onload = function () {
+        var L = enPdfLib(); if (!L) { EN.pj = null; ko(new Error('pdf.js')); return; }
+        try { L.GlobalWorkerOptions.workerSrc = EN_PDFW; } catch (e) {}
+        ok(L);
+      };
+      s.onerror = function () { EN.pj = null; ko(new Error('pdf.js')); };
+      document.head.appendChild(s);
+    });
+    return EN.pj;
+  }
+  function enDoc(path) {
+    if (EN.doc && EN.docPath === path) return Promise.resolve(EN.doc);
+    return enPdfjs().then(function (L) {
+      try { if (!L.GlobalWorkerOptions.workerSrc) L.GlobalWorkerOptions.workerSrc = EN_PDFW; } catch (e) {}
+      var url = MOR_SB + '/storage/v1/object/public/diario/' + path.split('/').map(encodeURIComponent).join('/');
+      return L.getDocument({ url: url, disableAutoFetch: true }).promise;
+    }).then(function (doc) { EN.doc = doc; EN.docPath = path; return doc; });
+  }
+
+  /* ---- marcas: por página del libro, en este aparato ---- */
+  function enClave(curso, P) { return 'lm_ento_anot:' + curso + ':p' + P; }
+  function enLee(curso, P) {
+    try { var s = JSON.parse(localStorage.getItem(enClave(curso, P)) || 'null'); if (s && Array.isArray(s.s) && Array.isArray(s.n)) return s; } catch (e) {}
+    return { s: [], n: [] };
+  }
+  function enGuarda(pg) {
+    var st = EN.st; if (!st) return;
+    try {
+      if (!pg.data.s.length && !pg.data.n.length) localStorage.removeItem(enClave(st.curso, pg.P));
+      else localStorage.setItem(enClave(st.curso, pg.P), JSON.stringify(pg.data));
+    } catch (e) {}
+  }
+  function enClaro(hex) {
+    var n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 150;
+  }
+
+  /* ---- el visor ---- */
+  function enBoton(clase, html, titulo, fn) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'lm-vl-b' + (clase ? ' ' + clase : '');
+    b.innerHTML = html; b.title = titulo; b.setAttribute('aria-label', titulo);
+    b.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); fn(b); });
+    return b;
+  }
+  function enSep() { var s = document.createElement('span'); s.className = 'lm-vl-sep'; s.setAttribute('aria-hidden', 'true'); return s; }
+  function enVistaGuardada() { try { return localStorage.getItem('lm_ento_vista') === 'dos' ? 'dos' : 'ancho'; } catch (e) { return 'ancho'; } }
+
+  function abrirEnto(d) {
+    cerrarEnto();
+    var pp = enPaginas(d.leccion), g = EN_GEO.L[d.leccion]; if (!pp || !d.pdf) return;
+    var st = EN.st = { curso: d.curso, leccion: d.leccion, pdf: d.pdf, P0: g[0], y0: g[1] / 1000, pags: [], vista: enVistaGuardada(),
+      herr: 'fina', dibujo: 'fina', hist: [], cur: null, borrando: null, dedos: {}, pan: null, armado: 0, A: 841.89 / 595.28,
+      scrollAncho: null, listo: false, rafV: 0 };
+    var ov = st.ov = document.createElement('div'); ov.id = 'lm-ento';
+    ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Entonación · Lección ' + d.leccion);
+
+    /* la hilera, UNA sola («que lo de la tonalidad esté a la izquierda y lo de anotar a continuación, más en el centro; y que
+       todo ocupe un renglón»): tonalidad (rueda, ♯ ♭, M m) · [punta fina azul · los 12 intervalos · nota · goma · deshacer ·
+       borrar todo], centrado en el hueco · vistas · pantalla · ✕. Solo en la tableta en vertical no cabe: ahí, dos hileras. */
+    var bar = st.bar = document.createElement('div'); bar.className = 'lm-vl-bar lm-en-bar'; bar.setAttribute('role', 'toolbar');
+    bar.setAttribute('aria-label', 'Lección ' + d.leccion + ' · herramientas');
+    /* (29-sep-2026, Iago) «al igual que en el visor de ritmo, el apartado de poner la tonalidad: aquí también nos interesa.
+       Misma idea.» La rueda es la misma de ritmo (sección 12); ♯ ♭ M m en azul. Se guarda con la lección, en este aparato. */
+    var g1 = document.createElement('div'); g1.className = 'lm-vl-g1 lm-en-ton'; g1.setAttribute('role', 'group'); g1.setAttribute('aria-label', 'Tonalidad');
+    var rh = st.rh = document.createElement('div'); rh.className = 'lm-vl-rueda'; rh.setAttribute('role', 'slider'); rh.setAttribute('aria-label', 'Tonalidad');
+    g1.appendChild(rh);
+    st.ton = enTonLee(d.curso, d.leccion); st.bT = {};
+    [['#', '♯', 'Sostenido', 's'], ['b', '♭', 'Bemol', 'b'], ['M', 'M', 'Mayor', 'may'], ['m', 'm', 'menor', 'men']].forEach(function (x) {
+      st.bT[x[0]] = enBoton('lm-vl-t lm-vl-t-' + x[3], '<span>' + x[1] + '</span>', x[2], function () { enTonBoton(x[0]); });
+      g1.appendChild(st.bT[x[0]]);
+    });
+    bar.appendChild(g1);
+    var esp1 = document.createElement('span'); esp1.className = 'lm-vl-esp lm-en-esp1'; bar.appendChild(esp1);
+    var her = document.createElement('div'); her.className = 'lm-vl-her lm-en-her';
+    st.bH = {};
+    st.bH.fina = enBoton('lm-en-col', '<span class="lm-en-fina"><i></i></span>', 'Punta fina azul', function () { enHerr('fina'); });
+    her.appendChild(st.bH.fina);
+    EN_INT.forEach(function (it, k) {
+      var dos = it[0].indexOf('/') > 0;
+      var html = '<span class="lm-en-sw' + (dos ? ' dos' : '') + (it[1] === '#000000' ? ' negro' : '') + '" style="background:' + it[1] + ';color:' + (enClaro(it[1]) ? '#000' : '#fff') + '">' +
+        (dos ? it[0].replace('/', '<br>') : it[0]) + '</span>';
+      st.bH['i' + k] = enBoton('lm-en-int', html, 'Subrayar · ' + it[2], function () { enHerr('i' + k); });
+      her.appendChild(st.bH['i' + k]);
+    });
+    her.appendChild(enSep());
+    st.bH.nota = enBoton('', svgI(ICO_NOTA), 'Nota de texto', function () { enHerr('nota'); }); her.appendChild(st.bH.nota);
+    st.bH.goma = enBoton('', ico('goma'), 'Goma', function () { enHerr('goma'); }); her.appendChild(st.bH.goma);
+    her.appendChild(enSep());
+    st.bU = enBoton('', ico('deshacer'), 'Deshacer', function () { enDeshacer(); }); her.appendChild(st.bU);
+    st.bC = enBoton('lm-vl-borra', ico('trash'), 'Borrar todo', function () { enBorrarTodo(); }); her.appendChild(st.bC);
+    bar.appendChild(her);
+    var esp = document.createElement('span'); esp.className = 'lm-vl-esp'; bar.appendChild(esp);
+    var fin = document.createElement('div'); fin.className = 'lm-vl-fin';
+    st.bV = { ancho: enBoton('', svgI(EN_ICO_ANCHO), 'A todo el ancho', function () { enVista('ancho'); }),
+              dos: enBoton('', ico('book'), 'Dos páginas, como en el libro', function () { enVista('dos'); }) };
+    fin.appendChild(st.bV.ancho); fin.appendChild(st.bV.dos); fin.appendChild(enSep());
+    st.bF = enBoton('', ico('expandir'), 'Pantalla completa', function () { enPantalla(); }); fin.appendChild(st.bF);
+    fin.appendChild(enBoton('lm-vl-x', ico('x'), 'Cerrar (Esc)', function () { cerrarEnto(); }));
+    bar.appendChild(fin);
+    st.aviso = document.createElement('div'); st.aviso.className = 'lm-vl-aviso'; st.aviso.setAttribute('role', 'status'); st.aviso.textContent = '¿Borrar todo? Toca otra vez';
+    bar.appendChild(st.aviso);
+    ov.appendChild(bar);
+
+    /* las dos páginas del libro abierto */
+    var zona = st.zona = document.createElement('div'); zona.className = 'lm-en-zona'; zona.tabIndex = -1;
+    pp.forEach(function (P) { var pg = enPagina(P); st.pags.push(pg); zona.appendChild(pg.el); });
+    ov.appendChild(zona);
+    st.carga = document.createElement('div'); st.carga.className = 'lm-en-carga'; st.carga.setAttribute('role', 'status');
+    st.carga.textContent = 'Abriendo la lección ' + d.leccion + '…';
+    ov.appendChild(st.carga);
+    st.vivo = document.createElement('canvas'); st.vivo.className = 'lm-en-vivo';   /* el trazo que se está haciendo (uno a la vez) */
+    document.body.appendChild(ov);
+    document.documentElement.classList.add('lm-en-on');
+    st.rueda = vlRueda(rh, VL_NOTAS, function (j) { if (EN.st !== st) return; st.ton.n = j; enTonGuarda(); enTonPinta(); });
+    st.rueda.fija(st.ton.n, true); enTonPinta();
+
+    st.onKey = function (e) {
+      if (EN.st !== st) return;
+      var enNota = !!(e.target && e.target.closest && e.target.closest('.lm-en-nota'));
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        e.preventDefault(); e.stopPropagation();
+        if (enNota) { try { e.target.blur(); } catch (x) {} return; }
+        cerrarEnto(); return;
+      }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'z' || e.key === 'Z') && !enNota) { e.preventDefault(); e.stopPropagation(); enDeshacer(); }
+    };
+    document.addEventListener('keydown', st.onKey, true);
+    st.onResize = function () { clearTimeout(st.tRes); st.tRes = setTimeout(function () { if (EN.st === st) enColoca(); }, 120); };
+    window.addEventListener('resize', st.onResize);
+    st.onFS = function () { if (EN.st !== st) return; enPintaFS(); setTimeout(function () { if (EN.st === st) enColoca(); }, 90); };
+    document.addEventListener('fullscreenchange', st.onFS); document.addEventListener('webkitfullscreenchange', st.onFS);
+
+    enPintaHerr(); enPintaVista(); enPintaFS(); enEstados(); enColoca();
+    enDoc(d.pdf).then(function (doc) {
+      return doc.getPage(pp[0]).then(function (p1) { var v = p1.getViewport({ scale: 1 }); if (v.width) st.A = v.height / v.width; });
+    }).then(function () {
+      if (EN.st !== st) return;
+      st.listo = true; enColoca();
+      if (st.vista === 'ancho') enIrALeccion();
+    }).catch(function () {
+      if (EN.st !== st) return;
+      st.carga.textContent = 'No se ha podido abrir el libro. ';
+      var r = document.createElement('button'); r.type = 'button'; r.className = 'lm-en-reint'; r.textContent = 'Reintentar';
+      r.addEventListener('click', function () { EN.doc = null; EN.docPath = ''; abrirEnto(d); });
+      st.carga.appendChild(r);
+    });
+    try { zona.focus({ preventScroll: true }); } catch (e) {}
+  }
+
+  /* ---- la tonalidad de la lección (rueda + ♯ ♭ + M m), guardada con la lección ---- */
+  function enTonClave(curso, N) { return 'lm_ento_ton:' + curso + ':L' + N; }
+  function enTonLee(curso, N) {
+    try {
+      var s = JSON.parse(localStorage.getItem(enTonClave(curso, N)) || 'null');
+      if (s && typeof s.n === 'number') return { n: Math.max(0, Math.min(VL_NOTAS.length - 1, s.n | 0)), alt: (s.alt === '#' || s.alt === 'b') ? s.alt : '', modo: (s.modo === 'M' || s.modo === 'm') ? s.modo : '' };
+    } catch (e) {}
+    return { n: 0, alt: '', modo: '' };
+  }
+  function enTonGuarda() {
+    var st = EN.st; if (!st) return;
+    try {
+      var t = st.ton, k = enTonClave(st.curso, st.leccion);
+      if (!t.n && !t.alt && !t.modo) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(t));
+    } catch (e) {}
+  }
+  function enTonBoton(k) {
+    var st = EN.st; if (!st) return;
+    var t = st.ton;
+    if (k === '#' || k === 'b') t.alt = (t.alt === k) ? '' : k; else t.modo = (t.modo === k) ? '' : k;
+    enTonGuarda(); enTonPinta();
+  }
+  function enTonPinta() {
+    var st = EN.st; if (!st) return;
+    var t = st.ton;
+    ['#', 'b', 'M', 'm'].forEach(function (k) { var on = (k === t.alt || k === t.modo); st.bT[k].classList.toggle('on', on); st.bT[k].setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    st.rh.classList.toggle('con-nota', t.n > 0);
+    var tx = t.n ? VL_NOTAS[t.n] + (t.alt === '#' ? '♯' : t.alt === 'b' ? '♭' : '') + (t.modo === 'M' ? ' Mayor' : t.modo === 'm' ? ' menor' : '') : 'sin indicar';
+    st.rh.setAttribute('aria-valuetext', tx); st.rh.title = 'Tonalidad: ' + tx;
+  }
+
+  function enPagina(P) {
+    var st = EN.st;
+    var el = document.createElement('div'); el.className = 'lm-en-pag'; el.setAttribute('data-p', String(P));
+    var hoja = document.createElement('div'); hoja.className = 'lm-en-hoja';
+    var img = document.createElement('canvas'); img.className = 'lm-en-img';
+    var anot = document.createElement('canvas'); anot.className = 'lm-en-anot';
+    var toque = document.createElement('div'); toque.className = 'lm-en-toque';
+    var notas = document.createElement('div'); notas.className = 'lm-en-notas';
+    hoja.appendChild(img); hoja.appendChild(anot); hoja.appendChild(toque); hoja.appendChild(notas); el.appendChild(hoja);
+    var pg = { P: P, data: enLee(st.curso, P), el: el, hoja: hoja, img: img, anot: anot, toque: toque, notas: notas, Wp: 0, Hp: 0, tok: 0, rw: 0, tarea: null };
+    enEventos(pg);
+    return pg;
+  }
+
+  /* ---- colocar las páginas en la vista que toca (y pintarlas a su tamaño) ---- */
+  function enColoca() {
+    var st = EN.st; if (!st) return;
+    if (st.rueda) { try { st.rueda.pos(); } catch (e) {} }
+    var z = st.zona, ancho = st.vista === 'ancho';
+    z.classList.toggle('ancho', ancho); z.classList.toggle('dos', !ancho);
+    var cs = getComputedStyle(z);
+    var W = z.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+    var H = z.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+    var A = st.A;
+    if (ancho) {
+      st.pags.forEach(function (pg) {
+        var x = EN_GEO.X[pg.P] || [0, 1000], f0 = x[0] / 1000, f1 = x[1] / 1000;
+        pg.Wp = W / (f1 - f0); pg.Hp = pg.Wp * A;
+        pg.el.style.width = W + 'px'; pg.el.style.height = pg.Hp + 'px';
+        pg.hoja.style.left = (-f0 * pg.Wp) + 'px';
+      });
+    } else {
+      var wp = Math.max(60, Math.min((W - 2) / 2, H / A));
+      st.pags.forEach(function (pg) {
+        pg.Wp = wp; pg.Hp = wp * A;
+        pg.el.style.width = wp + 'px'; pg.el.style.height = pg.Hp + 'px'; pg.hoja.style.left = '0px';
+      });
+    }
+    st.pags.forEach(function (pg) {
+      pg.hoja.style.width = pg.Wp + 'px'; pg.hoja.style.height = pg.Hp + 'px';
+      pg.notas.style.fontSize = Math.max(9, pg.Wp * 0.017) + 'px';   /* las notas crecen con la página (sin rehacerlas: se puede estar escribiendo) */
+      enAjustaAnot(pg);
+      if (!pg.notasHechas) { pg.notasHechas = true; enNotas(pg); }
+      if (st.listo) enPinta(pg);
+    });
+  }
+  function enIrALeccion() {
+    var st = EN.st; if (!st) return;
+    var pg = st.pags.filter(function (p) { return p.P === st.P0; })[0]; if (!pg) return;
+    st.zona.scrollTop = Math.max(0, pg.el.offsetTop + st.y0 * pg.Hp - 18);
+  }
+  function enVista(v) {
+    var st = EN.st; if (!st || st.vista === v) return;
+    if (st.vista === 'ancho') st.scrollAncho = st.zona.scrollHeight ? st.zona.scrollTop / st.zona.scrollHeight : null;
+    st.vista = v; try { localStorage.setItem('lm_ento_vista', v); } catch (e) {}
+    enAnula(); enPintaVista(); enColoca();
+    if (v === 'ancho') { if (st.scrollAncho == null) enIrALeccion(); else st.zona.scrollTop = st.scrollAncho * st.zona.scrollHeight; }
+    else st.zona.scrollTop = 0;
+  }
+  function enPintaVista() {
+    var st = EN.st; if (!st) return;
+    ['ancho', 'dos'].forEach(function (k) { var on = st.vista === k; st.bV[k].classList.toggle('on', on); st.bV[k].setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  }
+  function enPinta(pg) {   /* la página del libro, pintada a la resolución de la pantalla */
+    var st = EN.st; if (!st || !EN.doc) return;
+    var dpr = window.devicePixelRatio || 1, cap = EN_IOS ? 8e6 : 24e6;
+    var w = pg.Wp * dpr; if (w * w * st.A > cap) w = Math.sqrt(cap / st.A);
+    w = Math.max(1, Math.round(w));
+    if (pg.rw && Math.abs(pg.rw - w) / w < 0.15) return;   /* ya está pintada a un tamaño parecido */
+    var tok = ++pg.tok;
+    if (pg.tarea) { try { pg.tarea.cancel(); } catch (e) {} pg.tarea = null; }
+    EN.doc.getPage(pg.P).then(function (page) {
+      if (tok !== pg.tok || EN.st !== st) return;
+      var v1 = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: w / v1.width });
+      var cv = document.createElement('canvas'); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
+      var ctx = cv.getContext('2d', { alpha: false }); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+      pg.tarea = page.render({ canvasContext: ctx, viewport: vp });
+      return pg.tarea.promise.then(function () {
+        pg.tarea = null;
+        if (tok !== pg.tok || EN.st !== st) { cv.width = cv.height = 0; return; }
+        cv.className = 'lm-en-img';
+        var viejo = pg.img; pg.hoja.replaceChild(cv, viejo); viejo.width = viejo.height = 0;
+        pg.img = cv; pg.rw = w;
+        if (st.carga && st.carga.parentNode) st.carga.parentNode.removeChild(st.carga);
+      });
+    }).catch(function () {});
+  }
+
+  /* ---- dibujar ---- */
+  function enAjustaAnot(pg) {
+    var dpr = Math.min(2, window.devicePixelRatio || 1), cap = EN_IOS ? 5e6 : 14e6;
+    var w = pg.Wp * dpr, h = pg.Hp * dpr; if (w * h > cap) { var k = Math.sqrt(cap / (w * h)); w *= k; h *= k; }
+    w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h));
+    if (pg.anot.width !== w || pg.anot.height !== h) { pg.anot.width = w; pg.anot.height = h; }
+    enRedibuja(pg);
+  }
+  function enTrazo(x, sk, W, H, vivo) {
+    var p = sk.p; if (!p || !p.length) return;
+    x.save();
+    x.globalAlpha = vivo ? 1 : (sk.o || 1);
+    x.strokeStyle = sk.c; x.lineCap = 'round'; x.lineJoin = 'round';
+    x.lineWidth = Math.max(sk.o ? 3 : 1.4, sk.w * W);
+    x.beginPath(); x.moveTo(p[0][0] * W, p[0][1] * H);
+    if (p.length === 1) x.lineTo(p[0][0] * W + 0.01, p[0][1] * H);
+    for (var i = 1; i < p.length; i++) x.lineTo(p[i][0] * W, p[i][1] * H);
+    x.stroke(); x.restore();
+  }
+  function enRedibuja(pg) {
+    var c = pg.anot, x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height);
+    pg.data.s.forEach(function (sk) { enTrazo(x, sk, c.width, c.height, false); });
+  }
+  function enPunto(pg, e) {
+    var r = pg.hoja.getBoundingClientRect();
+    return [Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), Math.max(0, Math.min(1, (e.clientY - r.top) / r.height))];
+  }
+  function enEmpieza(pg, p, id) {
+    var st = EN.st, k = st.herr, sk;
+    if (k === 'fina') sk = { c: EN_TINTA, w: EN_FINA, p: [p] };
+    else { var it = EN_INT[+k.slice(1)] || EN_INT[0]; sk = { c: it[1], w: EN_GRUESA, o: EN_ALFA, i: it[0], p: [p] }; }
+    st.cur = { pg: pg, id: id, sk: sk };
+    var v = st.vivo;
+    if (v.width !== pg.anot.width || v.height !== pg.anot.height) { v.width = pg.anot.width; v.height = pg.anot.height; }
+    v.style.opacity = sk.o ? String(sk.o) : '1';
+    if (v.parentNode !== pg.hoja) pg.hoja.insertBefore(v, pg.toque);
+    enVivo();
+  }
+  function enVivo() {
+    var st = EN.st; if (!st) return;
+    var c = st.cur, v = st.vivo, x = v.getContext('2d');
+    x.clearRect(0, 0, v.width, v.height);
+    if (c) enTrazo(x, c.sk, v.width, v.height, true);
+  }
+  function enSigue(p) {
+    var c = EN.st.cur, q = c.sk.p[c.sk.p.length - 1];
+    var dx = (p[0] - q[0]) * c.pg.Wp, dy = (p[1] - q[1]) * c.pg.Hp;
+    if (dx * dx + dy * dy < (c.sk.o ? 4 : 0.6)) return false;
+    c.sk.p.push(p); return true;
+  }
+  function enTermina() {
+    var st = EN.st, c = st && st.cur; if (!c) return;
+    st.cur = null;
+    var sk = c.sk; sk.p = sk.p.map(function (q) { return [Math.round(q[0] * 1e4) / 1e4, Math.round(q[1] * 1e4) / 1e4]; });
+    c.pg.data.s.push(sk);
+    enTrazo(c.pg.anot.getContext('2d'), sk, c.pg.anot.width, c.pg.anot.height, false);
+    var v = st.vivo; v.getContext('2d').clearRect(0, 0, v.width, v.height);
+    st.hist.push({ t: 'trazo', pg: c.pg, sk: sk }); enGuarda(c.pg); enEstados();
+  }
+  function enAnula() {   /* un trazo a medias que no vale (dos dedos para desplazar, cambio de vista…) */
+    var st = EN.st; if (!st || !st.cur) return;
+    st.cur = null; var v = st.vivo; v.getContext('2d').clearRect(0, 0, v.width, v.height);
+  }
+  function enDistSeg(p, a, b, A) {
+    var px = p[0], py = p[1] * A, ax = a[0], ay = a[1] * A, bx = b[0], by = b[1] * A;
+    var dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / L)) : 0;
+    var cx = ax + t * dx - px, cy = ay + t * dy - py; return Math.sqrt(cx * cx + cy * cy);
+  }
+  function enBorraEn(pg, p) {   /* la goma se lleva el trazo que toca (como en ritmo) */
+    var s = pg.data.s, r = 14 / pg.Wp, A = pg.Hp / pg.Wp;
+    for (var i = s.length - 1; i >= 0; i--) {
+      var sk = s[i], q = sk.p, rr = r + (sk.w || 0) / 2;
+      for (var j = 0; j < q.length; j++) {
+        if (enDistSeg(p, q[j], q[j + 1] || q[j], A) < rr) {
+          s.splice(i, 1); EN.st.hist.push({ t: 'goma', pg: pg, sk: sk, i: i }); enRedibuja(pg); enEstados(); return true;
+        }
+      }
+    }
+    return false;
+  }
+  function enMedioY() { var st = EN.st, ks = Object.keys(st.dedos), y = 0; ks.forEach(function (k) { y += st.dedos[k].y; }); return ks.length ? y / ks.length : 0; }
+  function enEventos(pg) {
+    var capa = pg.toque, raf = 0;
+    capa.addEventListener('pointerdown', function (e) {
+      var st = EN.st; if (!st || st.herr === 'mano') return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      e.preventDefault();
+      var ae = document.activeElement;   /* tocar la página termina la nota que se estaba escribiendo */
+      if (ae && ae.closest && ae.closest('.lm-en-nota')) { try { ae.blur(); } catch (x) {} }
+      if (e.pointerType === 'touch') {
+        st.dedos[e.pointerId] = { y: e.clientY };
+        if (Object.keys(st.dedos).length >= 2) { enAnula(); st.borrando = null; st.pan = { y: enMedioY() }; return; }   /* dos dedos: desplazar */
+      }
+      if (st.pan) return;
+      try { capa.setPointerCapture(e.pointerId); } catch (x) {}
+      var p = enPunto(pg, e);
+      if (st.herr === 'nota') { enPonNota(pg, p); return; }
+      if (st.herr === 'goma') { st.borrando = { pg: pg, id: e.pointerId, hubo: enBorraEn(pg, p) }; return; }
+      enEmpieza(pg, p, e.pointerId);
+    });
+    capa.addEventListener('pointermove', function (e) {
+      var st = EN.st; if (!st) return;
+      if (e.pointerType === 'touch' && st.dedos[e.pointerId]) st.dedos[e.pointerId].y = e.clientY;
+      if (st.pan) { var y = enMedioY(); st.zona.scrollTop -= (y - st.pan.y); st.pan.y = y; return; }
+      if (st.borrando && st.borrando.id === e.pointerId) { if (enBorraEn(st.borrando.pg, enPunto(st.borrando.pg, e))) st.borrando.hubo = true; return; }
+      if (!st.cur || st.cur.id !== e.pointerId) return;
+      var lista = (e.getCoalescedEvents && e.getCoalescedEvents()) || [], hay = false;
+      if (!lista.length) lista = [e];
+      lista.forEach(function (ev) { if (enSigue(enPunto(st.cur.pg, ev))) hay = true; });
+      if (hay && !raf) raf = requestAnimationFrame(function () { raf = 0; enVivo(); });
+    });
+    function suelta(e, anula) {
+      var st = EN.st; if (!st) return;
+      if (e.pointerType === 'touch') { delete st.dedos[e.pointerId]; if (st.pan && !Object.keys(st.dedos).length) st.pan = null; }
+      if (st.borrando && st.borrando.id === e.pointerId) { var b = st.borrando; st.borrando = null; if (b.hubo) enGuarda(b.pg); }
+      if (st.cur && st.cur.id === e.pointerId) { if (anula) enAnula(); else { if (raf) { cancelAnimationFrame(raf); raf = 0; } enTermina(); } }
+    }
+    capa.addEventListener('pointerup', function (e) { suelta(e, false); });
+    capa.addEventListener('pointercancel', function (e) { suelta(e, true); });
+  }
+  function enHerr(h) {
+    var st = EN.st; if (!st) return;
+    if (st.herr === h) h = 'mano';   /* tocar la herramienta puesta la suelta: el dedo vuelve a desplazar */
+    st.herr = h; if (h === 'fina' || h.charAt(0) === 'i') st.dibujo = h;
+    enAnula(); enPintaHerr();
+  }
+  function enPintaHerr() {
+    var st = EN.st; if (!st) return;
+    Object.keys(st.bH).forEach(function (k) { var on = k === st.herr; st.bH[k].classList.toggle('on', on); st.bH[k].setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    st.ov.classList.toggle('lm-en-dibuja', st.herr !== 'mano');
+    /* escribiendo, SIN puntero (como en el Pentagrama); la goma enseña su círculo; la nota, el de texto */
+    var c = 'none';
+    if (st.herr === 'goma') c = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><circle cx="15" cy="15" r="14" fill="#ffffff" fill-opacity="0.35" stroke="#374151" stroke-width="1.5"/></svg>') + '") 15 15, crosshair';
+    else if (st.herr === 'nota') c = 'text';
+    else if (st.herr === 'mano') c = '';
+    st.pags.forEach(function (pg) { pg.toque.style.cursor = c; });
+  }
+
+  /* ---- notas de texto (van con la página: mismo sitio y mismo tamaño relativo en las dos vistas) ---- */
+  function enPonNota(pg, p) {
+    var st = EN.st, nt = { x: Math.min(0.9, p[0]), y: Math.min(0.97, p[1]), t: '' };
+    pg.data.n.push(nt); st.hist.push({ t: 'nota', pg: pg, nt: nt });
+    enNotas(pg); enEstados();
+    var el = pg.notas.lastChild, tx = el && el.querySelector('.lm-en-nota-t');
+    if (tx) { try { tx.focus(); } catch (e) {} }   /* en el mismo toque: así el iPad saca el teclado */
+    st.herr = st.dibujo; enPintaHerr();   /* una nota por toque; se vuelve a la punta o al subrayador de antes */
+  }
+  function enNotas(pg) {
+    pg.notas.innerHTML = '';
+    pg.data.n.forEach(function (nt) { pg.notas.appendChild(enNotaEl(pg, nt)); });
+  }
+  function enNotaEl(pg, nt) {
+    var d = document.createElement('div'); d.className = 'lm-en-nota';
+    d.style.left = (nt.x * 100) + '%'; d.style.top = (nt.y * 100) + '%';
+    d.innerHTML = '<span class="lm-en-nota-asa" title="Mover"></span><button type="button" class="lm-en-nota-x" aria-label="Borrar nota" title="Borrar nota">×</button>' +
+      '<div class="lm-en-nota-t" contenteditable="true" spellcheck="false"></div>';
+    var tx = d.querySelector('.lm-en-nota-t'); tx.textContent = nt.t || '';
+    tx.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+    tx.addEventListener('input', function () { nt.t = tx.textContent || ''; enGuarda(pg); });
+    tx.addEventListener('blur', function () {
+      nt.t = tx.textContent || '';
+      if (!nt.t.trim()) { var k = pg.data.n.indexOf(nt); if (k >= 0) { pg.data.n.splice(k, 1); enNotas(pg); enEstados(); } }
+      enGuarda(pg);
+    });
+    var x = d.querySelector('.lm-en-nota-x');
+    x.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+    x.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var k = pg.data.n.indexOf(nt); if (k >= 0) pg.data.n.splice(k, 1);
+      enNotas(pg); enGuarda(pg); enEstados();
+    });
+    d.querySelector('.lm-en-nota-asa').addEventListener('pointerdown', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var r = pg.hoja.getBoundingClientRect();
+      var mueve = function (ev) {
+        nt.x = Math.max(0, Math.min(0.96, (ev.clientX - r.left) / r.width)); nt.y = Math.max(0, Math.min(0.98, (ev.clientY - r.top) / r.height));
+        d.style.left = (nt.x * 100) + '%'; d.style.top = (nt.y * 100) + '%';
+      };
+      var fin = function () { document.removeEventListener('pointermove', mueve); document.removeEventListener('pointerup', fin); document.removeEventListener('pointercancel', fin); enGuarda(pg); };
+      document.addEventListener('pointermove', mueve); document.addEventListener('pointerup', fin); document.addEventListener('pointercancel', fin);
+    });
+    return d;
+  }
+
+  /* ---- deshacer · borrar todo ---- */
+  function enDeshacer() {
+    var st = EN.st, h = st && st.hist.pop(); if (!h) return;
+    if (h.t === 'trazo') { var k = h.pg.data.s.indexOf(h.sk); if (k >= 0) h.pg.data.s.splice(k, 1); enRedibuja(h.pg); enGuarda(h.pg); }
+    else if (h.t === 'goma') { h.pg.data.s.splice(Math.min(h.i, h.pg.data.s.length), 0, h.sk); enRedibuja(h.pg); enGuarda(h.pg); }
+    else if (h.t === 'nota') { var j = h.pg.data.n.indexOf(h.nt); if (j >= 0) h.pg.data.n.splice(j, 1); enNotas(h.pg); enGuarda(h.pg); }
+    else if (h.t === 'borrar') h.antes.forEach(function (a) { a.pg.data = a.data; enRedibuja(a.pg); enNotas(a.pg); enGuarda(a.pg); });
+    enEstados();
+  }
+  function enHayMarcas() { return EN.st.pags.some(function (pg) { return pg.data.s.length || pg.data.n.length; }); }
+  function enBorrarTodo() {
+    var st = EN.st; if (!st || !enHayMarcas()) return;
+    if (!st.armado) { st.armado = setTimeout(function () { if (EN.st === st) { st.armado = 0; enEstados(); } }, 3000); enEstados(); return; }
+    clearTimeout(st.armado); st.armado = 0;
+    st.hist.push({ t: 'borrar', antes: st.pags.map(function (pg) { return { pg: pg, data: pg.data }; }) });
+    st.pags.forEach(function (pg) { pg.data = { s: [], n: [] }; enRedibuja(pg); enNotas(pg); enGuarda(pg); });
+    enEstados();
+  }
+  function enEstados() {
+    var st = EN.st; if (!st) return;
+    st.bU.disabled = !st.hist.length;
+    st.bC.disabled = !enHayMarcas();
+    st.bC.classList.toggle('armado', !!st.armado); st.bar.classList.toggle('lm-vl-armado', !!st.armado);
+    if (st.armado) {
+      var r = st.bC.getBoundingClientRect(), rb = st.bar.getBoundingClientRect(), w = st.aviso.offsetWidth || 180;
+      var x = r.left + r.width / 2 - rb.left; st.aviso.style.left = Math.max(w / 2 + 6, Math.min(rb.width - w / 2 - 6, x)) + 'px';
+    }
+  }
+
+  /* ---- pantalla completa · cerrar ---- */
+  function enPantalla() {
+    var fs = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fs) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} return; }
+    var ov = EN.st && EN.st.ov, rq = ov && (ov.requestFullscreen || ov.webkitRequestFullscreen);
+    if (rq) { try { var p = rq.call(ov); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+  }
+  function enPintaFS() {
+    var st = EN.st; if (!st) return;
+    var fs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    st.bF.innerHTML = ico(fs ? 'contraer' : 'expandir');
+    st.bF.title = fs ? 'Salir de pantalla completa' : 'Pantalla completa'; st.bF.setAttribute('aria-label', st.bF.title);
+    st.bF.style.display = (document.fullscreenEnabled || document.webkitFullscreenEnabled) ? '' : 'none';
+  }
+  function cerrarEnto() {
+    var st = EN.st; if (!st) return;
+    var ae = document.activeElement; if (ae && st.ov.contains(ae)) { try { ae.blur(); } catch (e) {} }   /* la nota que se estaba escribiendo se guarda */
+    EN.st = null;
+    document.removeEventListener('keydown', st.onKey, true); window.removeEventListener('resize', st.onResize);
+    document.removeEventListener('fullscreenchange', st.onFS); document.removeEventListener('webkitfullscreenchange', st.onFS);
+    clearTimeout(st.tRes); if (st.armado) clearTimeout(st.armado);
+    var fs = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fs === st.ov) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} }
+    st.pags.forEach(function (pg) {
+      pg.tok++; if (pg.tarea) { try { pg.tarea.cancel(); } catch (e) {} }
+      pg.img.width = pg.img.height = 0; pg.anot.width = pg.anot.height = 0;
+    });
+    st.vivo.width = st.vivo.height = 0;
+    if (st.ov.parentNode) st.ov.parentNode.removeChild(st.ov);
+    document.documentElement.classList.remove('lm-en-on');
+    try { var b = q('#lm-iconos .lm-ic-ento'); if (b) b.focus({ preventScroll: true }); } catch (e) {}
+  }
 
   function todo() {
     try { campanaCalma(); } catch (e) {}
