@@ -842,7 +842,9 @@
      fichas; los quizzes no). Al tocarlo, la lista (primero el grupo en clase); al cerrarla, el icono se queda sin globito
      hasta la próxima clase de ese grupo (visto por grupo y día, en este aparato). Las ondas, solo 5 s (como la campana).
      Los datos: suite_morosos_fichas_token con la llave «lm_profe» que deja el Diario en este navegador (derivada del
-     secreto, solo sirve para esto). Si este navegador no ha abierto el Diario, no hay llave y el icono no sale. */
+     secreto, solo sirve para esto). Si este navegador no ha abierto el Diario, no hay llave y el icono no sale.
+     (29-sep-2026, más tarde) El icono SOLO está durante la clase de un grupo que debe algo (de 30 min antes a que
+     acaba); si nadie de los grupos en clase debe nada, no aparece. Tras ver la lista, sigue ahí sin globito. */
   var MOR = { d: null, t: 0, cargando: false, panel: null };
   var MOR_SB = 'https://woiptkyrxkbpnvioypit.supabase.co';
   var MOR_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
@@ -875,6 +877,10 @@
   function marcarVisto(gs) { gs.forEach(function (g) { try { localStorage.setItem(claveVisto(g), '1'); } catch (e) {} }); }
   function cuentaMorosos() {
     return gruposEnClase().filter(function (g) { return !visto(g); }).reduce(function (s, g) { return s + morososDe(g).length; }, 0);
+  }
+  /* (29-sep-2026, Iago) los que deben algo en los grupos que están en clase ahora, se haya visto la lista o no */
+  function morososEnClase() {
+    return gruposEnClase().reduce(function (s, g) { return s + morososDe(g).length; }, 0);
   }
   function cargarMorosos() {
     var k = llaveProfe(); if (!k || MOR.cargando) return;
@@ -939,6 +945,12 @@
     if (!(esProfe() && llaveProfe())) { if (w && w.parentNode) { cerrarPanelMorosos(); w.parentNode.removeChild(w); } return; }
     cargarMorosos();
     if (!MOR.d) return;
+    /* (29-sep-2026, Iago) «Si no hay morosos activos, que ese símbolo no aparezca: que solo esté visible durante las
+       horas de los grupos en cuestión que me deben algo». Fuera de esas clases (o si nadie debe nada), no está. */
+    if (!morososEnClase()) {
+      if (w && w.parentNode) { if (MOR.panel) cerrarPanelMorosos(); if (w.parentNode) w.parentNode.removeChild(w); }
+      return;
+    }
     if (!w) {
       w = cuadro('lm-ic-morosos', 'alert', 'Morosos · fichas en la semana de gracia', function (b) { abrirPanelMorosos(b); }, true);
       w.id = 'lm-morosos';
