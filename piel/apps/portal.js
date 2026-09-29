@@ -1336,7 +1336,7 @@
     st.bV = { ancho: enBoton('', svgI(EN_ICO_ANCHO), 'A todo el ancho', function () { enVista('ancho'); }),
               dos: enBoton('', ico('book'), 'Dos páginas, como en el libro', function () { enVista('dos'); }) };
     fin.appendChild(st.bV.ancho); fin.appendChild(st.bV.dos); fin.appendChild(enSep());
-    st.bF = enBoton('', ico('expandir'), 'Pantalla completa', function () { enPantalla(); }); fin.appendChild(st.bF);
+    st.bF = enBoton('', ico('expandir'), 'Pantalla completa', function () { enAlternaPantalla(); }); fin.appendChild(st.bF);
     fin.appendChild(enBoton('lm-vl-x', ico('x'), 'Cerrar (Esc)', function () { cerrarEnto(); }));
     bar.appendChild(fin);
     st.aviso = document.createElement('div'); st.aviso.className = 'lm-vl-aviso'; st.aviso.setAttribute('role', 'status'); st.aviso.textContent = '¿Borrar todo? Toca otra vez';
@@ -1722,7 +1722,7 @@
   }
 
   /* ---- pantalla completa · cerrar ---- */
-  function enPantalla() {
+  function enAlternaPantalla() {   /* (29-sep-2026) OJO: «enPantalla» ya es de la sección 11 (¿está en pantalla completa?) */
     var fs = document.fullscreenElement || document.webkitFullscreenElement;
     if (fs) { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} return; }
     var ov = EN.st && EN.st.ov, rq = ov && (ov.requestFullscreen || ov.webkitRequestFullscreen);
