@@ -935,9 +935,9 @@ html.lm-fam-portal #lm-ento .lm-vl-b:disabled:hover{ background:var(--lm-neutro)
 /* la tonalidad (la rueda de ritmo), con la nota marcada en azul */
 html.lm-fam-portal #lm-ento .lm-vl-rueda{ width:calc(var(--vl-celda) * var(--en-celdas)); }
 html.lm-fam-portal #lm-ento .lm-vl-rueda.con-nota .lm-vl-marco{ border-color:var(--lm-azul); background:rgba(37,99,235,.24); }
-/* punta fina opaca azul · los 12 intervalos (colores de Intervalia, de menor a mayor) */
+/* punta fina opaca negra (30-sep-2026: antes azul) · los 12 intervalos (colores de Intervalia, de menor a mayor) */
 html.lm-fam-portal #lm-ento .lm-en-fina{ position:relative; display:block; width:20px; height:20px; border-radius:50%; background:#fff; }
-html.lm-fam-portal #lm-ento .lm-en-fina i{ position:absolute; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:var(--lm-azul-f); }
+html.lm-fam-portal #lm-ento .lm-en-fina i{ position:absolute; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:#000; }
 html.lm-fam-portal #lm-ento .lm-en-int{ width:var(--en-sw); }
 html.lm-fam-portal #lm-ento .lm-en-sw{
   display:flex; align-items:center; justify-content:center; width:var(--en-swi); height:var(--en-swi); border-radius:6px;

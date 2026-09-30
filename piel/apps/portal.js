@@ -1167,8 +1167,13 @@
   var EN_INT = [['2m', '#a62c17', '2ª menor'], ['2M', '#ed732e', '2ª mayor'], ['3m', '#2f6b1e', '3ª menor'], ['3M', '#9ed649', '3ª mayor'],
     ['4J', '#2355ce', '4ª justa'], ['4A/5D', '#f3ec4e', '4ª aumentada · 5ª disminuida'], ['5J', '#5ac4f7', '5ª justa'], ['6m', '#8c33b6', '6ª menor'],
     ['6M', '#d796f8', '6ª mayor'], ['7m', '#5a2d05', '7ª menor'], ['7M', '#c98a1e', '7ª mayor'], ['8J', '#000000', '8ª justa']];
-  var EN_TINTA = '#2563eb';                               /* punta fina opaca: el azul de entonación */
-  var EN_FINA = 0.0022, EN_GRUESA = 0.010, EN_ALFA = 0.42; /* grosor en fracción del ancho de la página; subrayado traslúcido */
+  /* (30-sep-2026, Iago) «Si escribo normal, negro. Fino»: la punta fina de siempre, ahora NEGRA (el azul se parecía
+     demasiado a la 4J). Y los intervalos, «más finos y más opacos», con el trazo del propio libro de Intervalia: opacos,
+     de extremos rectos y de un grosor de casi la mitad de la altura de una cabeza de nota. Medido en el PDF de Intervalia
+     (a 300 ppp): trazo 10,2 px, cabeza 22 px, entre líneas 20,5 px. En este libro de entonación la cabeza mide ~0,008 del
+     ancho de la página y la separación entre líneas ~0,0069: el trazo, 0,0036 (antes 0,010 y traslúcido al 42 %). */
+  var EN_TINTA = '#000000';                               /* punta fina opaca: negra */
+  var EN_FINA = 0.0022, EN_INTW = 0.0036;                 /* grosor en fracción del ancho de la página */
   /* (29-sep-2026, tarde, Iago) «a todo el ancho» con menos zoom («la grande se ve demasiado grande para la calidad que tiene
      el libro») y, a los lados, dos carriles para desplazar sin pintar: la música ocupa EN_ANCHO_K del ancho y cada carril lo
      que queda (como poco EN_CARRIL px). */
@@ -1302,7 +1307,7 @@
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Entonación · Lección ' + d.leccion);
 
     /* la hilera, UNA sola («que lo de la tonalidad esté a la izquierda y lo de anotar a continuación, más en el centro; y que
-       todo ocupe un renglón»): tonalidad (rueda, ♯ ♭, M m) · [punta fina azul · los 12 intervalos · nota · goma · deshacer ·
+       todo ocupe un renglón»): tonalidad (rueda, ♯ ♭, M m) · [punta fina negra · los 12 intervalos · nota · goma · deshacer ·
        borrar todo], centrado en el hueco · vistas · pantalla · ✕. Solo en la tableta en vertical no cabe: ahí, dos hileras. */
     var bar = st.bar = document.createElement('div'); bar.className = 'lm-vl-bar lm-en-bar'; bar.setAttribute('role', 'toolbar');
     bar.setAttribute('aria-label', 'Lección ' + d.leccion + ' · herramientas');
@@ -1320,7 +1325,7 @@
     var esp1 = document.createElement('span'); esp1.className = 'lm-vl-esp lm-en-esp1'; bar.appendChild(esp1);
     var her = document.createElement('div'); her.className = 'lm-vl-her lm-en-her';
     st.bH = {};
-    st.bH.fina = enBoton('lm-en-col', '<span class="lm-en-fina"><i></i></span>', 'Punta fina azul', function () { enHerr('fina'); });
+    st.bH.fina = enBoton('lm-en-col', '<span class="lm-en-fina"><i></i></span>', 'Punta fina negra', function () { enHerr('fina'); });
     her.appendChild(st.bH.fina);
     EN_INT.forEach(function (it, k) {
       var dos = it[0].indexOf('/') > 0;
@@ -1575,10 +1580,11 @@
   }
   function enTrazo(x, sk, W, H, vivo) {
     var p = sk.p; if (!p || !p.length) return;
+    var iv = !!sk.i;   /* (30-sep-2026) un intervalo: como en el libro (opaco, fino y recto en los extremos); también los ya pintados */
     x.save();
-    x.globalAlpha = vivo ? 1 : (sk.o || 1);
-    x.strokeStyle = sk.c; x.lineCap = 'round'; x.lineJoin = 'round';
-    x.lineWidth = Math.max(sk.o ? 3 : 1.4, sk.w * W);
+    x.globalAlpha = iv ? 1 : (vivo ? 1 : (sk.o || 1));
+    x.strokeStyle = sk.c; x.lineCap = (iv && p.length > 1) ? 'butt' : 'round'; x.lineJoin = 'round';
+    x.lineWidth = iv ? Math.max(2, EN_INTW * W) : Math.max(sk.o ? 3 : 1.4, sk.w * W);
     x.beginPath(); x.moveTo(p[0][0] * W, p[0][1] * H);
     if (p.length === 1) x.lineTo(p[0][0] * W + 0.01, p[0][1] * H);
     for (var i = 1; i < p.length; i++) x.lineTo(p[i][0] * W, p[i][1] * H);
@@ -1595,7 +1601,7 @@
   function enEmpieza(pg, p, id) {
     var st = EN.st, k = st.herr, sk;
     if (k === 'fina') sk = { c: EN_TINTA, w: EN_FINA, p: [p] };
-    else { var it = EN_INT[+k.slice(1)] || EN_INT[0]; sk = { c: it[1], w: EN_GRUESA, o: EN_ALFA, i: it[0], p: [p] }; }
+    else { var it = EN_INT[+k.slice(1)] || EN_INT[0]; sk = { c: it[1], w: EN_INTW, i: it[0], p: [p] }; }   /* (30-sep-2026) opaco */
     st.cur = { pg: pg, id: id, sk: sk };
     var v = st.vivo;
     if (v.width !== pg.anot.width || v.height !== pg.anot.height) { v.width = pg.anot.width; v.height = pg.anot.height; }
@@ -1612,7 +1618,7 @@
   function enSigue(p) {
     var c = EN.st.cur, q = c.sk.p[c.sk.p.length - 1];
     var dx = (p[0] - q[0]) * c.pg.Wp, dy = (p[1] - q[1]) * c.pg.Hp;
-    if (dx * dx + dy * dy < (c.sk.o ? 4 : 0.6)) return false;
+    if (dx * dx + dy * dy < (c.sk.i ? 2.25 : 0.6)) return false;
     c.sk.p.push(p); return true;
   }
   function enTermina() {
