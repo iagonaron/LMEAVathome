@@ -1835,8 +1835,9 @@
        debajo de esa línea. Parada, solo queda la línea.
      · «Que el play parpadee desde 5 minutos antes de que empiece cada clase de mis grupos hasta el minuto 5 de clase, o
        hasta que lo pulse. Un parpadeo smooth, que invite a pulsar pero que no sea on/off; como la campana, pero en lugar del
-       circulito con un número, un simbolito de corchea.» Las horas de clase van escritas en MUS_HORAS (más abajo): la
-       pantalla del aula no tiene el Diario.
+       circulito con un número, un simbolito de corchea.» Las horas de clase salen del horario que se pone en el wizard
+       «Nuevo curso» del Diario (horario_clases); si no se puede leer, de MUS_HORAS (más abajo). La pantalla del aula no
+       necesita tener el Diario abierto.
      Para quitarlo: borrar esta sección, su línea en todo() y su CSS (sección 18 de portal.css). */
   var MUS = { lista: null, cargando: false, error: false, els: null, act: 0, prep: null, precargado: false, ctx: null, gan: null,
               an: null, datos: null, actual: null, sonando: false, raf: 0, cv: null, el: null, parando: 0, fallos: 0, cols: null };
@@ -1960,14 +1961,38 @@
   }
   /* (30-sep-2026, Iago) «En la pantalla del aula no tengo ni tendré el Diario. Mis clases son: martes a las 16:00, 18 y
      19; miércoles a las 17:30; jueves a las 18 y a las 19; viernes a las 16:00 y a las 17:30. Que esa animación sea por
-     hora: 5 minutos antes y 5 minutos después.» Las horas, escritas aquí ([día, hora], 1 = lunes … 7 = domingo): no
-     dependen del Diario, ni del grupo, ni del portal. Si cambia el horario, se cambia esta lista. */
+     hora: 5 minutos antes y 5 minutos después.» ([día, hora], 1 = lunes … 7 = domingo.)
+     (30-sep-2026, noche) «Que el año que viene, cuando haga el wizard nuevo curso, al poner los grupos, todo lo que va con
+     horarios se configure en ese paso»: las horas se leen ahora del horario de clases que guarda el Diario (el paso
+     «Horario» del wizard; la función pública horario_clases_publico devuelve solo día, hora de inicio y grupo del curso
+     escolar más reciente, sin nombres). Se piden al aparecer la música y cada 6 horas (si falla, a la media hora) y se
+     guardan en este aparato por si un día no hay red. MUS_HORAS queda solo de respaldo, por si nunca se pudo leer. */
   var MUS_HORAS = [[2, '16:00'], [2, '18:00'], [2, '19:00'], [3, '17:30'], [4, '18:00'], [4, '19:00'], [5, '16:00'], [5, '17:30']];
+  var MUS_HOR = { lista: null, prox: 0, pidiendo: false }, MUS_HOR_LS = 'lm_musica_horas_v1';
+  function musHorasCargar() {
+    if (MUS_HOR.pidiendo || Date.now() < MUS_HOR.prox) return;
+    MUS_HOR.pidiendo = true; MUS_HOR.prox = Date.now() + 30 * 60000;
+    pedirMor('horario_clases_publico', {}).then(function (r) {
+      var l = (r && r.st === 200 && Array.isArray(r.d)) ? r.d.map(function (h) { return [+(h && h.dia), String((h && h.ini) || '').slice(0, 5)]; })
+        .filter(function (h) { return h[0] >= 1 && h[0] <= 7 && isFinite(minutos(h[1])); }) : [];
+      if (l.length) {
+        MUS_HOR.lista = l; MUS_HOR.prox = Date.now() + 6 * 3600000;
+        try { localStorage.setItem(MUS_HOR_LS, JSON.stringify(l)); } catch (e) {}
+      }
+    }).catch(function () {}).then(function () { MUS_HOR.pidiendo = false; try { musInvitar(); } catch (e) {} });
+  }
+  function musHoras() {   /* el horario del Diario → el último que se leyó en este aparato → MUS_HORAS */
+    musHorasCargar();
+    if (MUS_HOR.lista) return MUS_HOR.lista;
+    try { var g = JSON.parse(localStorage.getItem(MUS_HOR_LS) || 'null'); if (Array.isArray(g) && g.length) return g; } catch (e) {}
+    return MUS_HORAS;
+  }
   /* ¿estamos entre 5 minutos antes y 5 minutos después de la hora de una clase? */
   function musVentana() {
     var ahora = new Date(), dia = ((ahora.getDay() + 6) % 7) + 1, min = ahora.getHours() * 60 + ahora.getMinutes() + ahora.getSeconds() / 60;
-    for (var i = 0; i < MUS_HORAS.length; i++) {
-      var h = MUS_HORAS[i]; if (h[0] !== dia) continue;
+    var horas = musHoras();
+    for (var i = 0; i < horas.length; i++) {
+      var h = horas[i]; if (!h || +h[0] !== dia) continue;
       var ini = minutos(h[1]); if (!isFinite(ini)) continue;
       if (min >= ini - 5 && min < ini + 5) return { clave: hoyISO() + '|' + h[1] };
     }
