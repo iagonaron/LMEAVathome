@@ -1835,8 +1835,8 @@
        debajo de esa línea. Parada, solo queda la línea.
      · «Que el play parpadee desde 5 minutos antes de que empiece cada clase de mis grupos hasta el minuto 5 de clase, o
        hasta que lo pulse. Un parpadeo smooth, que invite a pulsar pero que no sea on/off; como la campana, pero en lugar del
-       circulito con un número, un simbolito de corchea.» El horario es el del Diario (el mismo que usan los morosos, con la
-       llave lm_profe de este navegador); sin esa llave no hay aviso, pero la música funciona igual.
+       circulito con un número, un simbolito de corchea.» Las horas de clase van escritas en MUS_HORAS (más abajo): la
+       pantalla del aula no tiene el Diario.
      Para quitarlo: borrar esta sección, su línea en todo() y su CSS (sección 18 de portal.css). */
   var MUS = { lista: null, cargando: false, error: false, els: null, act: 0, prep: null, precargado: false, ctx: null, gan: null,
               an: null, datos: null, actual: null, sonando: false, raf: 0, cv: null, el: null, parando: 0, fallos: 0, cols: null };
@@ -1849,9 +1849,10 @@
      ventaja sobre la barra que suena más fuerte; 32 dB por debajo de ese pico = en la línea. Ajustado con los 30 temas. */
   var MUS_F0 = 45, MUS_F1 = 12000, MUS_T1 = 3, MUS_T2 = 6, MUS_RANGO = 32, MUS_TOPE = 15, MUS_SUELO = -50;
   /* (30-sep-2026, Iago) «que suene como música de fondo, un poco más bajo que el volumen que tendría normalmente (no a la
-     mitad: es cuando van entrando y hablando)»: −6 dB respecto a antes (0,85 → 0,43). Las barras miran el sonido ANTES
-     de este volumen, así que se mueven igual. Para subirla o bajarla, este número (0,6 ≈ −3 dB; 0,3 ≈ −9 dB). */
-  var MUS_VOL = 0.43;
+     mitad: es cuando van entrando y hablando)»: −6 dB respecto a antes (0,85 → 0,43). Y tras oírla: «le bajaría un pelín
+     más»: 3 dB menos (0,43 → 0,3). Las barras miran el sonido ANTES de este volumen, así que se mueven igual. Para subirla
+     o bajarla, este número (0,43 ≈ 3 dB más; 0,21 ≈ 3 dB menos). */
+  var MUS_VOL = 0.3;
   var MUS_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8L19 12z" fill="currentColor"/></svg>';
   var MUS_STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor"/></svg>';
   /* la corchea del globito (en lugar del numerito de la campana) */
@@ -1957,14 +1958,18 @@
     if (MUS.sonando) musParar(); else musTocar(musSiguiente());
     musInvitar();
   }
-  /* ¿estamos entre 5 minutos antes y el minuto 5 de una clase de un grupo de este portal? (horario del Diario) */
+  /* (30-sep-2026, Iago) «En la pantalla del aula no tengo ni tendré el Diario. Mis clases son: martes a las 16:00, 18 y
+     19; miércoles a las 17:30; jueves a las 18 y a las 19; viernes a las 16:00 y a las 17:30. Que esa animación sea por
+     hora: 5 minutos antes y 5 minutos después.» Las horas, escritas aquí ([día, hora], 1 = lunes … 7 = domingo): no
+     dependen del Diario, ni del grupo, ni del portal. Si cambia el horario, se cambia esta lista. */
+  var MUS_HORAS = [[2, '16:00'], [2, '18:00'], [2, '19:00'], [3, '17:30'], [4, '18:00'], [4, '19:00'], [5, '16:00'], [5, '17:30']];
+  /* ¿estamos entre 5 minutos antes y 5 minutos después de la hora de una clase? */
   function musVentana() {
-    var d = MOR.d; if (!d || !Array.isArray(d.horario)) return null;
     var ahora = new Date(), dia = ((ahora.getDay() + 6) % 7) + 1, min = ahora.getHours() * 60 + ahora.getMinutes() + ahora.getSeconds() / 60;
-    for (var i = 0; i < d.horario.length; i++) {
-      var h = d.horario[i]; if (!h || +h.dia !== dia || !delPortal(h.grupo)) continue;
-      var ini = minutos(h.ini); if (!isFinite(ini)) continue;
-      if (min >= ini - 5 && min < ini + 5) return { grupo: h.grupo, clave: hoyISO() + '|' + h.grupo + '|' + h.ini };
+    for (var i = 0; i < MUS_HORAS.length; i++) {
+      var h = MUS_HORAS[i]; if (h[0] !== dia) continue;
+      var ini = minutos(h[1]); if (!isFinite(ini)) continue;
+      if (min >= ini - 5 && min < ini + 5) return { clave: hoyISO() + '|' + h[1] };
     }
     return null;
   }
@@ -1974,7 +1979,7 @@
     if (v) { try { pulsado = localStorage.getItem(MUS_PULSADO + v.clave) === '1'; } catch (e) {} }
     var on = !!v && !pulsado && !MUS.sonando;
     if (b.classList.contains('lm-mus-invita') !== on) b.classList.toggle('lm-mus-invita', on);
-    var lab = MUS.sonando ? 'Parar la música' : (on ? 'Poner música: empieza la clase de ' + v.grupo : (MUS.actual ? 'Otra canción' : 'Poner música'));
+    var lab = MUS.sonando ? 'Parar la música' : (on ? 'Poner música: empieza la clase' : (MUS.actual ? 'Otra canción' : 'Poner música'));
     if (b.getAttribute('aria-label') !== lab) { b.setAttribute('aria-label', lab); b.title = lab; }
   }
   /* los colores de los apartados, de izquierda a derecha, en cinco tramos (rosa, naranja, azul, verde, amarillo) */
