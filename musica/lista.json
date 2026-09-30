@@ -1,0 +1,258 @@
+{
+ "version": 1,
+ "fecha": "2026-09-30",
+ "credito": "Música de Kevin MacLeod (incompetech.com) · Licencia Creative Commons Reconocimiento 4.0 (CC BY 4.0)",
+ "fuente": "https://incompetech.com",
+ "licencia": "CC BY 4.0",
+ "licencia_url": "https://creativecommons.org/licenses/by/4.0/",
+ "nota": "Temas instrumentales para los portales de LM at home (solo Tester/Protester). Pasados a 128 kbps y con el volumen igualado (-16 LUFS); sin otros cambios. «ini» y «fin»: segundo en que empieza y acaba el sonido de cada tema (sin los silencios del principio y del final), para enlazar uno con el siguiente sin silencio.",
+ "temas": [
+  {
+   "f": "bossa-antigua.mp3",
+   "t": "Bossa Antigua",
+   "a": "Kevin MacLeod",
+   "g": "Bossa nova",
+   "d": 283,
+   "ini": 0.43,
+   "fin": 281.26
+  },
+  {
+   "f": "samba-isobel.mp3",
+   "t": "Samba Isobel",
+   "a": "Kevin MacLeod",
+   "g": "Samba jazz",
+   "d": 250,
+   "fin": 248.1
+  },
+  {
+   "f": "backbay-lounge.mp3",
+   "t": "Backbay Lounge",
+   "a": "Kevin MacLeod",
+   "g": "Jazz",
+   "d": 267,
+   "ini": 0.47,
+   "fin": 263.04
+  },
+  {
+   "f": "smooth-lovin.mp3",
+   "t": "Smooth Lovin",
+   "a": "Kevin MacLeod",
+   "g": "Jazz",
+   "d": 259,
+   "fin": 256.76
+  },
+  {
+   "f": "george-street-shuffle.mp3",
+   "t": "George Street Shuffle",
+   "a": "Kevin MacLeod",
+   "g": "Jazz",
+   "d": 268,
+   "fin": 263.61
+  },
+  {
+   "f": "lobby-time.mp3",
+   "t": "Lobby Time",
+   "a": "Kevin MacLeod",
+   "g": "Jazz",
+   "d": 193,
+   "ini": 1.27,
+   "fin": 189.41
+  },
+  {
+   "f": "hep-cats.mp3",
+   "t": "Hep Cats",
+   "a": "Kevin MacLeod",
+   "g": "Jazz",
+   "d": 251,
+   "fin": 247.95
+  },
+  {
+   "f": "long-stroll.mp3",
+   "t": "Long Stroll",
+   "a": "Kevin MacLeod",
+   "g": "Jazz",
+   "d": 255,
+   "ini": 0.64,
+   "fin": 252.48
+  },
+  {
+   "f": "cool-vibes.mp3",
+   "t": "Cool Vibes",
+   "a": "Kevin MacLeod",
+   "g": "Jazz",
+   "d": 218,
+   "fin": 214.17
+  },
+  {
+   "f": "bossabossa.mp3",
+   "t": "BossaBossa",
+   "a": "Kevin MacLeod",
+   "g": "Bossa nova",
+   "d": 167,
+   "fin": 164.3
+  },
+  {
+   "f": "casa-bossa-nova.mp3",
+   "t": "Casa Bossa Nova",
+   "a": "Kevin MacLeod",
+   "g": "Bossa nova",
+   "d": 242,
+   "ini": 2.08,
+   "fin": 238.81
+  },
+  {
+   "f": "modern-jazz-samba.mp3",
+   "t": "Modern Jazz Samba",
+   "a": "Kevin MacLeod",
+   "g": "Samba jazz",
+   "d": 249,
+   "fin": 239.3
+  },
+  {
+   "f": "laid-back-guitars.mp3",
+   "t": "Laid Back Guitars",
+   "a": "Kevin MacLeod",
+   "g": "Latin",
+   "d": 244,
+   "fin": 241.44
+  },
+  {
+   "f": "cuban-sandwich.mp3",
+   "t": "Cuban Sandwich",
+   "a": "Kevin MacLeod",
+   "g": "Latin",
+   "d": 195,
+   "fin": 192.44
+  },
+  {
+   "f": "funkorama.mp3",
+   "t": "Funkorama",
+   "a": "Kevin MacLeod",
+   "g": "Funk",
+   "d": 202,
+   "fin": 199.26
+  },
+  {
+   "f": "funky-chunk.mp3",
+   "t": "Funky Chunk",
+   "a": "Kevin MacLeod",
+   "g": "Funk",
+   "d": 239,
+   "fin": 235.75
+  },
+  {
+   "f": "got-funk.mp3",
+   "t": "Got Funk",
+   "a": "Kevin MacLeod",
+   "g": "Funk",
+   "d": 281,
+   "fin": 278.11
+  },
+  {
+   "f": "loopster.mp3",
+   "t": "Loopster",
+   "a": "Kevin MacLeod",
+   "g": "Funk",
+   "d": 182
+  },
+  {
+   "f": "shaving-mirror.mp3",
+   "t": "Shaving Mirror",
+   "a": "Kevin MacLeod",
+   "g": "Funk",
+   "d": 206,
+   "fin": 203.02
+  },
+  {
+   "f": "flutey-funk.mp3",
+   "t": "Flutey Funk",
+   "a": "Kevin MacLeod",
+   "g": "Funk",
+   "d": 215,
+   "fin": 206.33
+  },
+  {
+   "f": "maccary-bay.mp3",
+   "t": "Maccary Bay",
+   "a": "Kevin MacLeod",
+   "g": "Reggae",
+   "d": 240,
+   "ini": 1.36,
+   "fin": 234.08
+  },
+  {
+   "f": "montego.mp3",
+   "t": "Montego",
+   "a": "Kevin MacLeod",
+   "g": "Reggae",
+   "d": 206,
+   "fin": 202.77
+  },
+  {
+   "f": "gonna-start.mp3",
+   "t": "Gonna Start",
+   "a": "Kevin MacLeod",
+   "g": "Reggae",
+   "d": 191,
+   "fin": 185.5
+  },
+  {
+   "f": "easy-jam.mp3",
+   "t": "Easy Jam",
+   "a": "Kevin MacLeod",
+   "g": "Reggae",
+   "d": 296,
+   "ini": 0.38,
+   "fin": 294.72
+  },
+  {
+   "f": "sunday-dub.mp3",
+   "t": "Sunday Dub",
+   "a": "Kevin MacLeod",
+   "g": "Ska · dub",
+   "d": 210,
+   "fin": 206.4
+  },
+  {
+   "f": "galway.mp3",
+   "t": "Galway",
+   "a": "Kevin MacLeod",
+   "g": "Folk celta",
+   "d": 220,
+   "fin": 218.12
+  },
+  {
+   "f": "fiddles-mcginty.mp3",
+   "t": "Fiddles McGinty",
+   "a": "Kevin MacLeod",
+   "g": "Folk celta",
+   "d": 207,
+   "fin": 203.53
+  },
+  {
+   "f": "hillbilly-swing.mp3",
+   "t": "Hillbilly Swing",
+   "a": "Kevin MacLeod",
+   "g": "Folk · bluegrass",
+   "d": 167,
+   "fin": 164.75
+  },
+  {
+   "f": "master-of-the-feast.mp3",
+   "t": "Master of the Feast",
+   "a": "Kevin MacLeod",
+   "g": "Folk medieval",
+   "d": 228,
+   "fin": 223.69
+  },
+  {
+   "f": "kumasi-groove.mp3",
+   "t": "Kumasi Groove",
+   "a": "Kevin MacLeod",
+   "g": "Afro · marimba",
+   "d": 223,
+   "ini": 0.59,
+   "fin": 217.68
+  }
+ ]
+}
