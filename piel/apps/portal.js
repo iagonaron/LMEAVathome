@@ -1827,8 +1827,8 @@
       Pulsar = suena; pulsar sonando = para; pulsar otra vez = otra canción (sin repetir hasta que hayan sonado todas).»
      · 30 temas instrumentales de Kevin MacLeod (incompetech.com, licencia CC BY 4.0: se citan autor, fuente y licencia), a
        128 kbps y con el volumen igualado, en ge.lmathome.es/musica/ (lista.json: título, autor, estilo y duración).
-     · Al acabar un tema, sigue el siguiente. El orden (barajado) se guarda en este aparato: no se repite ninguno hasta que
-       han sonado los 30; entonces se vuelve a barajar. Al parar, baja el volumen en medio segundo.
+     · Al acabar un tema, sigue el siguiente sin silencio (ver musVigila). El orden (barajado) se guarda en este aparato: no
+       se repite ninguno hasta que han sonado los 30; entonces se vuelve a barajar. Al parar, baja el volumen en medio segundo.
      · La animación: barras con los colores de los apartados (teoría, dictado, entonación, ritmo, PreDict) que se mueven con
        lo que suena (Web Audio). «Que la línea animada ocupe todo el ancho, que las ondas de frecuencias suban pero no
        bajen, y debajo el título»: las barras nacen de una línea fina (el nivel de silencio) y solo suben; el título va
@@ -1838,8 +1838,8 @@
        circulito con un número, un simbolito de corchea.» El horario es el del Diario (el mismo que usan los morosos, con la
        llave lm_profe de este navegador); sin esa llave no hay aviso, pero la música funciona igual.
      Para quitarlo: borrar esta sección, su línea en todo() y su CSS (sección 18 de portal.css). */
-  var MUS = { lista: null, cargando: false, error: false, audio: null, ctx: null, gan: null, an: null, datos: null,
-              actual: null, sonando: false, raf: 0, cv: null, el: null, parando: 0, fallos: 0, cols: null };
+  var MUS = { lista: null, cargando: false, error: false, els: null, act: 0, prep: null, precargado: false, ctx: null, gan: null,
+              an: null, datos: null, actual: null, sonando: false, raf: 0, cv: null, el: null, parando: 0, fallos: 0, cols: null };
   var MUS_BASE = 'https://ge.lmathome.es/musica/';
   var MUS_ORDEN = 'lm_musica_orden_v1', MUS_PULSADO = 'lm_musica_pulsado:';
   var MUS_LIC = 'https://creativecommons.org/licenses/by/4.0/';
@@ -1886,38 +1886,67 @@
     for (var k = 0; k < temas.length; k++) if (temas[k].f === f) return temas[k];
     return temas[0];
   }
-  function musAudio() {
-    if (MUS.audio) return MUS.audio;
-    var a = MUS.audio = new Audio(); a.crossOrigin = 'anonymous'; a.preload = 'auto';
-    a.addEventListener('ended', function () { if (MUS.sonando) musTocar(musSiguiente()); });
-    a.addEventListener('playing', function () { MUS.fallos = 0; });
+  /* (30-sep-2026, Iago) «que cuando termine una canción no haya silencio antes de que empiece la clase»: dos reproductores
+     que se turnan. 30 s antes de que acabe el tema, el otro ya va cargando el siguiente; al llegar a su «fin» (donde acaba
+     el sonido, según lista.json: los temas terminan con 2–9 s de silencio) entra el siguiente al instante, sin fundido y
+     desde su «ini» (sin el silencio del principio). Si un tema no trae «fin», se pasa al acabar. */
+  function musUrl(t) { return MUS_BASE + encodeURIComponent(t.f) + (t.ini > 0 ? '#t=' + t.ini : ''); }
+  function musActivo() { return MUS.els ? MUS.els[MUS.act] : null; }
+  function musCrea() {
+    var a = new Audio(); a.crossOrigin = 'anonymous'; a.preload = 'auto';
+    a.addEventListener('ended', function () { if (MUS.sonando && a === musActivo()) musTocar(musSiguiente(), true); });
+    a.addEventListener('playing', function () { if (a === musActivo()) MUS.fallos = 0; });
+    a.addEventListener('timeupdate', function () { if (a === musActivo()) musVigila(a); });
     a.addEventListener('error', function () {   /* si un tema no carga, el siguiente (como mucho tres seguidos) */
-      if (!MUS.sonando) return;
-      if (++MUS.fallos <= 3) musTocar(musSiguiente()); else musParar();
+      var i = MUS.els ? MUS.els.indexOf(a) : -1; if (i >= 0) MUS.prep[i] = null;   /* lo preparado en ese reproductor ya no vale */
+      if (!MUS.sonando || a !== musActivo()) return;
+      if (++MUS.fallos <= 3) musTocar(musSiguiente(), true); else musParar();
     });
-    try {
-      var AC = window.AudioContext || window.webkitAudioContext; MUS.ctx = new AC();
-      var s = MUS.ctx.createMediaElementSource(a); MUS.gan = MUS.ctx.createGain(); MUS.an = MUS.ctx.createAnalyser();
-      MUS.an.fftSize = 2048; MUS.an.smoothingTimeConstant = 0.6; MUS.an.minDecibels = -95; MUS.an.maxDecibels = -20;
-      MUS.datos = new Uint8Array(MUS.an.frequencyBinCount);
-      s.connect(MUS.an); MUS.an.connect(MUS.gan); MUS.gan.connect(MUS.ctx.destination);   /* tema → barras → volumen → altavoz */
-    } catch (e) { MUS.ctx = MUS.gan = MUS.an = null; a.volume = MUS_VOL; }   /* sin Web Audio: suena igual, sin animación */
     return a;
   }
-  function musTocar(tema) {
-    var a = musAudio(); clearTimeout(MUS.parando);
-    MUS.actual = tema; MUS.sonando = true;
-    a.src = MUS_BASE + encodeURIComponent(tema.f);
-    if (MUS.ctx) {
-      try { if (MUS.ctx.state === 'suspended') MUS.ctx.resume(); var g = MUS.gan.gain, t = MUS.ctx.currentTime;
-        g.cancelScheduledValues(t); g.setValueAtTime(0.0001, t); g.exponentialRampToValueAtTime(MUS_VOL, t + 0.8); } catch (e) {}
+  function musAudio() {
+    if (MUS.els) return musActivo();
+    MUS.els = [musCrea(), musCrea()]; MUS.act = 0; MUS.prep = [null, null];
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; MUS.ctx = new AC();
+      MUS.gan = MUS.ctx.createGain(); MUS.an = MUS.ctx.createAnalyser();
+      MUS.an.fftSize = 2048; MUS.an.smoothingTimeConstant = 0.6; MUS.an.minDecibels = -95; MUS.an.maxDecibels = -20;
+      MUS.datos = new Uint8Array(MUS.an.frequencyBinCount);
+      MUS.els.forEach(function (a) { MUS.ctx.createMediaElementSource(a).connect(MUS.an); });
+      MUS.an.connect(MUS.gan); MUS.gan.connect(MUS.ctx.destination);   /* tema → barras → volumen → altavoz */
+    } catch (e) { MUS.ctx = MUS.gan = MUS.an = null; MUS.els.forEach(function (a) { a.volume = MUS_VOL; }); }   /* sin Web Audio: suena igual, sin animación */
+    return musActivo();
+  }
+  function musVigila(a) {
+    var t = MUS.actual; if (!MUS.sonando || !t) return;
+    var fin = t.fin || a.duration; if (!(fin > 0)) return;
+    var queda = fin - a.currentTime;
+    if (queda < 30 && !MUS.precargado) {   /* el siguiente, cargando ya en el otro reproductor */
+      MUS.precargado = true;
+      try { var sig = musSiguiente(true), o = 1 - MUS.act, b = MUS.els[o];
+        if (MUS.prep[o] !== sig.f) { b.src = musUrl(sig); b.load(); MUS.prep[o] = sig.f; } } catch (e) {}
     }
-    var p = a.play(); if (p && p.catch) p.catch(function () { MUS.sonando = false; musPintar(); musInvitar(); });
+    if (queda <= 0.08) musTocar(musSiguiente(), true);
+  }
+  function musTocar(tema, seguido) {   /* seguido: viene de otra canción (sin fundido de entrada) */
+    musAudio(); clearTimeout(MUS.parando);
+    var i = MUS.act, o = 1 - i, viejo = MUS.els[i], a;
+    if (MUS.prep[o] === tema.f) {   /* ya estaba preparado en el otro reproductor */
+      MUS.act = o; a = MUS.els[o]; MUS.prep[i] = null; try { viejo.pause(); } catch (e) {}   /* el que acaba ya no está «al principio» */
+      try { if (a.currentTime > (tema.ini || 0) + 1) a.currentTime = tema.ini || 0; } catch (e) {}
+    } else { a = viejo; a.src = musUrl(tema); MUS.prep[i] = tema.f; }
+    MUS.actual = tema; MUS.sonando = true; MUS.precargado = false;
+    if (MUS.ctx) {
+      try { if (MUS.ctx.state === 'suspended') MUS.ctx.resume(); var g = MUS.gan.gain, t = MUS.ctx.currentTime; g.cancelScheduledValues(t);
+        if (seguido) g.setValueAtTime(MUS_VOL, t); else { g.setValueAtTime(0.0001, t); g.exponentialRampToValueAtTime(MUS_VOL, t + 0.8); } } catch (e) {}
+    }
+    /* si el navegador no deja sonar (sin pulsar antes), queda parada; si solo se interrumpió al cambiar de tema, nada */
+    var p = a.play(); if (p && p.catch) p.catch(function (e) { if (a === musActivo() && a.paused && !(e && e.name === 'AbortError')) { MUS.sonando = false; musPintar(); musInvitar(); } });
     musPintar(); musInvitar(); musAnimar();
   }
   function musParar() {
     MUS.sonando = false; musPintar();
-    var a = MUS.audio; if (!a) return;
+    var a = musActivo(); if (!a) return;
     if (MUS.ctx && MUS.gan) {
       try { var g = MUS.gan.gain, t = MUS.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(Math.max(0.0001, g.value), t); g.exponentialRampToValueAtTime(0.0001, t + 0.5); } catch (e) {}
       clearTimeout(MUS.parando); MUS.parando = setTimeout(function () { if (!MUS.sonando) a.pause(); }, 520);
@@ -1987,7 +2016,7 @@
       MUS.raf = 0;
       var n = musBarras((MUS.cv && MUS.cv.clientWidth) || 260), suave = MUS.suave;
       if (!suave || suave.length !== n) { suave = MUS.suave = []; for (var s = 0; s < n; s++) suave.push(0); }
-      var vivo = !!(MUS.sonando && MUS.audio && !MUS.audio.paused), algo = false, obj = null;
+      var ac = musActivo(), vivo = !!(MUS.sonando && ac && !ac.paused), algo = false, obj = null;
       var tn = performance.now(), dt = MUS.tAnt ? Math.min(0.1, (tn - MUS.tAnt) / 1000) : 0.016; MUS.tAnt = tn;
       if (MUS.an && vivo) {
         var an = MUS.an, d = MUS.datos; an.getByteFrequencyData(d);
