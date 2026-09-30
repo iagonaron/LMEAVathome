@@ -44,6 +44,9 @@
    17) (29-sep-2026, tarde) LIBRO DE ENTONACIÓN (solo Tester, GE): el cuadro de la clave de sol da «Lección activa · N»
        (el libro abierto por la lección de la semana, con dos vistas y la barra de anotar) y «Resultados». Y la punta
        fina de las lecciones de ritmo pasa a VERDE («que el puntero opaco de ritmo sea verde»).
+   18) (30-sep-2026) MÚSICA (solo Tester/Protester, GE y GP): una tira debajo de «Bienvenido/a…» con ▶, barras que se
+       mueven con lo que suena y el título y el autor; 30 temas de Kevin MacLeod (CC BY 4.0) en ge.lmathome.es/musica/.
+       El ▶ invita a pulsarlo (ondas y una corchea) desde 5 minutos antes de cada clase hasta el minuto 5.
    Copia de la versión anterior: portal.js.bak-27sep-v2
    ===================================================================== */
 (function () {
@@ -1818,6 +1821,243 @@
     try { var b = q('#lm-iconos .lm-ic-ento'); if (b) b.focus({ preventScroll: true }); } catch (e) {}
   }
 
+  /* ---------- 18 (30-sep-2026, Iago): MÚSICA EN EL PORTAL · SOLO Tester/Protester (GE y GP) ----------
+     «Música instrumental en los portales, solo en Tester y Protester: un play debajo de "Bienvenido/a…", en una tira desde
+      "Bienvenido" hasta debajo de "Salir", con una animación que reaccione al audio y el título y el autor en pequeño.
+      Pulsar = suena; pulsar sonando = para; pulsar otra vez = otra canción (sin repetir hasta que hayan sonado todas).»
+     · 30 temas instrumentales de Kevin MacLeod (incompetech.com, licencia CC BY 4.0: se citan autor, fuente y licencia), a
+       128 kbps y con el volumen igualado, en ge.lmathome.es/musica/ (lista.json: título, autor, estilo y duración).
+     · Al acabar un tema, sigue el siguiente. El orden (barajado) se guarda en este aparato: no se repite ninguno hasta que
+       han sonado los 30; entonces se vuelve a barajar. Al parar, baja el volumen en medio segundo.
+     · La animación: barras con los colores de los apartados (teoría, dictado, entonación, ritmo, PreDict) que se mueven con
+       lo que suena (Web Audio). «Que la línea animada ocupe todo el ancho, que las ondas de frecuencias suban pero no
+       bajen, y debajo el título»: las barras nacen de una línea fina (el nivel de silencio) y solo suben; el título va
+       debajo de esa línea. Parada, solo queda la línea.
+     · «Que el play parpadee desde 5 minutos antes de que empiece cada clase de mis grupos hasta el minuto 5 de clase, o
+       hasta que lo pulse. Un parpadeo smooth, que invite a pulsar pero que no sea on/off; como la campana, pero en lugar del
+       circulito con un número, un simbolito de corchea.» El horario es el del Diario (el mismo que usan los morosos, con la
+       llave lm_profe de este navegador); sin esa llave no hay aviso, pero la música funciona igual.
+     Para quitarlo: borrar esta sección, su línea en todo() y su CSS (sección 18 de portal.css). */
+  var MUS = { lista: null, cargando: false, error: false, audio: null, ctx: null, gan: null, an: null, datos: null,
+              actual: null, sonando: false, raf: 0, cv: null, el: null, parando: 0, fallos: 0, cols: null };
+  var MUS_BASE = 'https://ge.lmathome.es/musica/';
+  var MUS_ORDEN = 'lm_musica_orden_v1', MUS_PULSADO = 'lm_musica_pulsado:';
+  var MUS_LIC = 'https://creativecommons.org/licenses/by/4.0/';
+  /* barras: una cada ~5 px de ancho; frecuencias de 45 Hz a 12 kHz en escala logarítmica. Para que se mueva todo el ancho
+     (también la parte de los agudos y en los temas suaves, como las bossas): +3 dB por octava por debajo de 1 kHz y +6 por
+     encima, y cada barra se mide contra su propio pico reciente (que baja 3 dB por segundo), sin darle más de 15 dB de
+     ventaja sobre la barra que suena más fuerte; 32 dB por debajo de ese pico = en la línea. Ajustado con los 30 temas. */
+  var MUS_F0 = 45, MUS_F1 = 12000, MUS_T1 = 3, MUS_T2 = 6, MUS_RANGO = 32, MUS_TOPE = 15, MUS_SUELO = -50;
+  /* (30-sep-2026, Iago) «que suene como música de fondo, un poco más bajo que el volumen que tendría normalmente (no a la
+     mitad: es cuando van entrando y hablando)»: −6 dB respecto a antes (0,85 → 0,43). Las barras miran el sonido ANTES
+     de este volumen, así que se mueven igual. Para subirla o bajarla, este número (0,6 ≈ −3 dB; 0,3 ≈ −9 dB). */
+  var MUS_VOL = 0.43;
+  var MUS_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8L19 12z" fill="currentColor"/></svg>';
+  var MUS_STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor"/></svg>';
+  /* la corchea del globito (en lugar del numerito de la campana) */
+  var MUS_NOTA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 3.5v11.3a3.6 3.6 0 1 0 2 3.2V7.6c2.2.4 3.8 1.5 4.7 3.3.2-3.4-1.9-6.2-6.7-7.4z" fill="currentColor"/></svg>';
+  function musCargar() {
+    if (MUS.lista || MUS.cargando || MUS.error) return;
+    MUS.cargando = true;
+    fetch(MUS_BASE + 'lista.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) {
+        var t = (d && Array.isArray(d.temas)) ? d.temas.filter(function (x) { return x && x.f && x.t; }) : [];
+        if (!t.length) throw new Error('lista vacía');
+        d.temas = t; MUS.lista = d; musica();
+      })
+      .catch(function () { MUS.error = true; setTimeout(function () { MUS.error = false; }, 10 * 60e3); })   /* sin lista, sin tira */
+      .then(function () { MUS.cargando = false; });
+  }
+  /* el siguiente tema: orden barajado guardado en este aparato, sin repetir hasta que suenen todos.
+     mirar=true: solo dice cuál toca (para enseñar su título antes de pulsar), sin gastarlo */
+  function musSiguiente(mirar) {
+    var temas = MUS.lista.temas, fs = temas.map(function (x) { return x.f; }), st = null;
+    try { st = JSON.parse(localStorage.getItem(MUS_ORDEN) || 'null'); } catch (e) {}
+    var vale = st && Array.isArray(st.orden) && st.orden.length === fs.length && st.orden.every(function (f) { return fs.indexOf(f) >= 0; }) && (+st.pos >= 0);
+    if (!vale || st.pos >= st.orden.length) {
+      var o = fs.slice(), ult = vale ? st.orden[st.orden.length - 1] : null;
+      for (var i = o.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = o[i]; o[i] = o[j]; o[j] = x; }
+      if (ult && o.length > 1 && o[0] === ult) o.push(o.shift());   /* al empezar otra vuelta, que no repita el último */
+      st = { orden: o, pos: 0 };
+    }
+    var f = st.orden[st.pos]; if (!mirar) st.pos++;
+    try { localStorage.setItem(MUS_ORDEN, JSON.stringify(st)); } catch (e) {}
+    for (var k = 0; k < temas.length; k++) if (temas[k].f === f) return temas[k];
+    return temas[0];
+  }
+  function musAudio() {
+    if (MUS.audio) return MUS.audio;
+    var a = MUS.audio = new Audio(); a.crossOrigin = 'anonymous'; a.preload = 'auto';
+    a.addEventListener('ended', function () { if (MUS.sonando) musTocar(musSiguiente()); });
+    a.addEventListener('playing', function () { MUS.fallos = 0; });
+    a.addEventListener('error', function () {   /* si un tema no carga, el siguiente (como mucho tres seguidos) */
+      if (!MUS.sonando) return;
+      if (++MUS.fallos <= 3) musTocar(musSiguiente()); else musParar();
+    });
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; MUS.ctx = new AC();
+      var s = MUS.ctx.createMediaElementSource(a); MUS.gan = MUS.ctx.createGain(); MUS.an = MUS.ctx.createAnalyser();
+      MUS.an.fftSize = 2048; MUS.an.smoothingTimeConstant = 0.6; MUS.an.minDecibels = -95; MUS.an.maxDecibels = -20;
+      MUS.datos = new Uint8Array(MUS.an.frequencyBinCount);
+      s.connect(MUS.an); MUS.an.connect(MUS.gan); MUS.gan.connect(MUS.ctx.destination);   /* tema → barras → volumen → altavoz */
+    } catch (e) { MUS.ctx = MUS.gan = MUS.an = null; a.volume = MUS_VOL; }   /* sin Web Audio: suena igual, sin animación */
+    return a;
+  }
+  function musTocar(tema) {
+    var a = musAudio(); clearTimeout(MUS.parando);
+    MUS.actual = tema; MUS.sonando = true;
+    a.src = MUS_BASE + encodeURIComponent(tema.f);
+    if (MUS.ctx) {
+      try { if (MUS.ctx.state === 'suspended') MUS.ctx.resume(); var g = MUS.gan.gain, t = MUS.ctx.currentTime;
+        g.cancelScheduledValues(t); g.setValueAtTime(0.0001, t); g.exponentialRampToValueAtTime(MUS_VOL, t + 0.8); } catch (e) {}
+    }
+    var p = a.play(); if (p && p.catch) p.catch(function () { MUS.sonando = false; musPintar(); musInvitar(); });
+    musPintar(); musInvitar(); musAnimar();
+  }
+  function musParar() {
+    MUS.sonando = false; musPintar();
+    var a = MUS.audio; if (!a) return;
+    if (MUS.ctx && MUS.gan) {
+      try { var g = MUS.gan.gain, t = MUS.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(Math.max(0.0001, g.value), t); g.exponentialRampToValueAtTime(0.0001, t + 0.5); } catch (e) {}
+      clearTimeout(MUS.parando); MUS.parando = setTimeout(function () { if (!MUS.sonando) a.pause(); }, 520);
+    } else a.pause();
+  }
+  function musPulsar() {
+    var v = musVentana(); if (v) { try { localStorage.setItem(MUS_PULSADO + v.clave, '1'); } catch (e) {} }   /* ya lo pulsó: esta clase no parpadea más */
+    if (MUS.sonando) musParar(); else musTocar(musSiguiente());
+    musInvitar();
+  }
+  /* ¿estamos entre 5 minutos antes y el minuto 5 de una clase de un grupo de este portal? (horario del Diario) */
+  function musVentana() {
+    var d = MOR.d; if (!d || !Array.isArray(d.horario)) return null;
+    var ahora = new Date(), dia = ((ahora.getDay() + 6) % 7) + 1, min = ahora.getHours() * 60 + ahora.getMinutes() + ahora.getSeconds() / 60;
+    for (var i = 0; i < d.horario.length; i++) {
+      var h = d.horario[i]; if (!h || +h.dia !== dia || !delPortal(h.grupo)) continue;
+      var ini = minutos(h.ini); if (!isFinite(ini)) continue;
+      if (min >= ini - 5 && min < ini + 5) return { grupo: h.grupo, clave: hoyISO() + '|' + h.grupo + '|' + h.ini };
+    }
+    return null;
+  }
+  function musInvitar() {
+    var b = MUS.el && MUS.el.querySelector('.lm-mus-b'); if (!b) return;
+    var v = musVentana(), pulsado = false;
+    if (v) { try { pulsado = localStorage.getItem(MUS_PULSADO + v.clave) === '1'; } catch (e) {} }
+    var on = !!v && !pulsado && !MUS.sonando;
+    if (b.classList.contains('lm-mus-invita') !== on) b.classList.toggle('lm-mus-invita', on);
+    var lab = MUS.sonando ? 'Parar la música' : (on ? 'Poner música: empieza la clase de ' + v.grupo : (MUS.actual ? 'Otra canción' : 'Poner música'));
+    if (b.getAttribute('aria-label') !== lab) { b.setAttribute('aria-label', lab); b.title = lab; }
+  }
+  /* los colores de los apartados, de izquierda a derecha, en cinco tramos (rosa, naranja, azul, verde, amarillo) */
+  function musColores() {
+    var cs = getComputedStyle(document.documentElement), def = ['#ec4899', '#f97316', '#4a9eff', '#22c55e', '#facc15'];
+    return ['--lm-rosa', '--lm-naranja', '--lm-azul', '--lm-verde', '--lm-amarillo'].map(function (v, i) {
+      var c = (cs.getPropertyValue(v) || '').trim(), m = /^#([0-9a-f]{6})$/i.exec(c) || /^#([0-9a-f]{6})$/i.exec(def[i]);
+      var x = parseInt(m[1], 16); return [(x >> 16) & 255, (x >> 8) & 255, x & 255];
+    });
+  }
+  function musColor(i, n) {   /* la barra i de n: el color de su tramo (mezclados, el naranja y el azul daban un gris) */
+    var cs = MUS.cols || (MUS.cols = musColores()), c = cs[Math.min(cs.length - 1, Math.floor(i * cs.length / n))];
+    return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+  }
+  function musBarras(W) { return Math.max(24, Math.min(96, Math.round(W / 5))); }   /* una barra cada ~5 px */
+  function musDibujar(niv) {   /* niv: nivel de cada barra (0…1), o null = en silencio (solo la línea) */
+    var cv = MUS.cv; if (!cv) return;
+    var W = cv.clientWidth, H = cv.clientHeight; if (!W || !H) return;
+    var dpr = Math.min(2, window.devicePixelRatio || 1), w = Math.round(W * dpr), h = Math.round(H * dpr);
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    var x = cv.getContext('2d'); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, h);
+    /* la línea de silencio, abajo del todo y de lado a lado; las barras nacen de ella y solo suben */
+    var gl = Math.max(1, Math.round(dpr)), base = h - gl;
+    x.fillStyle = 'rgba(255,255,255,.3)'; x.fillRect(0, base, w, gl);
+    if (!niv) return;
+    var n = niv.length, paso = w / n, bw = Math.max(1, Math.round(paso * 0.6)), alto = base - Math.round(dpr);
+    if (MUS.colN !== n) { MUS.colN = n; MUS.colB = []; for (var c = 0; c < n; c++) MUS.colB.push(musColor(c, n)); }
+    for (var i = 0; i < n; i++) {
+      var bh = Math.round((niv[i] || 0) * alto); if (bh < 1) continue;
+      var bx = Math.round(i * paso + (paso - bw) / 2), r = Math.min(bw / 2, bh, 1.5 * dpr);
+      x.fillStyle = MUS.colB[i]; x.beginPath();
+      if (x.roundRect) x.roundRect(bx, base - bh, bw, bh, [r, r, 0, 0]); else x.rect(bx, base - bh, bw, bh);
+      x.fill();
+    }
+  }
+  function musAnimar() {
+    if (MUS.raf) return;
+    function paso() {
+      MUS.raf = 0;
+      var n = musBarras((MUS.cv && MUS.cv.clientWidth) || 260), suave = MUS.suave;
+      if (!suave || suave.length !== n) { suave = MUS.suave = []; for (var s = 0; s < n; s++) suave.push(0); }
+      var vivo = !!(MUS.sonando && MUS.audio && !MUS.audio.paused), algo = false, obj = null;
+      var tn = performance.now(), dt = MUS.tAnt ? Math.min(0.1, (tn - MUS.tAnt) / 1000) : 0.016; MUS.tAnt = tn;
+      if (MUS.an && vivo) {
+        var an = MUS.an, d = MUS.datos; an.getByteFrequencyData(d);
+        var hz = ((MUS.ctx && MUS.ctx.sampleRate) || 44100) / an.fftSize, nb = d.length, rango = an.maxDecibels - an.minDecibels;
+        var pk = MUS.pk; if (!pk || pk.length !== n) { pk = MUS.pk = []; for (var z = 0; z < n; z++) pk.push(-100); }
+        var dbs = [], mm = [], G = MUS_SUELO;
+        for (var i = 0; i < n; i++) {   /* bandas en escala logarítmica: cada barra, el máximo de su tramo de frecuencias */
+          var f0 = MUS_F0 * Math.pow(MUS_F1 / MUS_F0, i / n), f1 = MUS_F0 * Math.pow(MUS_F1 / MUS_F0, (i + 1) / n), fc = Math.sqrt(f0 * f1);
+          var p0 = f0 / hz, p1 = f1 / hz, m = 0;
+          if (p1 - p0 < 1) { var pc = fc / hz, a = Math.floor(pc), fr = pc - a; m = d[a] * (1 - fr) + d[Math.min(nb - 1, a + 1)] * fr; }
+          else for (var b = Math.floor(p0), bf = Math.min(nb - 1, Math.ceil(p1)); b <= bf; b++) if (d[b] > m) m = d[b];
+          var db = an.minDecibels + rango * m / 255 + (fc < 1000 ? MUS_T1 : MUS_T2) * Math.log(fc / 1000) / Math.LN2;
+          pk[i] = Math.max(db, pk[i] - 3 * dt); if (pk[i] > G) G = pk[i];
+          dbs.push(db); mm.push(m);
+        }
+        obj = [];
+        for (var j = 0; j < n; j++) {
+          var tope = Math.max(pk[j], G - MUS_TOPE) + 2, v = mm[j] > 0 ? (dbs[j] - (tope - MUS_RANGO)) / MUS_RANGO : 0;
+          obj.push(v <= 0 ? 0 : v >= 1 ? 1 : Math.pow(v, 1.8));
+        }
+      }
+      for (var k = 0; k < n; k++) {   /* suben deprisa y bajan despacio */
+        var o = obj ? obj[k] : 0;
+        suave[k] = o > suave[k] ? suave[k] * 0.4 + o * 0.6 : suave[k] * 0.86 + o * 0.14;
+        if (suave[k] > 0.012) algo = true;
+      }
+      musDibujar(algo ? suave : null);
+      if (vivo || algo) MUS.raf = requestAnimationFrame(paso);
+    }
+    MUS.raf = requestAnimationFrame(paso);
+  }
+  function musPintar() {
+    var el = MUS.el; if (!el) return;
+    var b = el.querySelector('.lm-mus-b'), ic = el.querySelector('.lm-mus-ic'), t = el.querySelector('.lm-mus-t'), a = el.querySelector('.lm-mus-a');
+    var son = MUS.sonando, tema = MUS.actual, k = son ? 'stop' : 'play';
+    if (ic.getAttribute('data-k') !== k) { ic.innerHTML = son ? MUS_STOP : MUS_PLAY; ic.setAttribute('data-k', k); b.setAttribute('aria-pressed', son ? 'true' : 'false'); }
+    if (el.classList.contains('sonando') !== son) el.classList.toggle('sonando', son);
+    /* (30-sep-2026, Iago) «Simplemente el título y ya»: sonando, el del tema; parada, el del que sonará al pulsar */
+    if (!son) { try { tema = musSiguiente(true); } catch (e) {} }
+    var tt = tema ? tema.t : '';
+    var at = (tema && tema.a ? tema.a : 'Kevin MacLeod') + ' · CC BY 4.0';   /* autor y licencia, en pequeño a la derecha del título */
+    var tit = (tema ? '«' + tema.t + '»' + (tema.g ? ' (' + tema.g.toLowerCase() + ')' : '') + ', ' + (tema.a || 'Kevin MacLeod') : 'Música de Kevin MacLeod') +
+      ' (incompetech.com). Licencia Creative Commons Reconocimiento 4.0 (CC BY 4.0).';
+    if (t.textContent !== tt) t.textContent = tt;
+    if (a.textContent !== at) a.textContent = at;
+    if (a.title !== tit) a.title = tit;
+    if (a.getAttribute('href') !== MUS_LIC) a.setAttribute('href', MUS_LIC);
+    if (!MUS.raf) musDibujar(null);
+  }
+  function musica() {
+    var w = document.getElementById('portal-welcome'), linea = w && w.querySelector('.pw-linea'), el = document.getElementById('lm-musica');
+    if (!(w && linea && w.style.display !== 'none' && esProfe())) {
+      if (el) { if (MUS.sonando) musParar(); if (el.parentNode) el.parentNode.removeChild(el); MUS.el = MUS.cv = null; }
+      return;
+    }
+    musCargar(); if (!MUS.lista) return;
+    if (!el) {
+      el = document.createElement('div'); el.id = 'lm-musica'; el.className = 'lm-mus';
+      el.innerHTML = '<button type="button" class="lm-mus-b" aria-pressed="false"><span class="lm-mus-ic"></span>' +
+        '<span class="lm-mus-nota" aria-hidden="true">' + MUS_NOTA + '</span></button>' +
+        '<span class="lm-mus-der"><canvas class="lm-mus-cv" aria-hidden="true"></canvas>' +
+        '<span class="lm-mus-txt"><span class="lm-mus-t"></span><a class="lm-mus-a" target="_blank" rel="noopener"></a></span></span>';
+      el.querySelector('.lm-mus-b').addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); musPulsar(); });
+      MUS.el = el; MUS.cv = el.querySelector('.lm-mus-cv');
+    }
+    if (el.parentNode !== w || el.previousElementSibling !== linea) linea.parentNode.insertBefore(el, linea.nextSibling);
+    musPintar(); musInvitar();
+  }
+  setInterval(function () { try { musInvitar(); } catch (e) {} }, 15000);   /* el aviso de la clase se enciende y se apaga solo */
+
   function todo() {
     try { campanaCalma(); } catch (e) {}
     try { tarjetas(); } catch (e) {} try { misResultados(); } catch (e) {} try { hileraTester(); } catch (e) {}
@@ -1829,6 +2069,7 @@
     try { visorLecciones(); } catch (e) {}
     try { librosMax(); } catch (e) {}
     try { bienvenida(); } catch (e) {}
+    try { musica(); } catch (e) {}
   }
   todo();
   var n = 0, t = setInterval(function () { todo(); if (++n > 240) clearInterval(t); }, 500);
