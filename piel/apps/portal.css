@@ -610,6 +610,11 @@ html.lm-fam-portal .lm-vl-sw{ display:block; width:20px; height:20px; border-rad
 html.lm-fam-portal .lm-vl-fina{ position:relative; background:#fff; border-radius:50%; }
 /* (29-sep-2026, Iago) la punta fina de ritmo, VERDE (la de entonación es azul) */
 html.lm-fam-portal .lm-vl-fina i{ position:absolute; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:var(--lm-verde-f); }
+/* (1-oct-2026, Iago) «una punta fina y opaca de color negro» y el botón △/U (patrones: verde, como en las intros) */
+html.lm-fam-portal .lm-vl-fina-n i{ background:#000; }
+html.lm-fam-portal .lm-vl-b .lm-vl-pt-i{ width:28px; height:21px; display:block; pointer-events:none; overflow:visible; }
+html.lm-fam-portal .lm-vl-pt-i path{ fill:none; stroke:var(--lm-verde, #22c55e); stroke-width:2.3; stroke-linejoin:round; stroke-linecap:round; }
+html.lm-fam-portal .lm-vl-b.on .lm-vl-pt-i path{ stroke:#fff; }
 html.lm-fam-portal .lm-vl-borra.armado, html.lm-fam-portal .lm-vl-borra.armado:hover{ background:#dc2626; }
 html.lm-fam-portal .lm-vl-x, html.lm-fam-portal .lm-vl-x:hover{ background:transparent; box-shadow:inset 0 0 0 1px rgba(255,255,255,.4); }
 html.lm-fam-portal .lm-vl-x:hover{ box-shadow:inset 0 0 0 1px #fff; }
@@ -682,6 +687,9 @@ html.lm-fam-portal #ts-visor.lm-vl-max .anot-wrap ~ .anot-wrap{ margin-top:calc(
   html.lm-fam-portal .lm-vl-br{ display:block; flex-basis:100%; height:0; }
   html.lm-fam-portal .lm-vl-her .lm-vl-sep.s2{ display:none; }
 }
+/* (1-oct-2026) ritmo con 9 botones: en el móvil, en UNA fila debajo de la tonalidad; en los más estrechos, un pelín más juntos */
+@media (max-width: 400px){ html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:35px; --vl-gap:4px; } }
+@media (max-width: 370px){ html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:34px; --vl-gap:3px; } }
 @media (prefers-reduced-motion: reduce){ html.lm-fam-portal .lm-vl-tira{ transition:none; } }
 
 /* ---------- (28-sep-2026, noche, Iago) LIBROS · «Ampliar»: el contenido de la página al ancho de la pantalla ---------- */

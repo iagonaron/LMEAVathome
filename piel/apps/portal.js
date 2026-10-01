@@ -492,7 +492,12 @@
      Si la barra de siempre cambiara y no se reconociera, el visor se queda tal cual estaba (nada se rompe). */
   var VL_NOTAS = ['—', 'Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];   /* izquierda → derecha */
   var VL_ORIG = ['Si', 'La', 'Sol', 'Fa', 'Mi', 'Re', 'Do', '—'];    /* orden de la rueda de siempre (vertical) */
-  var VL_HER = ['c0', 'c1', 'c2', 'c3', 'k', 'nota', 'goma', 'undo', 'clear'];
+  /* (1-oct-2026, Iago) imprescindibles para vestir la barra: punta fina, goma, deshacer y borrar todo. Los rotuladores (en ritmo,
+     verde y gris), △/U, las alertas y la nota se ponen si la barra del portal los trae: sirve igual con un portal sin actualizar. */
+  var VL_HER = ['k', 'goma', 'undo', 'clear'];
+  var VL_COL = [['c0', 'Subrayar en amarillo'], ['c1', 'Subrayar en verde'], ['c2', 'Subrayar en rosa'], ['c3', 'Subrayar en azul'], ['c4', 'Subrayar en gris']];
+  /* (1-oct-2026, Iago) △/U: el triángulo (subdivisión ternaria) y la U (binaria), como en las intros */
+  var ICO_PT = '<svg class="lm-vl-pt-i" viewBox="0 0 26 20" aria-hidden="true"><path d="M2.6 15.6h8.6L6.9 8Z"/><path d="M15 8v7.6h8.6V8"/></svg>';
   /* (1-oct-2026, Iago) ALERTAS amarilla y roja: discretas (blancas, con un toque de su color) y, al activarse, rellenas de su
      color. Opcionales: si la barra de siempre aún no las trae (un portal sin actualizar), la hilera sale como antes. */
   var VL_AL = [['aa', 'a', 'Alerta amarilla · toca: aviso · arrastra: zona'], ['ar', 'r', 'Alerta roja · toca: aviso · arrastra: zona difícil']];
@@ -606,24 +611,32 @@
     });
     var her = document.createElement('div'); her.className = 'lm-vl-her';
     var mH = {};
-    [['c0', '#ffde3c', 'Subrayar en amarillo'], ['c1', '#50e68c', 'Subrayar en verde'], ['c2', '#ff6eb4', 'Subrayar en rosa'], ['c3', '#5ab4ff', 'Subrayar en azul']].forEach(function (d) {
-      mH[d[0]] = boton('lm-vl-col', '<span class="lm-vl-sw" style="background:' + d[1] + '"></span>', d[2], function () { pulsaO(o(d[0])); });
+    function titO(el, def) { return (el && (el.getAttribute('title') || el.getAttribute('aria-label'))) || def; }
+    VL_COL.forEach(function (d) {   /* (1-oct-2026) los rotuladores que traiga la barra, con su muestra de color */
+      var ob = o(d[0]); if (!ob) return;
+      var sw = ob.querySelector('.anot-sw'), col = (sw && sw.style.backgroundColor) || '#888';
+      mH[d[0]] = boton('lm-vl-col', '<span class="lm-vl-sw" style="background:' + col + '"></span>', titO(ob, d[1]), function () { pulsaO(o(d[0])); });
       her.appendChild(mH[d[0]]);
     });
-    /* (29-sep-2026, Iago) «que el puntero opaco de ritmo sea verde» (y el de entonación, azul): coherencia de los apartados */
-    mH.k = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina"><i></i></span>', 'Punta fina verde', function () { pulsaO(o('k')); }); her.appendChild(mH.k);
+    /* la punta fina: (29-sep) verde; (1-oct-2026, Iago) «una punta fina y opaca que será de color negro» (con un portal sin
+       actualizar, sigue saliendo verde) */
+    var kNegra = /negra/i.test(titO(o('k'), ''));
+    mH.k = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina' + (kNegra ? ' lm-vl-fina-n' : '') + '"><i></i></span>', titO(o('k'), 'Punta fina'), function () { pulsaO(o('k')); }); her.appendChild(mH.k);
+    if (o('pt')) { mH.pt = boton('lm-vl-col lm-vl-pt', ICO_PT, titO(o('pt'), 'Triángulo y U'), function () { pulsaO(o('pt')); }); her.appendChild(mH.pt); }   /* (1-oct-2026) △/U, a la izquierda de la alerta amarilla */
     VL_AL.forEach(function (d) {   /* (1-oct-2026) las dos alertas, a la derecha de la punta fina */
       if (!o(d[0])) return;
       mH[d[0]] = boton('lm-vl-al lm-vl-al-' + d[1], icoAlerta(), d[2], function () { pulsaO(o(d[0])); });
       mH[d[0]].setAttribute('aria-pressed', 'false'); her.appendChild(mH[d[0]]);
     });
     if (mH.aa || mH.ar) { var br = document.createElement('span'); br.className = 'lm-vl-br'; br.setAttribute('aria-hidden', 'true'); her.appendChild(br); }   /* en el móvil, aquí empieza otra fila */
-    mH.nota = boton('', svgI(ICO_NOTA), 'Nota de texto', function () { pulsaO(o('nota')); }); her.appendChild(mH.nota);
+    if (o('nota')) { mH.nota = boton('', svgI(ICO_NOTA), 'Nota de texto', function () { pulsaO(o('nota')); }); her.appendChild(mH.nota); }   /* (1-oct-2026) en ritmo ya no hay nota */
     mH.goma = boton('', ico('goma'), 'Goma', function () { pulsaO(o('goma')); }); her.appendChild(mH.goma);
     her.appendChild(sep('s2'));
     mH.undo = boton('', ico('deshacer'), 'Deshacer', function () { pulsaO(o('undo')); }); her.appendChild(mH.undo);
     mH.clear = boton('lm-vl-borra', ico('trash'), 'Borrar todo', function () { pulsaO(o('clear')); }); her.appendChild(mH.clear);
-    ['c0', 'c1', 'c2', 'c3', 'k', 'nota', 'goma'].forEach(function (t) { mH[t].setAttribute('aria-pressed', 'false'); });
+    Object.keys(mH).forEach(function (t) { if (t !== 'undo' && t !== 'clear') mH[t].setAttribute('aria-pressed', 'false'); });
+    /* (1-oct-2026) en ritmo ya son 9 botones: en el móvil caben en una fila (sin el salto de las 11 de antes) */
+    if (br && Object.keys(mH).length <= 9 && br.parentNode) br.parentNode.removeChild(br);
     var esp = document.createElement('span'); esp.className = 'lm-vl-esp';
     var fin = document.createElement('div'); fin.className = 'lm-vl-fin';
     var bMax = boton('lm-vl-max', ico('expandir'), 'Pantalla completa', function () { alternarMax(); });
@@ -666,7 +679,7 @@
     }
     function pinta() {
       if (!ov.isConnected) return;
-      VL_HER.concat(VL_AL.map(function (d) { return d[0]; }).filter(function (t) { return mH[t]; })).forEach(function (t) {   /* (1-oct-2026) + alertas */
+      Object.keys(mH).forEach(function (t) {   /* (1-oct-2026) los botones que haya */
         var s = on(o(t)); mH[t].classList.toggle('on', s);
         if (t !== 'undo' && t !== 'clear') mH[t].setAttribute('aria-pressed', s ? 'true' : 'false');
       });
@@ -1316,6 +1329,7 @@
     var st = EN.st = { curso: d.curso, leccion: d.leccion, pdf: d.pdf, P0: g[0], y0: g[1] / 1000, pags: [], vista: enVistaGuardada(),
       herr: 'fina', dibujo: 'fina', hist: [], cur: null, borrando: null, dedos: {}, pan: null, armado: 0, A: 841.89 / 595.28,
       scrollAncho: null, listo: false, rafV: 0 };
+    if (esProfe()) enVacia(d.curso, d.leccion, pp);   /* (1-oct-2026) Tester/Protester: la lección, despejada */
     var ov = st.ov = document.createElement('div'); ov.id = 'lm-ento';
     ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Entonación · Lección ' + d.leccion);
 
@@ -1381,7 +1395,7 @@
     st.vivo = document.createElement('canvas'); st.vivo.className = 'lm-en-vivo';   /* el trazo que se está haciendo (uno a la vez) */
     document.body.appendChild(ov);
     document.documentElement.classList.add('lm-en-on');
-    st.rueda = vlRueda(rh, VL_NOTAS, function (j) { if (EN.st !== st) return; st.ton.n = j; enTonGuarda(); enTonPinta(); });
+    st.rueda = vlRueda(rh, VL_NOTAS, function (j) { if (EN.st !== st) return; st.ton.n = j; enTonGuarda(); enTonPinta(); enEstados(); });
     st.rueda.fija(st.ton.n, true); enTonPinta();
 
     st.onKey = function (e) {
@@ -1437,7 +1451,7 @@
     var st = EN.st; if (!st) return;
     var t = st.ton;
     if (k === '#' || k === 'b') t.alt = (t.alt === k) ? '' : k; else t.modo = (t.modo === k) ? '' : k;
-    enTonGuarda(); enTonPinta();
+    enTonGuarda(); enTonPinta(); enEstados();
   }
   function enTonPinta() {
     var st = EN.st; if (!st) return;
@@ -1863,22 +1877,33 @@
     else if (h.t === 'nota') { var j = h.pg.data.n.indexOf(h.nt); if (j >= 0) h.pg.data.n.splice(j, 1); enNotas(h.pg); enGuarda(h.pg); }
     else if (h.t === 'alerta') { var ka = h.pg.data.a.indexOf(h.al); if (ka >= 0) h.pg.data.a.splice(ka, 1); enRedibuja(h.pg); enGuarda(h.pg); }   /* (1-oct-2026) */
     else if (h.t === 'goma-al') { h.pg.data.a.splice(Math.min(h.i, h.pg.data.a.length), 0, h.al); enRedibuja(h.pg); enGuarda(h.pg); }
-    else if (h.t === 'borrar') h.antes.forEach(function (a) { a.pg.data = a.data; enRedibuja(a.pg); enNotas(a.pg); enGuarda(a.pg); });
+    else if (h.t === 'borrar') {   /* (1-oct-2026) y la tonalidad que había */
+      h.antes.forEach(function (a) { a.pg.data = a.data; enRedibuja(a.pg); enNotas(a.pg); enGuarda(a.pg); });
+      if (h.ton) { st.ton = { n: h.ton.n, alt: h.ton.alt, modo: h.ton.modo }; enTonGuarda(); try { st.rueda.fija(st.ton.n, true); } catch (e) {} enTonPinta(); }
+    }
     enEstados();
   }
   function enHayMarcas() { return EN.st.pags.some(function (pg) { return pg.data.s.length || pg.data.n.length || (pg.data.a && pg.data.a.length); }); }
+  function enHayTon() { var t = EN.st && EN.st.ton; return !!(t && (t.n || t.alt || t.modo)); }
+  /* (1-oct-2026, Iago) «que el botón borrar sea de un toque, sin darle dos veces, y que también borre la tonalidad»: de un toque
+     se va todo (trazos, alertas, notas y la tonalidad); si fue sin querer, «Deshacer» lo devuelve. */
   function enBorrarTodo() {
-    var st = EN.st; if (!st || !enHayMarcas()) return;
-    if (!st.armado) { st.armado = setTimeout(function () { if (EN.st === st) { st.armado = 0; enEstados(); } }, 3000); enEstados(); return; }
-    clearTimeout(st.armado); st.armado = 0;
-    st.hist.push({ t: 'borrar', antes: st.pags.map(function (pg) { return { pg: pg, data: pg.data }; }) });
+    var st = EN.st; if (!st || !(enHayMarcas() || enHayTon())) return;
+    if (st.armado) { clearTimeout(st.armado); st.armado = 0; }
+    st.hist.push({ t: 'borrar', antes: st.pags.map(function (pg) { return { pg: pg, data: pg.data }; }), ton: { n: st.ton.n, alt: st.ton.alt, modo: st.ton.modo } });
     st.pags.forEach(function (pg) { pg.data = { s: [], n: [], a: [] }; enRedibuja(pg); enNotas(pg); enGuarda(pg); });
+    st.ton = { n: 0, alt: '', modo: '' }; enTonGuarda(); try { st.rueda.fija(0, true); } catch (e) {} enTonPinta();
     enEstados();
+  }
+  /* (1-oct-2026, Iago) TESTER y PROTESTER: «como lo uso en clase con varios grupos del mismo curso, cada vez que entre, la pantalla
+     despejada»: lo de la lección (marcas de sus páginas y la tonalidad) se borra al entrar y al salir del libro. */
+  function enVacia(curso, N, Ps) {
+    try { (Ps || []).forEach(function (P) { localStorage.removeItem(enClave(curso, P)); }); localStorage.removeItem(enTonClave(curso, N)); } catch (e) {}
   }
   function enEstados() {
     var st = EN.st; if (!st) return;
     st.bU.disabled = !st.hist.length;
-    st.bC.disabled = !enHayMarcas();
+    st.bC.disabled = !(enHayMarcas() || enHayTon());   /* (1-oct-2026) con solo la tonalidad puesta, también se puede borrar */
     st.bC.classList.toggle('armado', !!st.armado); st.bar.classList.toggle('lm-vl-armado', !!st.armado);
     if (st.armado) {
       var r = st.bC.getBoundingClientRect(), rb = st.bar.getBoundingClientRect(), w = st.aviso.offsetWidth || 180;
@@ -1917,6 +1942,7 @@
     st.vivo.width = st.vivo.height = 0;
     if (st.ov.parentNode) st.ov.parentNode.removeChild(st.ov);
     document.documentElement.classList.remove('lm-en-on');
+    if (esProfe()) enVacia(st.curso, st.leccion, st.pags.map(function (pg) { return pg.P; }));   /* (1-oct-2026) Tester/Protester: al salir, despejada */
     try { var b = q('#lm-iconos .lm-ic-ento'); if (b) b.focus({ preventScroll: true }); } catch (e) {}
   }
 
