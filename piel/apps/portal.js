@@ -1622,10 +1622,32 @@
     for (var i = 1; i < p.length; i++) x.lineTo(p[i][0] * W, p[i][1] * H);
     x.stroke(); x.restore();
   }
+  /* (1-oct-2026, Iago) «Una vez que trazo la línea del intervalo, que aparezca en texto negro, pequeño y discreto, como recordatorio,
+     qué intervalo es: paralelo a la línea y justo debajo» (una línea rojo oscuro en diagonal → «2m» debajo, en esa misma diagonal).
+     Sale al soltar. No se guarda nada aparte: sale del propio trazo (sk.i), así que también lo llevan los ya pintados. */
+  function enEtiqueta(x, sk, W, H) {
+    var p = sk.p; if (!sk.i || !p || p.length < 2) return;
+    var q = p.map(function (v) { return [v[0] * W, v[1] * H]; }), a = q[0], b = q[q.length - 1];
+    var dx = b[0] - a[0], dy = b[1] - a[1]; if (Math.sqrt(dx * dx + dy * dy) < 8) return;
+    if (dx < 0) { dx = -dx; dy = -dy; }                                   /* que se lea de izquierda a derecha */
+    var ang = Math.atan2(dy, dx), tot = 0, seg = [], i;
+    for (i = 1; i < q.length; i++) { var s = Math.sqrt(Math.pow(q[i][0] - q[i - 1][0], 2) + Math.pow(q[i][1] - q[i - 1][1], 2)); seg.push(s); tot += s; }
+    var mid = q[0], acc = 0;                                                /* el punto medio del trazo (por su longitud) */
+    for (i = 0; i < seg.length; i++) { if (acc + seg[i] >= tot / 2) { var t = seg[i] ? (tot / 2 - acc) / seg[i] : 0; mid = [q[i][0] + (q[i + 1][0] - q[i][0]) * t, q[i][1] + (q[i + 1][1] - q[i][1]) * t]; break; } acc += seg[i]; }
+    var r = W / ((x.canvas && x.canvas.clientWidth) || W) || 1;           /* px de pantalla → px del lienzo */
+    var fs = Math.max(9 * r, Math.min(15 * r, W * 0.0095));                /* pequeño: como una cabeza de nota, nunca menos de 9 px */
+    var off = Math.max(2, EN_INTW * W) / 2 + fs * 0.75;                     /* justo debajo de la línea, sin tocarla */
+    var cx = Math.max(fs * 1.5, Math.min(W - fs * 1.5, mid[0] - Math.sin(ang) * off)), cy = Math.max(fs, Math.min(H - fs, mid[1] + Math.cos(ang) * off));
+    x.save(); x.translate(cx, cy); x.rotate(ang);
+    x.font = '700 ' + fs.toFixed(1) + 'px "Helvetica Neue", Helvetica, Arial, sans-serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle'; x.globalAlpha = 0.9; x.fillStyle = '#000';
+    x.fillText(sk.i, 0, 0); x.restore();
+  }
   function enRedibuja(pg) {
     var c = pg.anot, x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height);
     enAlPinta(x, pg, c.width, c.height, 'zonas', null);    /* (1-oct-2026) las zonas de alerta, debajo de los trazos */
     pg.data.s.forEach(function (sk) { enTrazo(x, sk, c.width, c.height, false); });
+    pg.data.s.forEach(function (sk) { enEtiqueta(x, sk, c.width, c.height); });   /* (1-oct-2026) el nombre del intervalo, encima de todo */
     enAlDom(pg);                                            /* y sus iconos, en su capa (opacos, encima de la tinta) */
   }
   /* ---- (1-oct-2026, Iago) ALERTA AMARILLA: {c:'a', p:[x,y]} (icono) o {c:'a', z:[x0,y0,x1,y1]} (zona), en fracciones de la página ---- */
@@ -1709,7 +1731,7 @@
     st.cur = null;
     var sk = c.sk; sk.p = sk.p.map(function (q) { return [Math.round(q[0] * 1e4) / 1e4, Math.round(q[1] * 1e4) / 1e4]; });
     c.pg.data.s.push(sk);
-    enTrazo(c.pg.anot.getContext('2d'), sk, c.pg.anot.width, c.pg.anot.height, false);
+    enRedibuja(c.pg);   /* (1-oct-2026) todo otra vez: así el nombre del intervalo sale debajo y queda encima de los trazos */
     var v = st.vivo; v.getContext('2d').clearRect(0, 0, v.width, v.height);
     st.hist.push({ t: 'trazo', pg: c.pg, sk: sk }); enGuarda(c.pg); enEstados();
   }
