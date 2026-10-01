@@ -613,6 +613,20 @@ html.lm-fam-portal .lm-vl-fina i{ position:absolute; left:50%; top:50%; width:10
 html.lm-fam-portal .lm-vl-borra.armado, html.lm-fam-portal .lm-vl-borra.armado:hover{ background:#dc2626; }
 html.lm-fam-portal .lm-vl-x, html.lm-fam-portal .lm-vl-x:hover{ background:transparent; box-shadow:inset 0 0 0 1px rgba(255,255,255,.4); }
 html.lm-fam-portal .lm-vl-x:hover{ box-shadow:inset 0 0 0 1px #fff; }
+/* (1-oct-2026, Iago) ALERTAS · amarilla (aviso) y roja (zona difícil). «Que se vean más: el amarillo de Mis resultados y un rojo
+   intenso; sin contorno blanco: el triángulo opaco de su color, la exclamación y un pequeño contorno negro (como en la partitura).
+   Y al pulsar y activar el botón, que se ponga amarillo o rojo el resto del botón.» */
+html.lm-fam-portal .lm-vl-br{ display:none; }
+html.lm-fam-portal .lm-vl-b .lm-al-i{ width:23px; height:23px; display:block; pointer-events:none; overflow:visible; }
+html.lm-fam-portal .lm-al-tri{ stroke:#000; stroke-width:1.3; stroke-linejoin:round; }
+html.lm-fam-portal .lm-al-exc{ fill:none; stroke:#000; stroke-width:2.1; stroke-linecap:round; }
+html.lm-fam-portal .lm-al-pto{ fill:#000; }
+html.lm-fam-portal .lm-vl-al-a .lm-al-tri{ fill:var(--lm-amarillo, #facc15); }
+html.lm-fam-portal .lm-vl-al-r .lm-al-tri{ fill:#dc2626; }
+html.lm-fam-portal .lm-vl-b.lm-vl-al-a.on, html.lm-fam-portal .lm-vl-b.lm-vl-al-a.on:hover,
+html.lm-fam-portal #lm-ento .lm-vl-b.lm-vl-al-a.on, html.lm-fam-portal #lm-ento .lm-vl-b.lm-vl-al-a.on:hover{ background:var(--lm-amarillo, #facc15); }
+html.lm-fam-portal .lm-vl-b.lm-vl-al-r.on, html.lm-fam-portal .lm-vl-b.lm-vl-al-r.on:hover,
+html.lm-fam-portal #lm-ento .lm-vl-b.lm-vl-al-r.on, html.lm-fam-portal #lm-ento .lm-vl-b.lm-vl-al-r.on:hover{ background:#dc2626; }
 /* rueda de tonalidad horizontal */
 html.lm-fam-portal .lm-vl-rueda{
   position:relative; flex:none; width:calc(var(--vl-celda) * 5); height:var(--vl-b); border-radius:10px; background:var(--lm-neutro);
@@ -648,10 +662,14 @@ html.lm-fam-portal #ts-visor.lm-vl-max .anot-wrap ~ .anot-wrap{ margin-top:calc(
 /* tamaños: generosos en ordenador y tableta; en pantallas estrechas, un poco menos y la rueda enseña 3 notas */
 @media (min-width: 1200px){ html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:42px; --vl-celda:38px; } }
 @media (max-width: 900px){
-  html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:36px; --vl-celda:34px; --vl-gap:4px; }
+  /* (1-oct-2026) con las dos alertas, en el iPad en vertical la hilera no cabía: un pelín más compacta (como en 720) */
+  html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:34px; --vl-celda:32px; --vl-gap:3px; }
+  html.lm-fam-portal .lm-vl-sep{ margin:0 1px; }
   html.lm-fam-portal .lm-vl-rueda{ width:calc(var(--vl-celda) * 3); }
 }
 @media (max-width: 720px){ html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:34px; --vl-celda:32px; --vl-gap:3px; } html.lm-fam-portal .lm-vl-sep{ margin:0 1px; } }
+/* (1-oct-2026) el iPad mini en vertical (744): un pelín más, para que la hilera quepa entera con las alertas */
+@media (max-width: 760px) and (min-width: 601px){ html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:33px; --vl-gap:2px; } }
 /* móvil en vertical: dos hileras (arriba la tonalidad, pantalla completa y ✕; debajo las herramientas) */
 @media (max-width: 600px){
   html.lm-fam-portal #ts-visor.lm-vl{ --vl-b:36px; --vl-celda:34px; --vl-gap:5px; }
@@ -659,6 +677,10 @@ html.lm-fam-portal #ts-visor.lm-vl-max .anot-wrap ~ .anot-wrap{ margin-top:calc(
   html.lm-fam-portal .lm-vl-g1{ order:1; } html.lm-fam-portal .lm-vl-esp{ order:2; } html.lm-fam-portal .lm-vl-fin{ order:3; }
   html.lm-fam-portal .lm-vl-sep.s1{ display:none; }
   html.lm-fam-portal .lm-vl-her{ order:4; flex:1 1 100%; }
+  /* (1-oct-2026) con las dos alertas no caben en una fila: colores, punta fina y alertas en una; nota, goma, deshacer y borrar en otra */
+  html.lm-fam-portal .lm-vl-her{ flex-wrap:wrap; row-gap:3px; }   /* (la fila vacía del salto suma los otros 3 px) */
+  html.lm-fam-portal .lm-vl-br{ display:block; flex-basis:100%; height:0; }
+  html.lm-fam-portal .lm-vl-her .lm-vl-sep.s2{ display:none; }
 }
 @media (prefers-reduced-motion: reduce){ html.lm-fam-portal .lm-vl-tira{ transition:none; } }
 
@@ -963,6 +985,10 @@ html.lm-fam-portal #lm-ento .lm-en-hoja{ position:absolute; top:0; left:0; isola
 html.lm-fam-portal #lm-ento .lm-en-hoja canvas{ position:absolute; left:0; top:0; width:100%; height:100%; display:block; pointer-events:none; }
 html.lm-fam-portal #lm-ento .lm-en-anot, html.lm-fam-portal #lm-ento .lm-en-vivo{ mix-blend-mode:multiply; }
 html.lm-fam-portal #lm-ento .lm-en-toque{ position:absolute; inset:0; pointer-events:none; }
+/* (1-oct-2026) los iconos de alerta: opacos, encima de la tinta (no se mezclan como las marcas) y sin coger los toques */
+html.lm-fam-portal #lm-ento .lm-en-alertas{ position:absolute; inset:0; pointer-events:none; }
+html.lm-fam-portal #lm-ento .lm-en-al{ position:absolute; display:block; transform:translate(-50%,-50%); }
+html.lm-fam-portal #lm-ento .lm-en-al svg{ display:block; width:100%; height:100%; }
 html.lm-fam-portal #lm-ento.lm-en-dibuja .lm-en-toque{ pointer-events:auto; touch-action:none; }
 /* notas de texto: crecen con la página (su tamaño lo pone la hoja) */
 html.lm-fam-portal #lm-ento .lm-en-notas{ position:absolute; inset:0; pointer-events:none; }
@@ -1000,6 +1026,7 @@ html.lm-fam-portal #lm-ento .lm-en-reint{
   html.lm-fam-portal #lm-ento .lm-en-bar{ padding:6px 8px; }
   html.lm-fam-portal #lm-ento .lm-vl-b svg.pl-i{ width:18px; height:18px; }
   html.lm-fam-portal #lm-ento .lm-vl-sep{ margin:0 1px; }
+  html.lm-fam-portal #lm-ento .lm-vl-b .lm-al-i{ width:19px; height:19px; }   /* (1-oct-2026) */
 }
 /* tableta en vertical: no cabe en una → dos hileras (arriba la tonalidad, las vistas, pantalla y ✕; debajo, todo lo de anotar) */
 @media (max-width: 1000px) and (orientation: portrait){

@@ -493,6 +493,10 @@
   var VL_NOTAS = ['—', 'Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];   /* izquierda → derecha */
   var VL_ORIG = ['Si', 'La', 'Sol', 'Fa', 'Mi', 'Re', 'Do', '—'];    /* orden de la rueda de siempre (vertical) */
   var VL_HER = ['c0', 'c1', 'c2', 'c3', 'k', 'nota', 'goma', 'undo', 'clear'];
+  /* (1-oct-2026, Iago) ALERTAS amarilla y roja: discretas (blancas, con un toque de su color) y, al activarse, rellenas de su
+     color. Opcionales: si la barra de siempre aún no las trae (un portal sin actualizar), la hilera sale como antes. */
+  var VL_AL = [['aa', 'a', 'Alerta amarilla · toca: aviso · arrastra: zona'], ['ar', 'r', 'Alerta roja · toca: aviso · arrastra: zona difícil']];
+  function icoAlerta() { return '<svg class="lm-al-i" viewBox="0 0 24 24" aria-hidden="true"><path class="lm-al-tri" d="M12 3.4L21.4 19.6H2.6Z"/><path class="lm-al-exc" d="M12 9.3v4.9"/><circle class="lm-al-pto" cx="12" cy="16.9" r="1.2"/></svg>'; }
   var ICO_NOTA = '<path d="M5 4h14v10l-6 6H5z"/><path d="M13 20v-6h6"/><path d="M8.5 8.5h7M8.5 12h4"/>';
   function svgI(p) { return '<svg class="pl-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; }
   /* el mismo «clic» suave de la rueda de siempre (y el mismo freno, compartido: nunca suena en ráfaga) */
@@ -608,6 +612,12 @@
     });
     /* (29-sep-2026, Iago) «que el puntero opaco de ritmo sea verde» (y el de entonación, azul): coherencia de los apartados */
     mH.k = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina"><i></i></span>', 'Punta fina verde', function () { pulsaO(o('k')); }); her.appendChild(mH.k);
+    VL_AL.forEach(function (d) {   /* (1-oct-2026) las dos alertas, a la derecha de la punta fina */
+      if (!o(d[0])) return;
+      mH[d[0]] = boton('lm-vl-al lm-vl-al-' + d[1], icoAlerta(), d[2], function () { pulsaO(o(d[0])); });
+      mH[d[0]].setAttribute('aria-pressed', 'false'); her.appendChild(mH[d[0]]);
+    });
+    if (mH.aa || mH.ar) { var br = document.createElement('span'); br.className = 'lm-vl-br'; br.setAttribute('aria-hidden', 'true'); her.appendChild(br); }   /* en el móvil, aquí empieza otra fila */
     mH.nota = boton('', svgI(ICO_NOTA), 'Nota de texto', function () { pulsaO(o('nota')); }); her.appendChild(mH.nota);
     mH.goma = boton('', ico('goma'), 'Goma', function () { pulsaO(o('goma')); }); her.appendChild(mH.goma);
     her.appendChild(sep('s2'));
@@ -656,7 +666,7 @@
     }
     function pinta() {
       if (!ov.isConnected) return;
-      VL_HER.forEach(function (t) {
+      VL_HER.concat(VL_AL.map(function (d) { return d[0]; }).filter(function (t) { return mH[t]; })).forEach(function (t) {   /* (1-oct-2026) + alertas */
         var s = on(o(t)); mH[t].classList.toggle('on', s);
         if (t !== 'undo' && t !== 'clear') mH[t].setAttribute('aria-pressed', s ? 'true' : 'false');
       });
@@ -1275,13 +1285,13 @@
   /* ---- marcas: por página del libro, en este aparato ---- */
   function enClave(curso, P) { return 'lm_ento_anot:' + curso + ':p' + P; }
   function enLee(curso, P) {
-    try { var s = JSON.parse(localStorage.getItem(enClave(curso, P)) || 'null'); if (s && Array.isArray(s.s) && Array.isArray(s.n)) return s; } catch (e) {}
-    return { s: [], n: [] };
+    try { var s = JSON.parse(localStorage.getItem(enClave(curso, P)) || 'null'); if (s && Array.isArray(s.s) && Array.isArray(s.n)) { if (!Array.isArray(s.a)) s.a = []; return s; } } catch (e) {}   /* (1-oct-2026) + alertas (a) */
+    return { s: [], n: [], a: [] };
   }
   function enGuarda(pg) {
     var st = EN.st; if (!st) return;
     try {
-      if (!pg.data.s.length && !pg.data.n.length) localStorage.removeItem(enClave(st.curso, pg.P));
+      if (!pg.data.s.length && !pg.data.n.length && !(pg.data.a && pg.data.a.length)) localStorage.removeItem(enClave(st.curso, pg.P));
       else localStorage.setItem(enClave(st.curso, pg.P), JSON.stringify(pg.data));
     } catch (e) {}
   }
@@ -1337,6 +1347,10 @@
       st.bH['i' + k] = enBoton('lm-en-int', html, 'Subrayar · ' + it[2], function () { enHerr('i' + k); });
       her.appendChild(st.bH['i' + k]);
     });
+    /* (1-oct-2026, Iago) «En visor entonación añade la amarilla; ponla a la derecha de la octava justa»: la alerta amarilla, como en
+       ritmo (toque = el icono; pulsar y arrastrar = una zona amarilla traslúcida con el icono en la esquina de arriba a la izquierda) */
+    st.bH.alerta = enBoton('lm-vl-al lm-vl-al-a', icoAlerta(), 'Alerta amarilla · toca: aviso · arrastra: zona', function () { enHerr('alerta'); });
+    her.appendChild(st.bH.alerta);
     her.appendChild(enSep());
     st.bH.nota = enBoton('', svgI(ICO_NOTA), 'Nota de texto', function () { enHerr('nota'); }); her.appendChild(st.bH.nota);
     st.bH.goma = enBoton('', ico('goma'), 'Goma', function () { enHerr('goma'); }); her.appendChild(st.bH.goma);
@@ -1442,8 +1456,9 @@
     var anot = document.createElement('canvas'); anot.className = 'lm-en-anot';
     var toque = document.createElement('div'); toque.className = 'lm-en-toque';
     var notas = document.createElement('div'); notas.className = 'lm-en-notas';
-    hoja.appendChild(img); hoja.appendChild(anot); hoja.appendChild(toque); hoja.appendChild(notas); el.appendChild(hoja);
-    var pg = { P: P, data: enLee(st.curso, P), el: el, hoja: hoja, img: img, anot: anot, toque: toque, notas: notas, Wp: 0, Hp: 0, tok: 0, rw: 0, tarea: null };
+    var alts = document.createElement('div'); alts.className = 'lm-en-alertas';   /* (1-oct-2026) los iconos de alerta, opacos, encima de la tinta */
+    hoja.appendChild(img); hoja.appendChild(anot); hoja.appendChild(toque); hoja.appendChild(alts); hoja.appendChild(notas); el.appendChild(hoja);
+    var pg = { P: P, data: enLee(st.curso, P), el: el, hoja: hoja, img: img, anot: anot, toque: toque, notas: notas, alts: alts, Wp: 0, Hp: 0, tok: 0, rw: 0, tarea: null };
     enEventos(pg);
     return pg;
   }
@@ -1595,7 +1610,58 @@
   }
   function enRedibuja(pg) {
     var c = pg.anot, x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height);
+    enAlPinta(x, pg, c.width, c.height, 'zonas', null);    /* (1-oct-2026) las zonas de alerta, debajo de los trazos */
     pg.data.s.forEach(function (sk) { enTrazo(x, sk, c.width, c.height, false); });
+    enAlDom(pg);                                            /* y sus iconos, en su capa (opacos, encima de la tinta) */
+  }
+  /* ---- (1-oct-2026, Iago) ALERTA AMARILLA: {c:'a', p:[x,y]} (icono) o {c:'a', z:[x0,y0,x1,y1]} (zona), en fracciones de la página ---- */
+  var EN_AL = { a: { f: '#facc15', z: 'rgba(250,204,21,.30)', b: 'rgba(202,138,4,.9)' } };   /* el amarillo de «Mis resultados» */
+  function enAlTam(W, r) { return Math.max(16 * r, Math.min(60 * r, W * 0.032)); }   /* el icono: un 3,2 % del ancho de la página */
+  function enAlCentro(al, W, H, S) {   /* el punto tocado, o la esquina de arriba a la izquierda de la zona (sin salirse) */
+    var x = al.p ? al.p[0] * W : al.z[0] * W, y = al.p ? al.p[1] * H : al.z[1] * H;
+    return [Math.max(S * 0.58, Math.min(W - S * 0.58, x)), Math.max(S * 0.55, Math.min(H - S * 0.5, y))];
+  }
+  function enAlIcono(x, cx, cy, S, c) {
+    x.save(); x.lineJoin = 'round'; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(cx, cy - S * 0.5); x.lineTo(cx + S * 0.56, cy + S * 0.44); x.lineTo(cx - S * 0.56, cy + S * 0.44); x.closePath();
+    x.fillStyle = (EN_AL[c] || EN_AL.a).f; x.fill(); x.lineWidth = Math.max(1.2, S * 0.075); x.strokeStyle = '#111'; x.stroke();
+    x.lineWidth = Math.max(1.4, S * 0.1); x.beginPath(); x.moveTo(cx, cy - S * 0.15); x.lineTo(cx, cy + S * 0.13); x.stroke();
+    x.beginPath(); x.arc(cx, cy + S * 0.29, Math.max(0.9, S * 0.062), 0, Math.PI * 2); x.fillStyle = '#111'; x.fill();
+    x.restore();
+  }
+  function enAlZona(x, z, W, H, c, r) {
+    var k = EN_AL[c] || EN_AL.a, x0 = z[0] * W, y0 = z[1] * H, w = (z[2] - z[0]) * W, h = (z[3] - z[1]) * H, rad = Math.max(0, Math.min(6 * r, w / 2, h / 2));
+    x.save(); x.beginPath();
+    if (x.roundRect) x.roundRect(x0, y0, w, h, rad); else x.rect(x0, y0, w, h);
+    x.fillStyle = k.z; x.fill(); x.lineWidth = Math.max(1, 1.5 * r); x.strokeStyle = k.b; x.stroke(); x.restore();
+  }
+  function enAlPinta(x, pg, W, H, capa, extra) {   /* capa 'zonas' (debajo de los trazos) o 'iconos' (encima de todo) */
+    var r = W / (pg.Wp || W) || 1, S = enAlTam(W, r), L = (pg.data.a || []).slice();
+    if (extra) L.push(extra);
+    L.forEach(function (al) {
+      if (capa === 'zonas') { if (al.z) enAlZona(x, al.z, W, H, al.c, r); }
+      else { var c0 = enAlCentro(al, W, H, S); enAlIcono(x, c0[0], c0[1], S, al.c); }
+    });
+  }
+  /* los iconos, como elementos encima de la página: el lienzo de las marcas se mezcla con la tinta (multiplica) y un icono
+     encima de una nota se vería «transparente»; así se ven enteros, como en ritmo */
+  var EN_AL_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.4L21.4 19.6H2.6Z" fill="#facc15" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M12 9.3v4.9" stroke="#000" stroke-width="2.1" stroke-linecap="round"/><circle cx="12" cy="16.9" r="1.25" fill="#000"/></svg>';
+  function enAlDom(pg) {
+    var box = pg.alts; if (!box) return;
+    var L = pg.data.a || [], W = pg.Wp || 1, H = pg.Hp || 1, S = enAlTam(W, 1), B = (S * 1.44).toFixed(1), h = '';
+    L.forEach(function (al) {
+      var c0 = enAlCentro(al, W, H, S);
+      h += '<span class="lm-en-al" style="left:' + (c0[0] / W * 100).toFixed(3) + '%;top:' + (c0[1] / H * 100).toFixed(3) + '%;width:' + B + 'px;height:' + B + 'px">' + EN_AL_SVG + '</span>';
+    });
+    box.innerHTML = h;
+  }
+  function enAlVivo(a) {   /* la zona que se está arrastrando, en el lienzo del trazo en curso */
+    var st = EN.st, v = st.vivo, pg = a.pg;
+    if (v.width !== pg.anot.width || v.height !== pg.anot.height) { v.width = pg.anot.width; v.height = pg.anot.height; }
+    v.style.opacity = '1';
+    if (v.parentNode !== pg.hoja) pg.hoja.insertBefore(v, pg.toque);
+    var x = v.getContext('2d'); x.clearRect(0, 0, v.width, v.height);
+    if (a.z) { var al = { c: 'a', z: a.z }; enAlZona(x, a.z, v.width, v.height, 'a', v.width / (pg.Wp || v.width)); var S = enAlTam(v.width, v.width / (pg.Wp || v.width)), c0 = enAlCentro(al, v.width, v.height, S); enAlIcono(x, c0[0], c0[1], S, 'a'); }
   }
   function enPunto(pg, e) {
     var r = pg.hoja.getBoundingClientRect();
@@ -1634,7 +1700,9 @@
     st.hist.push({ t: 'trazo', pg: c.pg, sk: sk }); enGuarda(c.pg); enEstados();
   }
   function enAnula() {   /* un trazo a medias que no vale (dos dedos para desplazar, cambio de vista…) */
-    var st = EN.st; if (!st || !st.cur) return;
+    var st = EN.st; if (!st) return;
+    if (st.al) { st.al = null; var v0 = st.vivo; v0.getContext('2d').clearRect(0, 0, v0.width, v0.height); }   /* (1-oct-2026) la alerta a medias, tampoco */
+    if (!st.cur) return;
     st.cur = null; var v = st.vivo; v.getContext('2d').clearRect(0, 0, v.width, v.height);
   }
   function enDistSeg(p, a, b, A) {
@@ -1651,6 +1719,16 @@
           s.splice(i, 1); EN.st.hist.push({ t: 'goma', pg: pg, sk: sk, i: i }); enRedibuja(pg); enEstados(); return true;
         }
       }
+    }
+    /* (1-oct-2026) si no tocó ningún trazo: la alerta cuyo icono toca, o el borde de su zona */
+    var L = pg.data.a || [], S = enAlTam(pg.Wp, 1), px = p[0] * pg.Wp, py = p[1] * pg.Hp;
+    for (var k = L.length - 1; k >= 0; k--) {
+      var al = L[k], c0 = enAlCentro(al, pg.Wp, pg.Hp, S), dx = px - c0[0], dy = py - c0[1], hit = dx * dx + dy * dy < (S * 0.7) * (S * 0.7);
+      if (!hit && al.z) {
+        var x0 = al.z[0] * pg.Wp, y0 = al.z[1] * pg.Hp, x1 = al.z[2] * pg.Wp, y1 = al.z[3] * pg.Hp, m = 12;
+        hit = px > x0 - m && px < x1 + m && py > y0 - m && py < y1 + m && (Math.min(Math.abs(px - x0), Math.abs(px - x1)) < m || Math.min(Math.abs(py - y0), Math.abs(py - y1)) < m);
+      }
+      if (hit) { L.splice(k, 1); EN.st.hist.push({ t: 'goma-al', pg: pg, al: al, i: k }); enRedibuja(pg); enEstados(); return true; }
     }
     return false;
   }
@@ -1672,6 +1750,7 @@
       var p = enPunto(pg, e);
       if (st.herr === 'nota') { enPonNota(pg, p); return; }
       if (st.herr === 'goma') { st.borrando = { pg: pg, id: e.pointerId, hubo: enBorraEn(pg, p) }; return; }
+      if (st.herr === 'alerta') { st.al = { pg: pg, id: e.pointerId, p0: p, sx: e.clientX, sy: e.clientY, zona: false, z: null }; return; }   /* (1-oct-2026) se decide al soltar */
       enEmpieza(pg, p, e.pointerId);
     });
     capa.addEventListener('pointermove', function (e) {
@@ -1679,6 +1758,12 @@
       if (e.pointerType === 'touch' && st.dedos[e.pointerId]) st.dedos[e.pointerId].y = e.clientY;
       if (st.pan) { var y = enMedioY(); st.zona.scrollTop -= (y - st.pan.y); st.pan.y = y; return; }
       if (st.borrando && st.borrando.id === e.pointerId) { if (enBorraEn(st.borrando.pg, enPunto(st.borrando.pg, e))) st.borrando.hubo = true; return; }
+      if (st.al && st.al.id === e.pointerId) {   /* (1-oct-2026) arrastrando la alerta: la zona sigue al dedo */
+        var a = st.al, ddx = e.clientX - a.sx, ddy = e.clientY - a.sy;
+        if (!a.zona && ddx * ddx + ddy * ddy > 64) a.zona = true;
+        if (a.zona) { var q2 = enPunto(a.pg, e); a.z = [Math.min(a.p0[0], q2[0]), Math.min(a.p0[1], q2[1]), Math.max(a.p0[0], q2[0]), Math.max(a.p0[1], q2[1])]; enAlVivo(a); }
+        return;
+      }
       if (!st.cur || st.cur.id !== e.pointerId) return;
       var lista = (e.getCoalescedEvents && e.getCoalescedEvents()) || [], hay = false;
       if (!lista.length) lista = [e];
@@ -1689,6 +1774,17 @@
       var st = EN.st; if (!st) return;
       if (e.pointerType === 'touch') { delete st.dedos[e.pointerId]; if (st.pan && !Object.keys(st.dedos).length) st.pan = null; }
       if (st.borrando && st.borrando.id === e.pointerId) { var b = st.borrando; st.borrando = null; if (b.hubo) enGuarda(b.pg); }
+      if (st.al && st.al.id === e.pointerId) {   /* (1-oct-2026) al soltar: el icono (toque) o la zona (arrastre) */
+        var a = st.al; st.al = null;
+        var v = st.vivo; v.getContext('2d').clearRect(0, 0, v.width, v.height);
+        if (!anula) {
+          var r4 = function (n) { return Math.round(n * 1e4) / 1e4; };
+          var al = (a.zona && a.z && (a.z[2] - a.z[0]) * a.pg.Wp >= 12 && (a.z[3] - a.z[1]) * a.pg.Hp >= 10) ? { c: 'a', z: a.z.map(r4) } : { c: 'a', p: [r4(a.p0[0]), r4(a.p0[1])] };
+          if (!a.pg.data.a) a.pg.data.a = [];
+          a.pg.data.a.push(al); st.hist.push({ t: 'alerta', pg: a.pg, al: al });
+          enRedibuja(a.pg); enGuarda(a.pg); enEstados();
+        }
+      }
       if (st.cur && st.cur.id === e.pointerId) { if (anula) enAnula(); else { if (raf) { cancelAnimationFrame(raf); raf = 0; } enTermina(); } }
     }
     capa.addEventListener('pointerup', function (e) { suelta(e, false); });
@@ -1708,6 +1804,7 @@
     var c = 'none';
     if (st.herr === 'goma') c = 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><circle cx="15" cy="15" r="14" fill="#ffffff" fill-opacity="0.35" stroke="#374151" stroke-width="1.5"/></svg>') + '") 15 15, crosshair';
     else if (st.herr === 'nota') c = 'text';
+    else if (st.herr === 'alerta') c = 'crosshair';   /* (1-oct-2026) */
     else if (st.herr === 'mano') c = '';
     st.pags.forEach(function (pg) { pg.toque.style.cursor = c; });
   }
@@ -1764,16 +1861,18 @@
     if (h.t === 'trazo') { var k = h.pg.data.s.indexOf(h.sk); if (k >= 0) h.pg.data.s.splice(k, 1); enRedibuja(h.pg); enGuarda(h.pg); }
     else if (h.t === 'goma') { h.pg.data.s.splice(Math.min(h.i, h.pg.data.s.length), 0, h.sk); enRedibuja(h.pg); enGuarda(h.pg); }
     else if (h.t === 'nota') { var j = h.pg.data.n.indexOf(h.nt); if (j >= 0) h.pg.data.n.splice(j, 1); enNotas(h.pg); enGuarda(h.pg); }
+    else if (h.t === 'alerta') { var ka = h.pg.data.a.indexOf(h.al); if (ka >= 0) h.pg.data.a.splice(ka, 1); enRedibuja(h.pg); enGuarda(h.pg); }   /* (1-oct-2026) */
+    else if (h.t === 'goma-al') { h.pg.data.a.splice(Math.min(h.i, h.pg.data.a.length), 0, h.al); enRedibuja(h.pg); enGuarda(h.pg); }
     else if (h.t === 'borrar') h.antes.forEach(function (a) { a.pg.data = a.data; enRedibuja(a.pg); enNotas(a.pg); enGuarda(a.pg); });
     enEstados();
   }
-  function enHayMarcas() { return EN.st.pags.some(function (pg) { return pg.data.s.length || pg.data.n.length; }); }
+  function enHayMarcas() { return EN.st.pags.some(function (pg) { return pg.data.s.length || pg.data.n.length || (pg.data.a && pg.data.a.length); }); }
   function enBorrarTodo() {
     var st = EN.st; if (!st || !enHayMarcas()) return;
     if (!st.armado) { st.armado = setTimeout(function () { if (EN.st === st) { st.armado = 0; enEstados(); } }, 3000); enEstados(); return; }
     clearTimeout(st.armado); st.armado = 0;
     st.hist.push({ t: 'borrar', antes: st.pags.map(function (pg) { return { pg: pg, data: pg.data }; }) });
-    st.pags.forEach(function (pg) { pg.data = { s: [], n: [] }; enRedibuja(pg); enNotas(pg); enGuarda(pg); });
+    st.pags.forEach(function (pg) { pg.data = { s: [], n: [], a: [] }; enRedibuja(pg); enNotas(pg); enGuarda(pg); });
     enEstados();
   }
   function enEstados() {
