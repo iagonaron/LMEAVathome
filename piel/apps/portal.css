@@ -1059,6 +1059,12 @@ html.lm-fam-portal #lm-musica{
   display:flex; align-items:center; gap:10px; padding:6px 12px 5px 5px;
   background:var(--lm-neutro); border-radius:10px; color:#fff; white-space:nowrap;
 }
+/* (1-oct-2026, Iago) «El play solo funciona si le doy justo encima del símbolo; que funcione en todo el botón, también en
+   la parte blanca»: la tira de la música baja unos 20 px por dentro del bloque del título (.hero, transparente pero con
+   z-index 75), que se quedaba los toques de la mitad de abajo del botón (y del enlace de la licencia). El bloque de
+   «Bienvenido/a» (con la tira) pasa por encima del título; los menús desplegables (z-index 5000) siguen por encima de todo.
+   En el móvil (≤640 px) no hace falta: allí el bloque no se solapa con el título. */
+html.lm-fam-portal .portal-welcome{ z-index:76; }
 html.lm-fam-portal #lm-musica .lm-mus-b{
   position:relative; flex:none; box-sizing:border-box; width:26px; height:26px; min-width:26px; padding:0; margin:0 0 0 0;
   display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:50%; cursor:pointer;
