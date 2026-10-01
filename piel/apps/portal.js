@@ -612,16 +612,16 @@
     var her = document.createElement('div'); her.className = 'lm-vl-her';
     var mH = {};
     function titO(el, def) { return (el && (el.getAttribute('title') || el.getAttribute('aria-label'))) || def; }
+    /* la punta fina: (29-sep) verde; (1-oct-2026, Iago) «una punta fina y opaca que será de color negro» (con un portal sin
+       actualizar, sigue saliendo verde). «La punta fina la primera, después verde, gris y luego las exclamaciones», como en entonación */
+    var kNegra = /negra/i.test(titO(o('k'), ''));
+    mH.k = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina' + (kNegra ? ' lm-vl-fina-n' : '') + '"><i></i></span>', titO(o('k'), 'Punta fina'), function () { pulsaO(o('k')); }); her.appendChild(mH.k);
     VL_COL.forEach(function (d) {   /* (1-oct-2026) los rotuladores que traiga la barra, con su muestra de color */
       var ob = o(d[0]); if (!ob) return;
       var sw = ob.querySelector('.anot-sw'), col = (sw && sw.style.backgroundColor) || '#888';
       mH[d[0]] = boton('lm-vl-col', '<span class="lm-vl-sw" style="background:' + col + '"></span>', titO(ob, d[1]), function () { pulsaO(o(d[0])); });
       her.appendChild(mH[d[0]]);
     });
-    /* la punta fina: (29-sep) verde; (1-oct-2026, Iago) «una punta fina y opaca que será de color negro» (con un portal sin
-       actualizar, sigue saliendo verde) */
-    var kNegra = /negra/i.test(titO(o('k'), ''));
-    mH.k = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina' + (kNegra ? ' lm-vl-fina-n' : '') + '"><i></i></span>', titO(o('k'), 'Punta fina'), function () { pulsaO(o('k')); }); her.appendChild(mH.k);
     if (o('pt')) { mH.pt = boton('lm-vl-col lm-vl-pt', ICO_PT, titO(o('pt'), 'Triángulo y U'), function () { pulsaO(o('pt')); }); her.appendChild(mH.pt); }   /* (1-oct-2026) △/U, a la izquierda de la alerta amarilla */
     VL_AL.forEach(function (d) {   /* (1-oct-2026) las dos alertas, a la derecha de la punta fina */
       if (!o(d[0])) return;
