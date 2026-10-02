@@ -208,6 +208,15 @@
   });
   /* Libros: abre el panel de siempre y pasa a la pestaña del libro elegido */
   function abrirLibro(tipo) {
+    /* (2-oct-2026, Iago) «marco FaActos y me abre Intervalia de primeras»: si el visor del portal sabe abrir un libro
+       concreto (LibrosAula.abrir(botón, tipo)), se le pide ese y no se baja antes el primero de la lista. Si el portal
+       aún no lo trae, lo de siempre: abrir y pasar a su pestaña. */
+    try {
+      if (window.LibrosAula && typeof window.LibrosAula.abrir === 'function' && window.LibrosAula.abrir.length >= 2) {
+        window.LibrosAula.abrir(q('#lb-mini .da-btn'), tipo);
+        return;
+      }
+    } catch (e) {}
     pulsa(q('#lb-mini .da-btn'));
     var n = 0, t = setInterval(function () {
       var tab = q('#lb-tabs [data-t="' + tipo + '"]');
