@@ -910,6 +910,7 @@
      acaba); si nadie de los grupos en clase debe nada, no aparece. Tras ver la lista, sigue ahí sin globito.
      (6-oct-2026, 17:10, Iago) Sin la media hora de antes: de la hora de inicio de la clase a la de fin.
      (6-oct-2026, 17:50, Iago) Desde 5 minutos antes de cada clase, a la vez que el ▶ de la música (ver gruposEnClase).
+     (6-oct-2026, 18:05, Iago) La lista enseña SOLO el grupo que está en clase, no los demás (ver pintarPanelMorosos).
      (29-sep-2026, tarde, Iago) PAPEL, «YA ENTREGÓ» Y CEROS: «Incluye también los que están en formato papel que no
      tienen nota puesta en la ficha que ahora se encuentra en periodo de gracia, con una etiqueta que ponga "en papel"
      y un botón a la derecha que ponga "ya entregó" por si me entregó y todavía no le puse nota. Y si alguien terminó
@@ -1108,10 +1109,13 @@
   function pintarPanelMorosos() {
     var p = MOR.panel; if (!p) return;
     var enClase = gruposEnClase();
-    var grupos = [];
-    ((MOR.d && MOR.d.fichas) || []).forEach(function (f) { if (f && delPortal(f.grupo) && grupos.indexOf(f.grupo) < 0) grupos.push(f.grupo); });
-    enClase.forEach(function (g) { if (grupos.indexOf(g) < 0) grupos.push(g); });
-    grupos.sort(function (a, b) { return (enClase.indexOf(b) >= 0) - (enClase.indexOf(a) >= 0) || a.localeCompare(b, 'es'); });
+    /* (6-oct-2026, 18:05, Iago, en clase) «Quiero que solo aparezcan los de ese grupo: pulso y me aparecen los de ese
+       grupo, pero también, más abajo, los de otro grupo, y eso no me interesa. Que solo esté visible, en la hora de la
+       clase, el grupo en cuestión»: la lista enseña SOLO el grupo que está en clase (también en los ceros de abajo).
+       Antes: todos los grupos del portal con alguien en el periodo extra, con el de clase arriba. */
+    var grupos = enClase.slice();
+    MOR.panelDe = enClase.join('|');
+    grupos.sort(function (a, b) { return a.localeCompare(b, 'es'); });
     var h = '<div class="lm-mor-tit">Morosos · fichas</div>';
     var ceros = [], gruposCero = [];
     var conDeuda = grupos.filter(function (g) { return enClase.indexOf(g) >= 0 || filasDe(g).some(function (f) { return f.estado !== 'cero'; }); });
@@ -1194,6 +1198,7 @@
     }
     if (w.parentNode !== host) host.insertBefore(w, host.firstChild);
     var b = w.querySelector('.lm-ic'); if (!b) return;
+    if (MOR.panel && MOR.panelDe !== gruposEnClase().join('|')) { try { pintarPanelMorosos(); } catch (e) {} }   /* (6-oct-2026) cambió el grupo en clase con la lista abierta */
     var n = cuentaMorosos(), bd = b.querySelector('.lm-ic-badge');
     if (n > 0) {
       if (!bd) { bd = document.createElement('span'); bd.className = 'lm-ic-badge'; bd.setAttribute('aria-hidden', 'true'); b.appendChild(bd); }
