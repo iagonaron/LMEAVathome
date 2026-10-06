@@ -5,6 +5,16 @@
    destacar e iconos planos como los del Diario.
    SOLO aspecto: este fichero no toca ningún dato ni ninguna lógica de las apps.
 
+   6-oct-2026 · «?piel=0» YA NO DEJA NADA APUNTADO EN EL NAVEGADOR (Iago: «que no vuelva a ocurrir»).
+   Esa mañana una comprobación con «?piel=0» en el Chrome de Iago dejó la marca lm_piel_no=1 en *.lmathome.es y sus
+   portales se quedaron 1 h 18 min con la estética antigua (solo en su navegador; a los alumnos no les llegó). Desde hoy:
+   - ?piel=0       → apagada SOLO EN ESA PESTAÑA y en ese sitio (sessionStorage «lm_piel_no_pestana»). No toca ninguna
+                     marca: al cerrar la pestaña se acaba, y las demás pestañas y apps siguen con la piel.
+   - ?piel=apagar  → lo que antes hacía ?piel=0: apagada en ESE NAVEGADOR hasta nuevo aviso (marca lm_piel_no=1).
+                     Solo a propósito y escrito entero; ninguna app ni ningún enlace lo lleva.
+   - ?piel=1       → la vuelve a encender y borra las dos cosas (la marca del navegador y la de la pestaña).
+   Para volver a lo de antes (que ?piel=0 apague el navegador entero): subir este fichero del commit anterior.
+
    28-sep-2026 (noche) · PARA TODOS LOS ALUMNOS (Iago: «estoy preparado para que hagamos ya la aportación
    de la estética a todo el portal… a los alumnos o a los que accedan como invitados»).
    - El portal carga este fichero SIEMPRE y la piel se enciende para cualquier cuenta (y en la entrada).
@@ -12,6 +22,7 @@
      también salen con la piel. Las funciones de Tester/Protester siguen siendo solo suyas: eso lo
      decide el propio portal, no la piel (la piel solo cambia el aspecto).
    - ?piel=0 en la dirección la apaga EN ESE NAVEGADOR (queda apuntado: lm_piel_no=1); ?piel=1 la vuelve a encender.
+     (6-oct-2026: ya no. ?piel=0 vale solo para esa pestaña; para el navegador entero, ?piel=apagar. Ver arriba.)
    - El Ojeador del Diario (#visor=<alumno>) sale CON piel, como lo ve ya el alumno, sin tocar marcas.
    - Lo que se abre desde el Diario (proyectar en clase, generar fichas…) sigue como siempre en esa pestaña.
    PARA VOLVER A «SOLO TESTER/PROTESTER»: subir otra vez la versión anterior de este fichero
@@ -339,12 +350,19 @@
      el Ojeador lee la sesión del alumno) no confunde la cuenta ni recarga la página. ---------- */
   /* (28-sep-2026, noche) ya con la piel para todos: el Ojeador la enseña, porque es lo que ve el alumno. No toca
      ninguna marca ni vigila la cuenta (en el Ojeador la sesión es la del alumno). */
-  var NO_PIEL = /(?:^|;\s*)lm_piel_no=1/.test(document.cookie || '');
+  /* (6-oct-2026) dos «apagados» distintos: el del NAVEGADOR (marca lm_piel_no=1; solo se pone con ?piel=apagar) y el de
+     la PESTAÑA (sessionStorage; lo pone ?piel=0 y muere al cerrarla). NO_PIEL = cualquiera de los dos. */
+  var NO_NAVEGADOR = /(?:^|;\s*)lm_piel_no=1/.test(document.cookie || '');
+  var NO_PESTANA = false; try { NO_PESTANA = sessionStorage.getItem('lm_piel_no_pestana') === '1'; } catch (e) {}
+  var NO_PIEL = NO_NAVEGADOR || NO_PESTANA;
+  function ponerNoPestana(v) {
+    try { if (v === '1') sessionStorage.setItem('lm_piel_no_pestana', '1'); else sessionStorage.removeItem('lm_piel_no_pestana'); } catch (e) {}
+  }
   function ponerNo(v) {
     try { document.cookie = 'lm_piel_no=' + v + '; path=/; max-age=' + (v === '1' ? 31536000 : 0) + '; SameSite=Lax' + DOMINIO + (location.protocol === 'https:' ? '; Secure' : ''); } catch (e) {}
   }
   if (ES_PORTAL && /visor=([0-9a-fA-F-]{36})/.test(location.hash || '')) {       /* el mismo criterio que el portal */
-    if (!NO_PIEL && q.piel !== '0') encender(document.readyState === 'loading');
+    if (!NO_PIEL && q.piel !== '0' && q.piel !== 'apagar') encender(document.readyState === 'loading');
     else window.LMPiel = { activo: false, app: app, grado: grado, familia: familia, visor: true };
     if (window.LMPiel) window.LMPiel.visor = true;
     return;
@@ -354,10 +372,15 @@
      Antes: el portal ponía la marca solo a Tester/Protester. Ahora el portal la pone a TODO el mundo (así la ven
      también las apps que se abren desde él), salvo en el navegador donde alguien la haya apagado con ?piel=0. */
   var marca = leerMarca();
-  if (q.piel === '0') { ponerNo('1'); NO_PIEL = true; }            /* a mano: apagada en este navegador */
-  else if (q.piel === '1') { ponerNo('0'); NO_PIEL = false; }      /* a mano: encendida otra vez */
-  if (ES_PORTAL || q.piel === '1' || q.piel === '0') {
-    var quiere = NO_PIEL ? '0' : '1';
+  /* (6-oct-2026, Iago: «que no vuelva a ocurrir») ?piel=0 ya NO apunta nada en el navegador: solo esta pestaña.
+     Antes: if (q.piel === '0') { ponerNo('1'); NO_PIEL = true; }  →  un enlace de prueba dejaba TODO *.lmathome.es con la
+     estética antigua en ese navegador durante un año. */
+  if (q.piel === '0') { ponerNoPestana('1'); NO_PESTANA = true; }                                /* a mano: apagada SOLO en esta pestaña */
+  else if (q.piel === 'apagar') { ponerNo('1'); NO_NAVEGADOR = true; }                           /* a propósito: apagada en este navegador */
+  else if (q.piel === '1') { ponerNo('0'); ponerNoPestana('0'); NO_NAVEGADOR = false; NO_PESTANA = false; }   /* a mano: encendida otra vez */
+  NO_PIEL = NO_NAVEGADOR || NO_PESTANA;
+  if (ES_PORTAL || q.piel === '1' || q.piel === '0' || q.piel === 'apagar') {
+    var quiere = NO_NAVEGADOR ? '0' : '1';   /* la marca lm_piel (la que leen las apps) depende solo del apagado del navegador */
     if (marca !== quiere) ponerMarca(quiere);
     marca = quiere;
   }
