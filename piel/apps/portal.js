@@ -909,6 +909,7 @@
      (29-sep-2026, más tarde) El icono SOLO está durante la clase de un grupo que debe algo (de 30 min antes a que
      acaba); si nadie de los grupos en clase debe nada, no aparece. Tras ver la lista, sigue ahí sin globito.
      (6-oct-2026, 17:10, Iago) Sin la media hora de antes: de la hora de inicio de la clase a la de fin.
+     (6-oct-2026, 17:50, Iago) Desde 5 minutos antes de cada clase, a la vez que el ▶ de la música (ver gruposEnClase).
      (29-sep-2026, tarde, Iago) PAPEL, «YA ENTREGÓ» Y CEROS: «Incluye también los que están en formato papel que no
      tienen nota puesta en la ficha que ahora se encuentra en periodo de gracia, con una etiqueta que ponga "en papel"
      y un botón a la derecha que ponga "ya entregó" por si me entregó y todavía no le puse nota. Y si alguien terminó
@@ -993,17 +994,25 @@
     } catch (e) {}
     return { dia: ((t.getDay() + 6) % 7) + 1, min: t.getHours() * 60 + t.getMinutes() };
   }
-  /* grupos de este portal que están en clase ahora: de la hora de inicio a la de fin.
+  /* grupos de este portal que están en clase ahora: desde MOR_ANTES minutos antes de la hora de inicio hasta la de fin.
      (6-oct-2026, Iago) «lo que me interesa es que se active en el momento exacto de la clase»: antes salía desde 30 min
-     antes de empezar. La hora de fin ya no cuenta (a las 19:00 solo está el grupo de las 19:00). */
+     antes de empezar. La hora de fin ya no cuenta (a las 19:00 solo está el grupo de las 19:00).
+     (6-oct-2026, 17:50, Iago) «Que no se active justo en punto, sino cinco minutos antes de cada clase, coincidiendo con
+     la activación de la reproducción musical»: MOR_ANTES = 5, los mismos 5 minutos que la música (musVentana), y con el
+     mismo reloj. En el cambio de clase manda el grupo que ENTRA: desde 5 minutos antes de la clase siguiente ya solo
+     cuenta ese (martes, portal GP: 17:55–18:55 el de las 18:00; desde las 18:55, el de las 19:00). Para volver a «en
+     punto»: MOR_ANTES = 0. */
+  var MOR_ANTES = 5;
   function gruposEnClase() {
     var d = MOR.d; if (!d || !Array.isArray(d.horario)) return [];
     var ga = ahoraGalicia(), dia = ga.dia, min = ga.min;   /* (6-oct-2026) hora de Galicia y reloj del servidor, no los del aparato */
-    var out = [];
+    var out = [], ult = -1;
     d.horario.forEach(function (h) {
       if (!h || +h.dia !== dia || !delPortal(h.grupo)) return;
       var ini = minutos(h.ini), fin = minutos(h.fin);
-      if (isFinite(ini) && isFinite(fin) && min >= ini && min < fin && out.indexOf(h.grupo) < 0) out.push(h.grupo);
+      if (!(isFinite(ini) && isFinite(fin) && min >= ini - MOR_ANTES && min < fin)) return;
+      if (ini > ult) { ult = ini; out = []; }             /* la clase que empezó (o va a empezar) más tarde es la que manda */
+      if (ini === ult && out.indexOf(h.grupo) < 0) out.push(h.grupo);
     });
     return out;
   }
@@ -1195,7 +1204,7 @@
     b.setAttribute('aria-label', b.title);
     try { calmaIcono(b, function () { var x = b.querySelector('.lm-ic-badge'); return x ? (parseInt(x.textContent, 10) || 0) : 0; }); } catch (e) {}
   }
-  setInterval(function () { try { pintarMorosos(); } catch (e) {} }, 15000);   /* la hora de clase cambia sola (6-oct-2026: cada 15 s, para que salga en punto) */
+  setInterval(function () { try { pintarMorosos(); } catch (e) {} }, 15000);   /* la hora de clase cambia sola (6-oct-2026: cada 15 s, para que salga a su minuto) */
 
   /* ---------- 16 (29-sep-2026, Iago): ATAJOS DEL PROFESOR EN LA MISMA VENTANA ----------
      «Preferiría que en lugar de una pestaña nueva sea como la misma ventana y que sea así con todos los atajos que
@@ -2221,7 +2230,9 @@
   }
   /* ¿estamos entre 5 minutos antes y 5 minutos después de la hora de una clase? */
   function musVentana() {
-    var ahora = new Date(), dia = ((ahora.getDay() + 6) % 7) + 1, min = ahora.getHours() * 60 + ahora.getMinutes() + ahora.getSeconds() / 60;
+    /* (6-oct-2026, 17:50) el mismo reloj que el aviso de morosos (hora de Galicia y reloj del servidor): el ▶ y el ⚠ se
+       encienden a la vez, 5 minutos antes de la clase, aunque el aparato tenga la hora o la zona mal puestas */
+    var ga = ahoraGalicia(), dia = ga.dia, min = ga.min;
     var horas = musHoras();
     for (var i = 0; i < horas.length; i++) {
       var h = horas[i]; if (!h || +h[0] !== dia) continue;
