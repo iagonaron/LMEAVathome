@@ -908,6 +908,7 @@
      llamadas (y, en la base, la función y la columna).
      (29-sep-2026, más tarde) El icono SOLO está durante la clase de un grupo que debe algo (de 30 min antes a que
      acaba); si nadie de los grupos en clase debe nada, no aparece. Tras ver la lista, sigue ahí sin globito.
+     (6-oct-2026, 17:10, Iago) Sin la media hora de antes: de la hora de inicio de la clase a la de fin.
      (29-sep-2026, tarde, Iago) PAPEL, «YA ENTREGÓ» Y CEROS: «Incluye también los que están en formato papel que no
      tienen nota puesta en la ficha que ahora se encuentra en periodo de gracia, con una etiqueta que ponga "en papel"
      y un botón a la derecha que ponga "ya entregó" por si me entregó y todavía no le puse nota. Y si alguien terminó
@@ -992,7 +993,9 @@
     } catch (e) {}
     return { dia: ((t.getDay() + 6) % 7) + 1, min: t.getHours() * 60 + t.getMinutes() };
   }
-  /* grupos de este portal que están en clase ahora: de 30 min antes de empezar hasta que acaba */
+  /* grupos de este portal que están en clase ahora: de la hora de inicio a la de fin.
+     (6-oct-2026, Iago) «lo que me interesa es que se active en el momento exacto de la clase»: antes salía desde 30 min
+     antes de empezar. La hora de fin ya no cuenta (a las 19:00 solo está el grupo de las 19:00). */
   function gruposEnClase() {
     var d = MOR.d; if (!d || !Array.isArray(d.horario)) return [];
     var ga = ahoraGalicia(), dia = ga.dia, min = ga.min;   /* (6-oct-2026) hora de Galicia y reloj del servidor, no los del aparato */
@@ -1000,7 +1003,7 @@
     d.horario.forEach(function (h) {
       if (!h || +h.dia !== dia || !delPortal(h.grupo)) return;
       var ini = minutos(h.ini), fin = minutos(h.fin);
-      if (isFinite(ini) && isFinite(fin) && min >= ini - 30 && min <= fin && out.indexOf(h.grupo) < 0) out.push(h.grupo);
+      if (isFinite(ini) && isFinite(fin) && min >= ini && min < fin && out.indexOf(h.grupo) < 0) out.push(h.grupo);
     });
     return out;
   }
@@ -1192,7 +1195,7 @@
     b.setAttribute('aria-label', b.title);
     try { calmaIcono(b, function () { var x = b.querySelector('.lm-ic-badge'); return x ? (parseInt(x.textContent, 10) || 0) : 0; }); } catch (e) {}
   }
-  setInterval(function () { try { pintarMorosos(); } catch (e) {} }, 60000);   /* la hora de clase cambia sola */
+  setInterval(function () { try { pintarMorosos(); } catch (e) {} }, 15000);   /* la hora de clase cambia sola (6-oct-2026: cada 15 s, para que salga en punto) */
 
   /* ---------- 16 (29-sep-2026, Iago): ATAJOS DEL PROFESOR EN LA MISMA VENTANA ----------
      «Preferiría que en lugar de una pestaña nueva sea como la misma ventana y que sea así con todos los atajos que
