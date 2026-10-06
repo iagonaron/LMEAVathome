@@ -899,6 +899,13 @@
      ese grupo (visto por grupo y día, en este aparato). Las ondas, solo 5 s (como la campana).
      Los datos: con la llave «lm_profe» que deja el Diario en este navegador (derivada del secreto, solo sirve para
      esto). Si este navegador no ha abierto el Diario, no hay llave y el icono no sale.
+     (6-oct-2026, Iago: «acabo de hacerlo en clase y no aparece») ESO YA NO ES ASÍ. En clase el Diario va en el iPad y
+     el portal se enseña en el ordenador del aula, que nunca ha abierto el Diario: sin llave, el icono no salía nunca
+     allí. Ahora, si la cuenta es Tester o Protester y no hay llave (o la que hay ya no vale porque se cambió la clave
+     de la suite), el portal se la pide a la base CON LA PROPIA CUENTA (suite_morosos_llave_cuenta: solo responde a
+     las cuentas del profe apuntadas en suite_config.cuentas_profe) y la guarda igual que el Diario. El icono sale en
+     cualquier aparato donde se haya entrado como Tester o Protester. Para volver atrás: quitar pedirLlave() y sus
+     llamadas (y, en la base, la función y la columna).
      (29-sep-2026, más tarde) El icono SOLO está durante la clase de un grupo que debe algo (de 30 min antes a que
      acaba); si nadie de los grupos en clase debe nada, no aparece. Tras ver la lista, sigue ahí sin globito.
      (29-sep-2026, tarde, Iago) PAPEL, «YA ENTREGÓ» Y CEROS: «Incluye también los que están en formato papel que no
@@ -918,7 +925,9 @@
      la ficha y el 0. Fondo negro, contorno blanco.» (En el código, «gracia» sigue siendo el nombre interno del estado.)
      · El globito cuenta alumnos con ficha en el periodo extra o con un 0 (los «entregó», no). Si en la clase solo quedan
        «entregó», el icono sigue, sin globito, para poder deshacer. */
-  var MOR = { d: null, t: 0, cargando: false, panel: null, v2: true, error: '', verdes: {} };   /* verdes: marcados con la lista abierta */
+  var MOR = { d: null, t: 0, cargando: false, panel: null, v2: true, error: '', verdes: {},   /* verdes: marcados con la lista abierta */
+              llave: null, tLlave: 0, pidiendoLlave: false, renovada: false, tMal: 0,   /* (6-oct-2026) la llave pedida con la cuenta */
+              desfase: 0, reloj: 0 };   /* (6-oct-2026) reloj del servidor − reloj del aparato (ms) */
   var MOR_SB = 'https://woiptkyrxkbpnvioypit.supabase.co';
   var MOR_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
   /* la calavera (icono sencillo, el mismo que ve el alumno en «ya sí que la liaste») */
@@ -926,14 +935,67 @@
     '<path d="M12 2.8c-4.6 0-8.3 3.4-8.3 8 0 2.6 1.2 4.6 3.2 5.9v2.4c0 1 .8 1.8 1.8 1.8h6.6c1 0 1.8-.8 1.8-1.8v-2.4c2-1.3 3.2-3.3 3.2-5.9 0-4.6-3.7-8-8.3-8z"/>' +
     '<circle cx="8.9" cy="11.2" r="1.9" fill="currentColor" stroke="none"/><circle cx="15.1" cy="11.2" r="1.9" fill="currentColor" stroke="none"/>' +
     '<path d="M12 13.9l-1 1.9h2z" fill="currentColor" stroke-width="1.2"/><path d="M10.3 18.4v2.4M13.7 18.4v2.4"/></svg>';
-  function llaveProfe() { var m = /(?:^|;\s*)lm_profe=([0-9a-f]{64})(?:;|$)/.exec(document.cookie || ''); return m ? m[1] : null; }
+  function llaveProfe() { var m = /(?:^|;\s*)lm_profe=([0-9a-f]{64})(?:;|$)/.exec(document.cookie || ''); return m ? m[1] : (MOR.llave || null); }
+  /* (6-oct-2026) la llave, pedida con la cuenta de Tester/Protester cuando este navegador no la tiene */
+  function cuentaProfe() {
+    try { var ss = JSON.parse(localStorage.getItem(GP ? 'lmpro_session' : 'lmeav_session') || 'null'); return (ss && ss.id) ? String(ss.id) : null; } catch (e) { return null; }
+  }
+  function guardarLlave(hex) {   /* como la deja el Diario; si el navegador no admite la cookie, vale mientras dure la página */
+    MOR.llave = hex;
+    try { document.cookie = 'lm_profe=' + hex + '; Domain=.lmathome.es; Path=/; Max-Age=31536000; SameSite=Lax; Secure'; } catch (e) {}
+  }
+  function olvidarLlave() {
+    MOR.llave = null;
+    try { document.cookie = 'lm_profe=; Domain=.lmathome.es; Path=/; Max-Age=0; SameSite=Lax; Secure'; } catch (e) {}
+  }
+  function pedirLlave() {
+    var id = cuentaProfe(); if (!id || MOR.pidiendoLlave) return;
+    if (MOR.tLlave && Date.now() - MOR.tLlave < 300000) return;   /* como mucho, un intento cada 5 min */
+    MOR.pidiendoLlave = true; MOR.tLlave = Date.now();
+    pedirMor('suite_morosos_llave_cuenta', { p_cuenta_id: id })
+      .then(function (x) {
+        var d = x && x.d;
+        if (d && d.ok && /^[0-9a-f]{64}$/.test(String(d.llave || ''))) { guardarLlave(String(d.llave)); MOR.t = 0; MOR.tMal = 0; }
+      })
+      .catch(function () {})
+      .then(function () { MOR.pidiendoLlave = false; if (llaveProfe()) { try { pintarMorosos(); } catch (e) {} } });
+  }
   function delPortal(g) { return GP ? /gp/i.test(String(g || '')) : !/gp/i.test(String(g || '')); }
   function hoyISO() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function minutos(hhmm) { var m = /^(\d{1,2}):(\d{2})/.exec(String(hhmm || '')); return m ? (+m[1]) * 60 + (+m[2]) : NaN; }
+  /* (6-oct-2026) La hora de clase se mira en HORA DE GALICIA y con el reloj del servidor del portal, no con los del
+     aparato: un ordenador de aula con la zona horaria (o la hora) mal puesta no enseñaría el icono a su hora. El reloj
+     del servidor sale de la cabecera Date de una petición mínima a este mismo sitio (solo Tester/Protester, una vez
+     por carga); si no llega, vale el del aparato. Diferencias de menos de 2 minutos no se tocan. */
+  function mirarReloj() {
+    if (MOR.reloj) return; MOR.reloj = 1;
+    try {
+      var t0 = Date.now();
+      fetch(location.origin + '/manifest.webmanifest', { method: 'HEAD', cache: 'no-store' }).then(function (r) {
+        var f = r && r.headers && r.headers.get('Date'), ts = f ? Date.parse(f) : NaN;
+        if (!isFinite(ts)) return;
+        var df = ts - Math.round((t0 + Date.now()) / 2);
+        MOR.desfase = Math.abs(df) > 120000 ? df : 0;
+        if (MOR.desfase) { try { pintarMorosos(); } catch (e) {} }
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  var DIAS_GAL = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
+  function ahoraGalicia() {
+    var t = new Date(Date.now() + (MOR.desfase || 0));
+    try {
+      var p = {};
+      new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
+        .formatToParts(t).forEach(function (x) { p[x.type] = x.value; });
+      var h = (+p.hour) % 24, m = +p.minute;
+      if (DIAS_GAL[p.weekday] && isFinite(h) && isFinite(m)) return { dia: DIAS_GAL[p.weekday], min: h * 60 + m };
+    } catch (e) {}
+    return { dia: ((t.getDay() + 6) % 7) + 1, min: t.getHours() * 60 + t.getMinutes() };
+  }
   /* grupos de este portal que están en clase ahora: de 30 min antes de empezar hasta que acaba */
   function gruposEnClase() {
     var d = MOR.d; if (!d || !Array.isArray(d.horario)) return [];
-    var ahora = new Date(), dia = ((ahora.getDay() + 6) % 7) + 1, min = ahora.getHours() * 60 + ahora.getMinutes();
+    var ga = ahoraGalicia(), dia = ga.dia, min = ga.min;   /* (6-oct-2026) hora de Galicia y reloj del servidor, no los del aparato */
     var out = [];
     d.horario.forEach(function (h) {
       if (!h || +h.dia !== dia || !delPortal(h.grupo)) return;
@@ -977,6 +1039,7 @@
   function cargarMorosos(forzar) {
     var k = llaveProfe(); if (!k || MOR.cargando) return;
     if (!forzar && MOR.d && Date.now() - MOR.t < 120000) return;
+    if (!forzar && MOR.tMal && Date.now() - MOR.tMal < 30000) return;   /* (6-oct-2026) si falló, no antes de 30 s (antes, sin lista, repetía sin freno) */
     MOR.cargando = true;
     pedirMor(MOR.v2 ? 'suite_morosos_v2_token' : 'suite_morosos_fichas_token', { p_token: k })
       .then(function (x) {
@@ -985,10 +1048,17 @@
       })
       .then(function (x) {
         var d = x && x.d;
-        if (d && d.ok) { MOR.d = normalizarMorosos(d); MOR.t = Date.now(); pintarMorosos(); if (MOR.panel) pintarPanelMorosos(); }
-        else MOR.t = Date.now();
+        if (d && d.ok) { MOR.d = normalizarMorosos(d); MOR.t = Date.now(); MOR.tMal = 0; pintarMorosos(); if (MOR.panel) pintarPanelMorosos(); }
+        else {
+          MOR.t = Date.now(); MOR.tMal = Date.now();
+          /* (6-oct-2026) la llave guardada ya no vale (se cambió la clave de la suite): se tira y se pide otra con la cuenta, una vez */
+          if (d && d.error === 'no_autorizado' && !MOR.renovada) {
+            MOR.renovada = true; olvidarLlave(); MOR.tLlave = 0; MOR.t = 0; MOR.tMal = 0;
+            setTimeout(function () { try { pintarMorosos(); } catch (e) {} }, 0);
+          }
+        }
       })
-      .catch(function () { MOR.t = Date.now() - 90000; })
+      .catch(function () { MOR.t = Date.now() - 90000; MOR.tMal = Date.now(); })
       .then(function () { MOR.cargando = false; });
   }
   function fechaCorta(iso) { var d = new Date(iso); return isNaN(d) ? '' : ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2); }
@@ -1094,7 +1164,10 @@
   function pintarMorosos() {
     var bell = document.getElementById('alu-campana-btn'); if (!bell || !bell.parentNode) return;
     var host = bell.parentNode, w = document.getElementById('lm-morosos');
-    if (!(esProfe() && llaveProfe())) { if (w && w.parentNode) { cerrarPanelMorosos(); w.parentNode.removeChild(w); } return; }
+    if (!esProfe()) { if (w && w.parentNode) { cerrarPanelMorosos(); w.parentNode.removeChild(w); } return; }
+    mirarReloj();   /* (6-oct-2026) la hora de clase, con el reloj del servidor */
+    /* (6-oct-2026) sin llave en este navegador (no ha abierto el Diario): se pide con la cuenta de Tester/Protester */
+    if (!llaveProfe()) { if (w && w.parentNode) { cerrarPanelMorosos(); w.parentNode.removeChild(w); } pedirLlave(); return; }
     cargarMorosos();
     if (!MOR.d) return;
     /* (29-sep-2026, Iago) «Si no hay morosos activos, que ese símbolo no aparezca: que solo esté visible durante las
