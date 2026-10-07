@@ -602,10 +602,39 @@
     /* ---- la hilera ---- */
     var nb = document.createElement('div'); nb.className = 'lm-vl-bar lm-sin-iconos';
     nb.setAttribute('role', 'toolbar'); nb.setAttribute('aria-label', 'Herramientas de la lección');
+    /* (6-oct-2026, noche, 3) CON EL DEDO O EL ROTULADOR, EL BOTÓN ACTÚA AL LEVANTAR, sin esperar al «clic».
+       El «clic» de un toque lo fabrica el navegador después, y a veces no lo fabrica: en el banco de pruebas, un toque en
+       una herramienta justo después de pasar la goma (menos de un segundo) llegaba a la página (bajar y levantar) pero
+       sin «clic», y la herramienta no cambiaba. Tampoco lo fabrica si la pantalla cree que hay otro dedo apoyado (la
+       mano al escribir, o un toque «fantasma» del marco táctil): entonces ningún botón responde. Ahora el botón no
+       depende de eso: actúa cuando el dedo se levanta encima de él (aunque haya otro dedo apoyado en otra parte) y, si
+       luego llega el «clic» del navegador, se ignora para no actuar dos veces. Con ratón o teclado, como siempre.
+       DE MOMENTO SOLO EN Tester/Protester (conDedo): a los alumnos no se les cambia nada hasta verlo funcionar en el
+       aula. Para dárselo a todos: conDedo = true. */
+    var conDedo = esProfe();
     function boton(clase, html, titulo, fn) {
       var b = document.createElement('button'); b.type = 'button'; b.className = 'lm-vl-b' + (clase ? ' ' + clase : '');
       b.innerHTML = html; b.title = titulo; b.setAttribute('aria-label', titulo);
-      b.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); fn(b); try { b.blur(); } catch (er) {} });
+      var baja = null, hecho = 0;
+      function hacer() { fn(b); try { b.blur(); } catch (er) {} }
+      b.addEventListener('pointerdown', function (e) {
+        if (!conDedo || (e.pointerType !== 'touch' && e.pointerType !== 'pen')) { baja = null; return; }
+        baja = { id: e.pointerId, x: e.clientX, y: e.clientY, t: Date.now() };
+      });
+      b.addEventListener('pointerup', function (e) {
+        var p = baja; baja = null;
+        if (!p || e.pointerId !== p.id) return;
+        if (Math.abs(e.clientX - p.x) > 24 || Math.abs(e.clientY - p.y) > 24 || Date.now() - p.t > 1500) return;   /* se arrastró o se quedó apoyado: no es un toque */
+        var r = b.getBoundingClientRect(); if (e.clientX < r.left - 6 || e.clientX > r.right + 6 || e.clientY < r.top - 6 || e.clientY > r.bottom + 6) return;
+        hecho = Date.now(); hacer();
+        try { tragaArma(b); } catch (er) {}   /* el «clic» de este mismo toque no debe caer en lo que quede debajo */
+      });
+      b.addEventListener('pointercancel', function () { baja = null; });
+      b.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        if (Date.now() - hecho < 800) return;   /* ya actuó al levantar el dedo */
+        hacer();
+      });
       return b;
     }
     function sep(k) { var s = document.createElement('span'); s.className = 'lm-vl-sep ' + k; s.setAttribute('aria-hidden', 'true'); return s; }
@@ -801,6 +830,15 @@
       document.removeEventListener('fullscreenchange', alCambiarFS); document.removeEventListener('webkitfullscreenchange', alCambiarFS);
       document.removeEventListener('keydown', alTecla);
     }
+    /* (6-oct-2026, noche, 3) Con una herramienta puesta, lo que el dedo hace sobre la página es un trazo y nada más: se
+       le dice al navegador en el propio toque (además del touch-action que ya llevaba el lienzo), para que no lo
+       convierta en gestos suyos (desplazar, lanzar, toque) que luego estorban al toque siguiente. No cambia cómo se
+       pinta ni cómo se guarda: de eso se sigue encargando el portal. */
+    function consumeToque(e) {
+      var t = e.target;
+      if (t && t.classList && t.classList.contains('anot-canvas') && t.parentNode && t.parentNode.classList.contains('dibujo') && e.cancelable) e.preventDefault();
+    }
+    if (conDedo) { try { ov.addEventListener('touchstart', consumeToque, { passive: false }); ov.addEventListener('touchmove', consumeToque, { passive: false }); } catch (e) {} }
     vlActual = { ov: ov, limpia: limpia };
     pinta(); pintaMax();
     requestAnimationFrame(function () { rueda.pos(); ov.style.setProperty('--vl-bar-h', nb.offsetHeight + 'px'); });
@@ -984,16 +1022,24 @@
     } catch (e) {}
   }
   var DIAS_GAL = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
+  /* (6-oct-2026, noche) El formateador se construye UNA vez (antes, uno nuevo en cada consulta: hasta 6 por segundo
+     en los dos primeros minutos de cada carga) y la respuesta vale un segundo. En un ordenador viejo construirlo
+     cuesta; no hace falta. */
+  var FMT_GAL = null, GAL_ULT = { t: 0, v: null };
   function ahoraGalicia() {
-    var t = new Date(Date.now() + (MOR.desfase || 0));
+    var ms = Date.now() + (MOR.desfase || 0);
+    if (GAL_ULT.v && Math.abs(ms - GAL_ULT.t) < 1000) return GAL_ULT.v;
+    var t = new Date(ms), v = null;
     try {
+      if (!FMT_GAL) FMT_GAL = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
       var p = {};
-      new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
-        .formatToParts(t).forEach(function (x) { p[x.type] = x.value; });
+      FMT_GAL.formatToParts(t).forEach(function (x) { p[x.type] = x.value; });
       var h = (+p.hour) % 24, m = +p.minute;
-      if (DIAS_GAL[p.weekday] && isFinite(h) && isFinite(m)) return { dia: DIAS_GAL[p.weekday], min: h * 60 + m };
+      if (DIAS_GAL[p.weekday] && isFinite(h) && isFinite(m)) v = { dia: DIAS_GAL[p.weekday], min: h * 60 + m };
     } catch (e) {}
-    return { dia: ((t.getDay() + 6) % 7) + 1, min: t.getHours() * 60 + t.getMinutes() };
+    if (!v) v = { dia: ((t.getDay() + 6) % 7) + 1, min: t.getHours() * 60 + t.getMinutes() };
+    GAL_ULT.t = ms; GAL_ULT.v = v;
+    return v;
   }
   /* grupos de este portal que están en clase ahora: desde MOR_ANTES minutos antes de la hora de inicio hasta la de fin.
      (6-oct-2026, Iago) «lo que me interesa es que se active en el momento exacto de la clase»: antes salía desde 30 min
@@ -1178,6 +1224,7 @@
   }, true);
   document.addEventListener('keydown', function (e) { if (MOR.panel && (e.key === 'Escape' || e.key === 'Esc')) cerrarPanelMorosos(); });
   function pintarMorosos() {
+    if (editorAbierto()) return;   /* (6-oct-2026, noche) con la lección, la pizarra o un libro abiertos, nada de esto se ve: se espera a que se cierre */
     var bell = document.getElementById('alu-campana-btn'); if (!bell || !bell.parentNode) return;
     var host = bell.parentNode, w = document.getElementById('lm-morosos');
     if (!esProfe()) { if (w && w.parentNode) { cerrarPanelMorosos(); w.parentNode.removeChild(w); } return; }
@@ -2197,9 +2244,27 @@
     var a = musActivo(); if (!a) return;
     if (MUS.ctx && MUS.gan) {
       try { var g = MUS.gan.gain, t = MUS.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(Math.max(0.0001, g.value), t); g.exponentialRampToValueAtTime(0.0001, t + 0.5); } catch (e) {}
-      clearTimeout(MUS.parando); MUS.parando = setTimeout(function () { if (!MUS.sonando) a.pause(); }, 520);
+      /* (6-oct-2026, noche) Al parar, además de pausar el tema se SUSPENDE la salida de sonido. Antes se quedaba abierta
+         (sonando silencio) hasta cerrar la página: toda la tarde, desde el primer ▶. Al volver a pulsar ▶ se reanuda
+         (musTocar ya lo hacía). Si el aparato no deja suspenderla, se queda como antes. */
+      clearTimeout(MUS.parando); MUS.parando = setTimeout(function () {
+        if (MUS.sonando) return;
+        try { a.pause(); } catch (e) {}
+        try { if (MUS.ctx && MUS.ctx.state === 'running' && MUS.ctx.suspend) { var p = MUS.ctx.suspend(); if (p && p.catch) p.catch(function () {}); } } catch (e) {}
+      }, 520);
     } else a.pause();
   }
+  /* (6-oct-2026, noche) el «clic» de la rueda de tonalidad abría otra salida de sonido y tampoco la cerraba nunca.
+     Si lleva 4 s sin sonar, se cierra; el siguiente clic abre una nueva (el portal y la piel ya lo hacen: «la que haya
+     o una nueva»). */
+  setInterval(function () {
+    try {
+      var A = window.__anotTickA; if (!A || !esProfe()) return;   /* solo en el aparato del profe (en el iPad de un alumno, abrir otra salida a mitad de un gesto podría dejarla muda) */
+      if (performance.now() - (window.__anotTickT || 0) < 4000) return;
+      window.__anotTickA = null;
+      if (A.close && A.state !== 'closed') { var p = A.close(); if (p && p.catch) p.catch(function () {}); }
+    } catch (e) {}
+  }, 2000);
   function musPulsar() {
     var v = musVentana(); if (v) { try { localStorage.setItem(MUS_PULSADO + v.clave, '1'); } catch (e) {} }   /* ya lo pulsó: esta clase no parpadea más */
     if (MUS.sonando) musParar(); else musTocar(musSiguiente());
@@ -2292,6 +2357,9 @@
     if (MUS.raf) return;
     function paso() {
       MUS.raf = 0;
+      /* (6-oct-2026, noche) con un editor abierto las barras no se ven: no se dibujan (la música sigue sonando); se
+         vuelve a mirar cada segundo por si se ha cerrado */
+      if (editorAbierto()) { clearTimeout(MUS.tEd); MUS.tEd = setTimeout(function () { if (!MUS.raf) musAnimar(); }, 1000); return; }
       var n = musBarras((MUS.cv && MUS.cv.clientWidth) || 260), suave = MUS.suave;
       if (!suave || suave.length !== n) { suave = MUS.suave = []; for (var s = 0; s < n; s++) suave.push(0); }
       var ac = musActivo(), vivo = !!(MUS.sonando && ac && !ac.paused), algo = false, obj = null;
@@ -2363,9 +2431,710 @@
     if (el.parentNode !== w || el.previousElementSibling !== linea) linea.parentNode.insertBefore(el, linea.nextSibling);
     musPintar(); musInvitar();
   }
-  setInterval(function () { try { musInvitar(); } catch (e) {} }, 15000);   /* el aviso de la clase se enciende y se apaga solo */
+  setInterval(function () { try { if (!editorAbierto()) musInvitar(); } catch (e) {} }, 15000);   /* el aviso de la clase se enciende y se apaga solo */
+
+  /* ---------- 19 (6-oct-2026, noche, Iago): EDITOR ABIERTO = PORTAL QUIETO · y «CAJA NEGRA» (solo Tester/Protester) ----------
+     «En el editor de ritmo de los portales, al menos en la pantalla del aula, cuando quiero escribir no pinta y se queda
+      como la pantalla bloqueada. No me deja cambiar de herramienta y tengo que reiniciar todo para luego volver a
+      fallar. Me pasó tanto en el de elemental como en el de profesional. Hasta ahora no daba ese problema, pero hoy sí.»
+     En el banco de pruebas no se reproduce (ratón y dedo, normal y a pantalla completa, GE y GP). Dos medidas:
+     A · EDITOR ABIERTO = PORTAL QUIETO. Mientras hay un editor a toda pantalla (la lección con sus herramientas, la
+         pizarra o un libro), el portal de debajo no se ve: la piel deja de repasarlo (tarjetas, hilera, aviso de
+         morosos, música…) y solo sigue vistiendo el propio editor. Al cerrarlo, todo vuelve solo.
+     B · CAJA NEGRA. Solo en Tester/Protester y solo con un editor abierto, el portal apunta lo que pasa y lo manda a
+         Sentry cuando algo va mal: un trazo que no deja nada guardado · un botón de herramienta que no cambia nada ·
+         un toque que no llega al editor (algo lo tapa) · la pantalla que deja de refrescarse · el programa atascado
+         más de 4 s · y, al volver a entrar, si la vez anterior el portal murió con un editor abierto. Apunta números
+         y nombres de elementos de la página (nada de alumnos ni de lo que se escribe). Como mucho 6 partes por carga.
+     (6-oct-2026, noche, 2) Iago: «cuando se bloquea, se queda bloqueado todo Chrome; la solución es cerrar la ventana y
+     volver a cargar. Escribo con el dedo o el rotulador. La música sonaba: le di al principio de la clase.» Si se
+     congela el navegador entero no es la página: es el sonido, la gráfica o la pantalla táctil del aparato. Por eso:
+     C · la música cierra su salida de sonido al parar (sección 18) y el «clic» de la rueda, a los 4 s;
+     D · EDITOR LIGERO en Tester/Protester (sin desenfoques; lo de debajo no se pinta);
+     E · los partes llevan el estado del sonido, la gráfica y los toques, se guardan también en el aparato (?caja=1 los
+         enseña) y, al abrir un editor por primera vez, va un parte informativo con el perfil del aparato.
+     Para quitarlo todo: borrar esta sección, la primera línea de todo() y las llamadas a editorAbierto(). */
+  /* (6-oct-2026, noche, 2) EDITOR LIGERO, solo Tester/Protester (en el aula el portal va en un ordenador viejo).
+     Con la lección abierta: el fondo es un color liso (sin la foto desenfocada) y la hilera de herramientas no desenfoca
+     lo de detrás. A los alumnos no les cambia nada. (Se probó además «lo de debajo no se pinta», como en la pizarra:
+     en el banco de pruebas hacía que más toques con el dedo se quedaran sin efecto, y se quitó.)
+     Para quitarlo: borrar editorLigero() y su llamada en todo(). */
+  var LIGERO_CSS = 'html.lm-fam-portal #ts-visor.lm-vl-ligero{background:#0b1320 !important}' +
+    'html.lm-fam-portal #ts-visor.lm-vl-ligero::before{display:none !important}' +
+    'html.lm-fam-portal #ts-visor.lm-vl-ligero .lm-vl-bar{-webkit-backdrop-filter:none !important;backdrop-filter:none !important;background:#0f1a2c !important}' +
+    'html.lm-fam-portal #ts-visor.lm-vl-ligero img{box-shadow:none !important}';
+  function editorLigero() {
+    var v = document.getElementById('ts-visor');
+    if (!v || !esProfe()) return;
+    if (!document.getElementById('lm-vl-ligero-css')) { var st = document.createElement('style'); st.id = 'lm-vl-ligero-css'; st.textContent = LIGERO_CSS; document.head.appendChild(st); }
+    if (!v.classList.contains('lm-vl-ligero')) v.classList.add('lm-vl-ligero');
+  }
+  try { new MutationObserver(function () { try { editorLigero(); } catch (e) {} }).observe(document.body, { childList: true }); } catch (e) {}
+  function editorAbierto() {
+    try {
+      if (document.getElementById('ts-visor')) return 'leccion';
+      if (document.documentElement.classList.contains('pz-abierto')) return 'pizarra';
+      var lb = document.getElementById('lb-ov'); if (lb && lb.classList.contains('open')) return 'libro';
+    } catch (e) {}
+    return '';
+  }
+  var CN = { on: false, ev: [], t0: Date.now(), env: 0, ult: {}, ed: '', desde: 0, gesto: null, canc: 0, fr: 0, fps: -1, sinFr: 0, raf: 0,
+             lat: Date.now(), atascos: 0, largas: 0, rz: 0, banco: null, nLat: 0 };
+  var CN_K = 'lm_caja_negra_viva', CN_MAX = 6;
+  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '7-oct-n14';
+  CN.pd = 0; CN.pm = 0; CN.pu = 0; CN.pc = 0; CN.pt = ''; CN.perfil = false;
+  /* (6-oct-2026, noche, 2) Los partes se guardan TAMBIÉN en el aparato (los 12 últimos): si Sentry no llega desde la red
+     del centro, se pueden leer allí mismo abriendo el portal con ?caja=1 (solo Tester/Protester) y hacerles una foto. */
+  function cnGuarda(tipo, ex) {
+    try {
+      var L = []; try { L = JSON.parse(localStorage.getItem(CN_P) || '[]') || []; } catch (e) { L = []; }
+      L.push({ h: new Date().toISOString(), tipo: tipo, estado: ex && ex.estado, apuntes: ((ex && ex.apuntes) || []).slice(-14), mas: (function () { var m = {}; for (var k in ex) if (k !== 'estado' && k !== 'apuntes') m[k] = ex[k]; return m; })() });
+      if (L.length > 12) L = L.slice(L.length - 12);
+      var txt = JSON.stringify(L); while (txt.length > 60000 && L.length > 1) { L.shift(); txt = JSON.stringify(L); }
+      localStorage.setItem(CN_P, txt);
+    } catch (e) {}
+  }
+  /* la gráfica del aparato: solo se mira al abrir ?caja=1, y una sola vez por aparato (si mirarla lo colgara, no se
+     vuelve a intentar) */
+  function cnGrafica() {
+    try {
+      if (localStorage.getItem(CN_GRAF)) return;
+      localStorage.setItem(CN_GRAF, 'no se pudo mirar');
+      var c = document.createElement('canvas'), gl = c.getContext('webgl') || c.getContext('experimental-webgl'), r = 'sin webgl';
+      if (gl) { var e = gl.getExtension('WEBGL_debug_renderer_info'); r = String(e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)); var lc = gl.getExtension('WEBGL_lose_context'); if (lc) lc.loseContext(); }
+      localStorage.setItem(CN_GRAF, r.slice(0, 110));
+    } catch (e) {}
+  }
+  function cajaVer() {   /* ?caja=1 → los partes guardados en este aparato, para leerlos o fotografiarlos */
+    if (CN.vista || !/[?&]caja=1(&|$)/.test(location.search) || !esProfe()) return;
+    CN.vista = true;
+    cnGrafica();   /* solo aquí, a propósito y una vez por aparato (nunca en mitad de una clase) */
+    var L = []; try { L = JSON.parse(localStorage.getItem(CN_P) || '[]') || []; } catch (e) {}
+    var viva = null; try { viva = JSON.parse(localStorage.getItem(CN_K) || 'null'); } catch (e) {}
+    var d = document.createElement('div'); d.id = 'lm-caja';
+    d.style.cssText = 'position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483640;background:#0b1320;color:#e8eef5;overflow:auto;padding:18px 22px;font:14px/1.45 Menlo,Consolas,monospace;visibility:visible';
+    function hora(iso) { try { var x = new Date(iso); return ('0' + x.getDate()).slice(-2) + '/' + ('0' + (x.getMonth() + 1)).slice(-2) + ' ' + ('0' + x.getHours()).slice(-2) + ':' + ('0' + x.getMinutes()).slice(-2) + ':' + ('0' + x.getSeconds()).slice(-2); } catch (e) { return String(iso); } }
+    var h = '<div style="display:flex;gap:12px;align-items:center;margin:0 0 12px"><b style="font:800 18px Arial">Caja negra del editor · ' + (GP ? 'profesional' : 'elemental') + ' · ' + esc(CN_V) + '</b><span style="flex:1"></span>' +
+      '<button type="button" id="lm-caja-cop" style="font:700 14px Arial;padding:9px 14px;border-radius:9px;border:1px solid #5b9dff;background:#12305f;color:#fff;cursor:pointer">Copiar todo</button>' +
+      '<button type="button" id="lm-caja-x" style="font:700 14px Arial;padding:9px 14px;border-radius:9px;border:1px solid #777;background:#222b3d;color:#fff;cursor:pointer">Cerrar</button></div>';
+    var est0 = cnEstado();
+    h += '<div style="margin:0 0 10px;color:#9fb4d8">Este aparato: Chrome ' + esc(est0.nav) + ' · pantalla ' + esc(est0.pantalla) + ' · ventana ' + esc(est0.vista) + ' · ' + esc(est0.nucleos) + ' núcleos · ' + esc(est0.ram_gb) + ' GB · táctil ' + esc(est0.tactil) +
+      '<br>Gráfica: ' + esc(est0.grafica || 'sin mirar todavía') + '<br>Partes guardados: ' + L.length + (viva ? ' · había un editor abierto la última vez (' + esc(hora(new Date(viva.t).toISOString())) + ')' : '') + '</div>';
+    if (!L.length) h += '<div style="font:700 16px Arial;color:#9ad9bd">No hay ningún parte guardado: desde que se puso la caja negra, el editor no ha notado nada raro en este aparato.</div>';
+    var txtTodo = 'CAJA NEGRA ' + CN_V + ' ' + (GP ? 'gp' : 'ge') + ' ' + new Date().toISOString() + '\n' + JSON.stringify({ aparato: est0, viva: viva, partes: L });
+    L.slice().reverse().forEach(function (p, i) {
+      var e = p.estado || {};
+      h += '<div style="border:1px solid #2a3a58;border-radius:10px;padding:10px 12px;margin:0 0 10px;background:#0f1a2c">' +
+        '<div style="font:800 16px Arial;color:#ffd678">' + esc(hora(p.h)) + ' · ' + esc(p.tipo) + '</div>' +
+        '<div>editor ' + esc(e.ed) + ' · abierto ' + esc(e.abierto_s) + ' s · herramienta [' + esc(e.herr) + '] · fotogramas/s ' + esc(e.fps) + ' · atascos ' + esc(e.atascos) + ' · tareas largas ' + esc(e.largas) + '</div>' +
+        '<div>dedos apoyados: ' + esc(e.dedos) + ' · ratón: ' + esc(e.raton || '—') + '</div>' +
+        '<div>toques (baja/mueve/sube) ' + esc(e.toques) + ' ' + esc(e.tipo_toque) + ' · pantalla completa: ' + esc(e.completa) + ' · sonido: ' + esc(e.sonido) + ' · música ' + (e.musica ? 'sonando' : 'parada') + ' · morosos ' + (e.morosos ? 'sí' : 'no') + '</div>' +
+        '<div>lienzo ' + esc(e.lienzo) + ' · repintar 150 trazos: ' + esc(e.banco_ms) + ' ms · memoria ' + esc(e.mem_mb) + ' MB · ligero ' + (e.ligero ? 'sí' : 'no') + '</div>' +
+        (p.mas && Object.keys(p.mas).length ? '<div style="color:#f9b4b4">' + esc(JSON.stringify(p.mas)).slice(0, 400) + '</div>' : '') +
+        '<div style="color:#8fa3c4;font-size:12px;word-break:break-all">' + esc((p.apuntes || []).map(function (a) { var x = []; for (var k in a) if (k !== 't' && k !== 'k') x.push(k + '=' + a[k]); return a.t + 's ' + a.k + (x.length ? '(' + x.join(',') + ')' : ''); }).join(' · ')) + '</div></div>';
+    });
+    d.innerHTML = h; document.body.appendChild(d);
+    d.querySelector('#lm-caja-x').addEventListener('click', function () { if (d.parentNode) d.parentNode.removeChild(d); });
+    d.querySelector('#lm-caja-cop').addEventListener('click', function () {
+      var b = this;
+      try { navigator.clipboard.writeText(txtTodo).then(function () { b.textContent = 'Copiado'; }, function () { b.textContent = 'No se pudo copiar'; }); } catch (e) { b.textContent = 'No se pudo copiar'; }
+    });
+  }
+  function cnDesc(el) {
+    try {
+      if (!el || el.nodeType !== 1) return String(el && el.nodeName || el);
+      var c = (typeof el.className === 'string' ? el.className : (el.getAttribute('class') || '')).trim().split(/\s+/).filter(Boolean).slice(0, 3).join('.');
+      return (el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (c ? '.' + c : '')).slice(0, 70);
+    } catch (e) { return '?'; }
+  }
+  function cnApunta(k, d) {
+    var o = { t: Math.round((Date.now() - CN.t0) / 100) / 10, k: k }; if (d) { for (var x in d) o[x] = d[x]; }
+    CN.ev.push(o); if (CN.ev.length > 60) CN.ev.splice(0, CN.ev.length - 60);
+  }
+  function cnRaiz() {
+    return CN.ed === 'leccion' ? document.getElementById('ts-visor') : CN.ed === 'pizarra' ? document.getElementById('pz-ov') : CN.ed === 'libro' ? document.getElementById('lb-ov') : null;
+  }
+  function cnHerr() {   /* la herramienta marcada en la barra de la lección (la de siempre, oculta) */
+    try { return Array.prototype.map.call(document.querySelectorAll('#ts-visor .anot-bar .anot-b.on'), function (b) { return b.getAttribute('data-t'); }).join(','); } catch (e) { return '?'; }
+  }
+  function cnFirma() {   /* cuánto ocupa lo anotado en este aparato: si un trazo se guarda, cambia */
+    var n = 0;
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('ts_anot_') === 0) n += (localStorage.getItem(k) || '').length + 1; } } catch (e) { n = -1; }
+    return n;
+  }
+  function cnDedosFuera() { var n = 0, viejo = 0, ah = Date.now(), D = CN.dedos || {}; for (var k in D) { n++; if (ah - D[k].t > viejo) viejo = ah - D[k].t; } return { n: n, viejo_s: Math.round(viejo / 100) / 10 }; }
+  function cnEstado() {
+    var o = { ed: CN.ed, abierto_s: CN.desde ? Math.round((Date.now() - CN.desde) / 1000) : 0, herr: cnHerr(), fps: CN.fps, atascos: CN.atascos, largas: CN.largas, redim: CN.rz,
+              banco_ms: CN.banco, portal: GP ? 'gp' : 'ge', vista: window.innerWidth + 'x' + window.innerHeight, dpr: window.devicePixelRatio || 1, visible: !document.hidden };
+    try { o.completa = cnDesc(document.fullscreenElement || document.webkitFullscreenElement || null); } catch (e) {}
+    try { var v = document.getElementById('ts-visor'); if (v) { o.dibujo = !!v.querySelector('.anot-wrap.dibujo'); o.max = v.classList.contains('lm-vl-max'); o.hilera = !!v.querySelector('.lm-vl-bar');
+            var cs = v.querySelectorAll('.anot-canvas'); o.lienzos = cs.length; if (cs[0]) { var r = cs[0].getBoundingClientRect(); o.lienzo = cs[0].width + 'x' + cs[0].height + ' en ' + Math.round(r.width) + 'x' + Math.round(r.height); } } } catch (e) {}
+    try { o.musica = !!MUS.sonando; o.morosos = !!document.getElementById('lm-morosos'); o.firma = cnFirma(); } catch (e) {}
+    /* (6-oct-2026, noche, 2) Iago: «se queda bloqueado todo Chrome». Lo que Chrome comparte con el ordenador: sonido,
+       gráfica y pantalla táctil. De cada cosa, su estado. */
+    try { o.sonido = (MUS.ctx ? MUS.ctx.state : 'sin abrir') + (window.__anotTickA ? ' · clic ' + window.__anotTickA.state : ''); } catch (e) {}
+    try { o.toques = CN.pd + '/' + CN.pm + '/' + CN.pu + (CN.pc ? ' canc ' + CN.pc : ''); o.tipo_toque = CN.pt || ''; } catch (e) {}
+    try { var dd = cnDedosFuera(); o.dedos = dd.n + (dd.n ? ' (el más viejo, ' + dd.viejo_s + ' s)' : '') + ' · máx ' + (CN.maxDedos || 0) + ' · no principales ' + (CN.noPrim || 0) + ' · toques sin clic ' + (CN.sinClic || 0) + ' · clics dados por el portal ' + (TQ.n || 0) + ' (seguidos ' + (TQ.racha || 0) + ', tardíos ' + (TQ.tardios || 0) + ') · menús ' + (TQ.menus || 0); } catch (e) {}
+    try { o.raton = CN.raton ? ('apretado ' + Math.round((Date.now() - CN.raton.t) / 1000) + ' s en ' + CN.raton.en + ' (' + CN.raton.x + ',' + CN.raton.y + ')') : 'suelto'; if (CN.arrastres) o.raton += ' · arrastres ' + CN.arrastres; } catch (e) {}
+    try { o.lista_dedos = Object.keys(TQ.loc).length + ' · heredados ' + Object.keys(TQ.here).length + ' · toques con puntero de reserva ' + (TQ.nPr || 0) + (TQ.sinPunteros ? ' · PUNTEROS CORTADOS' : '') + (TQ.fijo ? ' · dos dedos no amplían' : ''); } catch (e) {}
+    try { if (window.visualViewport) o.ampliacion = Math.round(window.visualViewport.scale * 100) / 100; } catch (e) {}
+    try { o.grafica = localStorage.getItem(CN_GRAF) || ''; } catch (e) {}
+    try { o.ligero = !!document.querySelector('#ts-visor.lm-vl-ligero'); o.piel = CN_V; o.nav = (/Chrome\/(\d+)/.exec(navigator.userAgent) || [])[1] || ''; o.pantalla = screen.width + 'x' + screen.height; } catch (e) {}
+    try { if (performance.memory) o.mem_mb = Math.round(performance.memory.usedJSHeapSize / 1048576); } catch (e) {}
+    try { o.nucleos = navigator.hardwareConcurrency || 0; o.ram_gb = navigator.deviceMemory || 0; o.tactil = navigator.maxTouchPoints || 0; } catch (e) {}
+    return o;
+  }
+  function cnEnviar(tipo, extra, nivel) {
+    try {
+      cnApunta('PARTE ' + tipo);
+      var ah = Date.now();
+      if (CN.ult[tipo] && ah - CN.ult[tipo] < 20000) return;
+      CN.ult[tipo] = ah;
+      var ex = { estado: extra && extra.estado ? extra.estado : cnEstado(), apuntes: (extra && extra.apuntes) || CN.ev.slice(-32) };
+      if (extra) { for (var k in extra) if (k !== 'estado' && k !== 'apuntes') ex[k] = extra[k]; }
+      if (tipo !== 'perfil') cnGuarda(tipo, ex);   /* (6-oct-2026, noche, 2) también en el aparato: ?caja=1 */
+      if (CN.env >= CN_MAX && tipo !== 'perfil') return;
+      if (tipo !== 'perfil') CN.env++;
+      var S = window.Sentry; if (!S || !S.captureMessage) return;
+      S.captureMessage('[caja negra] ' + tipo, { level: nivel || 'warning', tags: { caja_negra: tipo, portal: GP ? 'gp' : 'ge', editor: (ex.estado && ex.estado.ed) || '' }, extra: ex });
+    } catch (e) {}
+  }
+  function cnBanco() {   /* cuánto tarda ESTE aparato en repintar una página con 150 trazos (lo que hace el editor en cada movimiento) */
+    try {
+      var cv0 = document.querySelector('#ts-visor .anot-canvas'), W = Math.max(600, Math.min(2600, (cv0 && cv0.width) || 1600)), H = Math.max(400, Math.min(2600, (cv0 && cv0.height) || 900));
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H; var x = cv.getContext('2d'), t = performance.now();
+      for (var rep = 0; rep < 3; rep++) {
+        x.clearRect(0, 0, W, H); x.globalCompositeOperation = 'multiply'; x.lineCap = 'round'; x.lineJoin = 'round';
+        for (var i = 0; i < 150; i++) {
+          x.strokeStyle = i % 3 ? 'rgba(80,230,140,.45)' : '#000'; x.lineWidth = i % 3 ? 13 : 3.5; x.beginPath();
+          for (var j = 0; j < 40; j++) { var px = ((i * 53 + j * 9) % W), py = ((i * 31) % H) + 14 * Math.sin(j / 3 + i); if (j) x.lineTo(px, py); else x.moveTo(px, py); }
+          x.stroke();
+        }
+      }
+      CN.banco = Math.round((performance.now() - t) / 3);
+      cnApunta('banco', { ms: CN.banco, lienzo: W + 'x' + H });
+      if (CN.banco > 120) cnEnviar('lienzo-lento', null, 'info');
+    } catch (e) { CN.banco = -1; }
+  }
+  function cnMarco() {   /* cuenta los fotogramas solo mientras hay un editor abierto */
+    CN.raf = 0; if (!CN.ed) return;
+    CN.fr++; CN.raf = requestAnimationFrame(cnMarco);
+  }
+  function cnLatido() {
+    var ah = Date.now(), salto = ah - CN.lat; CN.lat = ah;
+    var ed = editorAbierto();
+    if (ed !== CN.ed) {
+      if (ed) { CN.ed = ed; CN.desde = ah; CN.canc = 0; CN.sinFr = 0; CN.fr = 0; CN.fps = -1; CN.pd = CN.pm = CN.pu = CN.pc = 0; cnApunta('abre', { ed: ed }); if (!CN.raf) CN.raf = requestAnimationFrame(cnMarco);
+                if (!CN.perfil) { CN.perfil = true; setTimeout(function () { try { if (CN.ed) cnEnviar('perfil', null, 'info'); } catch (e) {} }, 6000); }
+                if (ed === 'leccion') setTimeout(function () { if (CN.ed === 'leccion' && CN.banco == null) cnBanco(); }, 2500); }
+      else { cnApunta('cierra', { ed: CN.ed }); CN.ed = ''; CN.desde = 0; CN.gesto = null; try { localStorage.removeItem(CN_K); } catch (e) {} }
+    }
+    if (salto > 4000) { CN.atascos++; cnApunta('atasco', { s: Math.round(salto / 100) / 10 }); if (CN.ed && !document.hidden) cnEnviar('atasco', { segundos: Math.round(salto / 100) / 10 }); }
+    if (!CN.ed) return;
+    CN.fps = CN.fr; CN.fr = 0;
+    if (!document.hidden && CN.fps === 0 && salto < 2500) { if (++CN.sinFr === 3) cnEnviar('sin-refresco'); } else CN.sinFr = 0;
+    if (++CN.nLat % 3 === 0) {   /* cada 3 s, una nota en el aparato: si el portal muere con el editor abierto, la próxima carga lo cuenta */
+      try { localStorage.setItem(CN_K, JSON.stringify({ t: ah, estado: cnEstado(), apuntes: CN.ev.slice(-18) })); } catch (e) {}
+    }
+  }
+  function cajaNegra() {
+    if (CN.on) return; if (!esProfe()) return;
+    CN.on = true;
+    /* ¿la vez anterior el portal murió con un editor abierto? */
+    try {
+      var g = localStorage.getItem(CN_K);
+      var o = g ? JSON.parse(g) : null;
+      /* una nota de hace menos de 8 s puede ser de OTRA pestaña que sigue viva con su editor abierto: esa no se toca */
+      if (o && o.t && Date.now() - o.t > 8000) {
+        localStorage.removeItem(CN_K);
+        cnEnviar('murio-con-el-editor-abierto', { estado: o.estado, apuntes: o.apuntes, hace_s: Math.round((Date.now() - o.t) / 1000), despedida: o.fin || 'ninguna', ultimo_latido_antes_de_irse_s: o.finT ? Math.round((o.finT - o.t) / 1000) : null });
+      }
+    } catch (e) {}
+    var cap = { capture: true, passive: true };
+    /* (6-oct-2026, noche, 3) cuántos dedos cree la pantalla que hay apoyados (un toque «fantasma» o la mano al
+       escribir dejan a los demás toques sin «clic») y los toques en botones que el navegador no convierte en «clic» */
+    CN.dedos = {}; CN.maxDedos = 0; CN.sinClic = 0; CN.noPrim = 0;
+    /* (7-oct-2026) ¿hay un botón del ratón —o del panel táctil del teclado— apretado y sin soltar? */
+    CN.raton = null; CN.arrastres = 0;
+    function cnDedos() { var n = 0, viejo = 0, ah = Date.now(); for (var k in CN.dedos) { n++; if (ah - CN.dedos[k].t > viejo) viejo = ah - CN.dedos[k].t; } return { n: n, viejo_s: Math.round(viejo / 100) / 10 }; }
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse') { if (e.buttons & 1) CN.raton = { t: Date.now(), x: Math.round(e.clientX), y: Math.round(e.clientY), en: cnDesc(e.target) }; }
+      else if (CN.ed && CN.raton && Date.now() - CN.raton.t > 3000) cnEnviar('raton-apretado', { segundos: Math.round((Date.now() - CN.raton.t) / 1000), donde: CN.raton.x + ',' + CN.raton.y, en: CN.raton.en });
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        CN.dedos[e.pointerId] = { t: Date.now(), x: Math.round(e.clientX), y: Math.round(e.clientY) };
+        var d = cnDedos(); if (d.n > CN.maxDedos) CN.maxDedos = d.n;
+        if (!e.isPrimary) CN.noPrim++;
+        if (CN.ed && d.n > 1 && d.viejo_s > 3) cnEnviar('dedo-apoyado', { dedos: d.n, el_mas_viejo_s: d.viejo_s, donde: (function () { var o = []; for (var k in CN.dedos) o.push(CN.dedos[k].x + ',' + CN.dedos[k].y); return o.join(' · '); })() });
+        var bt = CN.ed && e.target && e.target.closest ? e.target.closest('button') : null;
+        if (bt) { CN.espClic = { t: Date.now(), b: cnDesc(bt), id: e.pointerId, x: e.clientX, y: e.clientY, dedos: d.n }; }
+      }
+      if (!CN.ed) return;
+      try { if (CN.ed === 'leccion' && e.target && e.target.closest && e.target.closest('#ts-visor .lm-vl-her .lm-vl-b')) CN.herrBaja = { t: Date.now(), h: cnHerr() }; } catch (x) {}
+      CN.pd++; CN.pt = e.pointerType || '';
+      var raiz = cnRaiz(), dentro = !!(raiz && raiz.contains(e.target)), arriba = null;
+      try { arriba = document.elementFromPoint(e.clientX, e.clientY); } catch (x) {}
+      var lienzo = !!(e.target && e.target.classList && e.target.classList.contains('anot-canvas'));
+      CN.gesto = { t: Date.now(), x: e.clientX, y: e.clientY, d: 0, n: 0, lienzo: lienzo, herr: cnHerr(), f0: lienzo ? cnFirma() : 0, id: e.pointerId };
+      cnApunta('baja', { p: e.pointerType, x: Math.round(e.clientX), y: Math.round(e.clientY), en: cnDesc(e.target), top: (arriba && arriba !== e.target) ? cnDesc(arriba) : undefined, fuera: dentro ? undefined : 1 });
+      if (!dentro && raiz && !(e.target && e.target.closest && e.target.closest('.atour-card'))) cnEnviar('toque-fuera-del-editor', { en: cnDesc(e.target), encima: cnDesc(arriba) });
+    }, cap);
+    document.addEventListener('pointermove', function (e) {
+      if (CN.ed) CN.pm++;
+      if (CN.raton && e.pointerType === 'mouse') { if (!(e.buttons & 1)) CN.raton = null; else { CN.raton.x = Math.round(e.clientX); CN.raton.y = Math.round(e.clientY); } }
+      var g = CN.gesto; if (!g || e.pointerId !== g.id) return;
+      g.n++; var d = Math.abs(e.clientX - g.x) + Math.abs(e.clientY - g.y); if (d > g.d) g.d = d;
+    }, cap);
+    function cnSube(e) {
+      try { delete CN.dedos[e.pointerId]; } catch (x) {}
+      if (CN.raton && e.pointerType === 'mouse' && (e.type === 'pointercancel' || !(e.buttons & 1))) CN.raton = null;
+      var q = CN.espClic;
+      if (q && e.pointerId === q.id) {
+        if (e.type === 'pointercancel' || Math.abs(e.clientX - q.x) > 24 || Math.abs(e.clientY - q.y) > 24 || Date.now() - q.t > 1500) CN.espClic = null;
+        else { q.sube = Date.now(); setTimeout(function () { if (CN.espClic === q) { CN.espClic = null; CN.sinClic++; cnApunta('sin-clic', { b: q.b, dedos: q.dedos }); if (CN.ed && CN.sinClic === 1) cnEnviar('toque-sin-clic', { boton: q.b, dedos_apoyados: q.dedos }, 'info'); } }, 700); }
+      }
+      if (CN.ed) { if (e.type === 'pointercancel') CN.pc++; else CN.pu++; }
+      var g = CN.gesto; if (!g || e.pointerId !== g.id) return; CN.gesto = null;
+      var cancel = (e.type === 'pointercancel');
+      cnApunta(cancel ? 'cancela' : 'sube', { d: Math.round(g.d), n: g.n, ms: Date.now() - g.t });
+      if (!CN.ed || !g.lienzo) return;
+      var dibuja = /^(k|c\d|pt)$/.test(g.herr);
+      if (cancel && dibuja) { if (++CN.canc === 3) cnEnviar('trazos-cancelados', { herr: g.herr }); return; }
+      if (!dibuja || g.d < 14) return;
+      CN.canc = 0;
+      setTimeout(function () { try { if (CN.ed === 'leccion' && cnFirma() === g.f0) cnEnviar('trazo-sin-guardar', { herr: g.herr, recorrido_px: Math.round(g.d), movimientos: g.n }); } catch (x) {} }, 800);
+    }
+    document.addEventListener('pointerup', cnSube, cap); document.addEventListener('pointercancel', cnSube, cap);
+    document.addEventListener('click', function () { CN.espClic = null; }, true);
+    document.addEventListener('click', function (e) {
+      if (CN.ed !== 'leccion') return;
+      var b = e.target && e.target.closest ? e.target.closest('#ts-visor .lm-vl-her .lm-vl-b') : null; if (!b) return;
+      var tit = b.title || ''; if (/^(Deshacer|Borrar todo)/.test(tit)) return;
+      var hb = CN.herrBaja; CN.herrBaja = null;
+      var antes = (hb && Date.now() - hb.t < 2500) ? hb.h : cnHerr();   /* la herramienta que había al bajar el dedo (el botón ya pudo actuar al levantarlo) */
+      cnApunta('boton', { b: tit.slice(0, 28), antes: antes });
+      setTimeout(function () { try { if (CN.ed === 'leccion' && document.querySelector('#ts-visor .anot-bar .anot-b') && cnHerr() === antes) cnEnviar('boton-sin-efecto', { boton: tit.slice(0, 40), herr: antes }); } catch (x) {} }, 500);
+    }, cap);
+    function cnCambio(k) { return function () { if (CN.ed) cnApunta(k, k === 'completa' ? { el: cnDesc(document.fullscreenElement || document.webkitFullscreenElement || null) } : k === 'visible' ? { si: !document.hidden } : null); }; }
+    document.addEventListener('fullscreenchange', cnCambio('completa')); document.addEventListener('webkitfullscreenchange', cnCambio('completa'));
+    document.addEventListener('visibilitychange', cnCambio('visible'));
+    window.addEventListener('blur', cnCambio('sin-foco')); window.addEventListener('focus', cnCambio('con-foco'));
+    /* (7-oct-2026) la página ampliada o reducida con dos dedos (o por un «pellizco» que nadie hizo) */
+    try { if (window.visualViewport) { CN.escala = window.visualViewport.scale; window.visualViewport.addEventListener('resize', function () {
+      var e = window.visualViewport.scale; if (Math.abs(e - (CN.escala || 1)) < 0.03) return; CN.escala = e; cnApunta('ampliacion', { x: Math.round(e * 100) / 100 }); }); } } catch (e) {}
+    /* (7-oct-2026) arrastrar-y-soltar del navegador: mientras dura, el puntero es suyo. Dentro de un editor no hay
+       nada que arrastrar (lo que se «agarra» sin querer es la imagen de la página): ahí no empieza. Se apunta siempre. */
+    document.addEventListener('dragstart', function (e) {
+      try {
+        CN.arrastres++;
+        var t = e.target; if (t && t.nodeType === 3) t = t.parentElement;
+        var dentro = !!(t && t.closest && t.closest('#ts-visor, #pz-ov, #lb-ov'));
+        cnApunta('arrastre', { en: cnDesc(t), ed: dentro ? 1 : undefined });
+        if (dentro) e.preventDefault();
+      } catch (x) {}
+    }, true);
+    window.addEventListener('resize', function () { if (CN.ed) { CN.rz++; if (CN.rz % 25 === 0) cnApunta('redim', { n: CN.rz }); } }, { passive: true });
+    window.addEventListener('error', function (e) { if (CN.ed) cnApunta('error', { m: String((e && e.message) || '').slice(0, 120) }); });
+    window.addEventListener('pagehide', function () {   /* se va «despidiéndose»: si había un editor abierto, se apunta cómo */
+      if (!CN.ed) return;
+      try { var g = localStorage.getItem(CN_K); if (g) { var o = JSON.parse(g); o.fin = 'descarga'; o.finT = Date.now(); localStorage.setItem(CN_K, JSON.stringify(o)); } } catch (e) {}
+    });
+    try { if (window.PerformanceObserver) new PerformanceObserver(function (l) { l.getEntries().forEach(function (x) { if (x.duration > 400) { CN.largas++; if (CN.ed) cnApunta('larga', { ms: Math.round(x.duration) }); } }); }).observe({ entryTypes: ['longtask'] }); } catch (e) {}
+    setInterval(function () { try { cnLatido(); } catch (e) {} }, 1000);
+  }
+
+  /* ---------- 20 (6-oct-2026, noche, Iago): TOQUES A PRUEBA DE «DEDO FANTASMA» · SOLO Tester/Protester ----------
+     Lo del aula, reproducido en el banco de pruebas: si la pantalla táctil cree que hay un dedo apoyado en algún sitio
+     (un toque «fantasma» del marco, la mano al escribir, o un toque que nunca se dio por levantado), el navegador deja
+     de convertir los demás toques en «clic». La página recibe «baja el dedo» y «sube el dedo», pero el «clic» no llega
+     nunca: ningún botón responde, no se puede elegir herramienta (y por eso «no pinta») y parece todo bloqueado,
+     aunque por dentro siga funcionando.
+     A · Si un toque limpio (corto y sin arrastrar) no trae su «clic» en un tercio de segundo, el portal lo da él. Si el
+         «clic» del navegador llega tarde, se descarta, para no hacer la cosa dos veces. No se mete donde la página ya
+         lleva el dedo por su cuenta (lienzos, ruedas, lo que anule el gesto) ni en los desplegables.
+     B · Lo que lleve más de 5 s apoyado sin moverse se señala en la pantalla con un aro rojo y «algo apoyado aquí»:
+         así se ve DÓNDE cree la pantalla que hay un dedo (y si es el marco, se ve en qué borde).
+     C · (7-oct-2026) Lo mismo con el botón del ratón —o del panel táctil del teclado inalámbrico—: si lleva más de 8 s
+         apretado y quieto, se señala con el mismo aro y «tiene el botón apretado». Solo se señala; con ratón el
+         portal responde igual que siempre.
+     Con ratón y teclado no cambia nada. A los alumnos no les llega. Para quitarlo: borrar esta sección y su llamada en
+     todo(). */
+  var TQ = { on: false, baja: {}, esp: null, sint: null, n: 0, marcas: {}, tFin: null, raton: null,
+             racha: 0, tardios: 0, tScroll: 0, scrollEl: null, tUlt: 0, aviso: null, avisoNo: false, menus: 0,
+             /* (7-oct-2026, 13) la lista de dedos del navegador y los punteros de reserva (ver toquesSeguros) */
+             loc: {}, here: {}, pr: {}, pds: [], g: null, fijo: false, movil: false, cromo: false, sinPunteros: false, nPr: 0, prNo: false };
+  /* (6-oct-2026, noche, 6) EL «CLIC» DE UN TOQUE QUE YA SE ATENDIÓ NO SE CUELA A LO DE DEBAJO.
+     Cuando un botón actúa al levantar el dedo (los de la hilera del editor) o cuando el «clic» lo da el portal porque
+     el del navegador no llegaba, el «clic» del navegador de ESE MISMO toque puede llegar después. Si para entonces el
+     botón ya no está (la ✕ cerró el editor), ese «clic» caía en lo que hubiera debajo: en el banco de pruebas cerraba
+     también la campana. Aquí se descarta: solo el de ese toque (otro toque lo desarma), solo durante 0,9 s y solo si
+     cae FUERA del botón que actuó (si cae en él, el propio botón ya lo ignora). Solo se arma con dedo o rotulador y
+     solo en Tester/Protester, que es donde los botones actúan al levantar. */
+  var TRAGA = null, tragaOn = false;
+  function tragaArma(el) {
+    TRAGA = { t: Date.now(), el: el };
+    if (tragaOn) return; tragaOn = true;
+    document.addEventListener('pointerdown', function () { TRAGA = null; }, true);   /* otro toque: lo que venga ya es suyo */
+    ['mousedown', 'mouseup', 'click'].forEach(function (tipo) {
+      document.addEventListener(tipo, function (e) {
+        var g = TRAGA; if (!g || !e.isTrusted) return;
+        if (Date.now() - g.t > 900) { TRAGA = null; return; }
+        if (g.el && g.el.isConnected && e.target && (g.el === e.target || g.el.contains(e.target))) { if (tipo === 'click') TRAGA = null; return; }
+        e.preventDefault(); e.stopImmediatePropagation();
+        if (tipo === 'click') {
+          TRAGA = null; TQ.esp = null;
+          try { cnApunta('clic-colado-evitado', { en: cnDesc(e.target) }); } catch (x) {}
+        }
+      }, true);
+    });
+  }
+  /* (7-oct-2026) EL AVISO DE «TÁCTIL ENGANCHADO». Tres toques limpios seguidos sin «clic» del navegador: la ventana
+     tiene un toque colgado. El portal sigue respondiendo (da él los «clic»), y lo dice abajo, sin tapar la hilera. Solo
+     se puede tocar su ✕; el resto deja pasar el dedo. Se quita solo en cuanto el navegador vuelve a dar un «clic». */
+  /* (7-oct-2026) mientras dura el enganche, en el portal los dedos solo desplazan: sin «pellizco» que amplíe la página */
+  function tqSinPellizco(on) {
+    try {
+      var r = document.documentElement;
+      /* (7-oct-2026, 13) TQ.sinPellizco es ahora «hay sospecha de táctil enganchado»: mientras dura, el portal mueve él
+         la página con el dedo. La orden al navegador de no ampliar con dos dedos, en un ordenador con pantalla táctil,
+         está puesta desde el principio (TQ.fijo, en toquesSeguros) y no se quita. */
+      if (on) { if (TQ.sinPellizco) return; TQ.sinPellizco = true; if (!TQ.fijo) { TQ.taAntes = r.style.touchAction || ''; r.style.touchAction = 'pan-x pan-y'; } }
+      else { if (!TQ.sinPellizco) return; TQ.sinPellizco = false; if (!TQ.fijo) r.style.touchAction = TQ.taAntes || ''; }
+    } catch (e) {}
+  }
+  function tqDesliza(p, e) {
+    try {
+      if (!TQ.sinPellizco || p.noDesliza) return;
+      var sc = p.desl;
+      if (!sc) {
+        if (Math.abs(e.clientX - p.x0) + Math.abs(e.clientY - p.y0) < 24) return;      /* aún puede ser un toque; y si el navegador va a deslizar él, que empiece antes (su margen es menor) */
+        var el = p.el;
+        if (!el || el.nodeType !== 1 || el.closest('canvas, input, textarea, select, [contenteditable=""], [contenteditable="true"], .lm-vl-rueda, .anot-rueda, .lm-fantasma, .lm-enganche')) { p.noDesliza = true; return; }
+        sc = el;
+        while (sc && sc !== document.body && sc !== document.documentElement) {
+          var cs = getComputedStyle(sc);
+          if ((/auto|scroll/.test(cs.overflowY) && sc.scrollHeight > sc.clientHeight + 4) || (/auto|scroll/.test(cs.overflowX) && sc.scrollWidth > sc.clientWidth + 4)) break;
+          sc = sc.parentElement;
+        }
+        if (!sc || sc === document.body || sc === document.documentElement) sc = document.scrollingElement || document.documentElement;
+        p.desl = sc; p.dTop = sc.scrollTop; p.dLeft = sc.scrollLeft; p.ux = p.x0; p.uy = p.y0;
+        try { cnApunta('arrastre-de-reserva', { en: cnDesc(sc) }); } catch (x) {}
+      }
+      /* ¿la está moviendo ya el navegador (u otra cosa)? Entonces no es cosa nuestra en este gesto */
+      if (Math.abs(sc.scrollTop - p.dTop) > 2 || Math.abs(sc.scrollLeft - p.dLeft) > 2) { p.noDesliza = true; return; }
+      var dy = e.clientY - p.uy, dx = e.clientX - p.ux;
+      if (dy) sc.scrollTop = p.dTop - dy;
+      if (dx) sc.scrollLeft = p.dLeft - dx;
+      p.dTop = sc.scrollTop; p.dLeft = sc.scrollLeft; p.ux = e.clientX; p.uy = e.clientY;
+    } catch (x) {}
+  }
+  function tqHayAro() {   /* (13) ¿la página sabe DÓNDE está lo que sobra? Lo ve como puntero, o está en la lista de dedos */
+    try {
+      if (Object.keys(TQ.baja).length) return true;
+      var k; for (k in TQ.loc) { if (TQ.loc[k].tVisto - TQ.loc[k].tQuieto > 3000) return true; }
+      for (k in TQ.here) { if (TQ.here[k].tVisto - TQ.here[k].tQuieto > 3000) return true; }
+    } catch (e) {}
+    return false;
+  }
+  function tqAviso(on) {
+    try {
+      if (!on) { if (TQ.aviso) { if (TQ.aviso.parentNode) TQ.aviso.parentNode.removeChild(TQ.aviso); TQ.aviso = null; } return; }
+      if (TQ.aviso || TQ.avisoNo) return;
+      var d = document.createElement('div'); d.className = 'lm-enganche'; d.setAttribute('role', 'status');
+      d.style.cssText = 'position:fixed;z-index:2147483645;left:50%;bottom:14px;transform:translateX(-50%);width:max-content;max-width:92vw;box-sizing:border-box;display:flex;gap:12px;align-items:center;padding:10px 10px 10px 16px;border-radius:12px;background:#7f1d1d;color:#fff;border:2px solid #fca5a5;box-shadow:0 10px 30px rgba(0,0,0,.5);font:700 15px/1.4 Arial,sans-serif;pointer-events:none';
+      var t = document.createElement('span');
+      /* si la página ve el dedo de más, hay aro rojo: que lo mire; si no lo ve, es un toque colgado de la ventana */
+      t.textContent = tqHayAro()
+        ? 'La pantalla táctil se ha quedado «enganchada»: nota algo apoyado (mira el aro rojo). Puedes seguir: el portal lo compensa. Si ahí no hay nada, cierra esta ventana del navegador y vuelve a abrirla.'
+        : 'La pantalla táctil se ha quedado «enganchada»: el navegador cree que hay un dedo apoyado. Puedes seguir: el portal lo compensa. Para arreglarlo del todo, cierra esta ventana del navegador y vuelve a abrirla.';
+      var x = document.createElement('button'); x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Cerrar el aviso');
+      x.style.cssText = 'flex:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.12);color:#fff;font:800 15px/1 Arial,sans-serif;cursor:pointer;pointer-events:auto';
+      x.addEventListener('click', function () { TQ.avisoNo = true; tqAviso(false); });
+      d.appendChild(t); d.appendChild(x);
+      (document.fullscreenElement || document.webkitFullscreenElement || document.body).appendChild(d);
+      TQ.aviso = d;
+      try { cnEnviar('tactil-enganchado', { clics_dados_por_el_portal: TQ.n, dedos_que_ve_la_pagina: Object.keys(TQ.baja).length,
+        dedos_en_la_lista: Object.keys(TQ.loc).length, heredados: Object.keys(TQ.here).length, punteros_cortados: !!TQ.sinPunteros }); } catch (x2) {}
+    } catch (e) {}
+  }
+  function tqMarcas() {
+    var ah = Date.now(), vivos = {}, k;
+    for (k in TQ.baja) { var p = TQ.baja[k]; if (ah - p.tQuieto > 5000) vivos[k] = p;
+      /* (7-oct-2026) un dedo que lleva más de 3 s quieto: el siguiente que baje no puede acabar en «pellizco». Hay que
+         decirlo ANTES de que baje (el navegador decide qué deja hacer a un dedo antes de avisar a la página) */
+      if (ah - p.tQuieto > 3000) tqSinPellizco(true); }
+    /* (7-oct-2026, 13) y los que se conocen por la LISTA de dedos del navegador: siguen en ella aunque el navegador ya no
+       mande sus «punteros» (el dedo que nació deslizando la página y no se levantó), y los «heredados» (en la lista sin
+       que esta página los viera bajar: un toque colgado de antes de cargarla). Cuentan cuando OTRO aviso táctil, al
+       menos 3 s después de su último movimiento, los sigue trayendo en la lista (tVisto): así un dedo cuyo «levantar»
+       no llegó a la página no deja un aro de mentira. Entonces: sospecha; y a los 5 s, aro rojo donde está. */
+    var cerca = function (q) { for (var j in vivos) { if (Math.abs(vivos[j].x - q.x) < 30 && Math.abs(vivos[j].y - q.y) < 30) return true; } return false; };
+    for (k in TQ.loc) { var ql = TQ.loc[k]; if (ql.tVisto - ql.tQuieto > 3000) { tqSinPellizco(true); if (ah - ql.tQuieto > 5000 && !cerca(ql)) vivos['l' + k] = ql; } }
+    for (k in TQ.here) { var qh = TQ.here[k]; if (qh.tVisto - qh.tQuieto > 3000) { tqSinPellizco(true);
+      if (ah - qh.tQuieto > 5000) { if (!cerca(qh)) vivos['h' + k] = qh;
+        if (!qh.dicho) { qh.dicho = true; try { cnEnviar('toque-heredado', { x: Math.round(qh.x), y: Math.round(qh.y), heredados: Object.keys(TQ.here).length }); } catch (x) {} } } } }
+    if (TQ.raton && ah - TQ.raton.tQuieto > 8000) vivos.raton = TQ.raton;   /* (7-oct-2026) el botón del ratón, apretado y quieto */
+    for (k in TQ.marcas) { if (!vivos[k]) { var m0 = TQ.marcas[k]; if (m0 && m0.parentNode) m0.parentNode.removeChild(m0); delete TQ.marcas[k]; } }
+    var sitio = document.fullscreenElement || document.webkitFullscreenElement || document.body;
+    if (TQ.aviso && TQ.aviso.parentNode !== sitio) sitio.appendChild(TQ.aviso);   /* al entrar o salir de pantalla completa, sigue a la vista */
+    for (k in vivos) {
+      var q = vivos[k], m = TQ.marcas[k];
+      if (!m) {
+        m = TQ.marcas[k] = document.createElement('div'); m.className = 'lm-fantasma'; m.setAttribute('aria-hidden', 'true');
+        m.style.cssText = 'position:fixed;z-index:2147483646;pointer-events:none;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;border:4px solid #ef4444;box-shadow:0 0 0 3px rgba(255,255,255,.85),0 0 18px rgba(239,68,68,.8);box-sizing:border-box';
+        var t = document.createElement('span');
+        t.style.cssText = 'position:absolute;white-space:nowrap;padding:5px 9px;border-radius:8px;background:#b91c1c;color:#fff;font:700 13px/1.2 Arial,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.4)';
+        m.appendChild(t);
+      }
+      var mx = Math.round(q.x) + 'px', my = Math.round(q.y) + 'px', tt = m.firstChild;
+      if (m.style.left !== mx) m.style.left = mx; if (m.style.top !== my) m.style.top = my;
+      /* la etiqueta, hacia dentro de la pantalla */
+      var der = q.x > window.innerWidth / 2, aba = q.y > window.innerHeight - 60;
+      tt.style.right = der ? '60px' : ''; tt.style.left = der ? '' : '60px'; tt.style.bottom = aba ? '10px' : ''; tt.style.top = aba ? '' : '12px';
+      if (m.parentNode !== sitio) sitio.appendChild(m);
+      var seg = Math.round((ah - q.t0) / 1000), txt = (q.raton ? 'El ratón (o el panel táctil del teclado) tiene el botón apretado · ' : 'La pantalla nota algo apoyado aquí · ') + seg + ' s';
+      if (m.firstChild.textContent !== txt) m.firstChild.textContent = txt;
+    }
+  }
+  function toquesSeguros() {
+    if (TQ.on || !esProfe()) return;
+    TQ.on = true;
+    /* (7-oct-2026, 13) EN UN ORDENADOR CON PANTALLA TÁCTIL (el del aula), DOS DEDOS NO AMPLÍAN LA PÁGINA. Con un toque
+       colgado, cualquier dedo es «el segundo» y el navegador se quedaba el gesto: ampliaba la página y dejaba de mandar
+       los punteros de todos los toques siguientes. Con esta orden el navegador no se queda ningún gesto de dos dedos.
+       Solo Tester/Protester; en tabletas y móviles no se toca (allí sí se amplía con dos dedos). Para volver a lo de
+       antes (ampliar con dos dedos salvo durante el enganche): quitar este bloque. */
+    try {
+      TQ.movil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      TQ.cromo = /Chrom(e|ium)\/\d+/.test(navigator.userAgent);
+      if (!TQ.movil && ((navigator.maxTouchPoints || 0) > 0 || ('ontouchstart' in window))) {
+        var r0 = document.documentElement; TQ.fijo = true; TQ.taAntes = r0.style.touchAction || ''; r0.style.touchAction = 'pan-x pan-y';
+      }
+    } catch (e) {}
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse') {   /* (7-oct-2026) solo se anota; con ratón no cambia nada de cómo responde el portal */
+        if (e.buttons & 1) { var am = Date.now(); TQ.raton = { t0: am, tQuieto: am, ax: e.clientX, ay: e.clientY, x: e.clientX, y: e.clientY, raton: true }; }
+        return;
+      }
+      if (e.pointerType !== 'touch' && e.pointerType !== 'pen') return;
+      var ah = Date.now();
+      var frena = false;   /* (7-oct-2026) tocar para FRENAR lo que se desliza no es «pulsar»: ahí el navegador no da «clic» a propósito */
+      try { frena = (ah - TQ.tScroll < 250) && !!TQ.scrollEl && (TQ.scrollEl === document || (TQ.scrollEl.contains && TQ.scrollEl.contains(e.target))); } catch (x) {}
+      TQ.tUlt = ah;
+      TQ.baja[e.pointerId] = { t0: ah, tQuieto: ah, ax: e.clientX, ay: e.clientY, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, el: e.target, movido: false, ev: e, frena: frena };
+      if (Object.keys(TQ.baja).length >= 2) TQ.tDos = ah;   /* la página ve dos dedos: un pellizco ahora sería de verdad */
+    }, true);
+    document.addEventListener('scroll', function (e) { TQ.tScroll = Date.now(); TQ.scrollEl = e.target; }, { capture: true, passive: true });
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'mouse') {
+        var r = TQ.raton; if (!r) return;
+        if (!(e.buttons & 1)) { TQ.raton = null; tqMarcas(); return; }   /* ya está suelto (el «soltar» no llegó a la página) */
+        r.x = e.clientX; r.y = e.clientY;
+        if (Math.abs(r.x - r.ax) + Math.abs(r.y - r.ay) > 14) { r.ax = r.x; r.ay = r.y; r.tQuieto = Date.now(); }   /* se mueve: se está usando */
+        return;
+      }
+      var p = TQ.baja[e.pointerId]; if (!p) return;
+      p.x = e.clientX; p.y = e.clientY;
+      if (Math.abs(p.x - p.ax) + Math.abs(p.y - p.ay) > 14) { p.movido = true; p.ax = p.x; p.ay = p.y; p.tQuieto = Date.now(); }   /* se mueve: de momento no es un dedo «olvidado» */
+      if (TQ.sinPellizco) tqDesliza(p, e);   /* (7-oct-2026) con el táctil enganchado, el portal mueve la página con el dedo */
+    }, { capture: true, passive: true });
+    document.addEventListener('touchend', function (e) { TQ.tFin = e; }, { capture: true, passive: true });
+    /* (7-oct-2026, 13) LA LISTA DE DEDOS Y LOS «PUNTEROS DE RESERVA».
+       El navegador avisa de cada dedo por dos vías: los «punteros» (de ellos cuelga todo: el clic de reserva, deslizar,
+       escribir en el lienzo) y los avisos táctiles de siempre (touchstart/touchmove/touchend), que además traen la lista
+       de TODOS los dedos que cree apoyados. Cuando el navegador se queda un gesto (deslizar, ampliar) da por cancelados
+       los punteros y no vuelve a mandar ninguno hasta que se levanten TODOS los dedos. Con un toque colgado eso no
+       pasa nunca: los toques siguientes llegan solo por la vía táctil, y la página se queda sorda.
+       · TQ.loc: los dedos que esta página vio bajar y siguen en la lista (con cuánto llevan quietos).
+       · TQ.here: los «heredados»: están en la lista y esta página no los vio bajar.
+       · TQ.pr: los dedos que llegaron SIN puntero y a los que el portal se lo fabrica (punteros de reserva): mismos
+         sitios, mismo elemento. Solo si el navegador cuenta algún dedo más y todos los demás llevan más de 3 s quietos
+         (si alguno se mueve, es lo normal: el navegador desliza con él), y solo en Chrome de ordenador. */
+    window.addEventListener('pointerdown', function (e) {   /* cada puntero táctil DE VERDAD se apunta, lo primero */
+      try {
+        if (!e.isTrusted || e.pointerType !== 'touch') return;
+        var ah = Date.now();
+        /* (14) el navegador decía que no había pantalla táctil y aquí hay un toque: la orden de no ampliar con dos dedos
+           se pone ahora (para los gestos que vengan) */
+        if (!TQ.fijo && !TQ.movil) { TQ.fijo = true; if (!TQ.sinPellizco) { try { var r1 = document.documentElement; TQ.taAntes = r1.style.touchAction || ''; r1.style.touchAction = 'pan-x pan-y'; } catch (x) {} } }
+        TQ.pds.push({ x: e.clientX, y: e.clientY, t: ah, usado: false }); if (TQ.pds.length > 8) TQ.pds.shift();
+        /* red de seguridad: si el puntero de verdad llega DESPUÉS de haber fabricado uno de reserva para ese mismo dedo,
+           este navegador avisa en otro orden: el de reserva se retira y no se vuelven a fabricar */
+        for (var kp in TQ.pr) { var z = TQ.pr[kp];
+          if (ah - z.t < 300 && Math.abs(z.x0 - e.clientX) < 4 && Math.abs(z.y0 - e.clientY) < 4) {
+            TQ.prNo = true; delete TQ.pr[kp]; tqPr('pointercancel', z, { clientX: z.x0, clientY: z.y0 });
+            try { cnEnviar('punteros-de-reserva-retirados', {}); } catch (x) {} } }
+      } catch (x) {}
+    }, true);
+    function tqPr(tipo, pr, t) {
+      try {
+        var fin = (tipo === 'pointerup' || tipo === 'pointercancel');
+        var ev = new PointerEvent(tipo, { pointerId: pr.id, pointerType: 'touch', isPrimary: true, bubbles: true, cancelable: tipo !== 'pointercancel', composed: true, view: window,
+          clientX: t.clientX, clientY: t.clientY, screenX: t.screenX || 0, screenY: t.screenY || 0, button: tipo === 'pointermove' ? -1 : 0, buttons: fin ? 0 : 1, pressure: fin ? 0 : 0.5, width: 1, height: 1 });
+        ((pr.el && pr.el.isConnected) ? pr.el : document).dispatchEvent(ev);
+      } catch (x) {}
+    }
+    function tqToque(e) {
+      try {
+        if (e.__lmTq) return; e.__lmTq = 1;       /* el mismo aviso puede llegar por el documento y por el elemento tocado */
+        var ah = Date.now(), tipo = e.type, i, k, t, q, lista = {}, nl = 0;
+        for (i = 0; i < e.touches.length; i++) { lista[e.touches[i].identifier] = e.touches[i]; nl++; }
+        if (tipo === 'touchstart') {
+          if (!Object.keys(TQ.loc).length) TQ.g = { t0: ah, esc0: (window.visualViewport ? window.visualViewport.scale : 1), max: 0, fin: 0 };
+          for (i = 0; i < e.changedTouches.length; i++) { t = e.changedTouches[i];
+            TQ.loc[t.identifier] = { t0: ah, tQuieto: ah, tVisto: ah, ax: t.clientX, ay: t.clientY, x: t.clientX, y: t.clientY };
+            delete TQ.here[t.identifier];
+            /* el «levantar» de un dedo se le dice al elemento que tocó: si para entonces ese elemento ya no está en la
+               página (un botón que cierra su ventana), al documento no le llega. Se escucha también en el elemento. */
+            var tg = t.target;
+            if (tg && tg.addEventListener && !tg.__lmTqE) { try { tg.__lmTqE = 1; tg.addEventListener('touchmove', tqToque, { passive: true }); tg.addEventListener('touchend', tqToque, { passive: true }); tg.addEventListener('touchcancel', tqToque, { passive: true }); } catch (x) {} }
+          }
+          if (TQ.g) TQ.g.max = Math.max(TQ.g.max, Object.keys(TQ.loc).length);
+        }
+        /* la lista manda: lo que ya no está en ella, se levantó */
+        for (k in TQ.loc) { if (!lista[k]) delete TQ.loc[k]; }
+        for (k in TQ.here) { if (!lista[k]) delete TQ.here[k]; }
+        if (!Object.keys(TQ.loc).length && TQ.g && !TQ.g.fin) TQ.g.fin = ah;
+        for (k in lista) { t = lista[k]; q = TQ.loc[k];
+          if (!q) { q = TQ.here[k];
+            if (!q) { q = TQ.here[k] = { t0: ah, tQuieto: ah, ax: t.clientX, ay: t.clientY, heredado: true }; try { cnApunta('dedo-heredado', { n: Object.keys(TQ.here).length }); } catch (x) {} } }
+          q.x = t.clientX; q.y = t.clientY; q.tVisto = ah;
+          if (Math.abs(q.x - q.ax) + Math.abs(q.y - q.ay) > 14) { q.ax = q.x; q.ay = q.y; q.tQuieto = ah; } }
+        /* los punteros de reserva */
+        if (TQ.prNo || TQ.movil || !TQ.cromo) return;
+        if (tipo === 'touchstart') {
+          for (i = 0; i < e.changedTouches.length; i++) { t = e.changedTouches[i];
+            var con = false, j, d;
+            for (j = TQ.pds.length - 1; j >= 0; j--) { d = TQ.pds[j];
+              if (!d.usado && ah - d.t < 1500 && Math.abs(d.x - t.clientX) < 4 && Math.abs(d.y - t.clientY) < 4) { d.usado = true; con = true; break; } }
+            if (con) continue;                                                     /* trae su puntero: lo de siempre */
+            if (nl < 2) continue;                                                  /* el navegador no cuenta ningún dedo más: no hay a quién achacárselo */
+            var frescos = 0;
+            for (k in lista) { if (String(k) === String(t.identifier)) continue; q = TQ.loc[k] || TQ.here[k]; if (!q || ah - q.tQuieto <= 3000) frescos++; }
+            if (frescos) continue;                                                 /* otro dedo se está moviendo (o acaba de aparecer): es lo normal */
+            var el = t.target; if (el && el.nodeType !== 1) el = el.parentElement;
+            var pr = TQ.pr[t.identifier] = { id: 6400 + (Math.abs(t.identifier) % 500), el: el || document.body, t: ah, x0: t.clientX, y0: t.clientY };
+            TQ.nPr++; TQ.sinPunteros = true; tqSinPellizco(true);
+            try { cnApunta('puntero-de-reserva', { en: cnDesc(pr.el), lista: nl }); cnEnviar('punteros-cortados', { dedos_en_la_lista: nl, heredados: Object.keys(TQ.here).length }); } catch (x) {}
+            tqPr('pointerdown', pr, t);
+          }
+        } else {
+          for (i = 0; i < e.changedTouches.length; i++) { t = e.changedTouches[i]; var p2 = TQ.pr[t.identifier]; if (!p2) continue;
+            if (tipo === 'touchmove') tqPr('pointermove', p2, t);
+            else { delete TQ.pr[t.identifier]; tqPr(tipo === 'touchend' ? 'pointerup' : 'pointercancel', p2, t); } }
+        }
+      } catch (x) {}
+    }
+    ['touchstart', 'touchmove', 'touchend', 'touchcancel'].forEach(function (tp) { document.addEventListener(tp, tqToque, { capture: true, passive: true }); });
+    function suelta(e) {
+      if (e.pointerType === 'mouse') { if (TQ.raton && (e.type === 'pointercancel' || !(e.buttons & 1))) { TQ.raton = null; tqMarcas(); } return; }
+      var p = TQ.baja[e.pointerId]; if (!p) return;
+      if (Object.keys(TQ.baja).length >= 2) TQ.tDos = Date.now();
+      TQ.tUlt = Date.now();
+      delete TQ.baja[e.pointerId]; tqMarcas();
+      if (e.type === 'pointercancel') return;
+      var ah = Date.now();
+      TQ.tUlt = ah;
+      if (p.movido || ah - p.t0 > 700) return;                                    /* se arrastró o se quedó apoyado: no es un toque */
+      if (p.frena) return;                                                         /* frenaba una lista: no es pulsar */
+      var el = p.el; if (!el || el.nodeType !== 1) return;
+      try { var inh = el.closest('button, input, select, textarea'); if (inh && inh.matches(':disabled')) return; } catch (x) {}   /* desactivado: no hay «clic» que dar */
+      if (el.closest('canvas, select, option, .lm-vl-rueda, .anot-rueda, .lm-fantasma')) return;   /* ahí el dedo lo lleva la página, o no hay «clic» que dar */
+      var marca = { el: el, t: ah, baja: p.ev, sube: e };
+      TQ.esp = marca;
+      setTimeout(function () {
+        if (TQ.esp !== marca) return;                                               /* llegó el «clic» del navegador: nada que hacer */
+        TQ.esp = null;
+        try {
+          if ((marca.baja && marca.baja.defaultPrevented) || marca.sube.defaultPrevented) return;      /* la página anuló el gesto a propósito */
+          if (TQ.tFin && TQ.tFin.defaultPrevented && Math.abs(TQ.tFin.timeStamp - marca.sube.timeStamp) < 60) return;
+          if (!el.isConnected) return;
+          /* el dedo puede caer sobre el DIBUJO de un botón (un <svg>, que no sabe hacer «clic»): se da en el primer
+             elemento de la página que sí sabe —el botón que lo lleva dentro—, que es adonde habría llegado igual */
+          var dest = el; while (dest && typeof dest.click !== 'function') dest = dest.parentElement;
+          if (!dest) return;
+          TQ.sint = { el: dest, t: Date.now() }; TQ.n++; TQ.racha++;
+          tqSinPellizco(true);                 /* (13) con UN «clic» dado por el portal ya hay sospecha: desde aquí el portal también mueve la página con el dedo */
+          if (TQ.racha >= 3) tqAviso(true);
+          try { cnApunta('clic-dado', { en: cnDesc(el), dedos: Object.keys(TQ.baja).length }); if (TQ.n === 1) cnEnviar('clic-dado-por-el-portal', { en: cnDesc(el), dedos_apoyados: Object.keys(TQ.baja).length }, 'info'); } catch (x) {}
+          var ed = el.closest('input, textarea, [contenteditable=""], [contenteditable="true"]');
+          if (ed && ed.focus) { try { ed.focus(); } catch (x) {} }
+          dest.click();
+          try { tragaArma(dest); } catch (x) {}   /* si el del navegador llega aún más tarde y lo de debajo ha cambiado, no se cuela */
+        } catch (x) {}
+      }, TQ.racha >= 2 ? 140 : 330);   /* (7-oct-2026) con el táctil enganchado no se hace esperar 1/3 de segundo a cada toque */
+    }
+    document.addEventListener('pointerup', suelta, true);
+    document.addEventListener('pointercancel', suelta, true);
+    document.addEventListener('click', function (e) {
+      if (!e.isTrusted) return;                         /* los «clic» que da el propio portal no cuentan */
+      TQ.esp = null;
+      /* (7-oct-2026) un «clic» del navegador que viene de un dedo: el táctil ya no está enganchado */
+      var deDedo = e.pointerType ? (e.pointerType === 'touch' || e.pointerType === 'pen') : (Date.now() - TQ.tUlt < 700);
+      if (deDedo) { TQ.racha = 0; TQ.avisoNo = false; TQ.sinPunteros = false; tqSinPellizco(false); if (TQ.aviso) tqAviso(false); }
+      var s = TQ.sint;
+      if (s && Date.now() - s.t < 900 && e.target && (s.el === e.target || s.el.contains(e.target) || (e.target.contains && e.target.contains(s.el)))) {
+        TQ.sint = null; TQ.tardios++; e.preventDefault(); e.stopImmediatePropagation();          /* llegó tarde y ya se había dado: se descarta */
+      }
+    }, true);
+    setInterval(function () { try { tqMarcas(); } catch (e) {} }, 1000);
+    /* (7-oct-2026) PELLIZCO FANTASMA: la página cambia de ampliación con un solo dedo a la vista */
+    try {
+      var esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (window.visualViewport && !esMovil) {
+        TQ.escala = window.visualViewport.scale;
+        window.visualViewport.addEventListener('resize', function () {
+          /* (13) se compara con la ampliación que había al EMPEZAR el gesto (antes, con el aviso anterior: una ampliación
+             suave, de poquito en poquito, no saltaba nunca) y el gesto se sigue por los avisos táctiles, que no se cortan.
+             Es fantasma si en todo el gesto esta página solo vio bajar UN dedo. */
+          var esc = window.visualViewport.scale; TQ.escala = esc;
+          var g = TQ.g, ah = Date.now(); if (!g || g.dicho) return;
+          var enGesto = Object.keys(TQ.loc).length > 0 || ah - g.fin < 700;
+          if (enGesto && g.max < 2 && Math.abs(esc - g.esc0) >= 0.03) {
+            g.dicho = true; TQ.racha = Math.max(TQ.racha, 3); tqSinPellizco(true); tqAviso(true);
+            try { cnEnviar('pellizco-fantasma', { ampliacion: Math.round(esc * 100) / 100, antes: Math.round(g.esc0 * 100) / 100, dedos_que_ve_la_pagina: Object.keys(TQ.baja).length, heredados: Object.keys(TQ.here).length }); } catch (x) {}
+          }
+        });
+      }
+    } catch (e) {}
+    /* (7-oct-2026) G · GESTOS DEL NAVEGADOR QUE EN CLASE SOLO ESTORBAN. Dejar el dedo quieto abre el menú del navegador
+       («Guardar imagen como…», «Copiar imagen»…) y ese menú se queda con el toque; sobre texto, lo selecciona; con el
+       ratón, «agarra» la imagen. Dentro de un editor no hay nada de eso que hacer. El menú por dedo quieto tampoco sale
+       en el resto del portal; con el botón derecho del ratón fuera de los editores, sale como siempre. En las notas de
+       texto se puede seguir escribiendo y seleccionando. */
+    document.addEventListener('contextmenu', function (e) {
+      try {
+        var t = e.target; if (t && t.nodeType === 3) t = t.parentElement;
+        var dedo = (e.pointerType === 'touch' || e.pointerType === 'pen') || (e.pointerType !== 'mouse' && (Object.keys(TQ.baja).length > 0 || Date.now() - TQ.tUlt < 1200));
+        var dentro = !!(t && t.closest && t.closest('#ts-visor, #pz-ov, #lb-ov'));
+        var campo = !!(t && t.closest && t.closest('input, textarea, [contenteditable=""], [contenteditable="true"]'));
+        var evita = (dedo || dentro) && !campo;
+        TQ.menus++;
+        try { cnApunta('menu', { p: e.pointerType || '?', en: cnDesc(t), ev: evita ? 1 : undefined }); } catch (x) {}
+        if (evita) e.preventDefault();
+      } catch (x) {}
+    }, true);
+    try {
+      if (!document.getElementById('lm-toques-css')) {
+        var st = document.createElement('style'); st.id = 'lm-toques-css';
+        st.textContent = '#ts-visor,#ts-visor *{-webkit-touch-callout:none}' +
+          '#ts-visor{-webkit-user-select:none;user-select:none}' +
+          '#ts-visor input,#ts-visor textarea,#ts-visor [contenteditable=""],#ts-visor [contenteditable="true"]{-webkit-user-select:text;user-select:text}' +
+          '#ts-visor img{-webkit-user-drag:none}';
+        document.head.appendChild(st);
+      }
+    } catch (e) {}
+  }
 
   function todo() {
+    try { cajaNegra(); } catch (e) {}
+    try { toquesSeguros(); } catch (e) {}
+    try { editorLigero(); } catch (e) {}
+    try { cajaVer(); } catch (e) {}
+    if (editorAbierto()) {   /* (6-oct-2026, noche) con un editor a toda pantalla el portal de debajo no se ve: solo se viste el editor */
+      try { visorLecciones(); } catch (e) {}
+      try { librosMax(); } catch (e) {}
+      return;
+    }
     try { campanaCalma(); } catch (e) {}
     try { tarjetas(); } catch (e) {} try { misResultados(); } catch (e) {} try { hileraTester(); } catch (e) {}
     try { carrusel(); } catch (e) {} try { pie(); } catch (e) {} try { colorNavegador(); } catch (e) {}
