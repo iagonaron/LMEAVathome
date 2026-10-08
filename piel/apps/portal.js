@@ -1064,8 +1064,22 @@
     return out;
   }
   /* la v1 no trae estado ni formato: son todos digitales en el periodo extra */
+  /* (8-oct-2026, Iago) «María Luisa aparece dos veces en la lista de morosos […] Lo ideal es utilizar un identificador
+     único y fiable, no depender exclusivamente del nombre.» Eran DOS CUENTAS validadas de la misma alumna (se dio de
+     alta dos veces, con el nombre escrito distinto) y la base da una fila por cuenta. Aquí manda la alumna: su id de
+     la lista oficial (alumno, = alumno_canon_id). Una fila por alumna y ficha, con el nombre más completo de los dos.
+     No se mezcla a nadie: dos alumnas distintas tienen ids distintos aunque se llamen igual. */
   function normalizarMorosos(d) {
-    (d.fichas || []).forEach(function (f) { if (!f) return; f.estado = f.estado || 'gracia'; f.formato = f.formato || 'digital'; });
+    var vistas = {}, filas = [];
+    (d.fichas || []).forEach(function (f) {
+      if (!f) return;
+      f.estado = f.estado || 'gracia'; f.formato = f.formato || 'digital';
+      if (!f.alumno || !f.ficha) { filas.push(f); return; }
+      var k = claveFila(f), y = vistas[k];
+      if (!y) { vistas[k] = f; filas.push(f); return; }
+      if (String(f.nombre || '').length > String(y.nombre || '').length) y.nombre = f.nombre;
+    });
+    d.fichas = filas;
     return d;
   }
   var ORDEN_MOR = { gracia: 0, entrego: 0, cero: 2 };   /* la que se pone verde no cambia de sitio */
@@ -1121,9 +1135,57 @@
       .then(function () { MOR.cargando = false; });
   }
   function fechaCorta(iso) { var d = new Date(iso); return isNaN(d) ? '' : ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2); }
+  /* ---------- (8-oct-2026, Iago) CUENTA ATRÁS EN LA LISTA DE MOROSOS ----------
+     «Quiero que aparezca cuánto tiempo les queda para completar la tarea, con una cuenta atrás en tiempo real que
+      indique días, horas, minutos y segundos. Debe calcularse a partir de la fecha y hora límite reales de cada tarea.»
+     Lo que les queda es el periodo extra: hasta su fin (fin_gracia, el de ESE alumno, con su prórroga si la tiene);
+     después llega el 0. Corre cada segundo mientras la lista está abierta, con el reloj del servidor (MOR.desfase).
+     Al llegar a cero, la lista se vuelve a pedir (esa fila pasa a la calavera o desaparece).
+     Para quitarla: cuentaAtrasHTML() devolviendo '' y sin arrancarTictac(). */
+  var MOR_CD_CSS = 'html.lm-fam-portal .lm-mor-cd{padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.3);color:#fff;font-size:11.5px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}' +
+    'html.lm-fam-portal .lm-mor-cd.lm-mor-cd-fin{background:#000;color:#fde047}';
+  function dosCifras(n) { return (n < 10 ? '0' : '') + n; }
+  function fechaHoraGal(iso) {   /* «9/10 a las 19:00», en hora de Galicia */
+    try {
+      var q = {}; new Intl.DateTimeFormat('es-ES', { timeZone: 'Europe/Madrid', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })
+        .formatToParts(new Date(iso)).forEach(function (x) { q[x.type] = x.value; });
+      return q.day + '/' + q.month + ' a las ' + q.hour + ':' + q.minute;
+    } catch (e) { return fechaCorta(iso); }
+  }
+  function textoCuentaAtras(finISO) {
+    var fin = Date.parse(finISO); if (!isFinite(fin)) return '';
+    var s = Math.floor((fin - (Date.now() + (MOR.desfase || 0))) / 1000);
+    if (s <= 0) return 'se acabó el plazo';
+    var d = Math.floor(s / 86400); s -= d * 86400;
+    var h = Math.floor(s / 3600); s -= h * 3600;
+    var m = Math.floor(s / 60); s -= m * 60;
+    return d + ' d ' + dosCifras(h) + ' h ' + dosCifras(m) + ' min ' + dosCifras(s) + ' s';
+  }
+  function cuentaAtrasHTML(f) {
+    if (!f || f.estado !== 'gracia' || !f.fin_gracia || !isFinite(Date.parse(f.fin_gracia))) return '';
+    var t = textoCuentaAtras(f.fin_gracia);   /* si ya llegó a cero, se pinta así y no vuelve a pedir la lista */
+    return '<span class="lm-mor-cd' + (t === 'se acabó el plazo' ? ' lm-mor-cd-fin' : '') + '" data-fin="' + esc(f.fin_gracia) +
+      '" title="Lo que le queda para entregarla: el periodo extra acaba el ' + esc(fechaHoraGal(f.fin_gracia)) + '">' + esc(t) + '</span>';
+  }
+  function tictacMorosos() {
+    if (!MOR.panel) { pararTictac(); return; }
+    var acaba = false;
+    Array.prototype.forEach.call(MOR.panel.querySelectorAll('.lm-mor-cd[data-fin]'), function (e) {
+      var t = textoCuentaAtras(e.getAttribute('data-fin'));
+      if (e.textContent !== t) e.textContent = t;
+      if (t === 'se acabó el plazo' && !e.classList.contains('lm-mor-cd-fin')) { e.classList.add('lm-mor-cd-fin'); acaba = true; }
+    });
+    if (acaba) setTimeout(function () { try { cargarMorosos(true); } catch (e) {} }, 1500);
+  }
+  function arrancarTictac() {
+    try { if (!document.getElementById('lm-mor-cd-css')) { var st = document.createElement('style'); st.id = 'lm-mor-cd-css'; st.textContent = MOR_CD_CSS; document.head.appendChild(st); } } catch (e) {}
+    if (!MOR.tic) MOR.tic = setInterval(tictacMorosos, 1000);
+  }
+  function pararTictac() { if (MOR.tic) { clearInterval(MOR.tic); MOR.tic = 0; } }
   function cerrarPanelMorosos() {
     var p = MOR.panel; if (!p) return;
     MOR.panel = null; if (p.parentNode) p.parentNode.removeChild(p);
+    pararTictac();   /* (8-oct-2026) la cuenta atrás solo corre con la lista abierta */
     MOR.verdes = {};   /* (29-sep-2026, Iago) al volver a abrir la lista, los que ya entregaron no aparecen */
     var b = document.querySelector('#lm-morosos .lm-ic'); if (b) b.setAttribute('aria-expanded', 'false');
     marcarVisto(gruposEnClase());   /* cerrada la lista, el globito de ese grupo no vuelve hasta su próxima clase */
@@ -1140,7 +1202,7 @@
     var icono = est === 'cero' ? CALAVERA : est === 'entrego' ? ico('check') : ico('alert');
     var chip = est === 'cero' ? '0 · Ficha ' + n
       : est === 'entrego' ? 'Ficha ' + n + ' · ya entregó'
-      : 'Ficha ' + n + (f.fin_gracia ? ' · periodo extra hasta el ' + fechaCorta(f.fin_gracia) : ' · periodo extra');
+      : 'Ficha ' + n + (f.fin_gracia && !cuentaAtrasHTML(f) ? ' · periodo extra hasta el ' + fechaCorta(f.fin_gracia) : ' · periodo extra');   /* (8-oct-2026) con cuenta atrás, la fecha va en su globo */
     var datos = ' data-alu="' + esc(f.alumno || '') + '" data-ficha="' + esc(f.ficha || '') + '"';
     var boton = '';
     if (papel && f.alumno && f.ficha && est === 'gracia') boton = '<button type="button" class="lm-mor-ya"' + datos + ' title="Me la entregó en papel y aún no tiene nota: no se le pone el 0">' + ico('check') + 'Ya entregó</button>';
@@ -1149,7 +1211,7 @@
     return '<div class="lm-mor-alu lm-mor-' + esc(est) + (est === 'entrego' ? ' lm-mor-verde' : '') + '">' +
       '<span class="lm-mor-i" title="' + titulo + '">' + icono + '</span>' +
       '<span class="lm-mor-n">' + esc(f.nombre) + '</span>' +
-      '<span class="lm-mor-fs">' + (papel ? '<span class="lm-mor-papel">en papel</span>' : '') + '<span class="lm-mor-f">' + chip + '</span></span>' +
+      '<span class="lm-mor-fs">' + (papel ? '<span class="lm-mor-papel">en papel</span>' : '') + '<span class="lm-mor-f">' + chip + '</span>' + cuentaAtrasHTML(f) + '</span>' +
       boton + '</div>';
   }
   function pintarPanelMorosos() {
@@ -1197,6 +1259,7 @@
     document.body.appendChild(p); MOR.panel = p; btn.setAttribute('aria-expanded', 'true');
     MOR.error = '';
     pintarPanelMorosos();
+    arrancarTictac();   /* (8-oct-2026) cuenta atrás de cada uno, cada segundo */
   }
   /* «Ya entregó» / «Deshacer»: se ve al momento; si la base no lo guarda, vuelve como estaba y lo dice */
   function marcarEntrego(alu, ficha, si) {
@@ -2481,7 +2544,7 @@
   var CN = { on: false, ev: [], t0: Date.now(), env: 0, ult: {}, ed: '', desde: 0, gesto: null, canc: 0, fr: 0, fps: -1, sinFr: 0, raf: 0,
              lat: Date.now(), atascos: 0, largas: 0, rz: 0, banco: null, nLat: 0 };
   var CN_K = 'lm_caja_negra_viva', CN_MAX = 6;
-  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '7-oct-n14';
+  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '8-oct-n15';
   CN.pd = 0; CN.pm = 0; CN.pu = 0; CN.pc = 0; CN.pt = ''; CN.perfil = false;
   /* (6-oct-2026, noche, 2) Los partes se guardan TAMBIÉN en el aparato (los 12 últimos): si Sentry no llega desde la red
      del centro, se pueden leer allí mismo abriendo el portal con ?caja=1 (solo Tester/Protester) y hacerles una foto. */
