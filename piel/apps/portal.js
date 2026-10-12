@@ -1274,7 +1274,7 @@
     var acabado = !!(f.fin_gracia && morAhora() > Date.parse(f.fin_gracia));
     var tipo = '<span class="lm-mor-tipo">';
     if (papel) {
-      tipo += '<span class="lm-mor-papel">en papel</span>';
+      tipo += '<span class="lm-mor-papel">papel</span>';   /* (12-oct-2026, Iago) solo «papel», sin «en» */
       if (f.alumno && f.ficha && (est === 'gracia' || (verde && !acabado)))
         tipo += '<button type="button" class="lm-mor-chk' + (verde ? ' on' : '') + '"' + datos + ' aria-pressed="' + (verde ? 'true' : 'false') + '" title="' +
           (verde ? 'Marcada «Ya entregó». Púlsalo otra vez para quitarlo' : 'Ya entregó: me la dio en papel y aún no tiene nota (no se le pondrá el 0)') + '">' + (verde ? ico('check') : '') + '</button>';
@@ -2623,7 +2623,7 @@
   var CN = { on: false, ev: [], t0: Date.now(), env: 0, ult: {}, ed: '', desde: 0, gesto: null, canc: 0, fr: 0, fps: -1, sinFr: 0, raf: 0,
              lat: Date.now(), atascos: 0, largas: 0, rz: 0, banco: null, nLat: 0 };
   var CN_K = 'lm_caja_negra_viva', CN_MAX = 6;
-  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '12-oct-n16';
+  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '12-oct-n17';
   CN.pd = 0; CN.pm = 0; CN.pu = 0; CN.pc = 0; CN.pt = ''; CN.perfil = false;
   /* (6-oct-2026, noche, 2) Los partes se guardan TAMBIÉN en el aparato (los 12 últimos): si Sentry no llega desde la red
      del centro, se pueden leer allí mismo abriendo el portal con ?caja=1 (solo Tester/Protester) y hacerles una foto. */
