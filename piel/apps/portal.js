@@ -1143,7 +1143,45 @@
      Al llegar a cero, la lista se vuelve a pedir (esa fila pasa a la calavera o desaparece).
      Para quitarla: cuentaAtrasHTML() devolviendo '' y sin arrancarTictac(). */
   var MOR_CD_CSS = 'html.lm-fam-portal .lm-mor-cd{padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.3);color:#fff;font-size:11.5px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}' +
-    'html.lm-fam-portal .lm-mor-cd.lm-mor-cd-fin{background:#000;color:#fde047}';
+    'html.lm-fam-portal .lm-mor-cd.lm-mor-cd-fin{background:#000;color:#fde047}' +
+    /* (12-oct-2026, Iago · propuesta B) contorno, 7 casillas (una por día) y la misma altura para todas */
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-sec{display:flex;align-items:center;gap:7px;margin:2px 2px 8px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-sec svg{width:14px;height:14px;flex:none;margin:0}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-sec .lm-mor-sec-n{margin-left:auto;letter-spacing:.04em;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-sec.lm-mor-sec-extra{color:#fca5a5}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-sec.lm-mor-sec-cero{color:#fff}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-ceros{margin-top:14px;padding-top:12px;border-top:2px solid rgba(255,255,255,.28)}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-alu.lm-mor-gracia,html.lm-fam-portal .lm-mor-panel .lm-mor-alu.lm-mor-verde,html.lm-fam-portal .lm-mor-panel .lm-mor-alu.lm-mor-cero{grid-template-columns:28px minmax(0,1fr) auto;grid-template-areas:"i n t" "i l l";column-gap:10px;row-gap:5px;align-content:center;box-sizing:border-box;min-height:58px;padding:6px 10px}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-alu.lm-mor-gracia{background:rgba(185,28,28,.10);border:1.5px solid #ef4444}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-gracia .lm-mor-i{background:rgba(253,224,71,.10);border:1px solid rgba(253,224,71,.45);color:#fde047}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-alu.lm-mor-verde{background:rgba(21,128,61,.12);border:1.5px solid #22c55e}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-verde .lm-mor-i{background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.5);color:#86efac}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-alu .lm-mor-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-tipo{grid-area:t;display:flex;align-items:center;gap:6px}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-tipo .lm-mor-papel,html.lm-fam-portal .lm-mor-panel .lm-mor-tipo .lm-mor-dig{padding:1px 6px;border-radius:6px;border:1px solid rgba(255,255,255,.85);background:rgba(0,0,0,.2);color:#fff;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-tipo .lm-mor-dig{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.75)}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-tipo .lm-mor-chk{box-sizing:border-box;width:20px;height:20px;min-width:0;min-height:0;margin:0;padding:0;border-radius:6px;border:1.5px solid #fff;background:transparent;display:inline-flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;box-shadow:none;transform:none;flex:none;font:inherit;line-height:1}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-tipo .lm-mor-chk svg{width:14px;height:14px;margin:0}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-tipo .lm-mor-chk.on{background:#22c55e;border-color:#22c55e}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-tipo .lm-mor-chk:focus-visible{outline:2px solid #fff;outline-offset:2px}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-l2{grid-area:l;display:flex;align-items:center;gap:8px;min-width:0}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-l2 .lm-mor-f{padding:1px 6px;border-radius:6px;border:1px solid #fde047;background:transparent;color:#fde047;font-size:11px;font-weight:700;white-space:nowrap}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-dias{flex:1 1 auto;display:flex;gap:3px;min-width:0}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-dias i{position:relative;flex:1 1 0;height:9px;border-radius:2px;background:rgba(255,255,255,.13);overflow:hidden}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-dias i.lm-mor-pasado{background:#ef4444}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-dias i.lm-mor-hoy b{position:absolute;left:0;top:0;bottom:0;background:#f59e0b;animation:lmMorLatido 1.4s ease-in-out infinite}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-dias.lm-mor-urg i.lm-mor-hoy b{animation-duration:.55s}' +
+    '@keyframes lmMorLatido{0%,100%{opacity:1}50%{opacity:.3}}' +
+    '@media (prefers-reduced-motion:reduce){html.lm-fam-portal .lm-mor-panel .lm-mor-dias i.lm-mor-hoy b{animation:none}}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-hasta{font-size:10.5px;font-weight:700;color:rgba(255,255,255,.8);white-space:nowrap}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-prorr{padding:1px 5px;border-radius:5px;border:1px solid #fde047;color:#fde047;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-verde .lm-mor-ent{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.8)}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-alu.lm-mor-cero{grid-template-areas:"i n z" "i l z";background:#000;border:1.5px solid #fff}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-cero .lm-mor-i{width:28px;height:28px;background:none;border:0;color:#fff}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-cero .lm-mor-i svg{width:21px;height:21px}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-cero .lm-mor-l2{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.7)}' +
+    'html.lm-fam-portal .lm-mor-panel .lm-mor-cero .lm-mor-0{align-self:stretch;min-width:40px;height:auto;border:1.5px solid #fff;border-radius:8px;font-size:19px}' +
+    '@media (max-width:420px){html.lm-fam-portal .lm-mor-panel .lm-mor-alu .lm-mor-n{font-size:12.5px}html.lm-fam-portal .lm-mor-panel .lm-mor-dias{gap:2px}}' + '';
   function dosCifras(n) { return (n < 10 ? '0' : '') + n; }
   function fechaHoraGal(iso) {   /* «9/10 a las 19:00», en hora de Galicia */
     try {
@@ -1179,7 +1217,8 @@
   }
   function arrancarTictac() {
     try { if (!document.getElementById('lm-mor-cd-css')) { var st = document.createElement('style'); st.id = 'lm-mor-cd-css'; st.textContent = MOR_CD_CSS; document.head.appendChild(st); } } catch (e) {}
-    if (!MOR.tic) MOR.tic = setInterval(tictacMorosos, 1000);
+    /* (12-oct-2026) sin cuenta atrás en segundos: con la lista abierta, las casillas se repintan cada minuto */
+    if (!MOR.tic) MOR.tic = setInterval(function () { try { if (MOR.panel) pintarPanelMorosos(); } catch (e) {} }, 60000);
   }
   function pararTictac() { if (MOR.tic) { clearInterval(MOR.tic); MOR.tic = 0; } }
   function cerrarPanelMorosos() {
@@ -1191,28 +1230,64 @@
     marcarVisto(gruposEnClase());   /* cerrada la lista, el globito de ese grupo no vuelve hasta su próxima clase */
     pintarMorosos();
   }
-  function filaCeroHTML(f, conGrupo) {   /* abajo de todo: la calavera, el alumno, la ficha y el 0 */
+  /* (12-oct-2026, Iago · propuesta B, la misma que en el Diario) 7 casillas, una por día, que acaban en SU final
+     (fin_gracia: viernes 19:00 o el de su prórroga): rojo lo que ya pasó, ámbar el día de hoy (se va llenando y
+     parpadea; el último día, más deprisa) y gris lo que queda. Solo se marca el final («vie 19:00»). */
+  var MOR_DIA = 86400000;
+  function morAhora() { return Date.now() + (MOR.desfase || 0); }
+  function morCasillas(f) {
+    var fin = Date.parse(f.fin_gracia); if (!isFinite(fin)) return '';
+    var t = morAhora(), ini = fin - 7 * MOR_DIA, h = '';
+    for (var k = 0; k < 7; k++) {
+      var a = ini + k * MOR_DIA, b = a + MOR_DIA;
+      if (t >= b) h += '<i class="lm-mor-pasado"></i>';
+      else if (t >= a) h += '<i class="lm-mor-hoy"><b style="width:' + Math.max(2, Math.min(100, (t - a) / MOR_DIA * 100)).toFixed(1) + '%"></b></i>';
+      else h += '<i></i>';
+    }
+    return '<span class="lm-mor-dias' + (fin - t < MOR_DIA ? ' lm-mor-urg' : '') + '" aria-hidden="true">' + h + '</span>';
+  }
+  function morPartes(iso, op) {
+    var q = {};
+    try { new Intl.DateTimeFormat('es-ES', Object.assign({ timeZone: 'Europe/Madrid' }, op)).formatToParts(new Date(iso)).forEach(function (x) { q[x.type] = x.value; }); } catch (e) {}
+    return q;
+  }
+  function morDiaSem(q) { return String(q.weekday || '').replace('.', '').toLowerCase().slice(0, 3); }
+  function morHasta(iso) {   /* «vie 19:00» (hora de Galicia); con la fecha si aún falta más de una semana */
+    var q = morPartes(iso, { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+    if (!q.hour) return '';
+    return morDiaSem(q) + (Date.parse(iso) - morAhora() > 7 * MOR_DIA ? ' ' + q.day + '/' + q.month : '') + ' ' + q.hour + ':' + q.minute;
+  }
+  function morDiaFecha(iso) {   /* «vie 09/10» */
+    var q = morPartes(iso, { weekday: 'short', day: '2-digit', month: '2-digit' });
+    return q.day ? morDiaSem(q) + ' ' + q.day + '/' + q.month : '';
+  }
+  function filaCeroHTML(f, conGrupo) {   /* abajo de todo: la calavera, el alumno, la ficha (y cuándo se acabó) y el 0 */
+    var cuando = f.fin_gracia && isFinite(Date.parse(f.fin_gracia)) ? morDiaFecha(f.fin_gracia) : '';
     return '<div class="lm-mor-alu lm-mor-cero" title="Un 0: se acabó el periodo extra sin entregarla">' +
       '<span class="lm-mor-i">' + CALAVERA + '</span>' +
-      '<span class="lm-mor-n">' + (conGrupo ? '<span class="lm-mor-gc">' + esc(f.grupo) + '</span>' : '') + esc(f.nombre) + '</span>' +
-      '<span class="lm-mor-fn">Ficha ' + esc(f.numero) + '</span><span class="lm-mor-0">0</span></div>';
+      '<span class="lm-mor-n" title="' + esc(f.nombre) + '">' + (conGrupo ? '<span class="lm-mor-gc">' + esc(f.grupo) + '</span>' : '') + esc(f.nombre) + '</span>' +
+      '<span class="lm-mor-l2">Ficha ' + esc(f.numero) + (cuando ? ' · se acabó el ' + esc(cuando) : '') + '</span><span class="lm-mor-0">0</span></div>';
   }
   function filaMorosoHTML(f) {
-    var papel = f.formato === 'papel', est = f.estado, n = esc(f.numero);
-    var icono = est === 'cero' ? CALAVERA : est === 'entrego' ? ico('check') : ico('alert');
-    var chip = est === 'cero' ? '0 · Ficha ' + n
-      : est === 'entrego' ? 'Ficha ' + n + ' · ya entregó'
-      : 'Ficha ' + n + (f.fin_gracia && !cuentaAtrasHTML(f) ? ' · periodo extra hasta el ' + fechaCorta(f.fin_gracia) : ' · periodo extra');   /* (8-oct-2026) con cuenta atrás, la fecha va en su globo */
+    var papel = f.formato === 'papel', est = f.estado, n = esc(f.numero), verde = est === 'entrego';
     var datos = ' data-alu="' + esc(f.alumno || '') + '" data-ficha="' + esc(f.ficha || '') + '"';
-    var boton = '';
-    if (papel && f.alumno && f.ficha && est === 'gracia') boton = '<button type="button" class="lm-mor-ya"' + datos + ' title="Me la entregó en papel y aún no tiene nota: no se le pone el 0">' + ico('check') + 'Ya entregó</button>';
-    else if (papel && f.alumno && f.ficha && est === 'entrego' && !(f.fin_gracia && Date.now() > Date.parse(f.fin_gracia))) boton = '<button type="button" class="lm-mor-des"' + datos + ' title="Quitar «Ya entregó»">Deshacer</button>';
-    var titulo = est === 'cero' ? 'Un 0: se acabó el periodo extra sin entregarla' : est === 'entrego' ? 'Marcada «Ya entregó»: no se le pondrá el 0' : 'En el periodo extra, sin entregar';
-    return '<div class="lm-mor-alu lm-mor-' + esc(est) + (est === 'entrego' ? ' lm-mor-verde' : '') + '">' +
-      '<span class="lm-mor-i" title="' + titulo + '">' + icono + '</span>' +
-      '<span class="lm-mor-n">' + esc(f.nombre) + '</span>' +
-      '<span class="lm-mor-fs">' + (papel ? '<span class="lm-mor-papel">en papel</span>' : '') + '<span class="lm-mor-f">' + chip + '</span>' + cuentaAtrasHTML(f) + '</span>' +
-      boton + '</div>';
+    var acabado = !!(f.fin_gracia && morAhora() > Date.parse(f.fin_gracia));
+    var tipo = '<span class="lm-mor-tipo">';
+    if (papel) {
+      tipo += '<span class="lm-mor-papel">en papel</span>';
+      if (f.alumno && f.ficha && (est === 'gracia' || (verde && !acabado)))
+        tipo += '<button type="button" class="lm-mor-chk' + (verde ? ' on' : '') + '"' + datos + ' aria-pressed="' + (verde ? 'true' : 'false') + '" title="' +
+          (verde ? 'Marcada «Ya entregó». Púlsalo otra vez para quitarlo' : 'Ya entregó: me la dio en papel y aún no tiene nota (no se le pondrá el 0)') + '">' + (verde ? ico('check') : '') + '</button>';
+    } else tipo += '<span class="lm-mor-dig">digital</span>';
+    tipo += '</span>';
+    var l2 = verde ? '<span class="lm-mor-ent">Ficha ' + n + ' · entregó, falta la nota</span>'
+      : '<span class="lm-mor-f">Ficha ' + n + '</span>' + (f.prorroga ? '<span class="lm-mor-prorr">prórroga</span>' : '') + morCasillas(f) +
+        '<span class="lm-mor-hasta" title="El periodo extra acaba el ' + esc(fechaHoraGal(f.fin_gracia)) + '">' + esc(acabado ? 'se acabó' : morHasta(f.fin_gracia)) + '</span>';
+    var titulo = verde ? 'Marcada «Ya entregó»: no se le pondrá el 0' : 'En el periodo extra, sin entregar';
+    return '<div class="lm-mor-alu lm-mor-' + esc(est) + (verde ? ' lm-mor-verde' : '') + '">' +
+      '<span class="lm-mor-i" title="' + titulo + '">' + (verde ? ico('check') : ico('alert')) + '</span>' +
+      '<span class="lm-mor-n" title="' + esc(f.nombre) + '">' + esc(f.nombre) + '</span>' +
+      tipo + '<span class="lm-mor-l2">' + l2 + '</span></div>';
   }
   function pintarPanelMorosos() {
     var p = MOR.panel; if (!p) return;
@@ -1227,6 +1302,9 @@
     var h = '<div class="lm-mor-tit">Morosos · fichas</div>';
     var ceros = [], gruposCero = [];
     var conDeuda = grupos.filter(function (g) { return enClase.indexOf(g) >= 0 || filasDe(g).some(function (f) { return f.estado !== 'cero'; }); });
+    /* (12-oct-2026) arriba, cuántos hay en el periodo extra; abajo, cuántos ceros */
+    var nExtra = 0; conDeuda.forEach(function (g) { filasDe(g).forEach(function (f) { if (f.estado === 'gracia') nExtra++; }); });
+    h += '<div class="lm-mor-sec lm-mor-sec-extra">' + ico('alert') + 'En periodo extra<span class="lm-mor-sec-n">' + nExtra + '</span></div>';
     if (!conDeuda.length) h += '<div class="lm-mor-vacio">Nadie en el periodo extra.</div>';
     conDeuda.forEach(function (g) {
       var L = filasDe(g).filter(function (f) { return f.estado !== 'cero'; });
@@ -1238,7 +1316,7 @@
     /* (29-sep-2026, Iago) los que ya pasaron el periodo extra: abajo de todo, en negro con contorno blanco */
     grupos.forEach(function (g) { filasDe(g).forEach(function (f) { if (f.estado === 'cero') { ceros.push(f); if (gruposCero.indexOf(g) < 0) gruposCero.push(g); } }); });
     if (ceros.length) {
-      h += '<div class="lm-mor-ceros">';
+      h += '<div class="lm-mor-ceros"><div class="lm-mor-sec lm-mor-sec-cero">' + CALAVERA + 'Se acabó · cero<span class="lm-mor-sec-n">' + ceros.length + '</span></div>';
       ceros.forEach(function (f) { h += filaCeroHTML(f, gruposCero.length > 1); });
       h += '</div>';
     }
@@ -1251,9 +1329,10 @@
     cerrarMenu();
     var p = document.createElement('div'); p.className = 'lm-mor-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Morosos · fichas');
     p.addEventListener('click', function (e) {
-      var b = e.target && e.target.closest ? e.target.closest('.lm-mor-ya, .lm-mor-des') : null; if (!b) return;
+      var b = e.target && e.target.closest ? e.target.closest('.lm-mor-chk, .lm-mor-ya, .lm-mor-des') : null; if (!b) return;
       e.preventDefault(); e.stopPropagation();
-      marcarEntrego(b.getAttribute('data-alu'), b.getAttribute('data-ficha'), b.classList.contains('lm-mor-ya'));
+      var si = b.classList.contains('lm-mor-chk') ? !b.classList.contains('on') : b.classList.contains('lm-mor-ya');   /* (12-oct-2026) el recuadro */
+      marcarEntrego(b.getAttribute('data-alu'), b.getAttribute('data-ficha'), si);
     });
     /* en el <body>: la barra de arriba es de cristal (backdrop-filter) y dentro de ella «fixed» no sería la pantalla */
     document.body.appendChild(p); MOR.panel = p; btn.setAttribute('aria-expanded', 'true');
@@ -2544,7 +2623,7 @@
   var CN = { on: false, ev: [], t0: Date.now(), env: 0, ult: {}, ed: '', desde: 0, gesto: null, canc: 0, fr: 0, fps: -1, sinFr: 0, raf: 0,
              lat: Date.now(), atascos: 0, largas: 0, rz: 0, banco: null, nLat: 0 };
   var CN_K = 'lm_caja_negra_viva', CN_MAX = 6;
-  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '8-oct-n15';
+  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '12-oct-n16';
   CN.pd = 0; CN.pm = 0; CN.pu = 0; CN.pc = 0; CN.pt = ''; CN.perfil = false;
   /* (6-oct-2026, noche, 2) Los partes se guardan TAMBIÉN en el aparato (los 12 últimos): si Sentry no llega desde la red
      del centro, se pueden leer allí mismo abriendo el portal con ?caja=1 (solo Tester/Protester) y hacerles una foto. */
