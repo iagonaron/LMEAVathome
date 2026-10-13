@@ -2623,7 +2623,7 @@
   var CN = { on: false, ev: [], t0: Date.now(), env: 0, ult: {}, ed: '', desde: 0, gesto: null, canc: 0, fr: 0, fps: -1, sinFr: 0, raf: 0,
              lat: Date.now(), atascos: 0, largas: 0, rz: 0, banco: null, nLat: 0 };
   var CN_K = 'lm_caja_negra_viva', CN_MAX = 6;
-  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '12-oct-n17';
+  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '13-oct-n18';
   CN.pd = 0; CN.pm = 0; CN.pu = 0; CN.pc = 0; CN.pt = ''; CN.perfil = false;
   /* (6-oct-2026, noche, 2) Los partes se guardan TAMBIÉN en el aparato (los 12 últimos): si Sentry no llega desde la red
      del centro, se pueden leer allí mismo abriendo el portal con ?caja=1 (solo Tester/Protester) y hacerles una foto. */
@@ -2669,7 +2669,7 @@
       h += '<div style="border:1px solid #2a3a58;border-radius:10px;padding:10px 12px;margin:0 0 10px;background:#0f1a2c">' +
         '<div style="font:800 16px Arial;color:#ffd678">' + esc(hora(p.h)) + ' · ' + esc(p.tipo) + '</div>' +
         '<div>editor ' + esc(e.ed) + ' · abierto ' + esc(e.abierto_s) + ' s · herramienta [' + esc(e.herr) + '] · fotogramas/s ' + esc(e.fps) + ' · atascos ' + esc(e.atascos) + ' · tareas largas ' + esc(e.largas) + '</div>' +
-        '<div>dedos apoyados: ' + esc(e.dedos) + ' · ratón: ' + esc(e.raton || '—') + '</div>' +
+        '<div>dedos apoyados: ' + esc(e.dedos) + ' · ratón: ' + esc(e.raton || '—') + (e.teclado ? '<br>teclado y panel táctil: ' + esc(e.teclado) : '') + '</div>' +
         '<div>toques (baja/mueve/sube) ' + esc(e.toques) + ' ' + esc(e.tipo_toque) + ' · pantalla completa: ' + esc(e.completa) + ' · sonido: ' + esc(e.sonido) + ' · música ' + (e.musica ? 'sonando' : 'parada') + ' · morosos ' + (e.morosos ? 'sí' : 'no') + '</div>' +
         '<div>lienzo ' + esc(e.lienzo) + ' · repintar 150 trazos: ' + esc(e.banco_ms) + ' ms · memoria ' + esc(e.mem_mb) + ' MB · ligero ' + (e.ligero ? 'sí' : 'no') + '</div>' +
         (p.mas && Object.keys(p.mas).length ? '<div style="color:#f9b4b4">' + esc(JSON.stringify(p.mas)).slice(0, 400) + '</div>' : '') +
@@ -2718,6 +2718,10 @@
     try { o.toques = CN.pd + '/' + CN.pm + '/' + CN.pu + (CN.pc ? ' canc ' + CN.pc : ''); o.tipo_toque = CN.pt || ''; } catch (e) {}
     try { var dd = cnDedosFuera(); o.dedos = dd.n + (dd.n ? ' (el más viejo, ' + dd.viejo_s + ' s)' : '') + ' · máx ' + (CN.maxDedos || 0) + ' · no principales ' + (CN.noPrim || 0) + ' · toques sin clic ' + (CN.sinClic || 0) + ' · clics dados por el portal ' + (TQ.n || 0) + ' (seguidos ' + (TQ.racha || 0) + ', tardíos ' + (TQ.tardios || 0) + ') · menús ' + (TQ.menus || 0); } catch (e) {}
     try { o.raton = CN.raton ? ('apretado ' + Math.round((Date.now() - CN.raton.t) / 1000) + ' s en ' + CN.raton.en + ' (' + CN.raton.x + ',' + CN.raton.y + ')') : 'suelto'; if (CN.arrastres) o.raton += ' · arrastres ' + CN.arrastres; } catch (e) {}
+    /* (13-oct-2026, Iago) teclado y panel táctil (el teclado inalámbrico del aula se presta y puede quedarse encendido en
+       otra aula): cuántas teclas, movimientos de ratón y giros de rueda han llegado, y cuándo el último. Nunca qué tecla. */
+    try { var ahT = Date.now(); o.teclado = 'teclas ' + (CN.teclas || 0) + (CN.tTecla ? ' (la última hace ' + Math.round((ahT - CN.tTecla) / 1000) + ' s)' : '') +
+      ' · ratón movido ' + (CN.ratonMov || 0) + (CN.tRaton ? ' (hace ' + Math.round((ahT - CN.tRaton) / 1000) + ' s)' : '') + ' · rueda ' + (CN.ruedas || 0); } catch (e) {}
     try { o.lista_dedos = Object.keys(TQ.loc).length + ' · heredados ' + Object.keys(TQ.here).length + ' · toques con puntero de reserva ' + (TQ.nPr || 0) + (TQ.sinPunteros ? ' · PUNTEROS CORTADOS' : '') + (TQ.fijo ? ' · dos dedos no amplían' : ''); } catch (e) {}
     try { if (window.visualViewport) o.ampliacion = Math.round(window.visualViewport.scale * 100) / 100; } catch (e) {}
     try { o.grafica = localStorage.getItem(CN_GRAF) || ''; } catch (e) {}
@@ -2725,6 +2729,27 @@
     try { if (performance.memory) o.mem_mb = Math.round(performance.memory.usedJSHeapSize / 1048576); } catch (e) {}
     try { o.nucleos = navigator.hardwareConcurrency || 0; o.ram_gb = navigator.deviceMemory || 0; o.tactil = navigator.maxTouchPoints || 0; } catch (e) {}
     return o;
+  }
+  /* (13-oct-2026, Iago) LOS PARTES, TAMBIÉN A LA BASE. Sentry no recibe nada desde la red del centro, así que cada parte
+     va además a lm_caja_negra_guardar (Supabase), firmado con la llave de Tester/Protester (la misma de los morosos).
+     Como mucho 8 por carga y el «perfil» del aparato, uno cada 6 h. Si la base no tiene la función (o falla), se calla
+     y no insiste hasta la próxima carga. Para quitarlo: borrar cnBase y su llamada en cnEnviar. */
+  CN.db = { n: 0, off: false };
+  function cnBase(tipo, ex) {
+    try {
+      if (CN.db.off || CN.db.n >= 8) return;
+      var k = llaveProfe(); if (!k) return;
+      if (tipo === 'perfil') {
+        var tp = 0; try { tp = +localStorage.getItem('lm_caja_negra_perfil_t') || 0; } catch (e) {}
+        if (Date.now() - tp < 6 * 3600 * 1000) return;
+        try { localStorage.setItem('lm_caja_negra_perfil_t', String(Date.now())); } catch (e) {}
+      }
+      CN.db.n++;
+      var mas = {}; for (var x in ex) if (x !== 'estado' && x !== 'apuntes') mas[x] = ex[x];
+      var datos = { h: new Date().toISOString(), estado: ex.estado, apuntes: (ex.apuntes || []).slice(-32), mas: mas };
+      pedirMor('lm_caja_negra_guardar', { p_token: k, p_portal: GP ? 'gp' : 'ge', p_version: CN_V, p_tipo: String(tipo).slice(0, 60), p_datos: datos })
+        .then(function (r) { if (!r || r.st >= 400 || (r.d && r.d.ok === false && r.d.motivo === 'llave')) CN.db.off = true; }, function () { CN.db.off = true; });
+    } catch (e) {}
   }
   function cnEnviar(tipo, extra, nivel) {
     try {
@@ -2735,6 +2760,7 @@
       var ex = { estado: extra && extra.estado ? extra.estado : cnEstado(), apuntes: (extra && extra.apuntes) || CN.ev.slice(-32) };
       if (extra) { for (var k in extra) if (k !== 'estado' && k !== 'apuntes') ex[k] = extra[k]; }
       if (tipo !== 'perfil') cnGuarda(tipo, ex);   /* (6-oct-2026, noche, 2) también en el aparato: ?caja=1 */
+      cnBase(tipo, ex);   /* (13-oct-2026) y a la base */
       if (CN.env >= CN_MAX && tipo !== 'perfil') return;
       if (tipo !== 'perfil') CN.env++;
       var S = window.Sentry; if (!S || !S.captureMessage) return;
@@ -2798,6 +2824,33 @@
     CN.dedos = {}; CN.maxDedos = 0; CN.sinClic = 0; CN.noPrim = 0;
     /* (7-oct-2026) ¿hay un botón del ratón —o del panel táctil del teclado— apretado y sin soltar? */
     CN.raton = null; CN.arrastres = 0;
+    /* (13-oct-2026, Iago) ¿llega algo del teclado o del panel táctil mientras se escribe con el dedo? Se apunta CUÁNDO y de
+       qué clase (carácter, Intro, flecha…), nunca qué tecla ni lo que se escribe. Las teclas seguidas van en un solo
+       apunte (n); el ratón, solo cuando empieza a moverse tras 2 s quieto. Para quitarlo: borrar este bloque y la línea
+       «teclado» de cnEstado. */
+    CN.teclas = 0; CN.tTecla = 0; CN.ratonMov = 0; CN.tRaton = 0; CN.ruedas = 0; CN.tRueda = 0;
+    function cnClaseTecla(e) {
+      var k = String(e.key || '');
+      if (k.length === 1) return k === ' ' ? 'espacio' : 'caracter';
+      if (/^Arrow/.test(k)) return 'flecha';
+      if (/^(Shift|Control|Alt|AltGraph|Meta|OS|CapsLock)$/.test(k)) return 'modificador';
+      if (/^F\d+$/.test(k)) return 'F';
+      return /^(Enter|Escape|Tab|Backspace|Delete|Home|End|PageUp|PageDown)$/.test(k) ? k : 'otra';
+    }
+    document.addEventListener('keydown', function (e) {
+      var ah = Date.now(); CN.teclas++;
+      var u = CN.ev[CN.ev.length - 1];
+      if (u && u.k === 'tecla' && ah - CN.tTecla < 1500) u.n = (u.n || 1) + 1;
+      else if (CN.ed) cnApunta('tecla', { c: cnClaseTecla(e) });
+      CN.tTecla = ah;
+    }, true);
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      var ah = Date.now();
+      if (ah - CN.tRaton > 2000) { CN.ratonMov++; if (CN.ed) cnApunta('raton', { x: Math.round(e.clientX), y: Math.round(e.clientY), b: e.buttons || undefined }); }
+      CN.tRaton = ah;
+    }, cap);
+    document.addEventListener('wheel', function () { var ah = Date.now(); CN.ruedas++; if (CN.ed && ah - CN.tRueda > 1500) cnApunta('rueda'); CN.tRueda = ah; }, cap);
     function cnDedos() { var n = 0, viejo = 0, ah = Date.now(); for (var k in CN.dedos) { n++; if (ah - CN.dedos[k].t > viejo) viejo = ah - CN.dedos[k].t; } return { n: n, viejo_s: Math.round(viejo / 100) / 10 }; }
     document.addEventListener('pointerdown', function (e) {
       if (e.pointerType === 'mouse') { if (e.buttons & 1) CN.raton = { t: Date.now(), x: Math.round(e.clientX), y: Math.round(e.clientY), en: cnDesc(e.target) }; }
