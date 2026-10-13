@@ -2623,7 +2623,7 @@
   var CN = { on: false, ev: [], t0: Date.now(), env: 0, ult: {}, ed: '', desde: 0, gesto: null, canc: 0, fr: 0, fps: -1, sinFr: 0, raf: 0,
              lat: Date.now(), atascos: 0, largas: 0, rz: 0, banco: null, nLat: 0 };
   var CN_K = 'lm_caja_negra_viva', CN_MAX = 6;
-  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '13-oct-n18';
+  var CN_P = 'lm_caja_negra_partes', CN_GRAF = 'lm_caja_negra_grafica', CN_V = '13-oct-n19';
   CN.pd = 0; CN.pm = 0; CN.pu = 0; CN.pc = 0; CN.pt = ''; CN.perfil = false;
   /* (6-oct-2026, noche, 2) Los partes se guardan TAMBIÉN en el aparato (los 12 últimos): si Sentry no llega desde la red
      del centro, se pueden leer allí mismo abriendo el portal con ?caja=1 (solo Tester/Protester) y hacerles una foto. */
@@ -2725,6 +2725,7 @@
     try { o.lista_dedos = Object.keys(TQ.loc).length + ' · heredados ' + Object.keys(TQ.here).length + ' · toques con puntero de reserva ' + (TQ.nPr || 0) + (TQ.sinPunteros ? ' · PUNTEROS CORTADOS' : '') + (TQ.fijo ? ' · dos dedos no amplían' : ''); } catch (e) {}
     try { if (window.visualViewport) o.ampliacion = Math.round(window.visualViewport.scale * 100) / 100; } catch (e) {}
     try { o.grafica = localStorage.getItem(CN_GRAF) || ''; } catch (e) {}
+    try { o.vela = CN.velaEst || ''; o.punto = CN.punto || 0; o.quieto_s = cnQuieto(Date.now()); if (CN.f0t) o.sin_fotogramas_s = Math.round((Date.now() - CN.f0t) / 1000); } catch (e) {}   /* (13-oct-2026) */
     try { o.ligero = !!document.querySelector('#ts-visor.lm-vl-ligero'); o.piel = CN_V; o.nav = (/Chrome\/(\d+)/.exec(navigator.userAgent) || [])[1] || ''; o.pantalla = screen.width + 'x' + screen.height; } catch (e) {}
     try { if (performance.memory) o.mem_mb = Math.round(performance.memory.usedJSHeapSize / 1048576); } catch (e) {}
     try { o.nucleos = navigator.hardwareConcurrency || 0; o.ram_gb = navigator.deviceMemory || 0; o.tactil = navigator.maxTouchPoints || 0; } catch (e) {}
@@ -2784,6 +2785,56 @@
       if (CN.banco > 120) cnEnviar('lienzo-lento', null, 'info');
     } catch (e) { CN.banco = -1; }
   }
+  /* (13-oct-2026, Iago) «ME HA VUELTO A FALLAR LA PANTALLA» (19:13, con el arreglo del dibujo ya cargado). La caja negra:
+     las tres veces de hoy (17:52, 18:12, 19:13) la pantalla se paró 30–40 s DESPUÉS del último toque, no escribiendo; la
+     página seguía viva (recibía los toques) y solo cerrar Chrome lo arreglaba; con la aceleración por hardware quitada
+     no pasó. Sospecha: el ahorro de energía de la pantalla o la gráfica que «se duerme» con todo quieto. Mientras hay
+     un editor abierto (y solo en Tester/Protester, como toda la caja negra):
+       · VELA: se pide que la pantalla no se atenúe ni se apague (Screen Wake Lock, lo mismo que hacen los vídeos);
+       · PUNTO: cada segundo cambia un punto de 1 px casi transparente en una esquina, fuera de <body> (no despierta a
+         nadie de la piel): la gráfica nunca se queda del todo quieta;
+       · FPS0: se apunta el segundo en que se paran los fotogramas (cuánto llevabas sin tocar, la vela, el foco, las
+         animaciones en marcha) y, si vuelven, cuánto duró.
+     Para quitarlo: borrar cnVela/cnPunto/cnQuieto y sus llamadas (cnLatido, cnEstado, CN.tToque). */
+  function cnQuieto(ah) {   /* segundos desde el último toque, ratón, tecla o rueda */
+    var t = Math.max(CN.tToque || 0, CN.tRaton || 0, CN.tTecla || 0, CN.tRueda || 0);
+    return t ? Math.round((ah - t) / 1000) : -1;
+  }
+  function cnVela(si) {
+    try {
+      if (!si) { CN.velaQuiere = false; if (CN.vela) { var s0 = CN.vela; CN.vela = null; CN.velaEst = 'soltada'; s0.release().catch(function () {}); } return; }
+      CN.velaQuiere = true;
+      if (!navigator.wakeLock || !navigator.wakeLock.request) { CN.velaEst = 'no hay'; return; }
+      if (CN.vela || CN.velaPide || document.hidden || /^rechazada/.test(CN.velaEst || '')) return;
+      CN.velaPide = true;
+      navigator.wakeLock.request('screen').then(function (s) {
+        CN.velaPide = false;
+        if (!CN.velaQuiere) { s.release().catch(function () {}); return; }
+        CN.vela = s; CN.velaEst = 'activa'; CN.velaN = (CN.velaN || 0) + 1; cnApunta('vela', { si: 1 });
+        s.addEventListener('release', function () { if (CN.vela === s) { CN.vela = null; CN.velaEst = 'soltada'; if (CN.ed) cnApunta('vela', { si: 0 }); } });
+      }, function (e) {
+        CN.velaPide = false; CN.velaEst = 'rechazada: ' + String((e && (e.name || e.message)) || e).slice(0, 60);
+        cnApunta('vela', { no: CN.velaEst.slice(11) });
+      });
+    } catch (e) { CN.velaPide = false; CN.velaEst = 'rechazada: ' + String((e && e.name) || 'error').slice(0, 40); }
+  }
+  function cnPunto(si) {
+    try {
+      var p = document.getElementById('lm-cn-punto');
+      if (!si) { if (p && p.parentNode) p.parentNode.removeChild(p); return; }
+      if (!p) {
+        if (!document.getElementById('lm-cn-punto-css')) { var st = document.createElement('style'); st.id = 'lm-cn-punto-css';
+          st.textContent = '#lm-cn-punto{position:fixed;left:0;bottom:0;width:1px;height:1px;z-index:2147483647;pointer-events:none;background:#000;opacity:.02;will-change:opacity;display:block}#lm-cn-punto.lm-cn-b{opacity:.03}';
+          document.head.appendChild(st); }
+        p = document.createElement('i'); p.id = 'lm-cn-punto'; p.setAttribute('aria-hidden', 'true');
+        document.documentElement.appendChild(p);   /* fuera de <body>: ningún vigilante de la piel lo ve */
+      }
+      CN.punto = (CN.punto || 0) + 1;
+      p.className = (CN.punto % 2) ? 'lm-cn-b' : '';
+    } catch (e) {}
+  }
+  function cnFoco() { try { return document.hasFocus() ? 1 : 0; } catch (e) { return -1; } }
+  function cnAnims() { try { if (!document.getAnimations) return -1; var n = 0; document.getAnimations().forEach(function (a) { if (a.playState === 'running') n++; }); return n; } catch (e) { return -1; } }
   function cnMarco() {   /* cuenta los fotogramas solo mientras hay un editor abierto */
     CN.raf = 0; if (!CN.ed) return;
     CN.fr++; CN.raf = requestAnimationFrame(cnMarco);
@@ -2792,14 +2843,18 @@
     var ah = Date.now(), salto = ah - CN.lat; CN.lat = ah;
     var ed = editorAbierto();
     if (ed !== CN.ed) {
-      if (ed) { CN.ed = ed; CN.desde = ah; CN.canc = 0; CN.sinFr = 0; CN.fr = 0; CN.fps = -1; CN.pd = CN.pm = CN.pu = CN.pc = 0; cnApunta('abre', { ed: ed }); if (!CN.raf) CN.raf = requestAnimationFrame(cnMarco);
+      if (ed) { CN.ed = ed; CN.desde = ah; CN.canc = 0; CN.sinFr = 0; CN.fr = 0; CN.fps = -1; CN.pd = CN.pm = CN.pu = CN.pc = 0; cnApunta('abre', { ed: ed }); if (!CN.raf) CN.raf = requestAnimationFrame(cnMarco); cnVela(true); cnPunto(true);
                 if (!CN.perfil) { CN.perfil = true; setTimeout(function () { try { if (CN.ed) cnEnviar('perfil', null, 'info'); } catch (e) {} }, 6000); }
                 if (ed === 'leccion') setTimeout(function () { if (CN.ed === 'leccion' && CN.banco == null) cnBanco(); }, 2500); }
-      else { cnApunta('cierra', { ed: CN.ed }); CN.ed = ''; CN.desde = 0; CN.gesto = null; try { localStorage.removeItem(CN_K); } catch (e) {} }
+      else { cnApunta('cierra', { ed: CN.ed }); cnVela(false); cnPunto(false); CN.f0t = 0; CN.ed = ''; CN.desde = 0; CN.gesto = null; try { localStorage.removeItem(CN_K); } catch (e) {} }
     }
     if (salto > 4000) { CN.atascos++; cnApunta('atasco', { s: Math.round(salto / 100) / 10 }); if (CN.ed && !document.hidden) cnEnviar('atasco', { segundos: Math.round(salto / 100) / 10 }); }
     if (!CN.ed) return;
     CN.fps = CN.fr; CN.fr = 0;
+    cnPunto(true);   /* (13-oct-2026) el punto que late: la gráfica nunca del todo quieta */
+    if (!CN.vela && !CN.velaPide && !document.hidden) cnVela(true);   /* la vela se suelta sola al ocultarse la página: se vuelve a pedir */
+    if (CN.fps === 0 && !document.hidden && ah - CN.desde > 1500) { if (!CN.f0t) { CN.f0t = ah; cnApunta('fps0', { quieto_s: cnQuieto(ah), vela: CN.velaEst || '', foco: cnFoco(), anim: cnAnims(), lat_ms: salto }); } }
+    else if (CN.fps > 0 && CN.f0t) { cnApunta('fps-vuelve', { tras_s: Math.round((ah - CN.f0t) / 100) / 10 }); CN.f0t = 0; }
     if (!document.hidden && CN.fps === 0 && salto < 2500) { if (++CN.sinFr === 3) cnEnviar('sin-refresco'); } else CN.sinFr = 0;
     if (++CN.nLat % 3 === 0) {   /* cada 3 s, una nota en el aparato: si el portal muere con el editor abierto, la próxima carga lo cuenta */
       try { localStorage.setItem(CN_K, JSON.stringify({ t: ah, estado: cnEstado(), apuntes: CN.ev.slice(-18) })); } catch (e) {}
@@ -2863,6 +2918,7 @@
         var bt = CN.ed && e.target && e.target.closest ? e.target.closest('button') : null;
         if (bt) { CN.espClic = { t: Date.now(), b: cnDesc(bt), id: e.pointerId, x: e.clientX, y: e.clientY, dedos: d.n }; }
       }
+      CN.tToque = Date.now();   /* (13-oct-2026) para «cuánto llevabas sin tocar» */
       if (!CN.ed) return;
       try { if (CN.ed === 'leccion' && e.target && e.target.closest && e.target.closest('#ts-visor .lm-vl-her .lm-vl-b')) CN.herrBaja = { t: Date.now(), h: cnHerr() }; } catch (x) {}
       CN.pd++; CN.pt = e.pointerType || '';
@@ -2881,6 +2937,7 @@
     }, cap);
     function cnSube(e) {
       try { delete CN.dedos[e.pointerId]; } catch (x) {}
+      CN.tToque = Date.now();
       if (CN.raton && e.pointerType === 'mouse' && (e.type === 'pointercancel' || !(e.buttons & 1))) CN.raton = null;
       var q = CN.espClic;
       if (q && e.pointerId === q.id) {
