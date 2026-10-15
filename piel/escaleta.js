@@ -6,15 +6,16 @@
      editores): la actividad de antes tachada en gris, la de ahora en amarillo con su subtítulo en blanco, los minutos que
      le quedan y la barra; debajo, la siguiente en gris y los botones ◀ ⏸ ■ ▶. En el portal, arriba a la altura de los
      botones de la derecha y abajo a la de la tira de la música, con el mismo hueco a los lados (Iago, 15-oct).
-   · Del minuto 0:00 al 4:16 de cada clase (hora de Galicia, reloj del servidor), la «entrada» (el portal abre la lista
-     de morosos). A las 4:16, la PREPARACIÓN: cuenta atrás de 32 s a pantalla completa, «Preparamos libro de ritmo y
+   · Del minuto 0:00 a la PREPARACIÓN (hacia el 4:14–4:18; depende de lo largo que sea el índice), la «entrada» (el portal
+     abre la lista de morosos). Luego, la PREPARACIÓN: cuenta atrás de 32 s a pantalla completa, «Preparamos libro de ritmo y
      lápiz», con su batería (la pista escaleta-previa.mp3, hecha con los sonidos de Splice de Iago: el loop «alligator»
      con un complemento distinto en cada frase, 16 compases a 120) y unas barras amarillas que se mueven con ella; la
      música de los 30 temas se para.
-   · De 4:48 a 5:00, «HOY EN CLASE» a pantalla completa (lo ven los alumnos): la preparación acaba subiendo de tensión
-     y de golpe, silencio; al segundo y medio empieza un tecleo de datos suave y las líneas del índice van saliendo cada
-     segundo y medio, cada una con un «clic» de botón (el Button Press de Splice de Iago); en el 5:00, un cierre sutil
-     de los de datos, cuando empieza la primera actividad (Iago, 15-oct: «Ritmo:
+   · Hasta el 5:00, «HOY EN CLASE» a pantalla completa (lo ven los alumnos): la preparación acaba subiendo de tensión y
+     de golpe, silencio; al segundo y medio empieza la carga de datos (tecleo y «computing» suaves; abajo «Cargando
+     actividades» y un circulito amarillo que gira) y las líneas salen cada segundo y medio, cada una con un «clic» (el
+     Button Press de Iago); con la última se para la carga y suena alto el Scifi Touch Activation 3, cuyo último golpe
+     cae en el 5:00, cuando se cierra la pantalla y empieza la primera actividad (Iago, 15-oct: «Ritmo:
      preparación lección 13 · Ritmo: evaluación lecciones 14 y 15 · FaActos 3 · Teoría: … · Dictado 5 · Lección de
      entonación», sin decir qué lección; el descanso, una raya discontinua). El ▶ amarillo junto a «Salir» empieza la
      clase antes (y la vuelve a poner tras ■).
@@ -269,10 +270,11 @@
   /* (15-oct-2026, Iago) «pon solo 30 segundos de preparatorio… y 15 de índice… cuidado porque la batería a veces se
      descuadra… que sea fluida»: 32 s y 16 s, compases enteros a 120 (16 + 8), así el índice entra en el 1 de un compás */
   /* (15-oct-2026, 16:35) a 120, el tempo del loop «alligator» que eligió Iago: 16 compases de preparación… */
-  /* (15-oct-2026, 17:45) …y 6 de índice: silencio de 1,5 s y las líneas cada 1,5 s (Iago: «un segundo y medio») */
-  var BPM = 120, COMPAS = 240 / BPM;
-  var CUENTA = 16 * COMPAS;   /* s de la preparación (la cuenta atrás), de 4:16 a 4:48 */
-  var INDICE = 6 * COMPAS;    /* s de «Hoy en clase», de 4:48 a 5:00 */
+  /* (15-oct-2026, 18:05) …y el índice, lo que haga falta: 1,5 s de silencio, las líneas cada 1,5 s y la última 3,75 s
+     antes del 5:00, donde empieza el cierre (Touch Activation 3), cuyo último golpe cae en el 5:00 */
+  var BPM = 120, COMPAS = 240 / BPM, PASO = COMPAS / 16;
+  var CUENTA = 16 * COMPAS;   /* s de la preparación (la cuenta atrás) */
+  var K_SIL = 12, K_FIN = 30, GOLPE_CIERRE = 3.74;   /* en semicorcheas (1/8 s): el silencio y la última línea; el golpe, en s */
   var MEMO = { pub: null, g: '', B: [] };
   /* (15-oct-2026, Iago) «cuando estemos en preparación lección… de ritmo, lo que tienes que resaltar es la campana, porque
      trabajo la lección con el visor que tienen ellos en las tareas… y, si eres capaz, la lección de ese día dentro de las
@@ -340,29 +342,33 @@
   /* (15-oct-2026, 17:45) Iago: «la duración exacta entre los ítems debería ser de un segundo y medio»: S = 12 (1,5 s),
      la primera línea en k=84 (4:49,5, tras 1,5 s de silencio) y la última no más tarde del 4:58,5 (k=12); solo si no
      caben, más juntas. */
-  var SALTOS = [12, 8, 6, 4, 2];
+  var SALTOS = [12, 8, 6, 4, 2];   /* (18:05) la primera que deje todo en 10,5 s */
   var NOTAS = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51, 1567.98, 1760];
   function planIndice(agenda) {
     var S = 2, sub = 2, span = 0, i, j, x;
     for (var nv = 0; nv < SALTOS.length; nv++) {
       S = SALTOS[nv]; sub = Math.max(2, S / 2); span = 0;
       for (i = 0; i < agenda.length; i++) span += (agenda[i].lineas ? agenda[i].lineas.length * sub : 0) + (i < agenda.length - 1 ? S : 0);
-      if (span <= 72) break;
+      if (span <= 84) break;
     }
-    var filas = [], k = 84;
+    var filas = [], k = K_FIN + span, k0 = k;
     for (i = 0; i < agenda.length; i++) {
       x = agenda[i];
       var fi = { x: x, k: Math.max(1, k), subs: [] }, kk = k;
       if (x.lineas) for (j = 0; j < x.lineas.length; j++) { kk -= sub; fi.subs.push(Math.max(1, kk)); }
       filas.push(fi); k = kk - S;
     }
-    var P = { filas: filas, toques: {}, kb: 8, n: 0, S: S }, nota = 0;
+    var P = { filas: filas, toques: {}, kb: 8, n: 0, S: S, k0: k0, kFin: K_FIN, kIni: agenda.length ? k0 + K_SIL : 0 }, nota = 0;
     filas.forEach(function (fi) {   /* cada «pop», un poco más agudo que el anterior: la lista se va llenando */
       P.n += 1 + fi.subs.length;
       if (fi.x.sep) { fi.d2 = Math.max(1, fi.k - Math.max(2, S / 2)); P.toques[fi.k] = { sep: 1, n: nota }; P.toques[fi.d2] = { swish: 1 }; return; }
       P.toques[fi.k] = { f: NOTAS[Math.min(nota, NOTAS.length - 1)], n: nota++ };
       fi.subs.forEach(function (kk) { P.toques[kk] = { sub: 1, f: NOTAS[Math.min(nota, NOTAS.length - 1)], n: nota++ }; });
     });
+    if (agenda.length) {   /* la carga de datos empieza con la primera línea y se para con la última, que trae el cierre */
+      P.toques[k0] = P.toques[k0] || {}; P.toques[k0].primero = 1; P.toques[k0].hasta = (k0 - K_FIN) * PASO;
+      P.toques[K_FIN] = P.toques[K_FIN] || {}; P.toques[K_FIN].ultimo = 1;
+    }
     return P;
   }
   /* (15-oct-2026, Iago) «En la cuenta atrás… quiero que me aparezcan los recordatorios… en un texto más pequeño…
@@ -395,10 +401,17 @@
     }
     return null;
   }
+  var IND = { pub: null, g: '', k: 0 };
+  function kIndice(pub, grupo) {   /* en qué semicorchea (antes del 5:00) entra «Hoy en clase» en esta clase; 0 si no hay índice */
+    if (IND.pub === pub && IND.g === grupo) return IND.k;
+    var a = agendaHoy(pub, grupo), k = (a && a.length) ? planIndice(a).kIni : 0;
+    IND.pub = pub; IND.g = grupo; IND.k = k; return k;
+  }
   function vista(t) {
     var c = claseAhora(t); if (!c) return { fase: 'nada' };
     var pub = escaleta(c), e = estado(c), B = bloquesDe(pub, c.grupo), desde = (t - c.t0) / 1000;
-    var v = { c: c, B: B, pub: pub, e: e, desde: desde, fase: 'nada' };
+    var v = { c: c, B: B, pub: pub, e: e, desde: desde, fase: 'nada' }, INDICE = kIndice(pub, c.grupo) * PASO;
+    v.ind = INDICE;
     if (noHayClase(pub)) return v;
     if (desde < 0) { v.fase = (e && e.arr) ? 'clase' : 'antes'; }
     else if (!e || !e.arr) {
@@ -540,15 +553,15 @@
      81), un redoblito en el último tiempo que lleva a «Hoy en clase» (4:50, en el 1) y, en el índice, ya sin base (Iago:
      «que sean simplemente efectos»), un tictac suave, cada línea con su «pop» y un cierre sutil, sin platillo. Es la
      reserva: lo normal es la pista de Splice. */
-  var PASO = COMPAS / 16, PASOS = Math.round((CUENTA + INDICE) / PASO), K_INDICE = Math.round(INDICE / PASO), PLAN0 = { toques: {}, kb: 8 };   /* 352 y 96 */
+  var PLAN0 = { toques: {}, kb: 8, kIni: 0 };
   function golpe(t, k) {   /* k: semicorcheas que faltan para el 5:00 */
-    var pos = (16 - (k % 16)) % 16, cf = Math.floor(k / 16), P = BAT.plan || PLAN0, x = P.toques[k], denso = k <= K_INDICE;
+    var pos = (16 - (k % 16)) % 16, cf = Math.floor(k / 16), P = BAT.plan || PLAN0, x = P.toques[k], K_INDICE = BAT.kIni, denso = k <= K_INDICE;
     if (BAT.pista) { if (x) toque(t, x); if (k === 0) BAT.cierre = BAT.fin; return; }   /* con la pista de Splice */
     if (k === 0) { bombo(t, 0.6); tom(t, 0.3, 98); BAT.cierre = BAT.fin; return; }   /* el cierre, sutil: empieza la primera actividad */
     if (x) toque(t, x);
-    if (k === PASOS) { bombo(t, 0.9); platillo(t, 0.3); charles(t, 0.2, false); return; }   /* 4:18: empieza la preparación */
+    if (k === BAT.pasos) { bombo(t, 0.9); platillo(t, 0.3); charles(t, 0.2, false); return; }   /* empieza la preparación */
     if (k > K_INDICE && k <= K_INDICE + 4) { caja(t, 0.2 + 0.07 * (K_INDICE + 4 - k)); if (pos === 12) bombo(t, 0.7); return; }   /* un redoblito… */
-    if (k <= K_INDICE) { if (k <= 84 && k % 2 === 0) charles(t, k % 4 === 0 ? 0.06 : 0.04, false); return; }   /* el índice: silencio y un tictac suave */
+    if (k <= K_INDICE) { if (k <= K_INDICE - K_SIL && k > K_FIN && k % 2 === 0) charles(t, k % 4 === 0 ? 0.06 : 0.04, false); return; }   /* el índice: silencio y un tictac suave */
     if (pos === 0 || pos === 8) bombo(t, 0.9);
     if (pos === 10 && cf % 2 === 1) bombo(t, 0.62);
     if (pos === 7 && cf % 4 === 0) bombo(t, 0.5);
@@ -563,7 +576,10 @@
   function toque(t, x) {
     if (SON.item) {   /* el bubble pop: las líneas tal cual, las de la teoría más agudas y flojas, el descanso más grave */
       if (x.swish) return;
-      suena(SON.item, t, x.sep ? 0.3 : x.sub ? 0.32 : 0.5, x.sep ? 0.85 : x.sub ? 1.12 : 1); return;   /* el Button Press de Iago */
+      if (x.sep || x.sub || x.f) suena(SON.item, t, x.sep ? 0.3 : x.sub ? 0.32 : 0.5, x.sep ? 0.85 : x.sub ? 1.12 : 1);   /* el Button Press de Iago */
+      if (x.primero) datosSuenan(t, 0, x.hasta);
+      if (x.ultimo) cierreSuena(t, 0);
+      return;
     }
     if (x.swish) { charles(t, 0.15, true); return; }
     var f = x.f || 392, v = x.sep ? 0.55 : x.sub ? 0.8 : 1.5;
@@ -574,18 +590,20 @@
       o.connect(g); g.connect(COMP); o.start(t + p[1]); o.stop(t + p[1] + p[2] + 0.03);
     });
   }
-  var BAT = { vivo: false, id: 0, fin: 0, k: -1, plan: null, cierre: 0, src: null, pista: false };
+  var BAT = { vivo: false, id: 0, fin: 0, k: -1, plan: null, cierre: 0, src: null, pista: false, kIni: 0, pasos: Math.round(CUENTA / PASO), datos: null };
   /* (15-oct-2026, Iago) los sonidos de su Splice (en piel/, escaleta-*.mp3): escaleta-previa.mp3 (el loop «alligator», «neutro, eso me
      gusta», + transición de platillo en el índice + break con riser e impacto en el 5:00), escaleta-item.mp3 (un bubble pop seco) y
      escaleta-cambio-1/2.mp3 (los dos «task completed», alternos, en cada cambio de actividad). Se cargan una vez por página. */
-  var SON = { pidiendo: false, previa: null, item: null, cambio: [], n: 0 };
+  var SON = { pidiendo: false, previa: null, item: null, cambio: [], n: 0, datos: null, cierre: null };
   function cargarSonidos() {
     if (SON.pidiendo || !audio() || !W.fetch) return; SON.pidiendo = true;
     var pide = function (n, ok) {
-      fetch(BASE + 'escaleta-' + n + '?v=2026-10-15f').then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      fetch(BASE + 'escaleta-' + n + '?v=2026-10-15g').then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
         .then(function (ab) { AC.decodeAudioData(ab, ok, function () {}); }).catch(function () {});
     };
-    pide('previa-v6.mp3', function (b) { SON.previa = b; });   /* tensión → silencio → cargando (15-oct, 17:45): fichero nuevo */
+    pide('previa-v7.mp3', function (b) { SON.previa = b; });   /* (15-oct, 18:05) la preparación sola, 32 s: acaba en tensión y corte */
+    pide('datos-v7.mp3', function (b) { SON.datos = b; });     /* la carga de datos (se para con la última línea) */
+    pide('cierre-v7.mp3', function (b) { SON.cierre = b; });   /* el Touch Activation 3: su último golpe, en el 5:00 */
     pide('item-v6.mp3', function (b) { SON.item = b; });
     pide('cambio-1.mp3', function (b) { SON.cambio[0] = b; });
     pide('cambio-2.mp3', function (b) { SON.cambio[1] = b; });
@@ -594,10 +612,25 @@
     var s = AC.createBufferSource(), g = AC.createGain(); s.buffer = buf; if (rate) s.playbackRate.value = rate;
     g.gain.value = v; s.connect(g); g.connect(MASTER); s.start(Math.max(t, AC.currentTime)); return s;
   }
-  function empiezaPista(finMs) {   /* la pista de la previa: su segundo 48 en el 5:00 de la clase; si se llega tarde, desde donde vaya */
+  function datosSuenan(t, off, dur) {   /* la carga de datos, de la primera línea a la última */
+    if (!SON.datos || !(dur > 0.05)) return;
+    try {
+      var s = AC.createBufferSource(), g = AC.createGain(), V = 1; s.buffer = SON.datos; s.connect(g); g.connect(MASTER);
+      var t0 = Math.max(t, AC.currentTime), fin = t + dur;
+      g.gain.setValueAtTime(V, t0); g.gain.setValueAtTime(V, Math.max(t0, fin - 0.08)); g.gain.linearRampToValueAtTime(0.0001, fin);
+      s.start(t0, off + (t0 - t)); s.stop(fin + 0.05); BAT.datos = s;
+    } catch (e) {}
+  }
+  function cierreSuena(t, off) {   /* Iago: «su último golpe, casi hacia el final: ahí se cierra la pantalla… alto» */
+    if (!SON.cierre) return;
+    try { var s = AC.createBufferSource(), g = AC.createGain(); s.buffer = SON.cierre; g.gain.value = 1; s.connect(g); g.connect(MASTER);
+      var d = K_FIN * PASO - GOLPE_CIERRE;   /* que el golpe caiga justo en el 5:00 */
+      s.start(Math.max(t + d, AC.currentTime), off); } catch (e) {}
+  }
+  function empiezaPista(finMs) {   /* la pista de la preparación: acaba (tensión y corte) justo cuando entra «Hoy en clase» */
     if (!SON.previa || BAT.src) return;
     try {
-      var ya = AC.currentTime, ini = ya + (finMs - PASOS * PASO * 1000 - ahora()) / 1000, off = Math.max(0, ya - ini);
+      var ya = AC.currentTime, ini = ya + (finMs - BAT.pasos * PASO * 1000 - ahora()) / 1000, off = Math.max(0, ya - ini);
       if (off > SON.previa.duration - 0.3) return;
       var s = AC.createBufferSource(), g = AC.createGain(); s.buffer = SON.previa; g.gain.value = 1; s.connect(g); g.connect(MASTER);
       s.start(Math.max(ini, ya), off); BAT.src = s; BAT.pista = true;
@@ -607,11 +640,17 @@
     if (BAT.vivo && BAT.fin === finMs) { if (!BAT.pista && SON.previa) empiezaPista(finMs); return; }   /* si la pista llega tarde, entra donde vaya */
     if (!audio() || AC.state !== 'running') return;
     callarBateria(true);
-    BAT.vivo = true; BAT.fin = finMs; BAT.k = PASOS; BAT.pista = false; BAT.src = null;
+    BAT.kIni = (BAT.plan && BAT.plan.kIni) || 0; BAT.pasos = Math.round(CUENTA / PASO) + BAT.kIni;
+    BAT.vivo = true; BAT.fin = finMs; BAT.k = BAT.pasos; BAT.pista = false; BAT.src = null; BAT.datos = null;
     empiezaPista(finMs);
+    try {   /* si la página se abre a media carga, la carga (o el cierre) entra por donde vaya */
+      var kAhora = (finMs - ahora()) / 1000 / PASO, Pl = BAT.plan;
+      if (Pl && Pl.kIni && kAhora < Pl.k0 - 0.5 && kAhora > Pl.kFin + 0.5) datosSuenan(AC.currentTime, (Pl.k0 - kAhora) * PASO, (kAhora - Pl.kFin) * PASO);
+      if (Pl && Pl.kIni && kAhora < Pl.kFin - 0.5 && kAhora > 1) cierreSuena(AC.currentTime - (Pl.kFin - kAhora) * PASO, (Pl.kFin - kAhora) * PASO);
+    } catch (e) {}
     MASTER.gain.cancelScheduledValues(AC.currentTime); MASTER.gain.setValueAtTime(1, AC.currentTime);
     try {   /* fade-in en los dos primeros compases (si se abre a medias, sigue desde donde vaya) */
-      var ya = AC.currentTime, ini = ya + (finMs - PASOS * PASO * 1000 - ahora()) / 1000, b = bus();
+      var ya = AC.currentTime, ini = ya + (finMs - BAT.pasos * PASO * 1000 - ahora()) / 1000, b = bus();
       b.gain.cancelScheduledValues(ya);
       if (ya < ini + 4) { b.gain.setValueAtTime(BUS_V * Math.max(0.12, Math.min(1, (ya - ini) / 4)), ya); b.gain.linearRampToValueAtTime(BUS_V, ini + 4); }
       else b.gain.setValueAtTime(BUS_V, ya);
@@ -632,6 +671,7 @@
   function callarBateria(ya) {
     var estaba = BAT.vivo; BAT.vivo = false; clearInterval(BAT.id);
     if (BAT.src) { try { BAT.src.stop(AC.currentTime + (ya ? 0 : 0.3)); } catch (e) {} BAT.src = null; } BAT.pista = false;
+    if (BAT.datos) { try { BAT.datos.stop(AC.currentTime + (ya ? 0 : 0.3)); } catch (e) {} BAT.datos = null; }
     if (!estaba || ya || !AC || !MASTER) return;
     try { var t = AC.currentTime; MASTER.gain.cancelScheduledValues(t); MASTER.gain.setValueAtTime(MASTER.gain.value, t); MASTER.gain.linearRampToValueAtTime(0.0001, t + 0.25);
       setTimeout(function () { try { MASTER.gain.setValueAtTime(1, AC.currentTime); } catch (e) {} }, 400); } catch (e) {}
@@ -695,7 +735,7 @@
     '#lme-isla .lme-b::after{content:"";position:absolute;inset:-5px -2px}' +   /* más sitio para el dedo, sin que se vea */
     '#lme-isla .lme-b:hover{border-color:#facc15}' +
     '#lme-isla .lme-b svg{width:9px;height:9px;display:block;pointer-events:none}' +
-    '#lme-play{position:fixed;z-index:2147483600;width:35px;height:35px;border-radius:50%;border:0;background:#facc15;color:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin:0;box-shadow:0 4px 14px rgba(250,204,21,.25)}' +
+    '#lme-play{position:fixed;z-index:2147483600;width:35px;height:35px;border-radius:50%;border:0;background:#facc15;color:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin:0;box-shadow:none}' +   /* (Iago, 18:05) sin resplandor */
     '#lme-play svg{width:14px;height:14px;margin-left:2px;display:block}' +
     '.lme-full{position:fixed;inset:0;z-index:2147483640;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;color:#fff;font-family:' + F + ';-webkit-font-smoothing:antialiased;' +
       'background:linear-gradient(rgba(6,9,17,.84),rgba(6,9,17,.84)),url("' + BASE + 'fondo-apaisado.jpg") center/cover #070b14;transition:opacity .45s ease,transform .45s ease;transform-origin:50% 6%;user-select:none;-webkit-user-select:none;cursor:default}' +
@@ -712,7 +752,13 @@
     '#lme-indice .lme-barra5 b{position:relative;overflow:hidden;box-shadow:0 0 14px rgba(250,204,21,.55);transition:width .26s linear}' +
     '#lme-indice .lme-barra5 b::after{content:"";position:absolute;top:0;bottom:0;left:-110px;width:110px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8),rgba(255,255,255,0));animation:lmeBrillo 1.1s linear infinite}' +
     '@keyframes lmeBrillo{to{left:100%}}' +
-    '#lme-indice .lme-carga,#lme-indice .lme-barra5,#lme-cartel .lme-barra5{display:none!important}' +   /* (Iago, 17:45) sin «cargando» ni rayas amarillas abajo */
+    '#lme-indice .lme-barra5,#lme-cartel .lme-barra5{display:none!important}' +   /* (Iago, 17:45) sin rayas amarillas abajo */
+    '#lme-indice .lme-carga{align-items:center;gap:12px;color:#fff;bottom:26px}' +   /* (Iago, 18:05) «Cargando actividades» en blanco y el circulito amarillo */
+    '#lme-indice .lme-spin{width:22px;height:22px;flex:none;animation:lmeGira 1.4s linear infinite}' +
+    '#lme-indice .lme-spin circle{fill:none;stroke:#facc15;stroke-width:5;stroke-linecap:round;stroke-dasharray:1,150;stroke-dashoffset:0;animation:lmeCome 1.4s ease-in-out infinite}' +
+    '@keyframes lmeGira{to{transform:rotate(360deg)}}' +
+    '@keyframes lmeCome{0%{stroke-dasharray:1,150;stroke-dashoffset:0}50%{stroke-dasharray:90,150;stroke-dashoffset:-35}100%{stroke-dasharray:90,150;stroke-dashoffset:-124}}' +
+    '@keyframes lmeSale{to{opacity:0;transform:translateY(6px)}}' +
     '@keyframes lmePunto{0%,100%{opacity:.25}40%{opacity:1}}' +
     '.lme-full .lme-barra5 b{display:block;height:100%;width:0;background:#facc15}' +
     /* (15-oct-2026, tarde, Iago) «que el tiempo aparezca en amarillo, que el texto de preparamos el libro de ritmo y el lápiz
@@ -817,7 +863,7 @@
     /* (15-oct-2026, Iago) «pon un sonido como de cargando… con una animación abajo… que ponga abajo, cargando actividades»:
        la lista va saliendo de un «falso cargando» (la barra de abajo, el rótulo con sus puntos y el tanto por ciento) */
     indice.innerHTML = '<div class="lme-ey"></div><div class="lme-itit">Hoy en clase</div><ol class="lme-ilist"></ol>' +
-      '<div class="lme-carga"><span class="lme-carga-t">Cargando actividades</span><span class="lme-carga-d"><i></i><i></i><i></i></span><span class="lme-carga-p">0 %</span></div><div class="lme-barra5"><b></b></div>';
+      '<div class="lme-carga"><svg class="lme-spin" viewBox="0 0 50 50" aria-hidden="true"><circle cx="25" cy="25" r="20"/></svg><span class="lme-carga-t">Cargando actividades</span><span class="lme-carga-p" hidden></span></div><div class="lme-barra5"><b></b></div>';
     var cuenta = D.createElement('div'); cuenta.id = 'lme-cuenta'; cuenta.className = 'lme-full'; cuenta.hidden = true;
     cuenta.innerHTML = '<div class="lme-rec" hidden></div><div class="lme-ey"></div><div class="lme-num"></div><div class="lme-frase">Preparamos libro de ritmo y lápiz</div><canvas width="840" height="88"></canvas><div class="lme-barra5"><b></b></div>';
     var cartel = D.createElement('div'); cartel.id = 'lme-cartel'; cartel.className = 'lme-full'; cartel.hidden = true; cartel.setAttribute('role', 'alert');
@@ -902,6 +948,18 @@
     if (k === ANT.aviso) return; ANT.aviso = k;
     try { D.dispatchEvent(new CustomEvent('lm-escaleta', { detail: { fase: v.fase, grupo: v.c ? v.c.grupo : '', clase: v.c ? v.c.clase : '', i: v.i, tema: (v.B && v.i != null && v.B[v.i]) ? v.B[v.i].tema : '' } })); } catch (e) {}
   }
+  /* (15-oct-2026, 18:05) Iago: «no se me ha abierto lo de los morosos automáticamente a las 18». En el portal, al empezar la
+     clase (la «entrada», hasta la preparación), si sale el ⚠ de morosos de ese grupo, la lista se abre sola: una vez por
+     clase; si la cierra, no vuelve a abrirse. */
+  var MOROS = { clave: '', hecho: false };
+  function abrirMorosos(v) {
+    if (!PORTAL || !v || v.fase !== 'entrada' || !v.c) return;
+    if (MOROS.clave !== v.c.clave) { MOROS.clave = v.c.clave; MOROS.hecho = false; }
+    if (MOROS.hecho) return;
+    var b = D.querySelector('#lm-morosos .lm-ic'); if (!b || !visible(b)) return;
+    MOROS.hecho = true;
+    if (b.getAttribute('aria-expanded') !== 'true') { try { b.click(); } catch (e) {} }
+  }
   var ICONOS = { ritmo: '.lm-ic-ritmo', entonacion: '.lm-ic-ento', dictado: '.lm-ic-dict', intervalia: '.lm-ic-libros', teoria: '.lm-ic-penta' };
   function iconoActivo(b) {   /* en el portal, lo que toca con contorno amarillo: su icono; en la preparación de ritmo, la campana */
     if (!PORTAL) return;
@@ -967,9 +1025,9 @@
     if (v.fase === 'nada' && !UI) return;
     if (!montar()) return;
     var inm = inmersivo();
-    avisar(v);
+    avisar(v); abrirMorosos(v);
     /* la salida de sonido despierta un poco antes de «Hoy en clase» (el mini-jack del aula tarda en espabilar) */
-    if (v.fase === 'entrada' && v.desde >= 300 - CUENTA - INDICE - 12) despierto(true);
+    if (v.fase === 'entrada' && v.desde >= 300 - CUENTA - (v.ind || 0) - 12) despierto(true);
     if (v.c && v.fase !== 'nada' && v.fase !== 'acabada') cargarSonidos();
     /* la PREPARACIÓN (4:16–4:48, la cuenta atrás) y «HOY EN CLASE» (4:48–5:00, cargando las actividades) */
     var enPrevia = (v.fase === 'cuenta' || v.fase === 'indice') && inm !== 'pantalla';
@@ -994,15 +1052,17 @@
             x.lineas.map(function (l, j) { return '<i class="lme-il" style="animation-delay:' + dk(fi.subs[j]) + '">– ' + esc(l) + '</i>'; }).join('') + '</span></li>';
           return '<li class="lme-ii ' + x.tema + '"' + est + '><b>' + num + '</b><span>' + esc(x.t) + '</span></li>';
         }).join('');
+        var carga = UI.indice.querySelector('.lme-carga');
+        if (carga) carga.style.animation = 'lmeSale .5s ' + dk(plan.kFin) + ' ease forwards';   /* cargado: se va el circulito */
         ver(UI.indice, true); pararMusica();
       }
-      var pc = Math.min(100, Math.max(0, (1 - v.queda / INDICE) * 100));
+      var pc = Math.min(100, Math.max(0, (1 - v.queda / (v.ind || 1)) * 100));
       UI.iBar.style.width = pc.toFixed(2) + '%'; txt(UI.iCarga, Math.floor(pc) + ' %');
     } else if (!UI.indice.hidden) ver(UI.indice, false);
     /* la cuenta atrás (si no hay índice publicado, sigue hasta el 5:00) */
     var enCuenta = enPrevia && !enIndice;
     if (enCuenta) {
-      var totalC = hayIndice ? CUENTA : CUENTA + INDICE, q = Math.max(0, v.fase === 'cuenta' ? v.queda + (hayIndice ? 0 : INDICE) : v.queda);
+      var totalC = CUENTA, q = Math.max(0, v.queda);
       if (UI.cuenta.hidden) { ver(UI.cuenta, true); if (!BARR.raf) BARR.raf = requestAnimationFrame(barras); pararMusica(); }
       txt(UI.cEy, grupoBonito(v.c.grupo) + ' · la clase empieza en');
       pintarRec(recordatorios(v.pub, v.c.grupo));
@@ -1126,6 +1186,6 @@
     indice: function () {   /* para mirar (y para el banco): el índice de la clase que toca y en qué golpe sale cada cosa */
       var v = vista(ahora()); if (!v.c) return null;
       var a = agendaHoy(v.pub, v.c.grupo), P = planIndice(a);
-      return { agenda: a, kb: P.kb, ks: P.filas.map(function (f) { return f.k; }), subs: P.filas.map(function (f) { return f.subs; }), toques: Object.keys(P.toques).map(Number).sort(function (x, y) { return y - x; }) };
+      return { agenda: a, kb: P.kb, kIni: P.kIni, k0: P.k0, kFin: P.kFin, ks: P.filas.map(function (f) { return f.k; }), subs: P.filas.map(function (f) { return f.subs; }), toques: Object.keys(P.toques).map(Number).sort(function (x, y) { return y - x; }) };
     } };
 })();
