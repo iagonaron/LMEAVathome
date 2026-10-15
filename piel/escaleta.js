@@ -752,7 +752,7 @@
     '#lme-indice .lme-barra5 b{position:relative;overflow:hidden;box-shadow:0 0 14px rgba(250,204,21,.55);transition:width .26s linear}' +
     '#lme-indice .lme-barra5 b::after{content:"";position:absolute;top:0;bottom:0;left:-110px;width:110px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8),rgba(255,255,255,0));animation:lmeBrillo 1.1s linear infinite}' +
     '@keyframes lmeBrillo{to{left:100%}}' +
-    '#lme-indice .lme-barra5,#lme-cartel .lme-barra5{display:none!important}' +   /* (Iago, 17:45) sin rayas amarillas abajo */
+    '#lme-indice .lme-barra5,#lme-cartel .lme-barra5,#lme-cuenta .lme-barra5{display:none!important}' +   /* (Iago, 17:45 y 19:10) sin rayas amarillas abajo, tampoco en la preparación */
     '#lme-indice .lme-carga{align-items:center;gap:12px;color:#fff;bottom:26px}' +   /* (Iago, 18:05) «Cargando actividades» en blanco y el circulito amarillo */
     '#lme-indice .lme-spin{width:22px;height:22px;flex:none;animation:lmeGira 1.4s linear infinite}' +
     '#lme-indice .lme-spin circle{fill:none;stroke:#facc15;stroke-width:5;stroke-linecap:round;stroke-dasharray:1,150;stroke-dashoffset:0;animation:lmeCome 1.4s ease-in-out infinite}' +
@@ -813,6 +813,13 @@
     '#lme-fin .lme-cerrar{position:absolute;right:26px;bottom:24px;font:600 13px/1 ' + F + ';color:#6b7487}' +
     'html.lm-esc-on.lm-fam-portal .hero{margin-top:64px!important}' +   /* en el portal, el logo baja lo justo mientras está la tarjeta */
     '.lme-ic{outline:2px solid #facc15!important;outline-offset:2px!important}' +
+    /* (15-oct-2026, 19:10, Iago: «el contorno amarillo… quiero que esté visible aunque la notificación de ritmo esté ya gris,
+       porque ya la he hecho») la tarjeta (y la fila) gris que lleva la lección de hoy recupera su color mientras toca */
+    'html body #alu-body .alu-item.cv2.hecha:has(.lme-ic),html body #alu-body .cv2 .ts-parte.cv2-parte.ts-hecha:has(.lme-ic),' +
+    'html body .alu-item-tareas.hecha:has(.lme-ic),html body .ts-parte.ts-hecha:has(.lme-ic){filter:none!important;opacity:1!important}' +
+    /* (15-oct-2026, 19:10, Iago: «pulso el botón de libro… la ventana en la que elijo el libro aparece detrás de la escaleta»)
+       mientras está abierto un menú de los botones de arriba (o la lista de morosos), la tarjeta de la escaleta se aparta */
+    'html:has(.lm-ic-menu) #lme-isla,html:has(.lm-mor-panel) #lme-isla{opacity:0!important;pointer-events:none!important;transition:opacity .15s}' +
     '@media (prefers-reduced-motion:reduce){.lme-full{transition:none}}' +
     /* (15-oct-2026, Iago) EDITORES EN EL AULA (lecciones de ritmo y libro de entonación; esto solo se carga con Tester /
        Protester, y solo en pantallas anchas): arriba a la izquierda solo la tonalidad, arriba en el centro el hueco de la
@@ -951,8 +958,15 @@
   /* (15-oct-2026, 18:05) Iago: «no se me ha abierto lo de los morosos automáticamente a las 18». En el portal, al empezar la
      clase (la «entrada», hasta la preparación), si sale el ⚠ de morosos de ese grupo, la lista se abre sola: una vez por
      clase; si la cierra, no vuelve a abrirse. */
-  var MOROS = { clave: '', hecho: false };
+  var MOROS = { clave: '', hecho: false, fase: '' };
   function abrirMorosos(v) {
+    /* (15-oct-2026, 19:05, Iago: «…solo que se vaya al empezar la cuenta atrás») al acabar la entrada, si está abierta, se cierra
+       (mientras dura la entrada, pulsar fuera no la cierra: eso lo hace portal.js) */
+    var antes = MOROS.fase; MOROS.fase = (v && v.fase) || '';
+    if (PORTAL && antes === 'entrada' && MOROS.fase !== 'entrada') {
+      var bc = D.querySelector('#lm-morosos .lm-ic');
+      if (bc && bc.getAttribute('aria-expanded') === 'true') { try { bc.click(); } catch (e) {} }
+    }
     if (!PORTAL || !v || v.fase !== 'entrada' || !v.c) return;
     if (MOROS.clave !== v.c.clave) { MOROS.clave = v.c.clave; MOROS.hecho = false; }
     if (MOROS.hecho) return;
