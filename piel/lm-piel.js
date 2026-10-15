@@ -308,6 +308,15 @@
     window.addEventListener('load', repasar);
     document.addEventListener('click', function () { setTimeout(repasar, 60); setTimeout(repasar, 400); }, true);
     if (CON_JS[familia]) js(BASE + 'apps/' + familia + '.js?v=' + V);
+    /* (15-oct-2026, Iago) ESCALETA EN LA PANTALLA DEL AULA: solo con la cuenta Iago González Tester / Protester (y nunca en
+       el Ojeador). La tarjeta de tres líneas arriba en el centro, la cuenta atrás y los carteles: escaleta.js. Para quitarla
+       de una pestaña: ?escaleta=0; para quitarla del todo: borrar estas líneas. */
+    try {
+      if (esTester(sesion()) && !/visor=/.test(location.hash || '')) {
+        var esc = document.createElement('script'); esc.src = BASE + 'escaleta.js?v=2026-10-15a'; esc.async = true;
+        esc.setAttribute('data-app', app); esc.setAttribute('data-grado', grado); (document.head || H).appendChild(esc);
+      }
+    } catch (e) {}
   }
 
   /* ---------- encender: clases en <html> + hojas de estilo (+ iconos, rótulo y JS de la familia) ---------- */
