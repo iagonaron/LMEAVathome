@@ -1361,8 +1361,12 @@
     p.style.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - w - 12))) + 'px';
   }
   window.addEventListener('resize', colocarPanelMorosos);
+  /* (15-oct-2026, Iago: «lo de los morosos, que no desaparezca si pulso el botón de play de 30 temas… solo que se vaya al
+     empezar la cuenta atrás») Mientras la escaleta está en la ENTRADA de la clase, pulsar fuera no cierra la lista (se
+     cierra con su icono o con Esc; al empezar la cuenta atrás la cierra la escaleta). Para quitarlo: borrar «&& !morEntrada()». */
+  function morEntrada() { try { var E = window.LMEscaleta; return !!(E && E.vista && E.vista().fase === 'entrada'); } catch (e) { return false; } }
   document.addEventListener('click', function (e) {
-    if (MOR.panel && !MOR.panel.contains(e.target) && !(e.target.closest && e.target.closest('#lm-morosos'))) cerrarPanelMorosos();
+    if (MOR.panel && !morEntrada() && !MOR.panel.contains(e.target) && !(e.target.closest && e.target.closest('#lm-morosos'))) cerrarPanelMorosos();
   }, true);
   document.addEventListener('keydown', function (e) { if (MOR.panel && (e.key === 'Escape' || e.key === 'Esc')) cerrarPanelMorosos(); });
   function pintarMorosos() {
