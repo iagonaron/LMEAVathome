@@ -824,7 +824,7 @@ html.lm-fam-portal #lm-morosos .lm-ic.lm-calma::before, html.lm-fam-portal #lm-m
 @keyframes lmMorOnda{ 0%{ transform:scale(1); opacity:.75; } 100%{ transform:scale(2.6); opacity:0; } }
 @media (prefers-reduced-motion: reduce){ html.lm-fam-portal #lm-morosos .lm-ic::before, html.lm-fam-portal #lm-morosos .lm-ic::after{ animation:none !important; opacity:0 !important; } }
 html.lm-fam-portal .lm-mor-panel{
-  position:fixed; z-index:5000; width:min(430px, calc(100vw - 24px)); max-height:min(76vh, 620px); overflow:auto; box-sizing:border-box;
+  position:fixed; z-index:5000; width:min(360px, calc(100vw - 24px));   /* (15-oct-2026, noche, Iago) «más estrechos»: 430 → 360 */ max-height:min(76vh, 620px); overflow:auto; box-sizing:border-box;
   padding:10px 12px 12px; background:var(--lm-cristal-fuerte); border:1px solid var(--lm-borde-fuerte); border-radius:12px;
   -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); color:#fff; font:500 13px/1.35 var(--lm-fuente); text-align:left;
 }

@@ -1335,6 +1335,31 @@
       '<span class="lm-mor-n" title="' + esc(f.nombre) + '">' + esc(f.nombre) + '</span>' +
       tipo + '<span class="lm-mor-l2">' + l2 + '</span></div>';
   }
+  /* (15-oct-2026, noche, Iago) LISTA DE MOROSOS MÁS ESTRECHA, CON EL PRIMER APELLIDO ENTERO («más estrechos, primer
+     apellido entero»): la lista mide 360 px (portal.css) y, si un nombre no cabe en su línea, se abrevian los demás
+     apellidos de atrás hacia delante, solo los que hagan falta, y nunca el primero («Margarita Fernández de Navarrete
+     López» → «Margarita Fernández de N. L.»). Los nombres compuestos frecuentes («María José»…) se dejan enteros. El
+     nombre entero sigue en el «title». Para quitarlo: borrar este bloque y su llamada en pintarPanelMorosos. */
+  var MOR_PART = /^(de|del|la|las|los|y|e|da|das|do|dos|van|von|di|du|le|i)$/i;
+  var MOR_NOMBRE2 = /^(jos[ée]|jes[úu]s|luis|luisa|carlos|[áa]ngel|antonio|manuel|pablo|elena|isabel|teresa|carmen|pilar|dolores|mar[íi]a|ana|eugenia|victoria|andr[ée]s|fernando|javier|miguel|ignacio|alberto|ram[óo]n|rosa|paula|sof[íi]a|luc[íi]a)$/i;
+  function morVariantes(txt) {
+    var out = [txt], w = txt.split(/\s+/).filter(Boolean); if (w.length < 2) return out;
+    var desde = (w.length >= 4 && MOR_NOMBRE2.test(w[1])) ? 2 : 1, ap = [];
+    for (var k = desde; k < w.length; k++) if (!MOR_PART.test(w[k]) && w[k].length > 2) ap.push(k);
+    var cur = w.slice();
+    for (var j = ap.length - 1; j >= 1; j--) { cur[ap[j]] = cur[ap[j]].charAt(0).toUpperCase() + '.'; out.push(cur.join(' ')); }
+    return out;
+  }
+  function morAcortar(p) {
+    try {
+      Array.prototype.forEach.call(p.querySelectorAll('.lm-mor-n'), function (el) {
+        var tn = null; for (var n = el.lastChild; n; n = n.previousSibling) if (n.nodeType === 3 && n.nodeValue.trim()) { tn = n; break; }
+        if (!tn || el.scrollWidth <= el.clientWidth + 1) return;   /* cabe tal cual */
+        var vs = morVariantes(tn.nodeValue.trim());
+        for (var i = 1; i < vs.length; i++) { tn.nodeValue = vs[i]; if (el.scrollWidth <= el.clientWidth + 1) return; }
+      });
+    } catch (e) {}
+  }
   function pintarPanelMorosos() {
     var p = MOR.panel; if (!p) return;
     var enClase = gruposEnClase();
@@ -1368,6 +1393,7 @@
     }
     if (MOR.error) h += '<div class="lm-mor-error" role="alert">' + esc(MOR.error) + '</div>';
     p.innerHTML = h;
+    morAcortar(p);   /* (15-oct-2026, noche) el primer apellido, entero */
     colocarPanelMorosos();
   }
   function abrirPanelMorosos(btn) {
@@ -1383,8 +1409,8 @@
     /* en el <body>: la barra de arriba es de cristal (backdrop-filter) y dentro de ella «fixed» no sería la pantalla */
     document.body.appendChild(p); MOR.panel = p; btn.setAttribute('aria-expanded', 'true');
     MOR.error = '';
+    arrancarTictac();   /* (8-oct-2026) cuenta atrás de cada uno, cada segundo · (15-oct-2026, noche) antes de pintar: con su CSS ya puesto (nombres en una línea) se pueden medir */
     pintarPanelMorosos();
-    arrancarTictac();   /* (8-oct-2026) cuenta atrás de cada uno, cada segundo */
   }
   /* «Ya entregó» / «Deshacer»: se ve al momento; si la base no lo guarda, vuelve como estaba y lo dice */
   function marcarEntrego(alu, ficha, si) {
