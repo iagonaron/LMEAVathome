@@ -11,7 +11,7 @@
      batería (bombo en el 1 de cada compás, 22 compases que acaban justo en el 5:00) y unas barras amarillas que se mueven
      con ella; la música de los 30 temas se para. A las 5:00 empieza la primera actividad. El ▶ amarillo junto a «Salir»
      la empieza antes (y la vuelve a poner tras ■).
-   · Antes, 8 s de «HOY EN CLASE» a pantalla completa (lo ven los alumnos): el índice de la clase, que va apareciendo
+   · Antes, de 4:00 a 4:15, «HOY EN CLASE» a pantalla completa (lo ven los alumnos): el índice de la clase, que va apareciendo
      línea a línea como la portada de una ficha (Iago, 15-oct: «Carta 1.3 de ritmo · Preparación de ritmo · Lección 13 ·
      … · Lección de entonación», sin decir qué lección; del bloque de teoría, su texto tal cual; con el descanso).
    · En esa cuenta atrás, arriba y en violeta, los recordatorios de esa clase que manda el iPad (los 📌 de la preparación
@@ -263,7 +263,7 @@
 
   /* ---------- el modelo: qué toca ahora (todo sale de la hora y del estado) ---------- */
   var CUENTA = 45;   /* s de cuenta atrás, de 4:15 a 5:00 */
-  var INDICE = 8;    /* s de «Hoy en clase» justo antes (Iago: «que dure lo que consideres… 45 s antes, la cuenta atrás») */
+  var INDICE = 15;   /* s de «Hoy en clase» justo antes, de 4:00 a 4:15 (Iago: «si en total son 15 segundos, que cada cosa tenga 2 segundos») */
   var MEMO = { pub: null, g: '', B: [] };
   function bloquesDe(pub, grupo) {
     if (MEMO.pub === pub && MEMO.g === grupo) return MEMO.B;
@@ -288,7 +288,10 @@
       else if (f.t === 'Dictado') t = b.num ? 'Dictado ' + b.num : 'Dictado';
       else if (f.t === 'Teoría') { t = String(b.sub || '').split(/\n+/).map(function (x) { return quitarEmojis(x); }).filter(Boolean).join(' · ') || 'Teoría'; tm = 'teoria'; }
       else if (f.t === 'Corrección de la ficha') t = f.s ? 'Corrección de la ' + f.s.charAt(0).toLowerCase() + f.s.slice(1) : 'Corrección de la ficha';
-      else if (f.t === 'Descanso') { t = 'Descanso'; tm = 'descanso'; }
+      else if (f.t === 'Descanso') {   /* (Iago) «en lugar de poner descanso, una línea discontinua (quizá amarilla)… más sutil» */
+        if (out.length && !out[out.length - 1].sep) out.push({ sep: true });
+        return;
+      }
       else if (/^(FaActos|Intervalia)/.test(f.t)) {   /* (Iago) «FaActos 3 · Intervalia 3»: el acto y la lección, sin más */
         var x = String(b.ast || '') + ' ' + String(b.sub || ''), ac = /Acto\s+(\d+)/i.exec(x), lc = /Lecci[oó]n\s+(\d+)/i.exec(x);
         /* el color, el de su app (código de Iago): FaActos verde, Intervalia azul, las dos juntas violeta */
@@ -298,10 +301,11 @@
       }
       else t = f.t;
       if (t.length > 84) t = t.slice(0, 82) + '…';
-      if (!t || (vistos[t] && t !== 'Descanso')) return; vistos[t] = 1;
+      if (!t || vistos[t]) return; vistos[t] = 1;
       out.push({ t: t, tema: tm });
     });
-    return out.slice(0, 9);
+    while (out.length && out[out.length - 1].sep) out.pop();   /* sin línea al final */
+    return out.slice(0, 10);
   }
   /* (15-oct-2026, Iago) «En la cuenta atrás… quiero que me aparezcan los recordatorios… en un texto más pequeño…
      en violeta». El iPad los manda en un bloque aparte ('__recordatorios', sin minutos): { t, d, gr:[grupos] }.
@@ -474,12 +478,12 @@
   }
   /* (15-oct-2026, Iago) «ese índice puede tener soniditos en base a que va revelando los contenidos… como en el comienzo
      de las fichas de teoría»: un toque suave por línea (dos senos, como SFX de las fichas), cada uno un poco más agudo */
-  function toquesIndice(n) {
+  function toquesIndice(retardos) {
     if (!audio() || AC.state !== 'running') return;
-    var esc = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51, 1567.98], t0 = AC.currentTime + 0.05;
-    for (var k = 0; k < n; k++) {
-      var f = esc[Math.min(k, esc.length - 1)], t = t0 + 0.55 + k * 0.3;
-      [[f, 0, 0.12, 0.1], [f * 1.5, 0.022, 0.14, 0.06]].forEach(function (p) {
+    var esc = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51, 1567.98], t0 = AC.currentTime + 0.05, j = 0;
+    for (var k = 0; k < retardos.length; k++) {
+      var sep = retardos[k].sep, f = sep ? 392 : esc[Math.min(j++, esc.length - 1)], t = t0 + retardos[k].t, v = sep ? 0.55 : 1;   /* el descanso, más grave y flojito */
+      [[f, 0, 0.12, 0.1 * v], [f * 1.5, 0.022, 0.14, 0.06 * v]].forEach(function (p) {
         var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = p[0];
         g.gain.setValueAtTime(0.0001, t + p[1]); g.gain.exponentialRampToValueAtTime(p[3], t + p[1] + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + p[1] + p[2]);
         o.connect(g); g.connect(COMP); o.start(t + p[1]); o.stop(t + p[1] + p[2] + 0.03);
@@ -567,7 +571,13 @@
     '#lme-indice .lme-ii{display:flex;align-items:center;gap:18px;font:700 30px/1.2 ' + F + ';color:#fff;opacity:0;animation:lmeSube .5s cubic-bezier(.2,.8,.25,1) both}' +
     '#lme-indice .lme-ii b{flex:none;box-sizing:border-box;width:40px;height:40px;border-radius:11px;border:2.5px solid var(--c);color:var(--c);display:flex;align-items:center;justify-content:center;font:800 19px/1 ' + F + '}' +
     '#lme-indice .lme-ii span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-    '#lme-indice .lme-ii.descanso{color:#e6cba4;font-weight:600}' +   /* (Iago) «el descanso, en otro tono»: café con leche */
+    '#lme-indice .lme-isep{display:flex;align-items:center;gap:6px;height:34px;margin-left:58px;opacity:0;animation:lmeSube .45s var(--d1) cubic-bezier(.2,.8,.25,1) both}' +
+    '#lme-indice .lme-sw{display:flex;flex:none;font:600 24px/1 ' + F + ';color:rgba(250,204,21,.9)}' +
+    '#lme-indice .lme-sw i{position:relative;display:block;font-style:normal;padding:0 1px;animation:lmeLetra .3s calc(var(--d2) + var(--k) * .045s) ease forwards}' +
+    '#lme-indice .lme-sw i::after{content:"";position:absolute;left:20%;right:20%;top:55%;height:2px;background:rgba(250,204,21,.75);transform:scaleX(0);animation:lmeRaya .3s calc(var(--d2) + var(--k) * .045s) ease forwards}' +
+    '#lme-indice .lme-sr{flex:1;height:2px;background:repeating-linear-gradient(90deg,rgba(250,204,21,.75) 0 9px,transparent 9px 16px);transform:scaleX(0);transform-origin:0 50%;animation:lmeRaya .55s calc(var(--d2) + .4s) cubic-bezier(.2,.8,.25,1) forwards}' +
+    '@keyframes lmeLetra{to{color:transparent}}' +
+    '@keyframes lmeRaya{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}' +
     '@keyframes lmeSube{0%{opacity:0;transform:translateY(18px)}100%{opacity:1;transform:none}}' +
     '@media (prefers-reduced-motion:reduce){#lme-indice *{animation:none!important;opacity:1!important}}' +
     '#lme-cartel .lme-tit{font:800 150px/.92 ' + F + ';color:#facc15;letter-spacing:-.01em;white-space:nowrap}' +
@@ -781,10 +791,19 @@
     if (enIndice) {
       if (UI.indice.hidden) {
         txt(UI.iEy, grupoBonito(v.c.grupo) + ' · ' + DIA_NOMBRE[v.c.dia]);
+        /* cada línea, 2 s después de la anterior (menos si son muchas, para que todo se lea antes de la cuenta atrás). El
+           descanso, en su turno (Iago: «la palabra descanso convirtiéndose en líneas discontinuas… fugaz, que dure 2 segundos
+           igual que los demás»): sale «Descanso» y enseguida cada letra se vuelve un trazo y la raya sigue hasta el final */
+        var paso = Math.min(2, (INDICE - 3) / Math.max(1, agenda.length - 1)), num = 0, retardos = [];
         UI.iList.innerHTML = agenda.map(function (x, k) {
-          return '<li class="lme-ii ' + x.tema + '" style="--c:' + (COLOR_TEMA[x.tema] || COLOR_TEMA.otra) + ';animation-delay:' + (0.55 + k * 0.3).toFixed(2) + 's"><b>' + (k + 1) + '</b><span>' + esc(x.t) + '</span></li>';
+          var r = (1 + k * paso).toFixed(2);
+          retardos.push({ t: +r, sep: !!x.sep });
+          if (x.sep) return '<li class="lme-isep" style="--d1:' + r + 's;--d2:' + (+r + 0.85).toFixed(2) + 's" aria-hidden="true"><span class="lme-sw">' +
+            'Descanso'.split('').map(function (ch, i) { return '<i style="--k:' + i + '">' + ch + '</i>'; }).join('') + '</span><span class="lme-sr"></span></li>';
+          num++;
+          return '<li class="lme-ii ' + x.tema + '" style="--c:' + (COLOR_TEMA[x.tema] || COLOR_TEMA.otra) + ';animation-delay:' + r + 's"><b>' + num + '</b><span>' + esc(x.t) + '</span></li>';
         }).join('');
-        ver(UI.indice, true); pararMusica(); despierto(true); toquesIndice(agenda.length);
+        ver(UI.indice, true); pararMusica(); despierto(true); toquesIndice(retardos);
       }
       UI.iBar.style.width = Math.min(100, Math.max(0, (1 - v.queda / INDICE) * 100)).toFixed(2) + '%';
       despierto(true);
