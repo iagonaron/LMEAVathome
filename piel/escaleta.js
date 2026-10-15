@@ -8,8 +8,9 @@
      botones de la derecha y abajo a la de la tira de la música, con el mismo hueco a los lados (Iago, 15-oct).
    · Del minuto 0:00 al 4:12 de cada clase (hora de Galicia, reloj del servidor), la «entrada» (el portal abre la lista
      de morosos). A las 4:12, la PREPARACIÓN: cuenta atrás de 32 s a pantalla completa, «Preparamos libro de ritmo y
-     lápiz», con su batería (120 por minuto: 24 compases de 2 s, del 4:12 al 5:00, entrando en fade-in) y unas barras
-     amarillas que se mueven con ella; la música de los 30 temas se para.
+     lápiz», con su batería (la pista escaleta-previa.mp3, hecha con los sonidos de Splice de Iago: el loop «alligator»,
+     24 compases a 120 que acaban justo en el 5:00) y unas barras amarillas que se mueven con ella; la música de los 30
+     temas se para.
    · De 4:44 a 5:00, «HOY EN CLASE» a pantalla completa (lo ven los alumnos), con la batería sin cortarse: el índice de la
      clase, cada línea en un golpe (una por compás; las de la teoría, cada medio compás) y, al salir la última, un break
      que cierra con bombo y platillo justo en el 5:00, cuando empieza la primera actividad (Iago, 15-oct: «Ritmo:
@@ -266,8 +267,10 @@
   /* ---------- el modelo: qué toca ahora (todo sale de la hora y del estado) ---------- */
   /* (15-oct-2026, Iago) «pon solo 30 segundos de preparatorio… y 15 de índice… cuidado porque la batería a veces se
      descuadra… que sea fluida»: 32 s y 16 s, compases enteros a 120 (16 + 8), así el índice entra en el 1 de un compás */
-  var CUENTA = 32;   /* s de la preparación (la cuenta atrás), de 4:12 a 4:44 */
-  var INDICE = 16;   /* s de «Hoy en clase», de 4:44 a 5:00 */
+  /* (15-oct-2026, 16:35) a 120, el tempo del loop «alligator» que eligió Iago: 16 compases de preparación y 8 de índice */
+  var BPM = 120, COMPAS = 240 / BPM;
+  var CUENTA = 16 * COMPAS;   /* s de la preparación (la cuenta atrás), de 4:12 a 4:44 */
+  var INDICE = 8 * COMPAS;    /* s de «Hoy en clase», de 4:44 a 5:00 */
   var MEMO = { pub: null, g: '', B: [] };
   /* (15-oct-2026, Iago) «cuando estemos en preparación lección… de ritmo, lo que tienes que resaltar es la campana, porque
      trabajo la lección con el visor que tienen ellos en las tareas… y, si eres capaz, la lección de ese día dentro de las
@@ -534,9 +537,10 @@
   /* (15-oct-2026, Iago) 24 compases de 4/4 a 120 por minuto (2 s cada uno), del 4:12 al 5:00: la preparación (k de 384 a
      129), un redoblito en el último tiempo que lleva a «Hoy en clase» (4:44, en el 1), el índice con cada línea en su golpe,
      el break y el cierre */
-  var PASO = 0.125, PASOS = Math.round((CUENTA + INDICE) / PASO), K_INDICE = Math.round(INDICE / PASO), PLAN0 = { toques: {}, kb: 8 };   /* 384 y 128 */
+  var PASO = COMPAS / 16, PASOS = Math.round((CUENTA + INDICE) / PASO), K_INDICE = Math.round(INDICE / PASO), PLAN0 = { toques: {}, kb: 8 };   /* 384 y 128 */
   function golpe(t, k) {   /* k: semicorcheas que faltan para el 5:00 */
     var pos = (16 - (k % 16)) % 16, cf = Math.floor(k / 16), P = BAT.plan || PLAN0, x = P.toques[k], denso = k <= K_INDICE;
+    if (BAT.pista) { if (x) toque(t, x); if (k === 0) BAT.cierre = BAT.fin; return; }   /* con la pista de Splice */
     if (k === 0) { bombo(t, 0.95); platillo(t, 0.42); caja(t, 0.45); BAT.cierre = BAT.fin; return; }   /* el cierre: empieza la primera actividad */
     if (x) toque(t, x);
     if (k === PASOS) { bombo(t, 0.9); platillo(t, 0.3); charles(t, 0.2, false); return; }   /* 4:00: empieza la preparación */
@@ -558,6 +562,10 @@
      línea, dos senos (cada uno un poco más agudo) y un charles abierto; las líneas de la teoría, más flojitas; el descanso,
      más grave, y un «chss» cuando la palabra se deshace en raya */
   function toque(t, x) {
+    if (SON.item) {   /* el bubble pop: las líneas tal cual, las de la teoría más agudas y flojas, el descanso más grave */
+      if (x.swish) return;
+      suena(SON.item, t, x.sep ? 0.32 : x.sub ? 0.38 : 0.62, x.sep ? 0.8 : x.sub ? 1.22 : 1); return;
+    }
     if (x.swish) { charles(t, 0.15, true); return; }
     var f = x.f || 392, v = x.sep ? 0.55 : x.sub ? 0.8 : 1.5;
     if (!x.sep && !x.sub) charles(t, 0.13, true);
@@ -567,12 +575,41 @@
       o.connect(g); g.connect(COMP); o.start(t + p[1]); o.stop(t + p[1] + p[2] + 0.03);
     });
   }
-  var BAT = { vivo: false, id: 0, fin: 0, k: -1, plan: null, cierre: 0 };
+  var BAT = { vivo: false, id: 0, fin: 0, k: -1, plan: null, cierre: 0, src: null, pista: false };
+  /* (15-oct-2026, Iago) los sonidos de su Splice (en piel/, escaleta-*.mp3): escaleta-previa.mp3 (el loop «alligator», «neutro, eso me
+     gusta», + transición de platillo en el índice + break con riser e impacto en el 5:00), escaleta-item.mp3 (un bubble pop seco) y
+     escaleta-cambio-1/2.mp3 (los dos «task completed», alternos, en cada cambio de actividad). Se cargan una vez por página. */
+  var SON = { pidiendo: false, previa: null, item: null, cambio: [], n: 0 };
+  function cargarSonidos() {
+    if (SON.pidiendo || !audio() || !W.fetch) return; SON.pidiendo = true;
+    var pide = function (n, ok) {
+      fetch(BASE + 'escaleta-' + n + '?v=2026-10-15c').then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+        .then(function (ab) { AC.decodeAudioData(ab, ok, function () {}); }).catch(function () {});
+    };
+    pide('previa.mp3', function (b) { SON.previa = b; });
+    pide('item.mp3', function (b) { SON.item = b; });
+    pide('cambio-1.mp3', function (b) { SON.cambio[0] = b; });
+    pide('cambio-2.mp3', function (b) { SON.cambio[1] = b; });
+  }
+  function suena(buf, t, v, rate) {   /* un sonido de los de Splice, a su hora */
+    var s = AC.createBufferSource(), g = AC.createGain(); s.buffer = buf; if (rate) s.playbackRate.value = rate;
+    g.gain.value = v; s.connect(g); g.connect(MASTER); s.start(Math.max(t, AC.currentTime)); return s;
+  }
+  function empiezaPista(finMs) {   /* la pista de la previa: su segundo 48 en el 5:00 de la clase; si se llega tarde, desde donde vaya */
+    if (!SON.previa || BAT.src) return;
+    try {
+      var ya = AC.currentTime, ini = ya + (finMs - PASOS * PASO * 1000 - ahora()) / 1000, off = Math.max(0, ya - ini);
+      if (off > SON.previa.duration - 0.3) return;
+      var s = AC.createBufferSource(), g = AC.createGain(); s.buffer = SON.previa; g.gain.value = 1; s.connect(g); g.connect(MASTER);
+      s.start(Math.max(ini, ya), off); BAT.src = s; BAT.pista = true;
+    } catch (e) {}
+  }
   function bateria(finMs) {   /* finMs: la hora (reloj de la escaleta) del último golpe */
-    if (BAT.vivo && BAT.fin === finMs) return;
+    if (BAT.vivo && BAT.fin === finMs) { if (!BAT.pista && SON.previa) empiezaPista(finMs); return; }   /* si la pista llega tarde, entra donde vaya */
     if (!audio() || AC.state !== 'running') return;
     callarBateria(true);
-    BAT.vivo = true; BAT.fin = finMs; BAT.k = PASOS;
+    BAT.vivo = true; BAT.fin = finMs; BAT.k = PASOS; BAT.pista = false; BAT.src = null;
+    empiezaPista(finMs);
     MASTER.gain.cancelScheduledValues(AC.currentTime); MASTER.gain.setValueAtTime(1, AC.currentTime);
     try {   /* fade-in en los dos primeros compases (si se abre a medias, sigue desde donde vaya) */
       var ya = AC.currentTime, ini = ya + (finMs - PASOS * PASO * 1000 - ahora()) / 1000, b = bus();
@@ -595,9 +632,15 @@
   }
   function callarBateria(ya) {
     var estaba = BAT.vivo; BAT.vivo = false; clearInterval(BAT.id);
+    if (BAT.src) { try { BAT.src.stop(AC.currentTime + (ya ? 0 : 0.3)); } catch (e) {} BAT.src = null; } BAT.pista = false;
     if (!estaba || ya || !AC || !MASTER) return;
     try { var t = AC.currentTime; MASTER.gain.cancelScheduledValues(t); MASTER.gain.setValueAtTime(MASTER.gain.value, t); MASTER.gain.linearRampToValueAtTime(0.0001, t + 0.25);
       setTimeout(function () { try { MASTER.gain.setValueAtTime(1, AC.currentTime); } catch (e) {} }, 400); } catch (e) {}
+  }
+  function cambioSuena() {   /* (Iago) «para cambio de actividad, estos dos intercalándose» */
+    var b = SON.cambio[SON.n % 2] || SON.cambio[(SON.n + 1) % 2];
+    if (!b || !audio() || AC.state !== 'running') { ding(); return; }
+    SON.n++; suena(b, AC.currentTime + 0.02, 0.7);
   }
   function ding() {
     if (!audio() || AC.state !== 'running') return;
@@ -809,7 +852,7 @@
     UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
     UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);
     CART.hasta = Date.now() + quedan;
-    if (!(BAT.cierre && Math.abs(ahora() - BAT.cierre) < 1500)) ding();   /* en el 5:00 ya suena el cierre de la batería */
+    if (!(BAT.cierre && Math.abs(ahora() - BAT.cierre) < 1500)) cambioSuena();   /* en el 5:00 ya suena el cierre de la batería */
   }
 
   /* ---------- la cuenta atrás: barras amarillas que se mueven con la batería (pocas, sin texto) ---------- */
@@ -910,6 +953,7 @@
     avisar(v);
     /* la salida de sonido despierta un poco antes de «Hoy en clase» (el mini-jack del aula tarda en espabilar) */
     if (v.fase === 'entrada' && v.desde >= 300 - CUENTA - INDICE - 12) despierto(true);
+    if (v.c && v.fase !== 'nada' && v.fase !== 'acabada') cargarSonidos();
     /* la PREPARACIÓN (4:00–4:45, la cuenta atrás) y «HOY EN CLASE» (4:45–5:00), con la batería de punta a punta */
     var enPrevia = (v.fase === 'cuenta' || v.fase === 'indice') && inm !== 'pantalla';
     var agenda = enPrevia ? agendaHoy(v.pub, v.c.grupo) : null, hayIndice = !!(agenda && agenda.length);
@@ -1060,6 +1104,7 @@
   W.LMEscaleta = { version: '15-oct-2026', app: APP, grado: GRADO,
     vista: function () { var v = vista(ahora()); return { fase: v.fase, grupo: v.c && v.c.grupo, clase: v.c && v.c.clase, i: v.i, bloques: v.B, a: v.a || null }; },
     accion: accion, pintar: function () { pintar(true); }, formatea: formatea, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios,
+    sonido: function () { return { previa: !!SON.previa, item: !!SON.item, cambio: SON.cambio.filter(Boolean).length, n: SON.n, pista: BAT.pista, vivo: BAT.vivo, ac: AC ? AC.state : '' }; },
     indice: function () {   /* para mirar (y para el banco): el índice de la clase que toca y en qué golpe sale cada cosa */
       var v = vista(ahora()); if (!v.c) return null;
       var a = agendaHoy(v.pub, v.c.grupo), P = planIndice(a);
