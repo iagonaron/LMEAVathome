@@ -354,6 +354,17 @@
     }, 1500);
   }
 
+  /* ---------- (15-oct-2026, Iago) TRABAJO POR LIBRE: el latido (piel/latido.js) va en todas las apps, con piel o sin
+     ella: en los portales apunta la cuenta del alumno y en los subportales avisa a la campana del Diario del tiempo de
+     práctica por libre. Para quitarlo: borrar este bloque. ---------- */
+  try {
+    if (!window.LMLatido && !document.querySelector('script[src*="/piel/latido.js"]')) {
+      var lat = document.createElement('script'); lat.src = BASE + 'latido.js?v=1'; lat.async = true;
+      lat.setAttribute('data-app', app); lat.setAttribute('data-grado', grado);
+      (document.head || H).appendChild(lat);
+    }
+  } catch (e) {}
+
   /* ---------- 27-sep-2026 (noche) · Ojeador (#visor=<alumno>, lo abre el Diario): la piel NO se enciende
      y no se toca la marca. Así Iago ve el portal exactamente como lo ve ese alumno, y el portal (que en
      el Ojeador lee la sesión del alumno) no confunde la cuenta ni recarga la página. ---------- */
