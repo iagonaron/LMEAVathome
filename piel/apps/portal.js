@@ -443,26 +443,52 @@
     }
     if (w.parentNode !== host) host.appendChild(w);
   }
-  /* (15-oct-2026, Iago) REFRESCAR: «Añádeme a los portales un botón de refrescar en las portadas. Arriba en algún lugar…
-     muchas veces entro y quiero ver si hay novedades y tengo que cerrar la ventana y volver a abrir». Un cuadrado 1×1
-     con la flecha circular, justo a la derecha de la campana y visible cuando ella lo está (con la sesión abierta; para
-     alumnos y profesor): recarga el portal entero, con lo último (tareas, avisos y la versión nueva si la hay).
-     Para quitarlo: borrar esta función, su línea en todo() y el bloque «REFRESCAR» de portal.css. */
-  function botonRefrescar() {
-    var bell = document.getElementById('alu-campana-btn'); if (!bell || !bell.parentNode) return;
-    var host = bell.parentNode, w = document.getElementById('lm-refrescar');
-    if (!w) {
-      w = cuadro('lm-ic-refrescar', 'refresh', 'Refrescar', function (b) {
-        if (b.classList.contains('gira')) return;
-        b.classList.add('gira'); b.setAttribute('aria-busy', 'true');
-        setTimeout(function () { try { location.reload(); } catch (e) { location.href = location.href; } }, 150);
-      });
-      w.id = 'lm-refrescar';
-    }
-    if (w.parentNode !== host) host.appendChild(w);
-    var ver = bell.style.display !== 'none';
-    if ((w.style.display !== 'none') !== ver) w.style.display = ver ? '' : 'none';
+  /* (15-oct-2026, noche, Iago) VERSIÓN NUEVA, SOLA (en vez del botón de refrescar): «si hay alguna notificación sin yo
+     darle a refrescar pues no sería necesario el botón… siempre cierro todo y abro por las dudas». Las notificaciones ya
+     se ponen al día solas (la campana pregunta cada 30 s y al volver al portal); lo que no entraba sin recargar era una
+     VERSIÓN NUEVA del portal. Ahora, al VOLVER al portal tras un rato fuera (1 minuto o más), se mira si ha cambiado algo
+     de lo publicado (la página y la piel) y, si ha cambiado, se recarga solo en ese momento: nunca con la escaleta en
+     marcha, ni con algo abierto (campana, resultados, libros, pizarra, lección…), ni escribiendo, ni dentro del marco
+     del otro portal; y como mucho una vez cada 10 minutos. Para quitarlo: borrar este bloque. */
+  var VER = { base: '', fuera: 0, mirando: false };
+  function verHuella() {
+    var pb = (window.LMPiel && window.LMPiel.base) || 'https://ge.lmathome.es/piel/';
+    var fs = [location.pathname || '/', pb + 'lm-piel.js', pb + 'apps/portal.js', pb + 'apps/portal.css', pb + 'escaleta.js'];
+    return Promise.all(fs.map(function (u) {
+      return fetch(u + (u.indexOf('?') >= 0 ? '&' : '?') + 'lmv=' + Date.now(), { method: 'HEAD', cache: 'no-store' })
+        .then(function (r) { return r.ok ? (r.headers.get('content-length') || r.headers.get('last-modified') || '') : '?'; })   /* el tamaño: no cambia si solo se publicó otra cosa del repositorio */
+        .catch(function () { return '?'; });
+    })).then(function (l) { return l.indexOf('?') >= 0 ? '' : l.join('|'); });
   }
+  function verSeguro() {
+    try {
+      if (EN_MARCO || editorAbierto()) return false;
+      var E = window.LMEscaleta, f = (E && E.vista) ? String(E.vista().fase || '') : '';
+      if (/^(entrada|cuenta|indice|clase|parada)$/.test(f)) return false;
+      if (document.querySelector('[id$="-modal"].open, [id$="-ov"].open, [id$="-overlay"].open, [id$="Backdrop"].open, #lm-marco.lm-on, .lm-ic-menu, .lm-mor-panel')) return false;
+      var a = document.activeElement; if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false;
+      var u = 0; try { u = +sessionStorage.getItem('lm_ver_recarga') || 0; } catch (e) {}
+      if (Date.now() - u < 600000) return false;
+    } catch (e) { return false; }
+    return true;
+  }
+  function verMirar() {
+    if (VER.mirando || !VER.base) return;
+    VER.mirando = true;
+    verHuella().then(function (h) {
+      VER.mirando = false;
+      if (!h || h === VER.base || !verSeguro()) return;
+      try { sessionStorage.setItem('lm_ver_recarga', String(Date.now())); } catch (e) {}
+      location.reload();
+    }, function () { VER.mirando = false; });
+  }
+  setTimeout(function () { verHuella().then(function (h) { VER.base = h; }); }, 4000);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') { VER.fuera = Date.now(); return; }
+    if (VER.fuera && Date.now() - VER.fuera >= 60000) verMirar();
+  });
+  window.addEventListener('pageshow', function (e) { if (e && e.persisted) verMirar(); });
+  window.LMVersion = { mirar: verMirar, base: function () { return VER.base; } };
   function pintarPantalla() {
     var b = document.querySelector('#lm-pantalla .lm-ic-pantalla'); if (!b) return;
     var on = enPantalla(); b.innerHTML = ico(on ? 'contraer' : 'expandir');
@@ -3417,7 +3443,6 @@
     try { cartelGrado(); } catch (e) {}
     try { hileraIconos(); } catch (e) {}
     try { cuadroPantalla(); } catch (e) {}
-    try { botonRefrescar(); } catch (e) {}
     try { pintarMorosos(); } catch (e) {}
     try { visorLecciones(); } catch (e) {}
     try { librosMax(); } catch (e) {}
