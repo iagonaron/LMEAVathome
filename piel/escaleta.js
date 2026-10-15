@@ -6,14 +6,16 @@
      editores): la actividad de antes tachada en gris, la de ahora en amarillo con su subtítulo en blanco, los minutos que
      le quedan y la barra; debajo, la siguiente en gris y los botones ◀ ⏸ ■ ▶. En el portal, arriba a la altura de los
      botones de la derecha y abajo a la de la tira de la música, con el mismo hueco a los lados (Iago, 15-oct).
-   · Del minuto 0:00 al 4:15 de cada clase (hora de Galicia, reloj del servidor), la «entrada» (el portal abre la lista
-     de morosos). A las 4:15, cuenta atrás de 45 s a pantalla completa, «Preparamos libro de ritmo y lápiz», con su
-     batería (bombo en el 1 de cada compás, 22 compases que acaban justo en el 5:00) y unas barras amarillas que se mueven
-     con ella; la música de los 30 temas se para. A las 5:00 empieza la primera actividad. El ▶ amarillo junto a «Salir»
-     la empieza antes (y la vuelve a poner tras ■).
-   · Antes, de 4:00 a 4:15, «HOY EN CLASE» a pantalla completa (lo ven los alumnos): el índice de la clase, que va apareciendo
-     línea a línea como la portada de una ficha (Iago, 15-oct: «Carta 1.3 de ritmo · Preparación de ritmo · Lección 13 ·
-     … · Lección de entonación», sin decir qué lección; del bloque de teoría, su texto tal cual; con el descanso).
+   · Del minuto 0:00 al 4:12 de cada clase (hora de Galicia, reloj del servidor), la «entrada» (el portal abre la lista
+     de morosos). A las 4:12, la PREPARACIÓN: cuenta atrás de 32 s a pantalla completa, «Preparamos libro de ritmo y
+     lápiz», con su batería (120 por minuto: 24 compases de 2 s, del 4:12 al 5:00, entrando en fade-in) y unas barras
+     amarillas que se mueven con ella; la música de los 30 temas se para.
+   · De 4:44 a 5:00, «HOY EN CLASE» a pantalla completa (lo ven los alumnos), con la batería sin cortarse: el índice de la
+     clase, cada línea en un golpe (una por compás; las de la teoría, cada medio compás) y, al salir la última, un break
+     que cierra con bombo y platillo justo en el 5:00, cuando empieza la primera actividad (Iago, 15-oct: «Ritmo:
+     preparación lección 13 · Ritmo: evaluación lecciones 14 y 15 · FaActos 3 · Teoría: … · Dictado 5 · Lección de
+     entonación», sin decir qué lección; el descanso, una raya discontinua). El ▶ amarillo junto a «Salir» empieza la
+     clase antes (y la vuelve a poner tras ■).
    · En esa cuenta atrás, arriba y en violeta, los recordatorios de esa clase que manda el iPad (los 📌 de la preparación
      y las fichas en papel), solo los de ese grupo y cuatro como mucho (Iago, 15-oct).
    · Cada cambio de actividad: cartel a pantalla completa 5 s y un «ding» suave; tocar la pantalla lo quita AL MOMENTO
@@ -230,7 +232,7 @@
     /* (15-oct-2026) GP: la carta de ritmo de C1 («Carta 2.3» + su nombre) → «Ritmo · Carta 2.3» */
     if (slot === 'carta-ritmo' || /^carta\s+\d/i.test(tit)) { var mc = /(\d+(?:\.\d+)?)/.exec(b.tit || ''); return { t: 'Ritmo', s: mc ? 'Carta ' + mc[1] : primeraLinea(sub) }; }
     /* (15-oct-2026) GP: «Pregunta autoalimentada · semana anterior» → «Pregunta de la semana pasada · Lecciones 14 y 16» */
-    if (/pregunta/.test(slot) || /^pregunta/i.test(tit)) return { t: 'Pregunta de la semana pasada', s: lecciones(lec.length ? lec : nsub) || primeraLinea(sub) };
+    if (/pregunta/.test(slot) || /^pregunta/i.test(tit)) return { t: 'Evaluación', s: lecciones(lec.length ? lec : nsub) || primeraLinea(sub) };
     if (/^fa-intervalia|intervalia|faactos/.test(slot)) {
       var modo = /b\/n|blanco/i.test(b.ses || '') ? 'blanco y negro' : (/color/i.test(b.ses || '') ? 'color' : '');
       var e0 = (b.emp && typeof b.emp === 'object') ? (b.emp[grupo] || '') : (b.emp || ''), emp = e0 ? 'empieza ' + (/\.$/.test(e0) ? e0 : nombreCorto(e0)) : '';
@@ -262,31 +264,47 @@
   }
 
   /* ---------- el modelo: qué toca ahora (todo sale de la hora y del estado) ---------- */
-  var CUENTA = 45;   /* s de cuenta atrás, de 4:15 a 5:00 */
-  var INDICE = 15;   /* s de «Hoy en clase» justo antes, de 4:00 a 4:15 (Iago: «si en total son 15 segundos, que cada cosa tenga 2 segundos») */
+  /* (15-oct-2026, Iago) «pon solo 30 segundos de preparatorio… y 15 de índice… cuidado porque la batería a veces se
+     descuadra… que sea fluida»: 32 s y 16 s, compases enteros a 120 (16 + 8), así el índice entra en el 1 de un compás */
+  var CUENTA = 32;   /* s de la preparación (la cuenta atrás), de 4:12 a 4:44 */
+  var INDICE = 16;   /* s de «Hoy en clase», de 4:44 a 5:00 */
   var MEMO = { pub: null, g: '', B: [] };
+  /* (15-oct-2026, Iago) «cuando estemos en preparación lección… de ritmo, lo que tienes que resaltar es la campana, porque
+     trabajo la lección con el visor que tienen ellos en las tareas… y, si eres capaz, la lección de ese día dentro de las
+     notificaciones de tareas»: las lecciones de esa preparación (las que manda el iPad o, si no, las del subtítulo) */
+  function lecsCampana(b, f) {
+    if (!((f.t === 'Ritmo' || f.t === 'Ritmo entonado') && /^Lecci/.test(f.s || ''))) return null;
+    var l = (Array.isArray(b.lecs) && b.lecs.length) ? b.lecs : (String(f.s).match(/\d+/g) || []);
+    l = l.map(Number).filter(function (n) { return isFinite(n) && n > 0; });
+    return l.length ? l : null;
+  }
   function bloquesDe(pub, grupo) {
     if (MEMO.pub === pub && MEMO.g === grupo) return MEMO.B;
     var l = (pub && Array.isArray(pub.bloques)) ? pub.bloques.filter(function (b) { return b && +b.m > 0 && b.slot !== '__no_clase'; }) : [];
-    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b) }; });
+    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f) }; });
     return MEMO.B;
   }
-  /* (15-oct-2026, Iago) «HOY EN CLASE»: el índice que ven los alumnos. Lo que eligió: «Carta 1.3 de ritmo», «Preparación de
-     ritmo · Lección 32» (lo que trabajamos), «Evaluación de ritmo · Lecciones 26 y 28» (lo que pregunta; en GP, «de ritmo
-     entonado» y la pregunta de la semana pasada), «Dictado 5», «Lección de entonación» (sin decir cuál, y con la
-     preparación en la misma línea), del bloque de teoría SU TEXTO tal cual, y el descanso en su sitio. */
+  /* (15-oct-2026, Iago) «HOY EN CLASE»: el índice que ven los alumnos. Lo que eligió (por la tarde): «Ritmo: carta 1.3»,
+     «Ritmo: preparación lección 13» (lo que trabajamos), «Ritmo: evaluación lecciones 14 y 15» (lo que pregunta; en GP,
+     «Ritmo entonado: …», también la pregunta de la semana pasada), «FaActos 3», «Intervalia 4», «Dictado 5», «Lección de
+     entonación» (sin decir cuál, y con la preparación en la misma línea), «Teoría: lo que puso en la preparación de la
+     clase» (si son varias líneas, «Teoría:» y debajo una por línea) y el descanso en su sitio (una raya discontinua). */
+  function minus(s) { s = String(s || ''); return s.charAt(0).toLowerCase() + s.slice(1); }
   function agendaHoy(pub, grupo) {
     var l = (pub && Array.isArray(pub.bloques)) ? pub.bloques : [], out = [], vistos = {};
     l.forEach(function (b) {
       if (!b || !(+b.m > 0) || /^__/.test(String(b.slot || ''))) return;
-      var f = formatea(b, grupo), tm = temaDe(b), t = '';
-      if (f.t === 'Ritmo') t = /^Carta /.test(f.s) ? f.s + ' de ritmo' : 'Preparación de ritmo' + (f.s && /^Lecci/.test(f.s) ? ' · ' + f.s : '');
-      else if (f.t === 'Ritmo entonado') t = 'Preparación de ritmo entonado' + (/^Lecci/.test(f.s) ? ' · ' + f.s : '');
-      else if (f.t === 'Evaluación de ritmo') t = 'Evaluación de ritmo' + (/^Lecci/.test(f.s) ? ' · ' + f.s : '');
-      else if (f.t === 'Pregunta de la semana pasada') t = 'Evaluación de ritmo entonado' + (/^Lecci/.test(f.s) ? ' · ' + f.s : '');
+      var f = formatea(b, grupo), tm = temaDe(b), t = '', ls = null, lec = /^Lecci/.test(f.s || '') ? ' ' + minus(f.s) : '';
+      if (f.t === 'Ritmo') t = /^Carta /.test(f.s) ? 'Ritmo: ' + minus(f.s) : 'Ritmo: preparación' + lec;
+      else if (f.t === 'Ritmo entonado') t = 'Ritmo entonado: preparación' + lec;
+      else if (f.t === 'Evaluación de ritmo') t = 'Ritmo: evaluación' + lec;
+      else if (f.t === 'Evaluación') t = 'Ritmo entonado: evaluación' + lec;
       else if (f.t === 'Entonación' || f.t === 'Preparación entonación') { t = 'Lección de entonación'; tm = 'entonacion'; }
       else if (f.t === 'Dictado') t = b.num ? 'Dictado ' + b.num : 'Dictado';
-      else if (f.t === 'Teoría') { t = String(b.sub || '').split(/\n+/).map(function (x) { return quitarEmojis(x); }).filter(Boolean).join(' · ') || 'Teoría'; tm = 'teoria'; }
+      else if (f.t === 'Teoría') {   /* (Iago) «en vez de bloque de teoría, simplemente TEORÍA: y lo que viene a continuación» */
+        ls = String(b.sub || '').split(/\n+/).map(function (x) { x = quitarEmojis(x); return x.length > 80 ? x.slice(0, 78) + '…' : x; }).filter(Boolean).slice(0, 4);
+        t = ls.length === 1 ? 'Teoría: ' + ls[0] : 'Teoría'; if (ls.length < 2) ls = null; tm = 'teoria';
+      }
       else if (f.t === 'Corrección de la ficha') t = f.s ? 'Corrección de la ' + f.s.charAt(0).toLowerCase() + f.s.slice(1) : 'Corrección de la ficha';
       else if (f.t === 'Descanso') {   /* (Iago) «en lugar de poner descanso, una línea discontinua (quizá amarilla)… más sutil» */
         if (out.length && !out[out.length - 1].sep) out.push({ sep: true });
@@ -301,11 +319,46 @@
       }
       else t = f.t;
       if (t.length > 84) t = t.slice(0, 82) + '…';
-      if (!t || vistos[t]) return; vistos[t] = 1;
-      out.push({ t: t, tema: tm });
+      var clave = t + (ls ? '|' + ls.join('|') : '');
+      if (!t || vistos[clave]) return; vistos[clave] = 1;
+      out.push(ls ? { t: t, tema: tm, lineas: ls } : { t: t, tema: tm });
     });
     while (out.length && out[out.length - 1].sep) out.pop();   /* sin línea al final */
     return out.slice(0, 10);
+  }
+  /* (15-oct-2026, Iago) «que la aparición de los ítems del índice coincida con golpes rítmicos… 120 bpm… y después de que
+     salgan todos, un break final y ya empieza la primera actividad coincidiendo con el cierre de batería». Todo se cuenta
+     en semicorcheas que faltan para el 5:00 (k; una semicorchea = 1/8 s): el índice entra en k=120 (4:45, tercer tiempo) y
+     la primera línea cae en k=112 (4:46, el 1 del compás siguiente). Cada línea, un compás (16); la cabecera «Teoría:» y
+     cada una de sus líneas, medio compás (8; «cada una puede durar un segundo»). Si no cabe, se aprieta (medio compás, un
+     tiempo). Tras la última, el break (uno o dos compases) y el cierre en k=0. */
+  var PLANES = [{ it: 16, cab: 8, sub: 8, sep: 16, cuadra: 1, min: 32 }, { it: 16, cab: 8, sub: 8, sep: 16, min: 24 }, { it: 16, cab: 8, sub: 8, sep: 16, cuadra: 1, min: 16 },
+                { it: 8, cab: 8, sub: 4, sep: 8, min: 16 }, { it: 4, cab: 4, sub: 4, sep: 4, min: -999 }];
+  var NOTAS = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51, 1567.98, 1760];
+  function planIndice(agenda) {
+    var filas = [], ultimo = 128, d = PLANES[0];
+    for (var nv = 0; nv < PLANES.length; nv++) {
+      d = PLANES[nv]; filas = []; ultimo = 128;
+      for (var i = 0, k = 112; i < agenda.length; i++) {
+        var x = agenda[i], fi = { x: x, k: k, subs: [] }; ultimo = k;
+        if (x.sep) fi.dur = d.sep;
+        else if (x.lineas) {
+          for (var j = 0, kk = k - d.cab; j < x.lineas.length; j++, kk -= d.sub) { fi.subs.push(kk); ultimo = kk; }
+          fi.dur = d.cab + d.sub * x.lineas.length;
+          if (d.cuadra && fi.dur % 16) fi.dur += 16 - fi.dur % 16;   /* que lo siguiente vuelva a caer en el 1 del compás */
+        } else fi.dur = d.it;
+        filas.push(fi); k -= fi.dur;
+      }
+      if (ultimo >= d.min) break;
+    }
+    var P = { filas: filas, toques: {}, kb: 8, n: 0 }, nota = 0;   /* el break, solo los dos últimos tiempos (Iago: «demasiado largo, agobia») */
+    filas.forEach(function (fi) {
+      P.n += 1 + fi.subs.length;
+      if (fi.x.sep) { fi.d2 = fi.k - fi.dur / 2; P.toques[fi.k] = { sep: 1 }; P.toques[fi.d2] = { swish: 1 }; return; }
+      P.toques[fi.k] = { f: NOTAS[Math.min(nota++, NOTAS.length - 1)] };
+      fi.subs.forEach(function (kk) { P.toques[kk] = { sub: 1, f: NOTAS[Math.min(nota++, NOTAS.length - 1)] }; });
+    });
+    return P;
   }
   /* (15-oct-2026, Iago) «En la cuenta atrás… quiero que me aparezcan los recordatorios… en un texto más pequeño…
      en violeta». El iPad los manda en un bloque aparte ('__recordatorios', sin minutos): { t, d, gr:[grupos] }.
@@ -346,8 +399,8 @@
     else if (!e || !e.arr) {
       if (e && e.parada && !e.arr) { v.fase = 'parada'; return v; }
       if (desde < 300 - CUENTA - INDICE) v.fase = 'entrada';
-      else if (desde < 300 - CUENTA) { v.fase = 'indice'; v.queda = 300 - CUENTA - desde; }
-      else if (desde < 300) { v.fase = 'cuenta'; v.queda = 300 - desde; }
+      else if (desde < 300 - INDICE) { v.fase = 'cuenta'; v.queda = 300 - INDICE - desde; }
+      else if (desde < 300) { v.fase = 'indice'; v.queda = 300 - desde; }
       else if (B.length) { v.fase = 'clase'; v.e = e = { arr: c.t0 + 300000, i: 0, ini: c.t0 + 300000, pac: 0, mg: 0, auto: true }; }
       else v.fase = desde < (DURA + 15) * 60 ? 'sin' : 'nada';
     } else v.fase = 'clase';
@@ -429,19 +482,67 @@
       } else if (VIVO) { try { VIVO.stop(); } catch (e) {} VIVO = null; }
     } catch (e) {}
   }
-  function env(g, t, v, dur) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); }
-  function bombo(t, v) { var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(46, t + 0.12); env(g, t, v, 0.36); o.connect(g); g.connect(COMP); o.start(t); o.stop(t + 0.4); }
-  function ruidoA(t, v, dur, hp) { var s = AC.createBufferSource(); s.buffer = RUIDO; var f = AC.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; var g = AC.createGain(); env(g, t, v, dur); s.connect(f); f.connect(g); g.connect(COMP); s.start(t, Math.random() * 0.4); s.stop(t + dur + 0.03); }
-  function caja(t, v) { ruidoA(t, v, 0.16, 1400); var o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(230, t); o.frequency.exponentialRampToValueAtTime(165, t + 0.07); env(g, t, v * 0.55, 0.1); o.connect(g); g.connect(COMP); o.start(t); o.stop(t + 0.13); }
-  function charles(t, v, abierto) { ruidoA(t, v, abierto ? 0.26 : 0.045, 7600); }
-  function tom(t, v, f0) { var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * 0.62, t + 0.24); env(g, t, v, 0.3); o.connect(g); g.connect(COMP); o.start(t); o.stop(t + 0.33); }
-  function platillo(t, v) { ruidoA(t, v, 2.2, 4800); }
-  /* 22 compases de 4/4 en 45 s (117,3 por minuto): el primer golpe es el bombo del 1 y el último cae justo en el 5:00 */
-  var PASOS = 22 * 16, PASO = CUENTA / PASOS;
-  function golpe(t, k) {   /* k: semicorcheas que faltan para el final */
-    var pos = (16 - (k % 16)) % 16, cf = Math.floor(k / 16), fill = (k <= 8 && k > 0), denso = k <= 64;
-    if (k === 0) { bombo(t, 0.95); platillo(t, 0.42); caja(t, 0.45); return; }
-    if (fill) { var tt = { 8: 260, 7: 230, 6: 200, 5: 175, 4: 150, 3: 130, 2: 115, 1: 100 }; if (tt[k]) tom(t, 0.62, tt[k]); if (k % 2 === 0) bombo(t, 0.6); return; }
+  function env(g, t, v, dur) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); }
+  /* (15-oct-2026, Iago: «la batería la siento muy fuerte… que empiece con un poco de fade in… el sonido lo veo un poco
+     cutre»): todo por un bus más bajo (−7,5 dB) que entra en fade-in, con una sala pequeña muy discreta para que no suene
+     seca; bombo con cuerpo y golpe, caja de dos tonos con su bordón, charles y platillo «metálicos» (seis cuadradas
+     desafinadas, como las cajas de ritmos de siempre) y toms con algo de parche */
+  var BUS = null, BUS_V = 0.42;
+  function bus() {
+    if (BUS) return BUS;
+    BUS = AC.createGain(); BUS.gain.value = BUS_V; BUS.connect(COMP);
+    try {
+      var L = Math.floor(AC.sampleRate * 0.8), ir = AC.createBuffer(2, L, AC.sampleRate);
+      for (var ch = 0; ch < 2; ch++) { var d = ir.getChannelData(ch); for (var i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, 3.5); }
+      var cv = AC.createConvolver(), hp = AC.createBiquadFilter(), wet = AC.createGain();
+      cv.buffer = ir; hp.type = 'highpass'; hp.frequency.value = 300; wet.gain.value = 0.13;
+      BUS.connect(hp); hp.connect(cv); cv.connect(wet); wet.connect(COMP);
+    } catch (e) {}
+    return BUS;
+  }
+  function bombo(t, v) {
+    var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine';
+    o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(50, t + 0.1);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.003); g.gain.exponentialRampToValueAtTime(v * 0.45, t + 0.09); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+    o.connect(g); g.connect(bus()); o.start(t); o.stop(t + 0.45);
+    var c = AC.createOscillator(), gc = AC.createGain(); c.type = 'triangle'; c.frequency.setValueAtTime(1500, t); c.frequency.exponentialRampToValueAtTime(180, t + 0.014);
+    gc.gain.setValueAtTime(v * 0.3, t); gc.gain.exponentialRampToValueAtTime(0.0001, t + 0.02); c.connect(gc); gc.connect(bus()); c.start(t); c.stop(t + 0.03);
+  }
+  function ruidoA(t, v, dur, f0, tipo) {
+    var s = AC.createBufferSource(); s.buffer = RUIDO; var f = AC.createBiquadFilter(); f.type = tipo || 'highpass'; f.frequency.value = f0; if (tipo === 'bandpass') f.Q.value = 0.8;
+    var g = AC.createGain(); env(g, t, v, dur); s.connect(f); f.connect(g); g.connect(bus()); s.start(t, Math.random() * 0.4); s.stop(t + dur + 0.03);
+  }
+  function caja(t, v) {
+    [[185, 0.42], [330, 0.24]].forEach(function (p) {
+      var o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(p[0], t); o.frequency.exponentialRampToValueAtTime(p[0] * 0.86, t + 0.06);
+      env(g, t, v * p[1], 0.11); o.connect(g); g.connect(bus()); o.start(t); o.stop(t + 0.13);
+    });
+    ruidoA(t, v * 0.7, 0.18, 3000, 'bandpass'); ruidoA(t, v * 0.22, 0.12, 7000);
+  }
+  function metal(t, v, dur, f0) {
+    var g = AC.createGain(), bp = AC.createBiquadFilter(), hp = AC.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = f0; bp.Q.value = 0.7; hp.type = 'highpass'; hp.frequency.value = 6500;
+    env(g, t, v, dur); bp.connect(hp); hp.connect(g); g.connect(bus());
+    [2, 3, 4.16, 5.43, 6.79, 8.21].forEach(function (r) { var o = AC.createOscillator(); o.type = 'square'; o.frequency.value = 40 * r; o.connect(bp); o.start(t); o.stop(t + dur + 0.03); });
+  }
+  function charles(t, v, abierto) { metal(t, v * 0.5, abierto ? 0.28 : 0.05, 10000); ruidoA(t, v * 0.18, abierto ? 0.2 : 0.03, 9000); }
+  function tom(t, v, f0) {
+    var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(f0 * 1.15, t); o.frequency.exponentialRampToValueAtTime(f0 * 0.7, t + 0.22);
+    env(g, t, v * 0.85, 0.3); o.connect(g); g.connect(bus()); o.start(t); o.stop(t + 0.33); ruidoA(t, v * 0.12, 0.05, 1800, 'bandpass');
+  }
+  function platillo(t, v) { metal(t, v * 0.45, 1.8, 8000); ruidoA(t, v * 0.3, 1.5, 5500); }
+  /* (15-oct-2026, Iago) 24 compases de 4/4 a 120 por minuto (2 s cada uno), del 4:12 al 5:00: la preparación (k de 384 a
+     129), un redoblito en el último tiempo que lleva a «Hoy en clase» (4:44, en el 1), el índice con cada línea en su golpe,
+     el break y el cierre */
+  var PASO = 0.125, PASOS = Math.round((CUENTA + INDICE) / PASO), K_INDICE = Math.round(INDICE / PASO), PLAN0 = { toques: {}, kb: 8 };   /* 384 y 128 */
+  function golpe(t, k) {   /* k: semicorcheas que faltan para el 5:00 */
+    var pos = (16 - (k % 16)) % 16, cf = Math.floor(k / 16), P = BAT.plan || PLAN0, x = P.toques[k], denso = k <= K_INDICE;
+    if (k === 0) { bombo(t, 0.95); platillo(t, 0.42); caja(t, 0.45); BAT.cierre = BAT.fin; return; }   /* el cierre: empieza la primera actividad */
+    if (x) toque(t, x);
+    if (k === PASOS) { bombo(t, 0.9); platillo(t, 0.3); charles(t, 0.2, false); return; }   /* 4:00: empieza la preparación */
+    if (k <= P.kb) { breakFinal(t, k, pos); return; }
+    if (k > K_INDICE && k <= K_INDICE + 4) { caja(t, 0.2 + 0.07 * (K_INDICE + 4 - k)); if (pos === 12) bombo(t, 0.7); return; }   /* un redoblito… */
+    if (k === K_INDICE) { bombo(t, 0.95); platillo(t, 0.22); return; }   /* …y en el 4:44 entra «Hoy en clase» */
     if (pos === 0 || pos === 8) bombo(t, 0.9);
     if (pos === 10 && cf % 2 === 1) bombo(t, 0.62);
     if (pos === 7 && cf % 4 === 0) bombo(t, 0.5);
@@ -450,45 +551,53 @@
     if (denso ? true : pos % 2 === 0) charles(t, (pos % 4 === 0) ? 0.2 : 0.11, false);
     if (pos === 14 && cf % 2 === 1 && !denso) charles(t, 0.13, true);
   }
-  var BAT = { vivo: false, id: 0, fin: 0, k: -1 };
+  function breakFinal(t, k, pos) {   /* los dos últimos tiempos: toms de agudo a grave (y bombo) hasta el golpe del 5:00 */
+    tom(t, 0.6, [260, 230, 200, 175, 150, 130, 115, 100][8 - k]); if (k % 2 === 0) bombo(t, 0.55);
+  }
+  /* (15-oct-2026, Iago) «ese índice puede tener soniditos… como en el comienzo de las fichas de teoría»: al salir cada
+     línea, dos senos (cada uno un poco más agudo) y un charles abierto; las líneas de la teoría, más flojitas; el descanso,
+     más grave, y un «chss» cuando la palabra se deshace en raya */
+  function toque(t, x) {
+    if (x.swish) { charles(t, 0.15, true); return; }
+    var f = x.f || 392, v = x.sep ? 0.55 : x.sub ? 0.8 : 1.5;
+    if (!x.sep && !x.sub) charles(t, 0.13, true);
+    [[f, 0, 0.12, 0.1 * v], [f * 1.5, 0.022, 0.14, 0.06 * v]].forEach(function (p) {
+      var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = p[0];
+      g.gain.setValueAtTime(0.0001, t + p[1]); g.gain.exponentialRampToValueAtTime(p[3], t + p[1] + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + p[1] + p[2]);
+      o.connect(g); g.connect(COMP); o.start(t + p[1]); o.stop(t + p[1] + p[2] + 0.03);
+    });
+  }
+  var BAT = { vivo: false, id: 0, fin: 0, k: -1, plan: null, cierre: 0 };
   function bateria(finMs) {   /* finMs: la hora (reloj de la escaleta) del último golpe */
     if (BAT.vivo && BAT.fin === finMs) return;
     if (!audio() || AC.state !== 'running') return;
     callarBateria(true);
     BAT.vivo = true; BAT.fin = finMs; BAT.k = PASOS;
     MASTER.gain.cancelScheduledValues(AC.currentTime); MASTER.gain.setValueAtTime(1, AC.currentTime);
+    try {   /* fade-in en los dos primeros compases (si se abre a medias, sigue desde donde vaya) */
+      var ya = AC.currentTime, ini = ya + (finMs - PASOS * PASO * 1000 - ahora()) / 1000, b = bus();
+      b.gain.cancelScheduledValues(ya);
+      if (ya < ini + 4) { b.gain.setValueAtTime(BUS_V * Math.max(0.12, Math.min(1, (ya - ini) / 4)), ya); b.gain.linearRampToValueAtTime(BUS_V, ini + 4); }
+      else b.gain.setValueAtTime(BUS_V, ya);
+    } catch (e) {}
     var tic = function () {
       if (!BAT.vivo) return;
       if (D.hidden) { callarBateria(true); return; }   /* solo suena la página que se ve (otra pestaña la seguirá) */
-      var finAC = AC.currentTime + (BAT.fin - ahora()) / 1000, lim = AC.currentTime + 0.15;
+      var finAC = AC.currentTime + (BAT.fin - ahora()) / 1000, lim = AC.currentTime + 0.6;   /* 0,6 s por delante: aunque la página vaya cargada, no se descuadra */
       while (BAT.k >= 0) {
         var t = finAC - BAT.k * PASO; if (t > lim) break;
-        if (t >= AC.currentTime - 0.02) golpe(Math.max(t, AC.currentTime), BAT.k);
+        if (t >= AC.currentTime - 0.008) golpe(Math.max(t, AC.currentTime), BAT.k);
         BAT.k--;
       }
       if (BAT.k < 0) { BAT.vivo = false; clearInterval(BAT.id); }
     };
-    clearInterval(BAT.id); BAT.id = setInterval(tic, 30); tic();
+    clearInterval(BAT.id); BAT.id = setInterval(tic, 40); tic();
   }
   function callarBateria(ya) {
     var estaba = BAT.vivo; BAT.vivo = false; clearInterval(BAT.id);
     if (!estaba || ya || !AC || !MASTER) return;
     try { var t = AC.currentTime; MASTER.gain.cancelScheduledValues(t); MASTER.gain.setValueAtTime(MASTER.gain.value, t); MASTER.gain.linearRampToValueAtTime(0.0001, t + 0.25);
       setTimeout(function () { try { MASTER.gain.setValueAtTime(1, AC.currentTime); } catch (e) {} }, 400); } catch (e) {}
-  }
-  /* (15-oct-2026, Iago) «ese índice puede tener soniditos en base a que va revelando los contenidos… como en el comienzo
-     de las fichas de teoría»: un toque suave por línea (dos senos, como SFX de las fichas), cada uno un poco más agudo */
-  function toquesIndice(retardos) {
-    if (!audio() || AC.state !== 'running') return;
-    var esc = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51, 1567.98], t0 = AC.currentTime + 0.05, j = 0;
-    for (var k = 0; k < retardos.length; k++) {
-      var sep = retardos[k].sep, f = sep ? 392 : esc[Math.min(j++, esc.length - 1)], t = t0 + retardos[k].t, v = sep ? 0.55 : 1;   /* el descanso, más grave y flojito */
-      [[f, 0, 0.12, 0.1 * v], [f * 1.5, 0.022, 0.14, 0.06 * v]].forEach(function (p) {
-        var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = p[0];
-        g.gain.setValueAtTime(0.0001, t + p[1]); g.gain.exponentialRampToValueAtTime(p[3], t + p[1] + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + p[1] + p[2]);
-        o.connect(g); g.connect(COMP); o.start(t + p[1]); o.stop(t + p[1] + p[2] + 0.03);
-      });
-    }
   }
   function ding() {
     if (!audio() || AC.state !== 'running') return;
@@ -556,14 +665,15 @@
     /* (15-oct-2026, tarde, Iago) «que el tiempo aparezca en amarillo, que el texto de preparamos el libro de ritmo y el lápiz
        sea en blanco y las animaciones de las barras de abajo sean en amarillo» */
     '#lme-cuenta .lme-num{font:800 200px/.9 ' + F + ';font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:#facc15}' +
-    '#lme-cuenta .lme-num .lme-dp{color:#a8891a;margin:0 .03em}' +
+    '#lme-cuenta .lme-num .lme-dp{color:#fff;margin:0 .03em;position:relative;top:-.09em}' +   /* (Iago) «los dos puntos, blancos» */
     '#lme-cuenta .lme-frase{font:800 54px/1.05 ' + F + ';color:#fff}' +
     '#lme-cuenta canvas{display:block;width:420px;height:44px;margin-top:12px}' +
-    '#lme-cuenta .lme-rec{max-width:min(1000px,86vw);margin-bottom:14px;padding:11px 24px 13px;border-radius:14px;background:rgba(124,58,237,.16);border:1px solid rgba(167,139,250,.42);display:flex;flex-direction:column;align-items:center;gap:6px}' +
+    '#lme-cuenta .lme-rec{max-width:min(1000px,86vw);margin-bottom:16px;padding:10px 22px 10px 16px;border-radius:14px;background:none;border:1.5px solid rgba(167,139,250,.6);display:flex;align-items:center;gap:14px;text-align:left}' +   /* (Iago) «solo contorno y con icono de recordatorio minimalista» */
     '#lme-cuenta .lme-rec[hidden]{display:none!important}' +
-    '#lme-cuenta .lme-rec-k{font:800 11px/1 ' + F + ';letter-spacing:.28em;text-transform:uppercase;color:#a78bfa;margin-bottom:1px}' +
-    '#lme-cuenta .lme-rec-i{font:500 19px/1.3 ' + F + ';color:#b9a8f7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
-    '#lme-cuenta .lme-rec-i b{font-weight:700;color:#d4c7ff}' +
+    '#lme-cuenta .lme-rec-ic{flex:none;width:24px;height:24px;color:#a78bfa}' +
+    '#lme-cuenta .lme-rec-ls{display:flex;flex-direction:column;gap:4px;min-width:0}' +
+    '#lme-cuenta .lme-rec-i{font:500 19px/1.3 ' + F + ';color:rgba(255,255,255,.78);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}' +
+    '#lme-cuenta .lme-rec-i b{font-weight:700;color:#fff}' +
     '#lme-indice{gap:0}' +
     '#lme-indice .lme-ey{animation:lmeSube .5s ease both}' +
     '#lme-indice .lme-itit{font:800 80px/1 ' + F + ';color:#fff;letter-spacing:-.01em;margin:14px 0 34px;animation:lmeSube .6s .1s cubic-bezier(.2,.8,.25,1) both}' +
@@ -571,12 +681,18 @@
     '#lme-indice .lme-ii{display:flex;align-items:center;gap:18px;font:700 30px/1.2 ' + F + ';color:#fff;opacity:0;animation:lmeSube .5s cubic-bezier(.2,.8,.25,1) both}' +
     '#lme-indice .lme-ii b{flex:none;box-sizing:border-box;width:40px;height:40px;border-radius:11px;border:2.5px solid var(--c);color:var(--c);display:flex;align-items:center;justify-content:center;font:800 19px/1 ' + F + '}' +
     '#lme-indice .lme-ii span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-    '#lme-indice .lme-isep{display:flex;align-items:center;gap:6px;height:34px;margin-left:58px;opacity:0;animation:lmeSube .45s var(--d1) cubic-bezier(.2,.8,.25,1) both}' +
-    '#lme-indice .lme-sw{display:flex;flex:none;font:600 24px/1 ' + F + ';color:rgba(250,204,21,.9)}' +
-    '#lme-indice .lme-sw i{position:relative;display:block;font-style:normal;padding:0 1px;animation:lmeLetra .3s calc(var(--d2) + var(--k) * .045s) ease forwards}' +
-    '#lme-indice .lme-sw i::after{content:"";position:absolute;left:20%;right:20%;top:55%;height:2px;background:rgba(250,204,21,.75);transform:scaleX(0);animation:lmeRaya .3s calc(var(--d2) + var(--k) * .045s) ease forwards}' +
-    '#lme-indice .lme-sr{flex:1;height:2px;background:repeating-linear-gradient(90deg,rgba(250,204,21,.75) 0 9px,transparent 9px 16px);transform:scaleX(0);transform-origin:0 50%;animation:lmeRaya .55s calc(var(--d2) + .4s) cubic-bezier(.2,.8,.25,1) forwards}' +
-    '@keyframes lmeLetra{to{color:transparent}}' +
+    '#lme-indice .lme-imulti{align-items:flex-start}' +
+    '#lme-indice .lme-imulti span{white-space:normal;overflow:visible}' +
+    '#lme-indice .lme-il{display:block;font:600 25px/1.3 ' + F + ';font-style:normal;color:#dbe3ee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px;opacity:0;animation:lmeSube .45s cubic-bezier(.2,.8,.25,1) both}' +
+    '#lme-indice.lme-apretado .lme-itit{font-size:64px;margin:10px 0 22px}' +
+    '#lme-indice.lme-apretado .lme-ilist{gap:8px}' +
+    '#lme-indice.lme-apretado .lme-ii{font-size:26px}' +
+    '#lme-indice.lme-apretado .lme-il{font-size:21px;margin-top:3px}' +
+    '#lme-indice .lme-isep{position:relative;display:block;height:34px;margin-left:58px;opacity:0;animation:lmeSube .45s var(--d1) cubic-bezier(.2,.8,.25,1) both}' +
+    '#lme-indice .lme-sw{position:absolute;left:0;top:50%;transform:translateY(-50%);display:flex;font:600 24px/1 ' + F + ';color:rgba(250,204,21,.9)}' +
+    '#lme-indice .lme-sw i{display:block;font-style:normal;padding:0 1px;animation:lmeLetra .3s calc(var(--d2) + var(--k) * .04s) ease forwards}' +
+    '#lme-indice .lme-sr{position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:repeating-linear-gradient(90deg,rgba(250,204,21,.8) 0 10px,transparent 10px 18px);transform:scaleX(0);transform-origin:0 50%;animation:lmeRaya .75s var(--d2) cubic-bezier(.3,.7,.3,1) forwards}' +
+    '@keyframes lmeLetra{to{opacity:0;transform:translateY(-7px) scale(.7)}}' +
     '@keyframes lmeRaya{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}' +
     '@keyframes lmeSube{0%{opacity:0;transform:translateY(18px)}100%{opacity:1;transform:none}}' +
     '@media (prefers-reduced-motion:reduce){#lme-indice *{animation:none!important;opacity:1!important}}' +
@@ -690,10 +806,10 @@
     var B = v.B, b = B[v.i], n = B[v.i + 1]; if (!b || !montar()) return;
     txt(UI.kEy, 'Ahora · ' + (v.i + 1) + ' de ' + B.length);
     txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
-    UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + n.t.toLowerCase() : ' · y fin de la clase');
+    UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
     UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);
     CART.hasta = Date.now() + quedan;
-    ding();
+    if (!(BAT.cierre && Math.abs(ahora() - BAT.cierre) < 1500)) ding();   /* en el 5:00 ya suena el cierre de la batería */
   }
 
   /* ---------- la cuenta atrás: barras amarillas que se mueven con la batería (pocas, sin texto) ---------- */
@@ -727,11 +843,18 @@
     try { D.dispatchEvent(new CustomEvent('lm-escaleta', { detail: { fase: v.fase, grupo: v.c ? v.c.grupo : '', clase: v.c ? v.c.clase : '', i: v.i, tema: (v.B && v.i != null && v.B[v.i]) ? v.B[v.i].tema : '' } })); } catch (e) {}
   }
   var ICONOS = { ritmo: '.lm-ic-ritmo', entonacion: '.lm-ic-ento', dictado: '.lm-ic-dict', intervalia: '.lm-ic-libros', teoria: '.lm-ic-penta' };
-  function iconoActivo(tema) {   /* en el portal, el icono de lo que toca con contorno amarillo */
+  function iconoActivo(b) {   /* en el portal, lo que toca con contorno amarillo: su icono; en la preparación de ritmo, la campana */
     if (!PORTAL) return;
-    var sel = ICONOS[tema] || '', el = sel ? D.querySelector('#lm-iconos ' + sel) : null;
+    var lecs = (b && b.lecs) || null, sel = ICONOS[(b && b.tema) || ''] || '';
+    var el = lecs ? $('alu-campana-btn') : (sel ? D.querySelector('#lm-iconos ' + sel) : null);
     if (ANT.icono && ANT.icono !== el) { ANT.icono.classList.remove('lme-ic'); ANT.icono = null; }
     if (el && !el.classList.contains('lme-ic')) { el.classList.add('lme-ic'); ANT.icono = el; }
+    /* y dentro de la campana («Tareas de la semana»), el botón de la lección (o lecciones) de hoy */
+    var quiero = lecs ? lecs.map(function (n) { return 'leccion_' + n; }) : [];
+    Array.prototype.forEach.call(D.querySelectorAll('.ts-lec-chip'), function (c) {
+      var si = quiero.indexOf(c.getAttribute('data-parte') || '') >= 0;
+      if (si !== c.classList.contains('lme-ic')) c.classList.toggle('lme-ic', si);
+    });
   }
   function colocar(si) {   /* en el portal: a la altura de los botones y de la tira de la música; si algo los tapa, como en las apps */
     var isla = UI.isla, al = false;
@@ -765,9 +888,11 @@
   function pintarRec(ls) {
     var el = UI.cRec, firma = JSON.stringify(ls); if (!el || el.__f === firma) return; el.__f = firma;
     if (!ls.length) { el.hidden = true; el.innerHTML = ''; return; }
-    el.innerHTML = '<div class="lme-rec-k">' + (ls.length > 1 ? 'Recordatorios' : 'Recordatorio') + '</div>' + ls.map(function (r) {
-      return '<div class="lme-rec-i">' + (r.t ? '<b>' + esc(r.t) + '</b>' : '') + (r.t && r.d ? ' · ' : '') + esc(r.d) + '</div>';
-    }).join('');
+    el.innerHTML = '<svg class="lme-rec-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-label="' +
+      (ls.length > 1 ? 'Recordatorios' : 'Recordatorio') + '"><path d="M12 17v5"/><path d="M9 10.8a2 2 0 0 1-1.1 1.8l-1.8.9A2 2 0 0 0 5 15.2v.8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.8a2 2 0 0 0-1.1-1.8l-1.8-.9A2 2 0 0 1 15 10.8V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>' +
+      '<div class="lme-rec-ls">' + ls.map(function (r) {
+        return '<div class="lme-rec-i">' + (r.t ? '<b>' + esc(r.t) + '</b>' : '') + (r.t && r.d ? ' · ' : '') + esc(r.d) + '</div>';
+      }).join('') + '</div>';
     el.hidden = false;
   }
   var ULT = 0, COLOCADA = 0;
@@ -785,44 +910,50 @@
     avisar(v);
     /* la salida de sonido despierta un poco antes de «Hoy en clase» (el mini-jack del aula tarda en espabilar) */
     if (v.fase === 'entrada' && v.desde >= 300 - CUENTA - INDICE - 12) despierto(true);
-    /* «Hoy en clase» (8 s antes de la cuenta atrás): la música de los 30 temas se para, un ding, y el índice */
-    var agenda = (v.fase === 'indice' && inm !== 'pantalla') ? agendaHoy(v.pub, v.c.grupo) : null;
-    var enIndice = !!(agenda && agenda.length);
+    /* la PREPARACIÓN (4:00–4:45, la cuenta atrás) y «HOY EN CLASE» (4:45–5:00), con la batería de punta a punta */
+    var enPrevia = (v.fase === 'cuenta' || v.fase === 'indice') && inm !== 'pantalla';
+    var agenda = enPrevia ? agendaHoy(v.pub, v.c.grupo) : null, hayIndice = !!(agenda && agenda.length);
+    var plan = enPrevia ? planIndice(hayIndice ? agenda : []) : null;
+    if (plan) BAT.plan = plan;
+    var enIndice = v.fase === 'indice' && hayIndice;
     if (enIndice) {
       if (UI.indice.hidden) {
         txt(UI.iEy, grupoBonito(v.c.grupo) + ' · ' + DIA_NOMBRE[v.c.dia]);
-        /* cada línea, 2 s después de la anterior (menos si son muchas, para que todo se lea antes de la cuenta atrás). El
-           descanso, en su turno (Iago: «la palabra descanso convirtiéndose en líneas discontinuas… fugaz, que dure 2 segundos
-           igual que los demás»): sale «Descanso» y enseguida cada letra se vuelve un trazo y la raya sigue hasta el final */
-        var paso = Math.min(2, (INDICE - 3) / Math.max(1, agenda.length - 1)), num = 0, retardos = [];
-        UI.iList.innerHTML = agenda.map(function (x, k) {
-          var r = (1 + k * paso).toFixed(2);
-          retardos.push({ t: +r, sep: !!x.sep });
-          if (x.sep) return '<li class="lme-isep" style="--d1:' + r + 's;--d2:' + (+r + 0.85).toFixed(2) + 's" aria-hidden="true"><span class="lme-sw">' +
+        /* cada línea, cuando le toca su golpe (en segundos desde ahora: si la página se abre a medias, lo de antes ya está) */
+        var fin = v.c.t0 + 300000, ya = t, num = 0;
+        var dk = function (k) { return ((fin - k * PASO * 1000 - ya) / 1000).toFixed(2) + 's'; };
+        UI.indice.classList.toggle('lme-apretado', plan.n > 8);
+        UI.iList.innerHTML = plan.filas.map(function (fi) {
+          var x = fi.x;
+          if (x.sep) return '<li class="lme-isep" style="--d1:' + dk(fi.k) + ';--d2:' + dk(fi.d2) + '" aria-hidden="true"><span class="lme-sw">' +
             'Descanso'.split('').map(function (ch, i) { return '<i style="--k:' + i + '">' + ch + '</i>'; }).join('') + '</span><span class="lme-sr"></span></li>';
           num++;
-          return '<li class="lme-ii ' + x.tema + '" style="--c:' + (COLOR_TEMA[x.tema] || COLOR_TEMA.otra) + ';animation-delay:' + r + 's"><b>' + num + '</b><span>' + esc(x.t) + '</span></li>';
+          var est = ' style="--c:' + (COLOR_TEMA[x.tema] || COLOR_TEMA.otra) + ';animation-delay:' + dk(fi.k) + '"';
+          if (x.lineas) return '<li class="lme-ii lme-imulti ' + x.tema + '"' + est + '><b>' + num + '</b><span>' + esc(x.t) + ':' +
+            x.lineas.map(function (l, j) { return '<i class="lme-il" style="animation-delay:' + dk(fi.subs[j]) + '">– ' + esc(l) + '</i>'; }).join('') + '</span></li>';
+          return '<li class="lme-ii ' + x.tema + '"' + est + '><b>' + num + '</b><span>' + esc(x.t) + '</span></li>';
         }).join('');
-        ver(UI.indice, true); pararMusica(); despierto(true); toquesIndice(retardos);
+        ver(UI.indice, true); pararMusica();
       }
       UI.iBar.style.width = Math.min(100, Math.max(0, (1 - v.queda / INDICE) * 100)).toFixed(2) + '%';
-      despierto(true);
     } else if (!UI.indice.hidden) ver(UI.indice, false);
-    /* la cuenta atrás */
-    var enCuenta = v.fase === 'cuenta' && inm !== 'pantalla';
+    /* la cuenta atrás (si no hay índice publicado, sigue hasta el 5:00) */
+    var enCuenta = enPrevia && !enIndice;
     if (enCuenta) {
+      var totalC = hayIndice ? CUENTA : CUENTA + INDICE, q = Math.max(0, v.fase === 'cuenta' ? v.queda + (hayIndice ? 0 : INDICE) : v.queda);
       if (UI.cuenta.hidden) { ver(UI.cuenta, true); if (!BARR.raf) BARR.raf = requestAnimationFrame(barras); pararMusica(); }
       txt(UI.cEy, grupoBonito(v.c.grupo) + ' · la clase empieza en');
       pintarRec(recordatorios(v.pub, v.c.grupo));
-      var q = Math.max(0, v.queda);
       UI.cNum.innerHTML = Math.floor(Math.ceil(q) / 60) + '<span class="lme-dp">:</span>' + ('0' + (Math.ceil(q) % 60)).slice(-2);
-      UI.cBar.style.width = Math.min(100, (1 - q / CUENTA) * 100).toFixed(2) + '%';
-      despierto(true); bateria(v.c.t0 + 300000);
+      UI.cBar.style.width = Math.min(100, (1 - q / totalC) * 100).toFixed(2) + '%';
     } else if (!UI.cuenta.hidden) {
       ver(UI.cuenta, false); if (BARR.raf) { cancelAnimationFrame(BARR.raf); BARR.raf = 0; }
-      if (v.fase !== 'clase') callarBateria();
     }
-    if (v.fase !== 'cuenta' && BAT.vivo && (v.fase !== 'clase' || v.desde > 302)) callarBateria();
+    /* la batería suena en las dos; en el 5:00 cierra sola (y el platillo se deja oír); si la clase se empieza antes con
+       ▶, o se para, o se va a pantalla completa, se calla */
+    var autoIni = v.fase === 'clase' && v.e && (v.e.auto || +v.e.arr === v.c.t0 + 300000) && v.desde <= 303;
+    if (enPrevia) { despierto(true); bateria(v.c.t0 + 300000); }
+    else if (BAT.vivo && !autoIni) callarBateria();
     /* la tarjeta */
     var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla';
     ver(UI.isla, conIsla);
@@ -847,7 +978,7 @@
       var pk = a.pausa ? 'seguir' : 'pausa';
       if (UI.bPausa.getAttribute('data-k') !== pk) { UI.bPausa.innerHTML = SVG[pk]; UI.bPausa.setAttribute('data-k', pk); UI.bPausa.title = a.pausa ? 'Seguir' : 'Pausa'; UI.bPausa.setAttribute('aria-label', UI.bPausa.title); }
       if (forzar || t - COLOCADA > 1000) { COLOCADA = t; colocar(true); }
-      iconoActivo(b.tema);
+      iconoActivo(b);
       /* el cartel: al cambiar de actividad (los primeros 5 s), salvo en lo inmersivo */
       var k = claveCambio(v), desdeCambio = t - (+a.ini);
       if (CART.visto !== k) {
@@ -856,7 +987,7 @@
         if (!inm && (forz || (desdeCambio >= 0 && desdeCambio < 4500 && !a.pausa))) mostrarCartel(v, forz ? 5000 : 5000 - desdeCambio);
         else if (!UI.cartel.hidden) quitarCartel(true);
       }
-    } else { iconoActivo(''); if (!UI.cartel.hidden && v.fase !== 'clase') quitarCartel(true); }
+    } else { iconoActivo(null); if (!UI.cartel.hidden && v.fase !== 'clase') quitarCartel(true); }
     if (!UI.cartel.hidden) {
       if (inm) quitarCartel(true);
       else { var qd = CART.hasta - Date.now(); UI.kBar.style.width = Math.min(100, (1 - qd / 5000) * 100).toFixed(2) + '%'; if (qd <= 0) quitarCartel(false); }
@@ -928,5 +1059,10 @@
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', function () { pintar(true); }); else pintar(true);
   W.LMEscaleta = { version: '15-oct-2026', app: APP, grado: GRADO,
     vista: function () { var v = vista(ahora()); return { fase: v.fase, grupo: v.c && v.c.grupo, clase: v.c && v.c.clase, i: v.i, bloques: v.B, a: v.a || null }; },
-    accion: accion, pintar: function () { pintar(true); }, formatea: formatea, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios };
+    accion: accion, pintar: function () { pintar(true); }, formatea: formatea, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios,
+    indice: function () {   /* para mirar (y para el banco): el índice de la clase que toca y en qué golpe sale cada cosa */
+      var v = vista(ahora()); if (!v.c) return null;
+      var a = agendaHoy(v.pub, v.c.grupo), P = planIndice(a);
+      return { agenda: a, kb: P.kb, ks: P.filas.map(function (f) { return f.k; }), subs: P.filas.map(function (f) { return f.subs; }), toques: Object.keys(P.toques).map(Number).sort(function (x, y) { return y - x; }) };
+    } };
 })();
