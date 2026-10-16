@@ -6,6 +6,10 @@
      editores): la actividad de antes tachada en gris, la de ahora en amarillo con su subtítulo en blanco, los minutos que
      le quedan y la barra; debajo, la siguiente en gris y los botones ◀ ⏸ ■ ▶. En el portal, arriba a la altura de los
      botones de la derecha y abajo a la de la tira de la música, con el mismo hueco a los lados (Iago, 15-oct).
+     (16-oct-2026, 18:50) Siempre del MISMO ANCHO (300 px), arriba en el centro y sin animaciones: en el portal, la fila de
+     botones de la derecha se aparta de golpe. Con un libro, la pizarra o el dictado animado abiertos, en UNA LÍNEA dentro de
+     su barra. Las dos llevan un + amarillo en la esquina de arriba a la derecha: abre la escaleta ENTERA en una ventana grande
+     en el centro (lo hecho tachado, lo de ahora destacado con su información, lo que falta); su − amarillo la cierra.
    · Del minuto 0:00 a la PREPARACIÓN (hacia el 4:14–4:18; depende de lo largo que sea el índice), la «entrada» (el portal
      abre la lista de morosos). Luego, la PREPARACIÓN: cuenta atrás de 32 s a pantalla completa, «Preparamos libro de ritmo y
      lápiz», con su batería (la pista escaleta-previa.mp3, hecha con los sonidos de Splice de Iago: el loop «alligator»
@@ -346,10 +350,25 @@
     l = l.map(Number).filter(function (n) { return isFinite(n) && n > 0; });
     return l.length ? l : null;
   }
+  /* (16-oct-2026) +: lo que trae cada actividad del iPad, para la ventana de la escaleta entera (sin repetir el subtítulo) */
+  function detalles(b, f) {
+    try {
+      if (b.t2) return [];
+      var ya = norm(f.s || '');
+      return String(b.sub || '').split(/\n+/).map(function (x) { return quitarEmojis(x); }).filter(function (x) {
+        var n = norm(x); if (!n || n === ya || (ya && ya.indexOf(n) >= 0)) return false;
+        if (ya && n.indexOf(ya) >= 0 && n.length <= ya.length + 12) return false;   /* «Ficha · Ficha 3» con «Ficha 3» */
+        if (/^trabajar en clase$/.test(n)) return false;
+        if (/^[\d\s,.;·y]+$/.test(n)) return false;                                            /* «14», «16»: ya en el subtítulo */
+        if (/^((leccion|lecciones)\s*\d+[\s,.;·y]*)+$/.test(n) && /^lecci/i.test(f.s || '')) return false;
+        return true;
+      }).slice(0, 4).map(function (x) { return x.length > 140 ? x.slice(0, 138) + '…' : x; });
+    } catch (e) { return []; }
+  }
   function bloquesDe(pub, grupo) {
     if (MEMO.pub === pub && MEMO.g === grupo) return MEMO.B;
     var l = (pub && Array.isArray(pub.bloques)) ? pub.bloques.filter(function (b) { return b && +b.m > 0 && b.slot !== '__no_clase'; }) : [];
-    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f), vid: videoDe(b) }; });   /* (16-oct-2026) vídeo */
+    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f), vid: videoDe(b), det: detalles(b, f) }; });   /* (16-oct-2026) vídeo */
     return MEMO.B;
   }
   /* (15-oct-2026, Iago) «HOY EN CLASE»: el índice que ven los alumnos. Lo que eligió (por la tarde): «Ritmo: carta 1.3»,
@@ -816,13 +835,13 @@
   /* ---------- la pantalla ---------- */
   var F = '"Helvetica Neue",Helvetica,Arial,sans-serif';
   var CSS = '' +
-    '#lme-isla{position:fixed;left:50%;top:8px;transform:translateX(-50%);width:333px;box-sizing:border-box;z-index:2147483600;background:rgba(11,19,32,.84);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);' +
+    '#lme-isla{position:fixed;left:50%;top:8px;transform:translateX(-50%);width:300px;box-sizing:border-box;z-index:2147483600;background:rgba(11,19,32,.84);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);' +
       'border:1.5px solid #facc15;border-radius:12px;padding:7px 10px;display:flex;flex-direction:column;gap:3px;color:#fff;text-align:left;font:500 10px/1.2 ' + F + ';-webkit-font-smoothing:antialiased;pointer-events:auto;user-select:none;-webkit-user-select:none}' +
     '#lme-isla[hidden],#lme-play[hidden],.lme-full[hidden]{display:none!important}' +
     '#lme-indice .lme-ilist:empty{display:none}' +
     '#lme-isla.lme-alineada{transform:none;justify-content:space-between;padding:10px 12px}' +
     '#lme-isla *{box-sizing:border-box;margin:0;padding:0;letter-spacing:normal;text-transform:none;font-style:normal;text-shadow:none}' +
-    '#lme-isla .lme-ant{font:500 9.5px/1.2 ' + F + ';color:#7d879b;text-decoration:line-through;letter-spacing:.02em;min-height:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '#lme-isla .lme-ant{font:500 9.5px/1.2 ' + F + ';color:#7d879b;text-decoration:line-through;letter-spacing:.02em;min-height:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:20px}' +
     '#lme-isla .lme-ahora{display:flex;align-items:baseline;gap:8px;min-width:0}' +
     '#lme-isla .lme-t{font:700 11.5px/1.15 ' + F + ';color:#facc15;white-space:nowrap}' +
     '#lme-isla .lme-s{font:500 10px/1.2 ' + F + ';color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}' +
@@ -841,6 +860,54 @@
     '#lme-isla .lme-b::after{content:"";position:absolute;inset:-5px -2px}' +   /* más sitio para el dedo, sin que se vea */
     '#lme-isla .lme-b:hover{border-color:#facc15}' +
     '#lme-isla .lme-b svg{width:9px;height:9px;display:block;pointer-events:none}' +
+    /* (16-oct-2026, 18:50, Iago: «la escaleta (ya sea la de 3 líneas o la de 1 línea) con un + en la esquina superior derecha y
+       cuando le doy, se abre una ventana grande en el centro de la pantalla con toda la escaleta y la actividad presente
+       destacada con la info y en la esquina superior derecha un − amarillo para volver a la versión compacta») */
+    '#lme-isla .lme-mas{position:absolute;top:4px;right:6px;width:16px;height:16px;border-radius:5px;border:1px solid #8a7a22;background:transparent;color:#facc15;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:none;min-width:0;min-height:0;z-index:1}' +
+    '#lme-isla .lme-mas::after{content:"";position:absolute;inset:-6px -6px -3px -8px}' +
+    '#lme-isla .lme-mas:hover{border-color:#facc15}' +
+    '#lme-isla .lme-mas svg{width:10px;height:10px;display:block;pointer-events:none}' +
+    'html #lme-mini{padding-right:28px}' +
+    '#lme-mini .lme-mmas{position:absolute;top:3px;right:4px;width:17px;height:17px;pointer-events:auto;border-radius:5px;border:1px solid #8a7a22;background:transparent;color:#facc15;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin:0;box-shadow:none;min-width:0;min-height:0;z-index:1}' +
+    '#lme-mini .lme-mmas::after{content:"";position:absolute;inset:-3px -4px -10px -8px}' +
+    '#lme-mini .lme-mmas:hover{border-color:#facc15}' +
+    '#lme-mini .lme-mmas svg{width:10px;height:10px;display:block;pointer-events:none}' +
+    '#lme-mini.lme-dic{margin-left:auto;max-width:42%}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
+    '#lme-todo-fondo{position:fixed;inset:0;z-index:2147483611;background:rgba(6,9,17,.55)}' +
+    '#lme-todo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147483612;width:min(820px,calc(100vw - 32px));max-height:min(90vh,calc(100vh - 24px));display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;' +
+      'background:#0b1320;border:2px solid #facc15;border-radius:18px;padding:14px 18px 13px;color:#fff;text-align:left;font:500 15px/1.3 ' + F + ';-webkit-font-smoothing:antialiased;box-shadow:0 24px 70px rgba(0,0,0,.6);user-select:none;-webkit-user-select:none;pointer-events:auto}' +
+    '#lme-todo[hidden],#lme-todo-fondo[hidden]{display:none!important}' +
+    '#lme-todo *{box-sizing:border-box;margin:0;padding:0;letter-spacing:normal;text-transform:none;font-style:normal;text-shadow:none}' +
+    '#lme-todo .lme-tcab{flex:none;display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;padding:2px 52px 9px 4px}' +
+    '#lme-todo .lme-ttit{font:800 22px/1.1 ' + F + ';color:#fff}' +
+    '#lme-todo .lme-tey{font:700 12px/1.2 ' + F + ';letter-spacing:.2em;text-transform:uppercase;color:#facc15}' +
+    '#lme-todo .lme-menos{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:9px;border:1.5px solid #facc15;background:transparent;color:#facc15;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:none;min-width:0;min-height:0}' +
+    '#lme-todo .lme-menos::after{content:"";position:absolute;inset:-8px}' +
+    '#lme-todo .lme-menos:hover{background:rgba(250,204,21,.14)}' +
+    '#lme-todo .lme-menos svg{width:16px;height:16px;display:block;pointer-events:none}' +
+    '#lme-todo .lme-tl{position:relative;flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;list-style:none;display:flex;flex-direction:column;gap:2px}' +
+    '#lme-todo .lme-ti{position:relative;flex:none;display:flex;align-items:flex-start;gap:12px;padding:6px 12px 7px;border-radius:12px}' +
+    '#lme-todo .lme-tn{flex:none;width:27px;height:27px;border-radius:7px;border:2px solid var(--c);color:var(--c);display:flex;align-items:center;justify-content:center;font:800 13px/1 ' + F + '}' +
+    '#lme-todo .lme-tc{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;padding-top:3px}' +
+    '#lme-todo .lme-tt{font:700 16.5px/1.2 ' + F + ';color:#fff}' +
+    '#lme-todo .lme-ts{font:500 13.5px/1.25 ' + F + ';color:#aab4c6;overflow-wrap:anywhere}' +
+    '#lme-todo .lme-tm{flex:none;font:700 14px/1.2 ' + F + ';color:#c3cad8;white-space:nowrap;font-variant-numeric:tabular-nums;padding-top:4px}' +
+    '#lme-todo .lme-ti.hecha{opacity:.45}' +
+    '#lme-todo .lme-ti.hecha .lme-tt,#lme-todo .lme-ti.hecha .lme-ts,#lme-todo .lme-ti.hecha .lme-tm{text-decoration:line-through}' +
+    '#lme-todo .lme-ti.hecha .lme-tn{border-color:#56607a;color:#7d879b}' +
+    '#lme-todo .lme-ti.ahora{background:rgba(250,204,21,.1);box-shadow:inset 0 0 0 2px #facc15;padding:10px 14px 15px;margin:3px 0}' +
+    '#lme-todo .lme-ti.ahora .lme-tt{font-size:21px;color:#facc15}' +
+    '#lme-todo .lme-ti.ahora .lme-ts{font-size:15.5px;color:#e8edf6}' +
+    '#lme-todo .lme-ti.ahora .lme-tm{font-size:18px;color:#facc15;padding-top:5px}' +
+    '#lme-todo .lme-ti.ahora.extra .lme-tm{color:#c3cad8}' +
+    '#lme-todo .lme-ti.ahora .lme-tn{width:31px;height:31px;font-size:15px;background:var(--c);color:#0b1320}' +
+    '#lme-todo .lme-tb{position:absolute;left:57px;right:14px;bottom:6px;height:4px;border-radius:2px;background:#3a4560;overflow:hidden}' +
+    '#lme-todo .lme-tb b{display:block;height:100%;width:0;background:#facc15}' +
+    '#lme-todo .lme-ti.extra .lme-tb b{background:#c3cad8}' +
+    '#lme-todo .lme-tvid{align-self:flex-start;margin-top:6px;height:28px;padding:0 13px;border-radius:7px;border:1px solid #facc15;background:rgba(250,204,21,.13);color:#facc15;font:700 14px/1 ' + F + ';cursor:pointer;box-shadow:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+    '#lme-todo .lme-tvid:hover{background:rgba(250,204,21,.25)}' +
+    '#lme-todo .lme-tpie{flex:none;margin-top:8px;padding:9px 4px 0;border-top:1px solid rgba(255,255,255,.12);font:500 13.5px/1.4 ' + F + ';color:#9aa6bb}' +
+    '#lme-todo .lme-tpie b{color:#fff;font-weight:700}' +
     '#lme-play{position:fixed;z-index:2147483600;width:35px;height:35px;border-radius:50%;border:0;background:#facc15;color:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin:0;box-shadow:none}' +   /* (Iago, 18:05) sin resplandor */
     '#lme-play svg{width:14px;height:14px;margin-left:2px;display:block}' +
     /* (16-oct-2026, tarde, Iago: «en el aula se pulsó la campana de notificaciones… el icono de la escaleta, ese círculo con el
@@ -953,6 +1020,15 @@
     '#lme-cartel .lme-ir span{margin-left:6px;font-weight:700;color:#facc15}' +
     '#lme-cartel .lme-ir:hover{background:rgba(255,255,255,.16);border-color:#facc15}' +
     '#lme-cartel .lme-ir[hidden]{display:none}' +
+    /* (16-oct-2026, 19:00) el descanso: la cuenta atrás y «Después: …»; sin desenfoque (está mucho rato y el PC del aula va justo) */
+    '#lme-cartel .lme-reloj{display:none;font:800 210px/.9 ' + F + ';font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:#facc15;margin:8px 0 6px}' +
+    '#lme-cartel .lme-reloj .lme-dp{color:#fff;margin:0 .03em;position:relative;top:-.09em}' +
+    '#lme-cartel.lme-descanso .lme-reloj{display:block}' +
+    '#lme-cartel.lme-descanso.lme-full{background:rgba(6,9,17,.8);-webkit-backdrop-filter:none;backdrop-filter:none}' +
+    '#lme-cartel.lme-descanso .lme-tit{color:#fff}' +
+    '#lme-cartel.lme-descanso .lme-sub{font-size:26px;color:#c3cad8}' +
+    '#lme-cartel.lme-descanso .lme-mi{font:600 40px/1.15 ' + F + ';color:#9aa6bb;max-width:88vw;margin-top:12px}' +
+    '#lme-cartel.lme-descanso .lme-mi b{color:#fff;font-weight:800}' +
     '#lme-fin .lme-tit{font:800 116px/.95 ' + F + ';letter-spacing:-.01em}' +
     '#lme-fin .lme-tareas{margin-top:18px;min-width:560px;max-width:86vw;text-align:left;background:rgba(11,19,32,.72);border:1.5px solid #facc15;border-radius:16px;padding:18px 26px 14px}' +
     '#lme-fin .lme-tareas h3{font:800 13px/1 ' + F + ';letter-spacing:.28em;text-transform:uppercase;color:#facc15;margin-bottom:6px}' +
@@ -974,7 +1050,7 @@
     '#lme-fin .lme-faltas.lme-pide{animation:lmeFaltas .5s ease}' +
     '@keyframes lmeFaltas{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}' +
     'html.lm-esc-on.lm-fam-portal #lm-fmt-centro{visibility:hidden!important}' +   /* (16-oct-2026) la píldora «Digital/papel» quedaba debajo de la tarjeta */
-    'html.lm-fam-portal .topbar-right{transition:transform .25s ease}' +
+    /* (16-oct-2026, 18:50) sin transición: la fila se aparta de golpe (con pocos fotogramas, en el aula, iba a tirones) */
     'html.lm-esc-on.lm-fam-portal .hero{margin-top:64px!important}' +   /* en el portal, el logo baja lo justo mientras está la tarjeta */
     '.lme-ic{outline:2px solid #facc15!important;outline-offset:2px!important}' +
     /* (15-oct-2026, 19:10, Iago: «el contorno amarillo… quiero que esté visible aunque la notificación de ritmo esté ya gris,
@@ -1008,7 +1084,9 @@
     seguir: '<svg viewBox="0 0 24 24"><path d="M7 4.5v15L19.5 12z" fill="currentColor"/></svg>',
     parar: '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>',
     sig: '<svg viewBox="0 0 24 24"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    play: '<svg viewBox="0 0 24 24"><path d="M7 4.5v15L19.5 12z" fill="currentColor"/></svg>' };
+    play: '<svg viewBox="0 0 24 24"><path d="M7 4.5v15L19.5 12z" fill="currentColor"/></svg>',
+    mas: '<svg viewBox="0 0 24 24"><path d="M12 4.5v15M4.5 12h15" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>',   /* (16-oct-2026) + */
+    menos: '<svg viewBox="0 0 24 24"><path d="M4.5 12h15" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>' };
   /* (16-oct-2026) vídeo: se abre aquí mismo, a pantalla completa; ✕ (arriba en el centro) o Esc para volver */
   var VID_ACTUAL = null;
   function abrirVideo(vd) {
@@ -1042,12 +1120,77 @@
     if (!sinPintar) pintar(true);
   }
   var UI = null;
+  /* ---------- (16-oct-2026, 18:50, Iago) LA ESCALETA ENTERA, EN UNA VENTANA ----------
+     «un botón… que esté todo el rato presente, en el que se vea toda la escaleta… los ejercicios que ya hicimos, tachados,
+     los que quedan, la información que hay» · «un + amarillo en una esquina» · «se abre una ventana grande en el centro de
+     la pantalla con toda la escaleta y la actividad presente destacada con la info y en la esquina superior derecha un −
+     amarillo para volver a la versión compacta». El + de la tarjeta (o el de la línea de los libros, la pizarra y el
+     dictado animado) la abre; el −, tocar fuera o Esc la cierran. Lo hecho, tachado; lo de ahora, destacado: todo lo que
+     trae del iPad, lo que le queda y su barra (y su vídeo, si tiene); lo que falta, con sus minutos. Abajo: lo que queda, a
+     qué hora acabaría y a qué hora acaba la clase. Se pone al día sola; se cierra sola al acabar la clase.
+     Para quitarla: borrar este bloque y lo marcado «(16-oct-2026) +». */
+  var TODO = { abierto: false, el: null, fondo: null, firma: '', B: null };
+  function hhmm(ms) { var g = galicia(ms); return Math.floor(g.seg / 3600) + ':' + ('0' + Math.floor((g.seg % 3600) / 60)).slice(-2); }
+  function anfitrion() {   /* dentro de lo que esté a pantalla completa (libro, dictado…), si no es un vídeo; si no, en el body */
+    var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
+    return (fs && fs !== H && fs !== D.body && !/^(VIDEO|IFRAME|CANVAS|IMG)$/.test(fs.tagName)) ? fs : D.body;
+  }
+  function montarTodo() {
+    if (TODO.el) return TODO.el;
+    var fo = D.createElement('div'); fo.id = 'lme-todo-fondo'; fo.hidden = true;
+    var el = D.createElement('div'); el.id = 'lme-todo'; el.hidden = true; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'La escaleta de hoy');
+    el.innerHTML = '<button type="button" class="lme-menos" title="Volver a la escaleta compacta" aria-label="Volver a la escaleta compacta">' + SVG.menos + '</button>' +
+      '<div class="lme-tcab"><span class="lme-ttit">Escaleta</span><span class="lme-tey"></span></div><ol class="lme-tl"></ol><div class="lme-tpie"></div>';
+    fo.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); cerrarTodo(); tragar(); }, true);
+    el.addEventListener('click', function (e) {
+      var t = e.target && e.target.closest ? e.target : null; if (!t) return;
+      if (t.closest('.lme-menos')) { e.preventDefault(); cerrarTodo(); return; }
+      var vb = t.closest('.lme-tvid'); if (vb) { e.preventDefault(); var b = (TODO.B || [])[+vb.getAttribute('data-i')]; cerrarTodo(); if (b && b.vid) abrirVideo(b.vid); }
+    });
+    [el, fo].forEach(function (x) { ['click', 'mousedown', 'pointerdown', 'pointerup', 'mouseup', 'touchstart', 'touchend', 'wheel'].forEach(function (ev) { x.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); }); });
+    TODO.el = el; TODO.fondo = fo; return el;
+  }
+  function abrirTodo() { montarTodo(); TODO.abierto = true; TODO.firma = ''; pintar(true); }
+  function cerrarTodo() { TODO.abierto = false; if (TODO.el) { ver(TODO.el, false); ver(TODO.fondo, false); } }
+  function pintarTodo(v) {
+    var el = montarTodo(), B = v.B, a = v.a, c = v.c, t = ahora(); if (!a || !B || !B.length) { cerrarTodo(); return; }
+    var host = anfitrion();
+    if (TODO.fondo.parentNode !== host) host.appendChild(TODO.fondo);
+    if (el.parentNode !== host) host.appendChild(el);
+    var extra = a.resto < 0 && a.mg > 0;
+    var mA = (a.pausa ? 'en pausa · ' : '') + (extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto)));
+    var queda = Math.max(0, a.resto + a.mg); for (var j = a.i + 1; j < B.length; j++) queda += B[j].m * 60;
+    var pie = 'Quedan <b>' + esc(minutos(queda)) + '</b> · terminaría hacia las <b>' + hhmm(t + queda * 1000) + '</b> · la clase acaba a las <b>' + hhmm(c.t0 + DURA * 60000) + '</b>';
+    var ey = grupoBonito(c.grupo) + ' · ' + String(c.clase || '').toUpperCase() + ' · ' + DIA_NOMBRE[c.dia];
+    var firma = a.i + '|' + mA + '|' + pie + '|' + ey + '|' + (extra ? 1 : 0);
+    if (firma !== TODO.firma || TODO.B !== B) {
+      TODO.firma = firma; TODO.B = B;
+      txt(el.querySelector('.lme-tey'), ey);
+      el.querySelector('.lme-tl').innerHTML = B.map(function (b, i) {
+        var est = i < a.i ? 'hecha' : (i === a.i ? 'ahora' + (extra ? ' extra' : '') : 'luego');
+        var ls = [b.s].concat(b.det || []).filter(Boolean);
+        return '<li class="lme-ti ' + est + '" style="--c:' + (COLOR_TEMA[b.tema] || COLOR_TEMA.otra) + '"><b class="lme-tn">' + (i + 1) + '</b>' +
+          '<div class="lme-tc"><div class="lme-tt">' + esc(b.t) + '</div>' + ls.map(function (s) { return '<div class="lme-ts">' + esc(s) + '</div>'; }).join('') +
+          (b.vid ? '<button type="button" class="lme-tvid" data-i="' + i + '">▶ ' + esc(b.vid.t) + '</button>' : '') + '</div>' +
+          '<span class="lme-tm">' + esc(i === a.i ? mA : b.m + ' min') + '</span>' + (i === a.i ? '<i class="lme-tb"><b></b></i>' : '') + '</li>';
+      }).join('');
+      el.querySelector('.lme-tpie').innerHTML = pie;
+      try {   /* lo de ahora, a la vista (si la lista no cabe entera) */
+        var ol = el.querySelector('.lme-tl'), cur = ol.querySelector('.lme-ti.ahora');
+        if (cur && (cur.offsetTop < ol.scrollTop || cur.offsetTop + cur.offsetHeight > ol.scrollTop + ol.clientHeight)) ol.scrollTop = Math.max(0, cur.offsetTop - 70);
+      } catch (e2) {}
+    }
+    var pb = el.querySelector('.lme-tb b');
+    if (pb) pb.style.width = (extra ? 100 : Math.max(0, Math.min(100, (1 - Math.max(0, a.resto) / a.dur) * 100))).toFixed(1) + '%';
+    ver(TODO.fondo, true); ver(el, true);
+  }
   function montar() {
     if (UI) { if (!UI.isla.isConnected) D.body.appendChild(UI.isla); [UI.play, UI.indice, UI.cuenta, UI.cartel, UI.fin].forEach(function (x) { if (!x.isConnected) D.body.appendChild(x); }); return UI; }
     if (!D.body) return null;
     var st = D.createElement('style'); st.id = 'lme-css'; st.textContent = CSS; (D.head || H).appendChild(st);
     var isla = D.createElement('div'); isla.id = 'lme-isla'; isla.hidden = true; isla.setAttribute('role', 'status');
-    isla.innerHTML = '<div class="lme-ant"></div><div class="lme-ahora"><span class="lme-t"></span><span class="lme-s"></span><span class="lme-m"></span></div>' +
+    isla.innerHTML = '<button type="button" class="lme-mas" title="Ver toda la escaleta" aria-label="Ver toda la escaleta">' + SVG.mas + '</button>' +   /* (16-oct-2026) + */
+      '<div class="lme-ant"></div><div class="lme-ahora"><span class="lme-t"></span><span class="lme-s"></span><span class="lme-m"></span></div>' +
       '<div class="lme-vrow" hidden><button type="button" class="lme-vid" title="Ver el vídeo"></button></div>' +   /* (16-oct-2026) vídeo */
       '<div class="lme-barra"><b></b><span class="lme-ex" hidden><i></i></span></div>' +
       '<div class="lme-sig"><span class="lme-sigt"></span><span class="lme-bts">' +
@@ -1056,6 +1199,8 @@
         '<button type="button" class="lme-b" data-a="parar" title="Parar la escaleta" aria-label="Parar la escaleta">' + SVG.parar + '</button>' +
         '<button type="button" class="lme-b" data-a="sig" title="Siguiente" aria-label="Siguiente">' + SVG.sig + '</button></span></div>';
     isla.addEventListener('click', function (e) {
+      var mb = e.target && e.target.closest ? e.target.closest('.lme-mas') : null;   /* (16-oct-2026) + */
+      if (mb) { e.preventDefault(); e.stopPropagation(); abrirTodo(); return; }
       var vb = e.target && e.target.closest ? e.target.closest('.lme-vid') : null;   /* (16-oct-2026) vídeo */
       if (vb) { e.preventDefault(); e.stopPropagation(); abrirVideo(VID_ACTUAL); return; }
       var b = e.target && e.target.closest ? e.target.closest('.lme-b') : null;
@@ -1073,7 +1218,7 @@
     var cuenta = D.createElement('div'); cuenta.id = 'lme-cuenta'; cuenta.className = 'lme-full'; cuenta.hidden = true;
     cuenta.innerHTML = '<div class="lme-rec" hidden></div><div class="lme-ey"></div><div class="lme-num"></div><div class="lme-frase">Preparamos libro de ritmo y lápiz</div><canvas width="840" height="88"></canvas><div class="lme-barra5"><b></b></div>';
     var cartel = D.createElement('div'); cartel.id = 'lme-cartel'; cartel.className = 'lme-full'; cartel.hidden = true; cartel.setAttribute('role', 'alert');
-    cartel.innerHTML = '<div class="lme-ey"></div><div class="lme-tit"></div><div class="lme-sub"></div><div class="lme-mi"></div>' +
+    cartel.innerHTML = '<div class="lme-ey"></div><div class="lme-tit"></div><div class="lme-sub"></div><div class="lme-reloj"></div><div class="lme-mi"></div>' +   /* (16-oct-2026, 19:00) lme-reloj: el descanso */
       '<button type="button" class="lme-ir" hidden>Abrir <span aria-hidden="true">›</span></button><div class="lme-barra5"><b></b></div>';   /* (16-oct-2026) el botón a la actividad: discreto y siempre el mismo */
     var fin = D.createElement('div'); fin.id = 'lme-fin'; fin.className = 'lme-full'; fin.hidden = true;
     fin.innerHTML = '<div class="lme-ey"></div><div class="lme-tit">Fin de la clase</div><div class="lme-tareas" hidden></div>' +
@@ -1081,7 +1226,7 @@
     /* (15-oct-2026, Iago) «si pulso en la pantalla, ese cartel desaparezca instantáneamente»: el toque lo quita y no llega a lo de debajo */
     cartel.addEventListener('pointerdown', function (e) {
       if (e.target && e.target.closest && e.target.closest('.lme-ir')) { e.stopPropagation(); return; }   /* (16-oct-2026) el botón: lo hace su click */
-      e.preventDefault(); e.stopPropagation(); quitarCartel(true); tragar(); }, true);
+      e.preventDefault(); e.stopPropagation(); fueraDescanso(); quitarCartel(true); tragar(); }, true);   /* (16-oct-2026, 19:00) el del descanso no vuelve */
     cartel.querySelector('.lme-ir').addEventListener('click', function (e) {
       e.preventDefault(); e.stopPropagation(); var acc = CART.ir; quitarCartel(true); if (acc) { try { acc.fn(); } catch (x) {} } });
     fin.addEventListener('pointerdown', function (e) {
@@ -1098,7 +1243,7 @@
            ant: isla.querySelector('.lme-ant'), t: isla.querySelector('.lme-t'), s: isla.querySelector('.lme-s'), m: isla.querySelector('.lme-m'),
            bar: isla.querySelector('.lme-barra b'), ex: isla.querySelector('.lme-ex'), sig: isla.querySelector('.lme-sigt'), bPausa: isla.querySelector('[data-a="pausa"]'),
            cEy: cuenta.querySelector('.lme-ey'), cRec: cuenta.querySelector('.lme-rec'), cNum: cuenta.querySelector('.lme-num'), cBar: cuenta.querySelector('.lme-barra5 b'), cv: cuenta.querySelector('canvas'),
-           kIr: cartel.querySelector('.lme-ir'), kEy: cartel.querySelector('.lme-ey'), kT: cartel.querySelector('.lme-tit'), kS: cartel.querySelector('.lme-sub'), kM: cartel.querySelector('.lme-mi'), kBar: cartel.querySelector('.lme-barra5 b'),
+           kIr: cartel.querySelector('.lme-ir'), kR: cartel.querySelector('.lme-reloj'), kEy: cartel.querySelector('.lme-ey'), kT: cartel.querySelector('.lme-tit'), kS: cartel.querySelector('.lme-sub'), kM: cartel.querySelector('.lme-mi'), kBar: cartel.querySelector('.lme-barra5 b'),
            fEy: fin.querySelector('.lme-ey'), fT: fin.querySelector('.lme-tareas'), fF: fin.querySelector('.lme-faltas'), fC: fin.querySelector('.lme-cerrar') };
     return UI;
   }
@@ -1128,6 +1273,7 @@
   }
   function mostrarCartel(v, quedan) {
     var B = v.B, b = B[v.i], n = B[v.i + 1]; if (!b || !montar()) return;
+    UI.cartel.classList.remove('lme-descanso'); DESC.k = '';   /* (16-oct-2026, 19:00) el normal (si es un descanso, descanso() lo convierte) */
     txt(UI.kEy, 'Ahora · ' + (v.i + 1) + ' de ' + B.length);
     txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
     UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
@@ -1135,6 +1281,50 @@
     alFrente(UI.cartel); UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);   /* (16-oct-2026) alFrente */
     CART.hasta = Date.now() + quedan;
     if (!(BAT.cierre && Math.abs(ahora() - BAT.cierre) < 1500)) cambioSuena();   /* en el 5:00 ya suena el cierre de la batería */
+  }
+
+  /* ---------- (16-oct-2026, 19:00, Iago) EL DESCANSO ----------
+     «Durante el descanso quiero que la pantalla… esté presente todo ese tiempo, indicando además la próxima actividad… los
+     minutos corriendo hacia abajo… y que ponga que después es la evaluación de las lecciones y que diga los números… En la
+     clase 1 no quiero que ponga la lección de entonación… que ponga lección de entonación o algo así… ocuparía toda la pantalla
+     durante todo el tiempo de descanso. A no ser que yo pulse la pantalla». El cartel del descanso no se va a los 5 s: se
+     queda todo el descanso con su cuenta atrás (la de verdad: con el margen que se haya guardado, hasta que salta la
+     siguiente) y «Después: …» (como en «Hoy en clase»; la evaluación, «Evaluación de las lecciones 26 y 28»; la entonación,
+     en la C1 sin decir cuál). Tocar la pantalla o Esc lo quitan y en ese descanso ya no vuelve; abrir la página a mitad
+     del descanso lo pone. Donde no hay cartel (portales interactivos de GP), tampoco. Para quitarlo: que descanso() no haga nada. */
+  var DESC = { k: '', fuera: '' };
+  function esDescanso(b) { return !!b && (b.tema === 'descanso' || /^descanso\b/i.test(String(b.t || ''))); }
+  function luegoTexto(v) {
+    var j = v.a.i + 1, n = v.B[j]; if (!n) return 'fin de la clase';
+    var t = '';
+    try {
+      var raw = ((v.pub && Array.isArray(v.pub.bloques)) ? v.pub.bloques : []).filter(function (b) { return b && +b.m > 0 && b.slot !== '__no_clase'; })[j];
+      if (raw) {
+        var f = formatea(raw, v.c.grupo), lec = /^Lecci/.test(f.s || '') ? f.s : '';
+        if (f.t === 'Entonación' || f.t === 'Preparación entonación') t = (v.c.clase === 'c2' && /^Lecci/.test(f.s || '')) ? 'Entonación: ' + minus(f.s) : 'Lección de entonación';
+        else if ((f.t === 'Evaluación de ritmo' || f.t === 'Evaluación') && lec) t = 'Evaluación de ' + (/^Lecciones/.test(lec) ? 'las ' : 'la ') + minus(lec);
+        else { var it = agendaHoy({ bloques: [raw] }, v.c.grupo)[0]; if (it && it.t) t = it.lineas ? it.t + ': ' + it.lineas.join(' · ') : it.t; }
+      }
+    } catch (e) {}
+    return t || (n.t + (n.s ? ' · ' + n.s : ''));
+  }
+  function fueraDescanso() { if (UI && UI.cartel.classList.contains('lme-descanso')) { DESC.fuera = DESC.k; UI.cartel.classList.remove('lme-descanso'); } }
+  function descanso(v, inm) {
+    var k = (v.fase === 'clase' && v.a && esDescanso(v.B[v.a.i])) ? claveCambio(v) : '';
+    var cart = UI.cartel, quiere = !!k && DESC.fuera !== k && conCartel(inm);
+    if (!quiere) { if (cart.classList.contains('lme-descanso')) { cart.classList.remove('lme-descanso'); quitarCartel(true); } DESC.k = ''; return; }
+    var a = v.a, b = v.B[a.i];
+    if (!cart.classList.contains('lme-descanso') || DESC.k !== k || cart.hidden) {
+      txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
+      UI.kM.innerHTML = 'Después: <b>' + esc(luegoTexto(v)) + '</b>';
+      CART.ir = null; ver(UI.kIr, false);
+      cart.classList.add('lme-descanso'); alFrente(cart); cart.classList.remove('lme-recoge'); ver(cart, true); encaja(UI.kT, 120);
+      DESC.k = k;
+    }
+    txt(UI.kEy, 'Ahora · ' + (a.i + 1) + ' de ' + v.B.length + (a.pausa ? ' · en pausa' : ''));
+    var q = Math.ceil(Math.max(0, a.resto + a.mg)), r = Math.floor(q / 60) + '<span class="lme-dp">:</span>' + ('0' + (q % 60)).slice(-2);
+    if (UI.kR.innerHTML !== r) UI.kR.innerHTML = r;
+    CART.hasta = Date.now() + 60000;   /* no se va solo */
   }
 
   /* ---------- la cuenta atrás: barras amarillas que se mueven con la batería (pocas, sin texto) ---------- */
@@ -1245,21 +1435,32 @@
      aparta: la fila de botones de la derecha (⚠ morosos, pizarra, libros, ritmo… campana) se corre a la derecha lo justo, sin
      salirse de la pantalla; si ni así cabe (pantalla estrecha), la tarjeta se estrecha. La píldora «Digital/papel», con la
      tarjeta, no se ve (CSS). Antes: la tarjeta se iba a la izquierda, entre «Salir» y los botones, y tapaba el ⚠ y la píldora. */
-  var APARTA = { dx: 0, w: '' };
-  function apartar() {
+  /* (16-oct-2026, 18:50, Iago: «la pantalla del aula hace que ese encogimiento sea a tirones porque va con pocos frames…
+     me gustaría que fuese igual siempre de ancho… o que el encogimiento sea automático, sin que se pretenda que sea un
+     movimiento fluido») la tarjeta tiene SIEMPRE el mismo ancho (300 px; antes 333 y aquí se estrechaba) y la fila se aparta
+     DE GOLPE, sin animación. Antes se medía la fila a medio deslizar y el cálculo se realimentaba: la fila (y a veces la
+     tarjeta) no paraban de moverse. Ahora se mide en su sitio (sin desplazar; no se pinta nada entre medias), como mucho una
+     vez por segundo, y solo se toca si cambia de verdad. Solo si ni así cabe (pantalla muy estrecha), la tarjeta se
+     estrecha, también de golpe. */
+  var APARTA = { dx: 0, w: '', on: false, t: 0 };
+  function apartar(forzar) {
     try {
       var fila = PORTAL ? D.querySelector('.topbar-right') : null; if (!fila || !UI) return;
-      var on = H.classList.contains('lm-esc-on') && !UI.isla.hidden, dx = 0, w = '';
+      var on = H.classList.contains('lm-esc-on') && !UI.isla.hidden, dx = 0, w = '', ya = Date.now();
+      if (!forzar && on === APARTA.on && ya - APARTA.t < 1000) return;
+      APARTA.on = on; APARTA.t = ya;
       if (on) {
+        var tr = fila.style.transform, an = UI.isla.style.width;
+        fila.style.transform = ''; UI.isla.style.width = '';
         var ri = UI.isla.getBoundingClientRect(), rf = fila.getBoundingClientRect();
-        var l0 = rf.left - APARTA.dx, r0 = rf.right - APARTA.dx;   /* donde estaría sin apartar */
-        if (l0 < ri.right + 12 && r0 > ri.left - 12 && rf.top < ri.bottom) {
-          dx = Math.max(0, Math.min(ri.right + 12 - l0, W.innerWidth - 8 - r0));
-          var cabe = Math.floor(2 * (l0 + dx - 12 - W.innerWidth / 2));   /* lo ancha que puede ser la tarjeta, centrada */
-          if (cabe < 333) w = Math.max(250, cabe) + 'px';
+        fila.style.transform = tr; UI.isla.style.width = an;
+        if (rf.left < ri.right + 12 && rf.right > ri.left - 12 && rf.top < ri.bottom) {
+          dx = Math.round(Math.max(0, Math.min(ri.right + 12 - rf.left, W.innerWidth - 8 - rf.right)));
+          var cabe = Math.floor(2 * (rf.left + dx - 12 - W.innerWidth / 2));   /* lo ancha que puede ser la tarjeta, centrada */
+          if (cabe < ri.width - 1) w = Math.max(250, cabe) + 'px';
         }
       }
-      if (dx !== APARTA.dx) { fila.style.transform = dx ? 'translateX(' + Math.round(dx) + 'px)' : ''; APARTA.dx = dx; }
+      if (Math.abs(dx - APARTA.dx) > 1 || !dx !== !APARTA.dx) { fila.style.transform = dx ? 'translateX(' + dx + 'px)' : ''; APARTA.dx = dx; }
       if (w !== APARTA.w) { UI.isla.style.width = w; APARTA.w = w; }
     } catch (e) {}
   }
@@ -1294,14 +1495,24 @@
   function miniLibro(v) {
     /* (16-oct-2026, tarde, Iago: «cuando estamos con la pizarra… que no ocupe, no me invada ni tape botones… en el medio, solo con
        una línea») y con la pizarra «Pentagrama» abierta, la misma línea en el centro de su barra (#pz-esc, entre colores y grosores) */
-    var lb = $('lb-ov'), pz = $('pz-esc'), el = $('lme-mini');
+    /* (16-oct-2026, 18:50, Iago: «durante el dictado animado pon la escaleta también en modo una línea, como en los casos que
+       hablamos antes») y con el dictado animado abierto, en su barra de arriba, entre «DICTADO nº 5 · …» y Tonalidad · Compás
+       (en medio del hueco); la tarjeta no sale (tapaba «SEGUNDA FRASE»). También a pantalla completa: va dentro del dictado. */
+    var lb = $('lb-ov'), pz = $('pz-esc'), dc = $('dcOverlay'), el = $('lme-mini');
     var enLibro = !!(lb && lb.classList.contains('open')), enPiz = !enLibro && !!(pz && H.classList.contains('pz-abierto'));
-    if (!v || !(enLibro || enPiz)) { if (el) el.hidden = true; return; }
+    var dTop = (!enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
+    if (!v || !(enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
     if (!el) {
       el = D.createElement('div'); el.id = 'lme-mini';
-      el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><i class="lme-mb"><b></b></i>';   /* (Iago) solo la actividad actual */
+      el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><i class="lme-mb"><b></b></i>' +   /* (Iago) solo la actividad actual */
+        '<button type="button" class="lme-mmas" title="Ver toda la escaleta" aria-label="Ver toda la escaleta">' + SVG.mas + '</button>';   /* (16-oct-2026) + */
+      var mb = el.querySelector('.lme-mmas');
+      ['pointerdown', 'mousedown', 'touchstart', 'pointerup', 'mouseup', 'touchend', 'click'].forEach(function (ev) {
+        mb.addEventListener(ev, function (e) { e.stopPropagation(); if (ev === 'click') { e.preventDefault(); abrirTodo(); } });
+      });
     }
     if (enPiz) { if (el.parentNode !== pz) pz.appendChild(el); }
+    else if (enDic) { var der = dTop.querySelector('.dc-top-derecha'); if (el.parentNode !== dTop || (der && el.nextSibling !== der)) dTop.insertBefore(el, der || null); }
     else {
       var amp = lb.classList.contains('lb-amp'), top = lb.querySelector('.lb-top'), prev = $('lb-prev');
       if (!amp && top && prev && prev.parentNode === top) { if (el.parentNode !== top || el.nextSibling !== prev) top.insertBefore(el, prev); }
@@ -1309,6 +1520,7 @@
     }
     el.classList.toggle('lme-flota', enLibro && el.parentNode === lb);
     el.classList.toggle('lme-piz', enPiz);
+    el.classList.toggle('lme-dic', enDic);
     var B = v.B, a = v.a, b = B[a.i], extra = a.resto < 0 && a.mg > 0;
     var m = extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto));
     if (a.pausa) m = 'en pausa · ' + m;
@@ -1317,12 +1529,13 @@
     el.classList.toggle('lme-extra', extra);
     el.children[2].firstChild.style.width = (extra ? 100 : Math.max(0, Math.min(100, (1 - Math.max(0, a.resto) / a.dur) * 100))).toFixed(1) + '%';
     el.hidden = false;
+    return true;
   }
   var ULT = 0, COLOCADA = 0;
   function pintar(forzar) {
     if (D.hidden && !forzar) return;
     var t = ahora(); if (!forzar && t - ULT < 200) return; ULT = t;
-    if (!cuenta()) { if (UI) { ver(UI.isla, false); ver(UI.play, false); ver(UI.indice, false); ver(UI.cuenta, false); ver(UI.cartel, false); ver(UI.fin, false); } H.classList.remove('lm-esc-on'); return; }
+    if (!cuenta()) { cerrarTodo(); if (UI) { ver(UI.isla, false); ver(UI.play, false); ver(UI.indice, false); ver(UI.cuenta, false); ver(UI.cartel, false); ver(UI.fin, false); } H.classList.remove('lm-esc-on'); return; }
     if (!forzar && ANT.nada && t < ANT.nada) return;   /* sin clase: se mira cada 2 s */
     var v = vista(t);
     ANT.nada = (v.fase === 'nada' || v.fase === 'acabada') ? t + 2000 : 0;
@@ -1382,11 +1595,13 @@
     if (enPrevia) { despierto(true); bateria(v.c.t0 + 300000); }
     else if (BAT.vivo && !autoIni) callarBateria();
     /* la tarjeta */
-    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla';
+    /* (16-oct-2026, tarde) con un libro abierto, la línea dentro de él (y con la pizarra; y desde las 18:50, en el dictado animado) */
+    var hayMini = false; try { hayMini = !!miniLibro(v.fase === 'clase' && !!v.a ? v : null); } catch (e) {}
+    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && !(inm === 'dictado' && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
     ver(UI.isla, conIsla);
     H.classList.toggle('lm-esc-on', conIsla);
     if (PORTAL) apartar();   /* (16-oct-2026) la fila de botones, apartada o en su sitio */
-    try { miniLibro(v.fase === 'clase' && !!v.a ? v : null); } catch (e) {}   /* (16-oct-2026, tarde) con un libro abierto */
+    if (TODO.abierto) { if (v.fase === 'clase' && v.a && (conIsla || hayMini)) { try { pintarTodo(v); } catch (e) { cerrarTodo(); } } else cerrarTodo(); }   /* (16-oct-2026) + */
     if (conIsla) {
       var B = v.B, a = v.a, b = B[a.i], p = B[a.i - 1], n = B[a.i + 1];
       txt(UI.ant, p ? p.t + ' · ' + p.m + ' min' : '');
@@ -1429,6 +1644,7 @@
         }
       }
     }
+    try { descanso(v, inm); } catch (e) {}   /* (16-oct-2026, 19:00) el descanso, a pantalla completa todo el rato */
     if (!UI.cartel.hidden) {
       if (!conCartel(inm)) quitarCartel(true);   /* (16-oct-2026) antes: if (inm) */
       else { var qd = CART.hasta - Date.now(); UI.kBar.style.width = Math.min(100, (1 - qd / 5000) * 100).toFixed(2) + '%'; if (qd <= 0) quitarCartel(false); }
@@ -1491,7 +1707,7 @@
   setInterval(tic, 250);
   D.addEventListener('visibilitychange', function () { if (!D.hidden) { EST.t = 0; ESC.t = Math.min(ESC.t, Date.now() - 4 * 60000); pintar(true); } });
   W.addEventListener('focus', function () { EST.t = 0; });
-  W.addEventListener('resize', function () { COLOCADA = 0; });
+  W.addEventListener('resize', function () { COLOCADA = 0; APARTA.t = 0; });
   D.addEventListener('fullscreenchange', function () {
     /* (16-oct-2026) vídeo: si se sale de su pantalla completa (Esc), se cierra; si es el propio vídeo el que la pide, no */
     var ov = $('lme-video'), fs = D.fullscreenElement || D.webkitFullscreenElement;
@@ -1501,13 +1717,14 @@
   D.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape' && e.key !== 'Esc') return;
     if ($('lme-video')) { cerrarVideo(); return; }   /* (16-oct-2026) vídeo */
-    if (UI && !UI.cartel.hidden) { quitarCartel(true); }
+    if (TODO.abierto && !(UI && (!UI.cartel.hidden || !UI.fin.hidden))) { e.stopPropagation(); cerrarTodo(); return; }   /* (16-oct-2026) + */
+    if (UI && !UI.cartel.hidden) { fueraDescanso(); quitarCartel(true); }   /* (16-oct-2026, 19:00) el del descanso no vuelve */
     else if (UI && !UI.fin.hidden) { if (!FALTAS) { avisaFaltas(); return; } finVisto(); ver(UI.fin, false); }   /* (16-oct-2026) sin «Poner faltas», no */
   }, true);
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', function () { pintar(true); }); else pintar(true);
   W.LMEscaleta = { version: '15-oct-2026', app: APP, grado: GRADO,
     vista: function () { var v = vista(ahora()); return { fase: v.fase, grupo: v.c && v.c.grupo, clase: v.c && v.c.clase, i: v.i, bloques: v.B, a: v.a || null }; },
-    accion: accion, pintar: function () { pintar(true); }, formatea: formatea, videoDe: videoDe, abrirVideo: abrirVideo, cerrarVideo: cerrarVideo, irA: irA, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios,
+    accion: accion, abrirTodo: abrirTodo, cerrarTodo: cerrarTodo, pintar: function () { pintar(true); }, formatea: formatea, videoDe: videoDe, abrirVideo: abrirVideo, cerrarVideo: cerrarVideo, irA: irA, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios,
     sonido: function () { return { previa: !!SON.previa, item: !!SON.item, cambio: SON.cambio.filter(Boolean).length, n: SON.n, pista: BAT.pista, vivo: BAT.vivo, ac: AC ? AC.state : '' }; },
     indice: function () {   /* para mirar (y para el banco): el índice de la clase que toca y en qué golpe sale cada cosa */
       var v = vista(ahora()); if (!v.c) return null;
