@@ -875,6 +875,13 @@
     '#lme-cartel .lme-sub{font:500 36px/1.2 ' + F + ';color:#fff;max-width:88vw}' +
     '#lme-cartel .lme-mi{font:700 24px/1 ' + F + ';color:#9aa6bb;margin-top:4px}' +
     '#lme-cartel .lme-mi b{color:#fff;font-weight:700}' +
+    /* (16-oct-2026, Iago) «que no se oscurezca del todo… que se pueda intuir lo que hay detrás»: el cartel y el fin, velados (sin la foto) */
+    '#lme-cartel.lme-full,#lme-fin.lme-full{background:rgba(6,9,17,.58);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}' +
+    '#lme-cartel .lme-ey,#lme-cartel .lme-tit,#lme-cartel .lme-sub,#lme-cartel .lme-mi,#lme-fin .lme-ey,#lme-fin .lme-tit,#lme-fin .lme-tareas{text-shadow:0 2px 16px rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.6)}' +
+    '#lme-cartel .lme-ir{margin-top:14px;font:600 19px/1 ' + F + ';color:#e8edf6;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:10px 20px;cursor:pointer;box-shadow:none;pointer-events:auto;letter-spacing:.02em}' +
+    '#lme-cartel .lme-ir span{margin-left:6px;font-weight:700;color:#facc15}' +
+    '#lme-cartel .lme-ir:hover{background:rgba(255,255,255,.16);border-color:#facc15}' +
+    '#lme-cartel .lme-ir[hidden]{display:none}' +
     '#lme-fin .lme-tit{font:800 116px/.95 ' + F + ';letter-spacing:-.01em}' +
     '#lme-fin .lme-tareas{margin-top:18px;min-width:560px;max-width:86vw;text-align:left;background:rgba(11,19,32,.72);border:1.5px solid #facc15;border-radius:16px;padding:18px 26px 14px}' +
     '#lme-fin .lme-tareas h3{font:800 13px/1 ' + F + ';letter-spacing:.28em;text-transform:uppercase;color:#facc15;margin-bottom:6px}' +
@@ -981,11 +988,16 @@
     var cuenta = D.createElement('div'); cuenta.id = 'lme-cuenta'; cuenta.className = 'lme-full'; cuenta.hidden = true;
     cuenta.innerHTML = '<div class="lme-rec" hidden></div><div class="lme-ey"></div><div class="lme-num"></div><div class="lme-frase">Preparamos libro de ritmo y lápiz</div><canvas width="840" height="88"></canvas><div class="lme-barra5"><b></b></div>';
     var cartel = D.createElement('div'); cartel.id = 'lme-cartel'; cartel.className = 'lme-full'; cartel.hidden = true; cartel.setAttribute('role', 'alert');
-    cartel.innerHTML = '<div class="lme-ey"></div><div class="lme-tit"></div><div class="lme-sub"></div><div class="lme-mi"></div><div class="lme-barra5"><b></b></div>';
+    cartel.innerHTML = '<div class="lme-ey"></div><div class="lme-tit"></div><div class="lme-sub"></div><div class="lme-mi"></div>' +
+      '<button type="button" class="lme-ir" hidden>Abrir <span aria-hidden="true">›</span></button><div class="lme-barra5"><b></b></div>';   /* (16-oct-2026) el botón a la actividad: discreto y siempre el mismo */
     var fin = D.createElement('div'); fin.id = 'lme-fin'; fin.className = 'lme-full'; fin.hidden = true;
     fin.innerHTML = '<div class="lme-ey"></div><div class="lme-tit">Fin de la clase</div><div class="lme-tareas" hidden></div><div class="lme-cerrar">toca para cerrar</div>';
     /* (15-oct-2026, Iago) «si pulso en la pantalla, ese cartel desaparezca instantáneamente»: el toque lo quita y no llega a lo de debajo */
-    cartel.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); quitarCartel(true); tragar(); }, true);
+    cartel.addEventListener('pointerdown', function (e) {
+      if (e.target && e.target.closest && e.target.closest('.lme-ir')) { e.stopPropagation(); return; }   /* (16-oct-2026) el botón: lo hace su click */
+      e.preventDefault(); e.stopPropagation(); quitarCartel(true); tragar(); }, true);
+    cartel.querySelector('.lme-ir').addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation(); var acc = CART.ir; quitarCartel(true); if (acc) { try { acc.fn(); } catch (x) {} } });
     fin.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); finVisto(); ver(fin, false); tragar(); }, true);
     [indice, cuenta, cartel, fin].forEach(function (x) { ['click', 'mousedown', 'touchstart', 'wheel'].forEach(function (ev) { x.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); }); });
     D.body.appendChild(isla); D.body.appendChild(play); D.body.appendChild(indice); D.body.appendChild(cuenta); D.body.appendChild(cartel); D.body.appendChild(fin);
@@ -995,7 +1007,7 @@
            ant: isla.querySelector('.lme-ant'), t: isla.querySelector('.lme-t'), s: isla.querySelector('.lme-s'), m: isla.querySelector('.lme-m'),
            bar: isla.querySelector('.lme-barra b'), ex: isla.querySelector('.lme-ex'), sig: isla.querySelector('.lme-sigt'), bPausa: isla.querySelector('[data-a="pausa"]'),
            cEy: cuenta.querySelector('.lme-ey'), cRec: cuenta.querySelector('.lme-rec'), cNum: cuenta.querySelector('.lme-num'), cBar: cuenta.querySelector('.lme-barra5 b'), cv: cuenta.querySelector('canvas'),
-           kEy: cartel.querySelector('.lme-ey'), kT: cartel.querySelector('.lme-tit'), kS: cartel.querySelector('.lme-sub'), kM: cartel.querySelector('.lme-mi'), kBar: cartel.querySelector('.lme-barra5 b'),
+           kIr: cartel.querySelector('.lme-ir'), kEy: cartel.querySelector('.lme-ey'), kT: cartel.querySelector('.lme-tit'), kS: cartel.querySelector('.lme-sub'), kM: cartel.querySelector('.lme-mi'), kBar: cartel.querySelector('.lme-barra5 b'),
            fEy: fin.querySelector('.lme-ey'), fT: fin.querySelector('.lme-tareas') };
     return UI;
   }
@@ -1028,6 +1040,7 @@
     txt(UI.kEy, 'Ahora · ' + (v.i + 1) + ' de ' + B.length);
     txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
     UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
+    var ir = null; try { ir = irA(b); } catch (e) {} CART.ir = ir; ver(UI.kIr, !!ir); if (ir) UI.kIr.title = ir.t;   /* (16-oct-2026) siempre el mismo botón, «Abrir ›» */
     UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);
     CART.hasta = Date.now() + quedan;
     if (!(BAT.cierre && Math.abs(ahora() - BAT.cierre) < 1500)) cambioSuena();   /* en el 5:00 ya suena el cierre de la batería */
@@ -1081,6 +1094,45 @@
     var b = D.querySelector('#lm-morosos .lm-ic'); if (!b || !visible(b)) return;
     MOROS.hecho = true;
     if (b.getAttribute('aria-expanded') !== 'true') { try { b.click(); } catch (e) {} }
+  }
+  /* (16-oct-2026, Iago) EL CARTEL LLEVA A LA ACTIVIDAD: «esos segundos… ¿podrías poner enlace directo a la actividad si
+     implica pantalla?». Solo en el portal y solo si su botón de siempre está en la página (lo pulsa, como los cuadrados de
+     arriba): FaActos / Intervalia / Intervalia PRO → su libro; dictado → el dictado activo; vídeo didáctico → el vídeo;
+     portal temático → su portada (da igual el día); carta de ritmo → la intro activa; lección de ritmo → la lección en
+     la campana; evaluación de ritmo → resultados; entonación → su cuadrado. El contorno amarillo del icono de arriba
+     sigue igual (si no llega a tiempo al cartel, va luego por ahí). Para quitarlo: que irA devuelva null. */
+  function pulsa(el) { if (el) { try { el.click(); } catch (e) {} } }
+  function libroIr(tipo, t) {
+    var bt = D.querySelector('#lb-mini .da-btn'), cu = D.querySelector('#lm-iconos .lm-ic-libros');
+    if (!bt && !cu) return null;
+    return { t: t, fn: function () {
+      try { if (bt && W.LibrosAula && typeof W.LibrosAula.abrir === 'function' && W.LibrosAula.abrir.length >= 2) { W.LibrosAula.abrir(bt, tipo); return; } } catch (e) {}
+      pulsa(cu || bt);
+    } };
+  }
+  function leccionIr(lecs) {
+    var parte = 'leccion_' + lecs[0], sel = 'button.ts-lec-chip.abre[data-parte="' + parte + '"]';
+    var c0 = D.querySelector(sel); if (c0 && visible(c0)) { pulsa(c0); return; }
+    pulsa($('alu-campana-btn'));
+    var n = 0, tm = setInterval(function () { var c = D.querySelector(sel); if ((c && visible(c)) || ++n > 30) { clearInterval(tm); if (c) pulsa(c); } }, 100);
+  }
+  function irA(b) {
+    if (!PORTAL || !b) return null;
+    var t = String(b.t || ''), s = String(b.s || ''), m, el;
+    if (b.vid) return { t: b.vid.tema ? 'Abrir ' + String(b.vid.t).split(' · ')[0] : '▶ ' + b.vid.t, fn: function () { abrirVideo(b.vid); } };
+    if (b.lecs && b.lecs.length && $('alu-campana-btn')) return { t: 'Abrir la lección ' + listaY(b.lecs), fn: function () { leccionIr(b.lecs); } };
+    if (t === 'Ritmo' && (m = /^Carta\s+(\d+(?:\.\d+)?)/.exec(s))) {
+      el = D.querySelector('#ri-mini .da-btn[data-carta="' + m[1] + '"]');
+      if (el) return { t: 'Abrir la carta ' + m[1], fn: function () { pulsa(el); } };
+    }
+    if (t === 'Evaluación de ritmo' && (el = D.querySelector('#rs-mini .rs-btn.verde') || D.querySelector('#rs-mini .rs-btn.violeta'))) return { t: 'Resultados de ritmo', fn: function () { pulsa(el); } };
+    if (/^FaActos/.test(t)) return libroIr('faactos', 'Abrir FaActos');
+    if (t === 'Intervalia') return libroIr('intervalia', 'Abrir Intervalia');
+    if (t === 'Intervalia PRO') return libroIr('intervalia_pro', 'Abrir Intervalia PRO');
+    if (t === 'Dictado' && (el = D.querySelector('#lm-iconos .lm-ic-dict'))) { m = /(\d+)/.exec(s); return { t: 'Abrir el dictado' + (m ? ' nº ' + m[1] : ''), fn: function () { pulsa(el); } }; }
+    if (/^(Preparación entonación|Entonación)$/.test(t) && (el = D.querySelector('#lm-iconos .lm-ic-ento'))) return { t: 'Abrir entonación', fn: function () { pulsa(el); } };
+    if (/^PreDict/.test(t) && (el = D.querySelector('#ge-espiral') || D.querySelector('.topbar-right .carrusel-btn'))) return { t: 'Abrir PreDict Carrusel', fn: function () { pulsa(el); } };   /* GE: la espiral (PreDict Carrusel) · GP: PreDict PRO Carrusel */
+    return null;
   }
   var ICONOS = { ritmo: '.lm-ic-ritmo', entonacion: '.lm-ic-ento', dictado: '.lm-ic-dict', intervalia: '.lm-ic-libros', teoria: '.lm-ic-penta' };
   function iconoActivo(b) {   /* en el portal, lo que toca con contorno amarillo: su icono; en la preparación de ritmo, la campana */
@@ -1310,7 +1362,7 @@
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', function () { pintar(true); }); else pintar(true);
   W.LMEscaleta = { version: '15-oct-2026', app: APP, grado: GRADO,
     vista: function () { var v = vista(ahora()); return { fase: v.fase, grupo: v.c && v.c.grupo, clase: v.c && v.c.clase, i: v.i, bloques: v.B, a: v.a || null }; },
-    accion: accion, pintar: function () { pintar(true); }, formatea: formatea, videoDe: videoDe, abrirVideo: abrirVideo, cerrarVideo: cerrarVideo, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios,
+    accion: accion, pintar: function () { pintar(true); }, formatea: formatea, videoDe: videoDe, abrirVideo: abrirVideo, cerrarVideo: cerrarVideo, irA: irA, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios,
     sonido: function () { return { previa: !!SON.previa, item: !!SON.item, cambio: SON.cambio.filter(Boolean).length, n: SON.n, pista: BAT.pista, vivo: BAT.vivo, ac: AC ? AC.state : '' }; },
     indice: function () {   /* para mirar (y para el banco): el índice de la clase que toca y en qué golpe sale cada cosa */
       var v = vista(ahora()); if (!v.c) return null;
