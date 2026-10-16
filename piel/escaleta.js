@@ -768,7 +768,9 @@
   /* ---------- inmersivo: dictado animado, vídeo sonando o pantalla completa de una parte ---------- */
   function visible(el) { try { if (!el || !el.isConnected) return false; var cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; } catch (e) { return false; } }
   function inmersivo() {
-    var ovv = $('lme-video'); if (ovv) return ovv.classList.contains('lme-did') ? 'video' : 'pantalla';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
+    /* (16-oct-2026, tarde, Iago: «durante la reproducción de un vídeo didáctico quiero que la escaleta no se vea… molesta») el
+       vídeo abierto desde la tarjeta, didáctico o temático: la tarjeta no se ve; al cerrarlo (✕), vuelve. Antes, con el didáctico se quedaba. */
+    var ovv = $('lme-video'); if (ovv) return 'pantalla';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
     var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
     var dc = $('dcOverlay'), dictado = !!(dc && visible(dc)), carrusel = /^carrusel-/.test(APP);
     if (fs && fs !== H && fs !== D.body) return 'pantalla';           /* una parte a pantalla completa: la tarjeta no se ve */
@@ -1244,20 +1246,19 @@
     if (!v || !lb || !lb.classList.contains('open')) { if (el) el.hidden = true; return; }
     if (!el) {
       el = D.createElement('div'); el.id = 'lme-mini';
-      el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><span class="lme-ms"></span><i class="lme-mb"><b></b></i>';
+      el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><i class="lme-mb"><b></b></i>';   /* (Iago) solo la actividad actual */
     }
     var amp = lb.classList.contains('lb-amp'), top = lb.querySelector('.lb-top'), prev = $('lb-prev');
     if (!amp && top && prev && prev.parentNode === top) { if (el.parentNode !== top || el.nextSibling !== prev) top.insertBefore(el, prev); }
     else if (el.parentNode !== lb) lb.appendChild(el);
     el.classList.toggle('lme-flota', el.parentNode === lb);
-    var B = v.B, a = v.a, b = B[a.i], n = B[a.i + 1], extra = a.resto < 0 && a.mg > 0;
+    var B = v.B, a = v.a, b = B[a.i], extra = a.resto < 0 && a.mg > 0;
     var m = extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto));
     if (a.pausa) m = 'en pausa · ' + m;
     txt(el.children[0], b.t);   /* solo qué toca (el acto y la lección ya se ven en el libro) */
     txt(el.children[1], m);
-    txt(el.children[2], n ? 'luego ' + n.t : 'luego, fin de la clase');
     el.classList.toggle('lme-extra', extra);
-    el.children[3].firstChild.style.width = (extra ? 100 : Math.max(0, Math.min(100, (1 - Math.max(0, a.resto) / a.dur) * 100))).toFixed(1) + '%';
+    el.children[2].firstChild.style.width = (extra ? 100 : Math.max(0, Math.min(100, (1 - Math.max(0, a.resto) / a.dur) * 100))).toFixed(1) + '%';
     el.hidden = false;
   }
   var ULT = 0, COLOCADA = 0;
