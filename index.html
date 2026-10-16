@@ -2269,6 +2269,12 @@ function showEnig(kind){
   // RITMO at home al completar (mismo origen) + RPC suite_quiz_hechos_de
   // (autoritativa, multi-dispositivo). envio_id -> true
   var _quizHechos={};
+  // (16-oct-2026, Iago) QUIZ A MEDIAS: «en la notificación te pone empezar quiz… cambiaría empezar quiz por retomar quiz
+  // o algo así (como las fichas: continuar)». Al pulsar el botón se apunta en ESTE aparato que el quiz ya se abrió (su
+  // punto de control también vive en el aparato) y, mientras no conste hecho, el botón dice «Continuar el quiz».
+  // Para quitarlo: borrar estas dos funciones y sus usos (marcados «16-oct-2026»).
+  function quizAbierto(envio){ try{ return !!(envio && localStorage.getItem('suite_quiz_abierto_'+cuentaId()+'_'+envio)); }catch(e){ return false; } }
+  function quizMarcarAbierto(envio){ try{ if(envio) localStorage.setItem('suite_quiz_abierto_'+cuentaId()+'_'+envio, String(Date.now())); }catch(e){} }
   // FASE 8 · partes de "Tareas de la semana" marcadas: 'envio|parte' -> true
   var _semanaHechos={};
   function semanaHechosLocal(id, maxEdadMs){
@@ -3283,7 +3289,7 @@ function showEnig(kind){
           var qh=!!_quizHechos[tj.quiz.envio_id];
           if(!qh && !caduSem) pend++;
           partes.push(parte({cls:'ts-quiz'+(qh?' ts-hecha':''), col:'verde', ic:'corchea', tit:'Quiz de ritmo · Carta '+esc(tj.quiz.carta||''),
-            der: qh?cv2Hecho():'<button class="alu-quiz-go cv2-btn" data-envio="'+esc(tj.quiz.envio_id)+'" data-carta="'+esc(tj.quiz.carta||'')+'">'+cv2Svg('play')+'Empezar el quiz</button>'}));
+            der: qh?cv2Hecho():'<button class="alu-quiz-go cv2-btn" data-envio="'+esc(tj.quiz.envio_id)+'" data-carta="'+esc(tj.quiz.carta||'')+'">'+cv2Svg('play')+(quizAbierto(tj.quiz.envio_id)?'Continuar el quiz':'Empezar el quiz')+'</button>'}));   /* (16-oct-2026) a medias: «Continuar» */
         }
         var lecList=(tj.lecciones||[]).filter(function(l){ return l && l.n!=null; });
         if(!lecList.length && (tj.lecciones_imgs||[]).length) lecList=[{n:null, imgs:tj.lecciones_imgs}];   // compat con envíos viejos
@@ -3374,7 +3380,7 @@ function showEnig(kind){
         return cv2Tarjeta({cls:'alu-item-quiz'+((o.leido||qHecho||qTarde)?'':' no-leido')+(qHecho?' hecha':'')+(qTarde?' alu-tarde':''), id:o.id, col:'verde', ic:'corchea',
           tit:esc(cv2Titulo(o.titulo)||'Quiz de ritmo'), chip:qTarde?'<span class="cv2-chip pend">Pendiente</span>':'',
           cuerpo:'<div class="alu-item-cuerpo">'+esc(qHecho?'Ya lo completaste. ¡Buen trabajo!':(qTarde?'Se te pasó la semana, pero lo puedes hacer igual cuando quieras.':(o.cuerpo||'')))+'</div>',
-          btn: qHecho?cv2Hecho():'<button class="alu-quiz-go cv2-btn" data-envio="'+esc(qj.envio_id)+'" data-carta="'+esc(qj.carta||'')+'">'+cv2Svg('play')+(qTarde?'Hacerlo ahora':'Empezar el quiz')+'</button>',
+          btn: qHecho?cv2Hecho():'<button class="alu-quiz-go cv2-btn" data-envio="'+esc(qj.envio_id)+'" data-carta="'+esc(qj.carta||'')+'">'+cv2Svg('play')+(quizAbierto(qj.envio_id)?'Continuar el quiz':(qTarde?'Hacerlo ahora':'Empezar el quiz'))+'</button>',
           fecha:_f});
       }
       // ---------- DICTADO REVISADO (Iago jul-2026; 14-oct-2026 en dos líneas): (15-oct-2026, Iago) el CORREGIDO igual que el
@@ -3559,6 +3565,8 @@ function showEnig(kind){
         var carta=b.getAttribute('data-carta')||'';
         var item=b.closest('.alu-item'), nid=item&&item.getAttribute('data-id');
         if(nid) marcar(nid,item);
+        quizMarcarAbierto(envio);   /* (16-oct-2026) y, si se vuelve atrás, ya dice «Continuar el quiz» */
+        try{ var tq=b.lastChild; if(tq && tq.nodeType===3) tq.nodeValue='Continuar el quiz'; }catch(e){}
         window.location.href='https://iagonaron.github.io/ritmoathome/?quizCarta='+encodeURIComponent(carta)
           +'&envio='+encodeURIComponent(envio)+'&cuenta='+encodeURIComponent(cuentaId()||'');
       });
