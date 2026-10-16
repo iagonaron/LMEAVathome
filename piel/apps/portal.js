@@ -3171,7 +3171,7 @@
       d.style.cssText = 'position:fixed;z-index:2147483645;left:50%;bottom:14px;transform:translateX(-50%);width:max-content;max-width:92vw;box-sizing:border-box;display:flex;gap:12px;align-items:center;padding:10px 10px 10px 16px;border-radius:12px;background:#7f1d1d;color:#fff;border:2px solid #fca5a5;box-shadow:0 10px 30px rgba(0,0,0,.5);font:700 15px/1.4 Arial,sans-serif;pointer-events:none';
       var t = document.createElement('span');
       /* si la página ve el dedo de más, hay aro rojo: que lo mire; si no lo ve, es un toque colgado de la ventana */
-      t.textContent = tqHayAro()
+      t.textContent = (TQ_ARO && tqHayAro())   /* (16-oct-2026) sin aro, no se habla de él */
         ? 'La pantalla táctil se ha quedado «enganchada»: nota algo apoyado (mira el aro rojo). Puedes seguir: el portal lo compensa. Si ahí no hay nada, cierra esta ventana del navegador y vuelve a abrirla.'
         : 'La pantalla táctil se ha quedado «enganchada»: el navegador cree que hay un dedo apoyado. Puedes seguir: el portal lo compensa. Para arreglarlo del todo, cierra esta ventana del navegador y vuelve a abrirla.';
       var x = document.createElement('button'); x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Cerrar el aviso');
@@ -3184,6 +3184,10 @@
         dedos_en_la_lista: Object.keys(TQ.loc).length, heredados: Object.keys(TQ.here).length, punteros_cortados: !!TQ.sinPunteros }); } catch (x2) {}
     } catch (e) {}
   }
+  /* (16-oct-2026, 19:10, Iago: «ha vuelto a aparecer esa marquita… nota algo apoyado aquí… justo después de que yo haya
+     pulsado ahí fuerte… no me aporta que eso aparezca ahí… yo quitaría esa marquita») SIN ARO ROJO: lo que la pantalla cree
+     que sigue apoyado ya no se señala (el portal lo sigue compensando igual, sin enseñarlo). Para volver a verlo: TQ_ARO = true. */
+  var TQ_ARO = false;
   function tqMarcas() {
     var ah = Date.now(), vivos = {}, k;
     for (k in TQ.baja) { var p = TQ.baja[k]; if (ah - p.tQuieto > 5000) vivos[k] = p;
@@ -3204,6 +3208,7 @@
     for (k in TQ.marcas) { if (!vivos[k]) { var m0 = TQ.marcas[k]; if (m0 && m0.parentNode) m0.parentNode.removeChild(m0); delete TQ.marcas[k]; } }
     var sitio = document.fullscreenElement || document.webkitFullscreenElement || document.body;
     if (TQ.aviso && TQ.aviso.parentNode !== sitio) sitio.appendChild(TQ.aviso);   /* al entrar o salir de pantalla completa, sigue a la vista */
+    if (!TQ_ARO) return;   /* (16-oct-2026) sin aro */
     for (k in vivos) {
       var q = vivos[k], m = TQ.marcas[k];
       if (!m) {
