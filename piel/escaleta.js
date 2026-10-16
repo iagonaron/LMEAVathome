@@ -845,9 +845,11 @@
        en su barra, entre el título («FaActos · Acto 3») y el cambio de página; con «Ampliar», flotando arriba en el centro */
     'html:has(#lb-ov.open) #lme-play,html:has(#lb-ov.open) #lme-isla{display:none!important}' +
     'html.pz-abierto #lme-play,html.pz-abierto #lme-isla{display:none!important}' +   /* (16-oct-2026) la pizarra: la línea, en su barra */
-    '#lme-mini.lme-piz{height:34px;max-width:100%;background:#fff;color:#1f2937;border-color:#eab308;border-radius:8px}' +
-    '#lme-mini.lme-piz .lme-mt{color:#1f2937}#lme-mini.lme-piz .lme-mm{color:#a16207}#lme-mini.lme-piz .lme-mb{background:#e5e7eb}#lme-mini.lme-piz .lme-mb b{background:#eab308}' +
-    '#lme-mini.lme-piz.lme-extra .lme-mm{color:#c2410c}#lme-mini.lme-piz.lme-extra .lme-mb b{background:#f97316}' +
+    /* (16-oct-2026, 18:00, Iago: «lo veo todo un poco blanco. Lo pondría negro para que sea la misma estética») en la pizarra,
+       la línea en negro con el amarillo de la tarjeta. Antes: fondo blanco y texto oscuro. */
+    '#lme-mini.lme-piz{height:34px;max-width:100%;background:#0b1320;color:#fff;border-color:#facc15;border-radius:8px}' +
+    '#lme-mini.lme-piz .lme-mt{color:#fff}#lme-mini.lme-piz .lme-mm{color:#facc15}#lme-mini.lme-piz .lme-mb{background:rgba(255,255,255,.14)}#lme-mini.lme-piz .lme-mb b{background:#facc15}' +
+    '#lme-mini.lme-piz.lme-extra .lme-mm{color:#fb923c}#lme-mini.lme-piz.lme-extra .lme-mb b{background:#fb923c}' +
     '#lme-mini{position:relative;flex:0 1 auto;min-width:0;max-width:46%;height:40px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:0 13px;' +
       'border:1.5px solid #facc15;border-radius:10px;background:rgba(250,204,21,.07);color:#fff;font:600 13px/1 ' + F + ';white-space:nowrap;overflow:hidden;' +
       '-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;pointer-events:none}' +
@@ -954,15 +956,17 @@
     '#lme-fin .lme-tarea.ritmo i{background:#22c55e}#lme-fin .lme-tarea.teoria i{background:#ec4899}#lme-fin .lme-tarea.entonacion i{background:#3b82f6}#lme-fin .lme-tarea.dictado i{background:#f97316}' +
     '#lme-fin .lme-cerrar{position:absolute;right:26px;bottom:24px;font:600 13px/1 ' + F + ';color:#6b7487}' +
     /* (16-oct-2026) «Poner faltas» */
-    '#lme-fin .lme-faltas{display:flex;align-items:center;gap:16px;margin-top:20px;padding:14px 28px 14px 16px;background:rgba(11,19,32,.72);border:1.5px solid rgba(255,255,255,.5);border-radius:14px;color:#fff;font:700 26px/1 ' + F + ';cursor:pointer;pointer-events:auto;box-shadow:none;text-shadow:0 2px 12px rgba(0,0,0,.7)}' +
+    /* (16-oct-2026, 18:00, Iago: «el recordatorio de las faltas y el check pueden ocupar poquito, ser pequeños para mí, pero ellos
+       tienen que ver ahí las tareas») pequeño, abajo a la izquierda; lo grande son las tareas. Antes: debajo de las tareas, a 26 px. */
+    '#lme-fin .lme-faltas{position:absolute;left:24px;bottom:18px;display:flex;align-items:center;gap:8px;margin:0;padding:7px 12px 7px 8px;background:rgba(11,19,32,.6);border:1px solid rgba(255,255,255,.35);border-radius:10px;color:#cbd2de;font:600 13px/1 ' + F + ';cursor:pointer;pointer-events:auto;box-shadow:none;text-shadow:none}' +
     '#lme-fin .lme-faltas[hidden]{display:none}' +
-    '#lme-fin .lme-faltas b{flex:none;position:relative;width:34px;height:34px;border-radius:8px;border:2px solid #facc15;box-sizing:border-box}' +
+    '#lme-fin .lme-faltas b{flex:none;position:relative;width:18px;height:18px;border-radius:5px;border:1.5px solid #facc15;box-sizing:border-box}' +
     '#lme-fin .lme-faltas:hover{border-color:#facc15}' +
     '#lme-fin .lme-faltas.on{border-color:#22c55e;color:#bbf7d0}' +
     '#lme-fin .lme-faltas.on b{border-color:#22c55e;background:#22c55e}' +
-    '#lme-fin .lme-faltas.on b::after{content:"";position:absolute;left:10px;top:4px;width:8px;height:16px;border:solid #0b1320;border-width:0 3.5px 3.5px 0;transform:rotate(45deg)}' +
+    '#lme-fin .lme-faltas.on b::after{content:"";position:absolute;left:4.5px;top:1px;width:4.5px;height:9px;border:solid #0b1320;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}' +
     '#lme-fin .lme-faltas.lme-pide{animation:lmeFaltas .5s ease}' +
-    '@keyframes lmeFaltas{0%,100%{transform:none}20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}' +
+    '@keyframes lmeFaltas{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}' +
     'html.lm-esc-on.lm-fam-portal .hero{margin-top:64px!important}' +   /* en el portal, el logo baja lo justo mientras está la tarjeta */
     '.lme-ic{outline:2px solid #facc15!important;outline-offset:2px!important}' +
     /* (15-oct-2026, 19:10, Iago: «el contorno amarillo… quiero que esté visible aunque la notificación de ritmo esté ya gris,
