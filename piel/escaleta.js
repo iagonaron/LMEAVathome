@@ -22,9 +22,11 @@
    · En esa cuenta atrás, arriba y en violeta, los recordatorios de esa clase que manda el iPad (los 📌 de la preparación
      y las fichas en papel), solo los de ese grupo y cuatro como mucho (Iago, 15-oct).
    · Cada cambio de actividad: cartel a pantalla completa 5 s y un «ding» suave; tocar la pantalla lo quita AL MOMENTO
-     (ese toque no llega a lo de debajo) y el tiempo de la nueva ya corre. Sin carteles ni ding en el dictado animado, con
+     (ese toque no llega a lo de debajo) y el tiempo de la nueva ya corre. Sin carteles ni ding con
      un vídeo sonando o en pantalla completa de algo que no sea la página entera; con algo así en pantalla completa, la
      tarjeta tampoco se ve. El tiempo sigue corriendo siempre.
+     (16-oct-2026, tarde) En el dictado animado y en los carruseles de dictado (GE y GP), SÍ: cartel, aviso y «Fin de
+     la clase», también a pantalla completa. El aviso suena unos 10 dB más bajo que antes.
    · Margen, como en el iPad: si paso antes de tiempo, lo que sobra se guarda («+1:24» en gris). Si una actividad llega a
      cero con margen, no salta: la barra se recoloca con un tramo gris «extra» que se va gastando; al acabarse, salta.
    · Al acabar, «Fin de la clase» (en C2, con las tareas para casa). Se quita tocando.
@@ -748,17 +750,21 @@
     try { var t = AC.currentTime; MASTER.gain.cancelScheduledValues(t); MASTER.gain.setValueAtTime(MASTER.gain.value, t); MASTER.gain.linearRampToValueAtTime(0.0001, t + 0.25);
       setTimeout(function () { try { MASTER.gain.setValueAtTime(1, AC.currentTime); } catch (e) {} }, 400); } catch (e) {}
   }
+  /* (16-oct-2026, tarde, Iago: «el sonido… de la actividad… que aparece ocupando toda la pantalla, tiene demasiado volumen…
+     bajes el volumen considerablemente, porque es muy invasivo») el aviso del cambio (y su «ding» de reserva, que también
+     suena con «Fin de la clase») a un 30 % (unos −10 dB). Antes: 0,5 el «task completed» y el ding entero. */
+  var VOL_AVISO = 0.3;
   function cambioSuena() {   /* (Iago) «para cambio de actividad, estos dos intercalándose» */
     var b = SON.cambio[SON.n % 2] || SON.cambio[(SON.n + 1) % 2];
     if (!b || !audio() || AC.state !== 'running') { ding(); return; }
-    SON.n++; suena(b, AC.currentTime + 0.02, 0.5);
+    SON.n++; suena(b, AC.currentTime + 0.02, 0.5 * VOL_AVISO);
   }
   function ding() {
     if (!audio() || AC.state !== 'running') return;
     var t = AC.currentTime + 0.02;
     [[1318.5, 0.16, 1.5], [2637, 0.035, 0.8], [1975.5, 0.03, 1.1]].forEach(function (p) {
       var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = p[0];
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(p[1], t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + p[2]);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(p[1] * VOL_AVISO, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + p[2]);
       o.connect(g); g.connect(MASTER); o.start(t); o.stop(t + p[2] + 0.05);
     });
   }
@@ -780,6 +786,25 @@
     var vs = D.getElementsByTagName('video');
     for (var i = 0; i < vs.length; i++) { var x = vs[i]; if (!x.paused && !x.ended && x.readyState > 2) return 'video'; }
     return '';
+  }
+  /* (16-oct-2026, tarde, Iago: «sí que quiero que cuando estamos en dictado animado, cuando cambia la siguiente actividad,
+     sí que aparezca el sonido… También con los de grado profesional… ahí sí que quiero que aparezcan la pantalla completa y
+     demás») el cartel, su aviso y «Fin de la clase» SÍ salen en el dictado animado (portal GE y GP) y en los carruseles de
+     dictado, también a pantalla completa. Siguen sin salir con un vídeo (sonando o abierto desde la tarjeta) o con otra
+     cosa a pantalla completa. Antes: nada de esto en lo inmersivo. */
+  function conCartel(inm) {
+    if (!inm || inm === 'dictado' || inm === 'carrusel') return true;
+    if (inm !== 'pantalla' || $('lme-video')) return false;
+    var dc = $('dcOverlay'); return !!(dc && visible(dc)) || /^carrusel-/.test(APP);
+  }
+  /* lo que ocupa toda la pantalla (cartel, «Fin de la clase»), DENTRO de lo que esté a pantalla completa (el dictado animado
+     se pone él solo a pantalla completa y lo de fuera no se vería); si no hay nada, en el body, como siempre */
+  function alFrente(el) {
+    try {
+      var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
+      var host = (fs && fs !== H && fs !== D.body && !/^(VIDEO|IFRAME|CANVAS|IMG)$/.test(fs.tagName)) ? fs : D.body;
+      if (el && el.parentNode !== host) host.appendChild(el);
+    } catch (e) {}
   }
 
   /* ---------- la pantalla ---------- */
@@ -1095,7 +1120,7 @@
     txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
     UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
     var ir = null; try { ir = irA(b); } catch (e) {} CART.ir = ir; ver(UI.kIr, !!ir); if (ir) UI.kIr.title = ir.t;   /* (16-oct-2026) siempre el mismo botón, «Abrir ›» */
-    UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);
+    alFrente(UI.cartel); UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);   /* (16-oct-2026) alFrente */
     CART.hasta = Date.now() + quedan;
     if (!(BAT.cierre && Math.abs(ahora() - BAT.cierre) < 1500)) cambioSuena();   /* en el 5:00 ya suena el cierre de la batería */
   }
@@ -1367,12 +1392,23 @@
       if (CART.visto !== k) {
         CART.visto = k;
         var forz = CART.forzar && CART.forzar.i === a.i && t - CART.forzar.t < 3000; CART.forzar = null;
-        if (!inm && (forz || (desdeCambio >= 0 && desdeCambio < 4500 && !a.pausa))) mostrarCartel(v, forz ? 5000 : 5000 - desdeCambio);
+        if (conCartel(inm) && (forz || (desdeCambio >= 0 && desdeCambio < 4500 && !a.pausa))) mostrarCartel(v, forz ? 5000 : 5000 - desdeCambio);   /* (16-oct-2026) antes: !inm */
         else if (!UI.cartel.hidden) quitarCartel(true);
       }
-    } else { iconoActivo(null); if (!UI.cartel.hidden && v.fase !== 'clase') quitarCartel(true); }
+    } else {
+      iconoActivo(null); if (!UI.cartel.hidden && v.fase !== 'clase') quitarCartel(true);
+      /* (16-oct-2026, tarde) con el dictado animado a pantalla completa la tarjeta no se ve, pero el cartel del cambio SÍ */
+      if (v.fase === 'clase' && v.a && conCartel(inm)) {
+        var k2 = claveCambio(v), desde2 = t - (+v.a.ini);
+        if (CART.visto !== k2) {
+          CART.visto = k2;
+          var forz2 = CART.forzar && CART.forzar.i === v.a.i && t - CART.forzar.t < 3000; CART.forzar = null;
+          if (forz2 || (desde2 >= 0 && desde2 < 4500 && !v.a.pausa)) mostrarCartel(v, forz2 ? 5000 : 5000 - desde2);
+        }
+      }
+    }
     if (!UI.cartel.hidden) {
-      if (inm) quitarCartel(true);
+      if (!conCartel(inm)) quitarCartel(true);   /* (16-oct-2026) antes: if (inm) */
       else { var qd = CART.hasta - Date.now(); UI.kBar.style.width = Math.min(100, (1 - qd / 5000) * 100).toFixed(2) + '%'; if (qd <= 0) quitarCartel(false); }
     }
     /* el ▶ amarillo (portal): antes de empezar, en la entrada y tras ■ */
@@ -1380,13 +1416,13 @@
     if (conPlay && UI.play.hidden) { ver(UI.play, true); colocar(false); } else if (!conPlay) ver(UI.play, false);
     if (conPlay && (forzar || t - COLOCADA > 1000)) { COLOCADA = t; colocar(false); }
     /* fin de la clase */
-    var conFin = v.fase === 'fin' && !inm;
+    var conFin = v.fase === 'fin' && conCartel(inm);   /* (16-oct-2026) antes: && !inm */
     if (conFin && UI.fin.hidden) {
       txt(UI.fEy, grupoBonito(v.c.grupo) + ' · ' + v.c.clase.toUpperCase() + ' · ' + DIA_NOMBRE[v.c.dia]);
       var ls = v.c.clase === 'c2' ? tareas(v.pub, v.c.curso) : [];
       UI.fT.innerHTML = ls.length ? '<h3>Tareas para casa</h3>' + ls.map(function (x) { return '<div class="lme-tarea ' + x.tema + '"><i></i><span>' + esc(x.t) + '</span></div>'; }).join('') : '';
       FALTAS = false; pintaFaltas();   /* (16-oct-2026) «poner faltas», sin marcar */
-      ver(UI.fT, ls.length > 0); ver(UI.fin, true); ding();
+      ver(UI.fT, ls.length > 0); alFrente(UI.fin); ver(UI.fin, true); ding();   /* (16-oct-2026) alFrente */
     } else if (!conFin && !UI.fin.hidden) ver(UI.fin, false);
   }
   /* las tareas para casa (C2): sin iconos, sin lo de darse de alta en el portal y sin fechas de entrega */

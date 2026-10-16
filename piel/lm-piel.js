@@ -313,7 +313,7 @@
        de una pestaña: ?escaleta=0; para quitarla del todo: borrar estas líneas. */
     try {
       if (esTester(sesion()) && !/visor=/.test(location.hash || '')) {
-        var esc = document.createElement('script'); esc.src = BASE + 'escaleta.js?v=2026-10-16g'; esc.async = true;
+        var esc = document.createElement('script'); esc.src = BASE + 'escaleta.js?v=2026-10-16h'; esc.async = true;
         esc.setAttribute('data-app', app); esc.setAttribute('data-grado', grado); (document.head || H).appendChild(esc);
       }
     } catch (e) {}
