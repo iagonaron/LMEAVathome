@@ -302,7 +302,10 @@
   function videoDe(b) {
     try {
       var v = b && b.video;
-      if (v && typeof v === 'object' && /^https:\/\//.test(String(v.u || ''))) return { t: String(v.t || 'Vídeo'), u: String(v.u) };
+      if (v && typeof v === 'object' && /^https:\/\//.test(String(v.u || ''))) {
+        var esTema = !!v.tema || /^tema:/.test(String(v.id || ''));
+        return { t: String(v.t || 'Vídeo'), u: esTema ? conCuenta(String(v.u)) : String(v.u), tema: esTema ? 1 : 0 };
+      }
       if (!b || !/teor/.test(norm((b.tit || '') + ' ' + (b.slot || '')))) return null;
       var gr = GRADO === 'gp' ? 'gp' : 'ge', lineas = String(b.sub || '').split(/\n+/);
       for (var i = 0; i < lineas.length; i++) {
@@ -752,7 +755,7 @@
   /* ---------- inmersivo: dictado animado, vídeo sonando o pantalla completa de una parte ---------- */
   function visible(el) { try { if (!el || !el.isConnected) return false; var cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; } catch (e) { return false; } }
   function inmersivo() {
-    if ($('lme-video')) return 'pantalla';   /* (16-oct-2026) vídeo abierto desde la tarjeta */
+    var ovv = $('lme-video'); if (ovv) return ovv.classList.contains('lme-did') ? 'video' : 'pantalla';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
     var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
     var dc = $('dcOverlay'), dictado = !!(dc && visible(dc)), carrusel = /^carrusel-/.test(APP);
     if (fs && fs !== H && fs !== D.body) return 'pantalla';           /* una parte a pantalla completa: la tarjeta no se ve */
@@ -803,6 +806,9 @@
     '#lme-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}' +
     '#lme-video .lme-vx{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:rgba(11,19,32,.72);color:#fff;font:700 17px/1 ' + F + ';cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.5;transition:opacity .2s;padding:0;margin:0;box-shadow:none}' +
     '#lme-video .lme-vx:hover{opacity:1}' +
+    /* (16-oct-2026, tarde) didáctico: por debajo de la tarjeta (que sigue arriba) y la ✕ a la derecha */
+    '#lme-video.lme-did{z-index:2147483590}' +
+    '#lme-video.lme-did .lme-vx{left:auto;right:14px;top:14px;transform:none}' +
     '.lme-full{position:fixed;inset:0;z-index:2147483640;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;color:#fff;font-family:' + F + ';-webkit-font-smoothing:antialiased;' +
       'background:linear-gradient(rgba(6,9,17,.84),rgba(6,9,17,.84)),url("' + BASE + 'fondo-apaisado.jpg") center/cover #070b14;transition:opacity .45s ease,transform .45s ease;transform-origin:50% 6%;user-select:none;-webkit-user-select:none;cursor:default}' +
     '.lme-full *{box-sizing:border-box;margin:0;padding:0;letter-spacing:normal;text-transform:none;font-style:normal}' +
@@ -917,13 +923,16 @@
     if (!vd || !vd.u) return;
     cerrarVideo(true);
     var ov = D.createElement('div'); ov.id = 'lme-video';
+    /* (16-oct-2026, tarde, Iago) didáctico: la tarjeta sigue arriba, «en segundo plano»; temático (un portal): a pantalla
+       completa y la tarjeta desaparece */
+    ov.className = vd.tema ? 'lme-tema' : 'lme-did';
     ov.innerHTML = '<iframe allow="autoplay; fullscreen; microphone" allowfullscreen title="' + esc(vd.t) + '"></iframe>' +
       '<button type="button" class="lme-vx" title="Volver (Esc)" aria-label="Volver">✕</button>';
     ov.querySelector('iframe').src = vd.u;
     ov.querySelector('.lme-vx').addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); cerrarVideo(); });
     ['click', 'mousedown', 'pointerdown', 'touchstart', 'wheel'].forEach(function (ev) { ov.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); });
     D.body.appendChild(ov);
-    try {
+    if (vd.tema) try {
       var rq = ov.requestFullscreen || ov.webkitRequestFullscreen;
       if (rq) { var p = rq.call(ov); if (p && p.then) p.then(function () { ov.__fs = 1; }, function () {}); else ov.__fs = 1; }
     } catch (e) {}
