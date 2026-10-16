@@ -810,6 +810,10 @@
     '#lme-isla .lme-b svg{width:9px;height:9px;display:block;pointer-events:none}' +
     '#lme-play{position:fixed;z-index:2147483600;width:35px;height:35px;border-radius:50%;border:0;background:#facc15;color:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin:0;box-shadow:none}' +   /* (Iago, 18:05) sin resplandor */
     '#lme-play svg{width:14px;height:14px;margin-left:2px;display:block}' +
+    /* (16-oct-2026, tarde, Iago: «en el aula se pulsó la campana de notificaciones… el icono de la escaleta, ese círculo con el
+       play, aparece en primer plano… no aparece detrás de la ventana») lme-tras-ventana: con la campana (o Mis resultados, u otra
+       ventana del portal) abierta, el ▶ y la tarjeta quedan detrás de ella (la ventana va a z-index 90) */
+    'html:has(.alu-modal.open,#mr-overlay.open,#lb-ov.open,#amj-modal.open) #lme-play,html:has(.alu-modal.open,#mr-overlay.open,#lb-ov.open,#amj-modal.open) #lme-isla{z-index:80!important}' +
     /* (16-oct-2026) vídeo: el botón de la tarjeta y el vídeo a pantalla completa (la ✕, arriba en el centro: los portales tienen botones en las esquinas) */
     '#lme-isla .lme-vrow{display:flex;min-width:0;margin:1px 0 0}' +
     '#lme-isla .lme-vrow[hidden]{display:none}' +
