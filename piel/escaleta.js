@@ -819,6 +819,10 @@
     /* (16-oct-2026, tarde) con un libro abierto (FaActos, Intervalia…), la escaleta va DENTRO del libro, en una línea (#lme-mini):
        en su barra, entre el título («FaActos · Acto 3») y el cambio de página; con «Ampliar», flotando arriba en el centro */
     'html:has(#lb-ov.open) #lme-play,html:has(#lb-ov.open) #lme-isla{display:none!important}' +
+    'html.pz-abierto #lme-play,html.pz-abierto #lme-isla{display:none!important}' +   /* (16-oct-2026) la pizarra: la línea, en su barra */
+    '#lme-mini.lme-piz{height:34px;max-width:100%;background:#fff;color:#1f2937;border-color:#eab308;border-radius:8px}' +
+    '#lme-mini.lme-piz .lme-mt{color:#1f2937}#lme-mini.lme-piz .lme-mm{color:#a16207}#lme-mini.lme-piz .lme-mb{background:#e5e7eb}#lme-mini.lme-piz .lme-mb b{background:#eab308}' +
+    '#lme-mini.lme-piz.lme-extra .lme-mm{color:#c2410c}#lme-mini.lme-piz.lme-extra .lme-mb b{background:#f97316}' +
     '#lme-mini{position:relative;flex:0 1 auto;min-width:0;max-width:46%;height:40px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:0 13px;' +
       'border:1.5px solid #facc15;border-radius:10px;background:rgba(250,204,21,.07);color:#fff;font:600 13px/1 ' + F + ';white-space:nowrap;overflow:hidden;' +
       '-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;pointer-events:none}' +
@@ -1242,16 +1246,23 @@
      libro del aula abierto (#lb-ov, a pantalla completa), la escaleta en una línea DENTRO de su barra: qué toca, cuánto queda
      y qué viene, con su barrita; con «Ampliar» (sin barra), flotando arriba en el centro. No se pulsa ni tapa la partitura. */
   function miniLibro(v) {
-    var lb = $('lb-ov'), el = $('lme-mini');
-    if (!v || !lb || !lb.classList.contains('open')) { if (el) el.hidden = true; return; }
+    /* (16-oct-2026, tarde, Iago: «cuando estamos con la pizarra… que no ocupe, no me invada ni tape botones… en el medio, solo con
+       una línea») y con la pizarra «Pentagrama» abierta, la misma línea en el centro de su barra (#pz-esc, entre colores y grosores) */
+    var lb = $('lb-ov'), pz = $('pz-esc'), el = $('lme-mini');
+    var enLibro = !!(lb && lb.classList.contains('open')), enPiz = !enLibro && !!(pz && H.classList.contains('pz-abierto'));
+    if (!v || !(enLibro || enPiz)) { if (el) el.hidden = true; return; }
     if (!el) {
       el = D.createElement('div'); el.id = 'lme-mini';
       el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><i class="lme-mb"><b></b></i>';   /* (Iago) solo la actividad actual */
     }
-    var amp = lb.classList.contains('lb-amp'), top = lb.querySelector('.lb-top'), prev = $('lb-prev');
-    if (!amp && top && prev && prev.parentNode === top) { if (el.parentNode !== top || el.nextSibling !== prev) top.insertBefore(el, prev); }
-    else if (el.parentNode !== lb) lb.appendChild(el);
-    el.classList.toggle('lme-flota', el.parentNode === lb);
+    if (enPiz) { if (el.parentNode !== pz) pz.appendChild(el); }
+    else {
+      var amp = lb.classList.contains('lb-amp'), top = lb.querySelector('.lb-top'), prev = $('lb-prev');
+      if (!amp && top && prev && prev.parentNode === top) { if (el.parentNode !== top || el.nextSibling !== prev) top.insertBefore(el, prev); }
+      else if (el.parentNode !== lb) lb.appendChild(el);
+    }
+    el.classList.toggle('lme-flota', enLibro && el.parentNode === lb);
+    el.classList.toggle('lme-piz', enPiz);
     var B = v.B, a = v.a, b = B[a.i], extra = a.resto < 0 && a.mg > 0;
     var m = extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto));
     if (a.pausa) m = 'en pausa · ' + m;
