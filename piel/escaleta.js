@@ -792,17 +792,23 @@
      demás») el cartel, su aviso y «Fin de la clase» SÍ salen en el dictado animado (portal GE y GP) y en los carruseles de
      dictado, también a pantalla completa. Siguen sin salir con un vídeo (sonando o abierto desde la tarjeta) o con otra
      cosa a pantalla completa. Antes: nada de esto en lo inmersivo. */
-  function conCartel(inm) {
-    if (!inm || inm === 'dictado' || inm === 'carrusel') return true;
-    if (inm !== 'pantalla' || $('lme-video')) return false;
-    var dc = $('dcOverlay'); return !!(dc && visible(dc)) || /^carrusel-/.test(APP);
-  }
+  /* (16-oct-2026, 18:25, Iago: «que también me interrumpa con el sonido y con la pantalla… cuando estamos en libro… estábamos en
+     FaActos y cuando acabó el tiempo no me saltó la ventana a pantalla completa… el único lugar en el que no quiero que me
+     interrumpa es en los portales interactivos de grado profesional. En el resto, cuando llega el momento, sí que quiero que
+     invada la pantalla con el sonidito») el cartel, su aviso y «Fin de la clase» salen en TODAS partes: libros (también a
+     pantalla completa), pizarra, dictado animado, carruseles, vídeos… Solo no en los portales interactivos de GP (Acústica,
+     Atonalidad, Fonógrafo…: *.gp.lmathome.es, salvo Teoría PRO y los carruseles). La tarjeta de arriba sigue como estaba
+     (con un vídeo o algo a pantalla completa, no se ve). Antes (17:20): solo sin nada encima, en el dictado y en los carruseles. */
+  var PORTAL_GP_TEMATICO = (function () { try { var h = location.hostname || ''; return /\.gp\.lmathome\.es$/i.test(h) && !/^teoria\.gp\./i.test(h) && !/^carrusel-/.test(APP); } catch (e) { return false; } })();
+  function conCartel(inm) { return !PORTAL_GP_TEMATICO; }
   /* lo que ocupa toda la pantalla (cartel, «Fin de la clase»), DENTRO de lo que esté a pantalla completa (el dictado animado
      se pone él solo a pantalla completa y lo de fuera no se vería); si no hay nada, en el body, como siempre */
   function alFrente(el) {
     try {
       var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
       var host = (fs && fs !== H && fs !== D.body && !/^(VIDEO|IFRAME|CANVAS|IMG)$/.test(fs.tagName)) ? fs : D.body;
+      /* (16-oct-2026, 18:25) un vídeo (o un marco) a pantalla completa no deja ver nada encima: se sale de la pantalla completa */
+      if (fs && host === D.body && fs !== H && fs !== D.body) { try { (D.exitFullscreen || D.webkitExitFullscreen).call(D); } catch (e2) {} }
       if (el && el.parentNode !== host) host.appendChild(el);
     } catch (e) {}
   }
@@ -874,7 +880,7 @@
     /* (16-oct-2026, tarde) didáctico: por debajo de la tarjeta (que sigue arriba) y la ✕ a la derecha */
     '#lme-video.lme-did{z-index:2147483590}' +
     '#lme-video.lme-did .lme-vx{left:auto;right:14px;top:14px;transform:none}' +
-    '.lme-full{position:fixed;inset:0;z-index:2147483640;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;color:#fff;font-family:' + F + ';-webkit-font-smoothing:antialiased;' +
+    '.lme-full{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;color:#fff;font-family:' + F + ';-webkit-font-smoothing:antialiased;' +
       'background:linear-gradient(rgba(6,9,17,.84),rgba(6,9,17,.84)),url("' + BASE + 'fondo-apaisado.jpg") center/cover #070b14;transition:opacity .45s ease,transform .45s ease;transform-origin:50% 6%;user-select:none;-webkit-user-select:none;cursor:default}' +
     '.lme-full *{box-sizing:border-box;margin:0;padding:0;letter-spacing:normal;text-transform:none;font-style:normal}' +
     '.lme-full.lme-recoge{opacity:0;transform:scale(.22)}' +
