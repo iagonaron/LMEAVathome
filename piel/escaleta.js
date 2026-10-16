@@ -562,6 +562,37 @@
     ver(UI.fF, FALTAS_PIDE); UI.fF.classList.toggle('on', FALTAS); UI.fF.setAttribute('aria-pressed', FALTAS ? 'true' : 'false');
     txt(UI.fC, FALTAS ? 'toca para cerrar' : 'marca «Poner faltas» para cerrar');
   }
+  /* (16-oct-2026, 19:20, Iago: «como en las clases suelo evaluar siempre algún apartado, siempre voy a marcar quién no vino en
+     esas apps de corrección… que me aparezcan en la ventana final… y puntos suspensivos por si hay alguno que no he marcado…
+     excepción especial para los dictados de grado profesional… que no he corregido de forma manual… o que me hayan enviado
+     el dictado con el código QR… tiene que ser algo que se escriba durante la clase») «NO VINIERON: …» en «Fin de la clase»,
+     pequeño, encima de «Poner faltas»: lo marcado como «No vino» desde 15 min antes de empezar la clase (dictado GE,
+     ritmo GE, entonación GE, ritmo entonado GP) y, en GP, si ese día hubo dictado, los del grupo que ni lo enviaron por el
+     QR ni están corregidos a mano. Un alumno, una vez (con su nombre corto). Se vuelve a mirar cada 20 s mientras está la
+     pantalla. Lo da la función escaleta_ausentes de la base (SQL que pegó Iago); sin ella, aquí no sale nada.
+     Para quitarlo: que ausentes() no haga nada. */
+  var AUS = { k: '', t: 0, pidiendo: false, ls: null };
+  function ausentes(c) {
+    var id = cuenta(); if (!id || !c) return;
+    var k = c.clave;
+    if (AUS.k !== k) { AUS.k = k; AUS.ls = null; AUS.t = 0; }
+    if (AUS.pidiendo || Date.now() - AUS.t < 20000) return;
+    AUS.pidiendo = true; AUS.t = Date.now();
+    rpc('escaleta_ausentes', { p_cuenta_id: id, p_grupo: c.grupo, p_fecha: c.fecha, p_desde: new Date(c.t0 - 15 * 60000).toISOString() }).then(function (d) {
+      if (!(d && d.ok) || AUS.k !== k) return;
+      var vistos = {};
+      AUS.ls = (Array.isArray(d.alumnos) ? d.alumnos : []).map(function (x) { return nombreCorto(String((x && x.n) || '')); })
+        .filter(function (n) { if (!n || vistos[n]) return false; vistos[n] = 1; return true; });
+      pintaAusentes();
+    }).catch(function () {}).then(function () { AUS.pidiendo = false; });
+  }
+  function pintaAusentes() {
+    if (!UI || !UI.fA) return;
+    var ls = AUS.ls; if (!ls) { ver(UI.fA, false); return; }
+    var h = ls.length ? '<b>' + (ls.length === 1 ? 'No vino' : 'No vinieron') + ':</b> ' + esc(ls.join(', ')) + ', …' : 'Nadie marcado como «no vino»…';
+    if (UI.fA.innerHTML !== h) UI.fA.innerHTML = h;
+    ver(UI.fA, true);
+  }
   function avisaFaltas() { if (!UI || !UI.fF) return; UI.fF.classList.remove('lme-pide'); void UI.fF.offsetWidth; UI.fF.classList.add('lme-pide'); }
   function finVisto() {
     var t = ahora(), v = vista(t); if (!v.c || v.fase !== 'fin') return;
@@ -1042,6 +1073,17 @@
        tienen que ver ahí las tareas») pequeño, abajo a la izquierda; lo grande son las tareas. Antes: debajo de las tareas, a 26 px. */
     '#lme-fin .lme-faltas{position:absolute;left:24px;bottom:18px;display:flex;align-items:center;gap:8px;margin:0;padding:7px 12px 7px 8px;background:rgba(11,19,32,.6);border:1px solid rgba(255,255,255,.35);border-radius:10px;color:#cbd2de;font:600 13px/1 ' + F + ';cursor:pointer;pointer-events:auto;box-shadow:none;text-shadow:none}' +
     '#lme-fin .lme-faltas[hidden]{display:none}' +
+    /* (16-oct-2026, 19:25, Iago: «lo de poner faltas… quiero que esté abajo centrado, un poco más grande… que sea siempre igual.
+       Si hay tareas, que haya hueco para las tareas, pero abajo de todo, en el centro, lo de poner las faltas y… los alumnos»)
+       el PIE de «Fin de la clase»: abajo en el centro, «Poner faltas» más grande y, a su lado, «No vinieron: …». Antes: abajo
+       a la izquierda y pequeño. */
+    '#lme-fin .lme-pie{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px 20px;width:max-content;max-width:92vw}' +
+    '#lme-fin .lme-pie .lme-faltas{position:static;font-size:17px;gap:11px;padding:10px 18px 10px 12px;border-radius:12px}' +
+    '#lme-fin .lme-pie .lme-faltas b{width:23px;height:23px;border-radius:6px;border-width:2px}' +
+    '#lme-fin .lme-pie .lme-faltas.on b::after{left:6px;top:1.5px;width:6px;height:12px;border-width:0 3px 3px 0}' +
+    '#lme-fin .lme-aus{max-width:min(760px,62vw);text-align:left;font:500 17px/1.35 ' + F + ';color:#cbd2de;text-shadow:0 2px 10px rgba(0,0,0,.7);pointer-events:none}' +
+    '#lme-fin .lme-aus[hidden]{display:none}' +
+    '#lme-fin .lme-aus b{color:#fff;font-weight:700}' +
     '#lme-fin .lme-faltas b{flex:none;position:relative;width:18px;height:18px;border-radius:5px;border:1.5px solid #facc15;box-sizing:border-box}' +
     '#lme-fin .lme-faltas:hover{border-color:#facc15}' +
     '#lme-fin .lme-faltas.on{border-color:#22c55e;color:#bbf7d0}' +
@@ -1221,8 +1263,8 @@
     cartel.innerHTML = '<div class="lme-ey"></div><div class="lme-tit"></div><div class="lme-sub"></div><div class="lme-reloj"></div><div class="lme-mi"></div>' +   /* (16-oct-2026, 19:00) lme-reloj: el descanso */
       '<button type="button" class="lme-ir" hidden>Abrir <span aria-hidden="true">›</span></button><div class="lme-barra5"><b></b></div>';   /* (16-oct-2026) el botón a la actividad: discreto y siempre el mismo */
     var fin = D.createElement('div'); fin.id = 'lme-fin'; fin.className = 'lme-full'; fin.hidden = true;
-    fin.innerHTML = '<div class="lme-ey"></div><div class="lme-tit">Fin de la clase</div><div class="lme-tareas" hidden></div>' +
-      '<button type="button" class="lme-faltas" aria-pressed="false"><b aria-hidden="true"></b><span>Poner faltas</span></button><div class="lme-cerrar"></div>';   /* (16-oct-2026) «poner faltas»: hay que marcarlo para salir */
+    fin.innerHTML = '<div class="lme-ey"></div><div class="lme-tit">Fin de la clase</div><div class="lme-tareas" hidden></div>' +   /* (16-oct-2026, 19:25) el pie: «Poner faltas» y «No vinieron: …», abajo en el centro */
+      '<div class="lme-pie"><button type="button" class="lme-faltas" aria-pressed="false"><b aria-hidden="true"></b><span>Poner faltas</span></button><div class="lme-aus" hidden></div></div><div class="lme-cerrar"></div>';   /* (16-oct-2026) «poner faltas»: hay que marcarlo para salir */
     /* (15-oct-2026, Iago) «si pulso en la pantalla, ese cartel desaparezca instantáneamente»: el toque lo quita y no llega a lo de debajo */
     cartel.addEventListener('pointerdown', function (e) {
       if (e.target && e.target.closest && e.target.closest('.lme-ir')) { e.stopPropagation(); return; }   /* (16-oct-2026) el botón: lo hace su click */
@@ -1244,7 +1286,7 @@
            bar: isla.querySelector('.lme-barra b'), ex: isla.querySelector('.lme-ex'), sig: isla.querySelector('.lme-sigt'), bPausa: isla.querySelector('[data-a="pausa"]'),
            cEy: cuenta.querySelector('.lme-ey'), cRec: cuenta.querySelector('.lme-rec'), cNum: cuenta.querySelector('.lme-num'), cBar: cuenta.querySelector('.lme-barra5 b'), cv: cuenta.querySelector('canvas'),
            kIr: cartel.querySelector('.lme-ir'), kR: cartel.querySelector('.lme-reloj'), kEy: cartel.querySelector('.lme-ey'), kT: cartel.querySelector('.lme-tit'), kS: cartel.querySelector('.lme-sub'), kM: cartel.querySelector('.lme-mi'), kBar: cartel.querySelector('.lme-barra5 b'),
-           fEy: fin.querySelector('.lme-ey'), fT: fin.querySelector('.lme-tareas'), fF: fin.querySelector('.lme-faltas'), fC: fin.querySelector('.lme-cerrar') };
+           fEy: fin.querySelector('.lme-ey'), fT: fin.querySelector('.lme-tareas'), fF: fin.querySelector('.lme-faltas'), fA: fin.querySelector('.lme-aus'), fC: fin.querySelector('.lme-cerrar') };
     return UI;
   }
   /* el «clic» que sigue a ese toque no debe caer en lo que hay debajo */
@@ -1660,8 +1702,10 @@
       var ls = v.c.clase === 'c2' ? tareas(v.pub, v.c.curso) : [];
       UI.fT.innerHTML = ls.length ? '<h3>Tareas para casa</h3>' + ls.map(function (x) { return '<div class="lme-tarea ' + x.tema + '"><i></i><span>' + esc(x.t) + '</span></div>'; }).join('') : '';
       FALTAS = false; pintaFaltas();   /* (16-oct-2026) «poner faltas», sin marcar */
+      AUS.t = 0; pintaAusentes();   /* (16-oct-2026, 19:20) no vinieron: se pide ya (abajo) */
       ver(UI.fT, ls.length > 0); alFrente(UI.fin); ver(UI.fin, true); ding();   /* (16-oct-2026) alFrente */
     } else if (!conFin && !UI.fin.hidden) ver(UI.fin, false);
+    if (conFin) { try { ausentes(v.c); } catch (e) {} }   /* (16-oct-2026, 19:20) y cada 20 s mientras está */
   }
   /* las tareas para casa (C2): sin iconos, sin lo de darse de alta en el portal y sin fechas de entrega */
   function tareas(pub, cu) {
