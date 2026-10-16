@@ -529,6 +529,19 @@
       base.parada = t; guardarEstado(c, base); pintar(true); return;
     }
   }
+  /* (16-oct-2026, Iago) «PONER FALTAS»: «una especie de nota para mí que sea poner faltas y que yo tenga que darle a check…
+     para yo poder salir de esa pantalla tengo que marcar check de que he puesto las faltas». En la pantalla final de C1 y
+     de C2 (debajo de las tareas): hasta marcarlo, tocar la pantalla o Escape no la cierran (el check se sacude); marcado,
+     «toca para cerrar», como siempre. Si la pantalla se va sola (empieza otra clase), se va igual. No se guarda nada.
+     Para quitarlo: FALTAS_PIDE = false. */
+  var FALTAS_PIDE = true, FALTAS = false;
+  function pintaFaltas() {
+    if (!UI || !UI.fF) return;
+    if (!FALTAS_PIDE) FALTAS = true;
+    ver(UI.fF, FALTAS_PIDE); UI.fF.classList.toggle('on', FALTAS); UI.fF.setAttribute('aria-pressed', FALTAS ? 'true' : 'false');
+    txt(UI.fC, FALTAS ? 'toca para cerrar' : 'marca «Poner faltas» para cerrar');
+  }
+  function avisaFaltas() { if (!UI || !UI.fF) return; UI.fF.classList.remove('lme-pide'); void UI.fF.offsetWidth; UI.fF.classList.add('lme-pide'); }
   function finVisto() {
     var t = ahora(), v = vista(t); if (!v.c || v.fase !== 'fin') return;
     var e = JSON.parse(JSON.stringify(v.e || {})); delete e.auto; e.finVisto = t; guardarEstado(v.c, e); pintar(true);
@@ -890,6 +903,16 @@
     '#lme-fin .lme-tarea i{flex:none;width:12px;height:12px;border-radius:3px;background:#9aa6bb}' +
     '#lme-fin .lme-tarea.ritmo i{background:#22c55e}#lme-fin .lme-tarea.teoria i{background:#ec4899}#lme-fin .lme-tarea.entonacion i{background:#3b82f6}#lme-fin .lme-tarea.dictado i{background:#f97316}' +
     '#lme-fin .lme-cerrar{position:absolute;right:26px;bottom:24px;font:600 13px/1 ' + F + ';color:#6b7487}' +
+    /* (16-oct-2026) «Poner faltas» */
+    '#lme-fin .lme-faltas{display:flex;align-items:center;gap:16px;margin-top:20px;padding:14px 28px 14px 16px;background:rgba(11,19,32,.72);border:1.5px solid rgba(255,255,255,.5);border-radius:14px;color:#fff;font:700 26px/1 ' + F + ';cursor:pointer;pointer-events:auto;box-shadow:none;text-shadow:0 2px 12px rgba(0,0,0,.7)}' +
+    '#lme-fin .lme-faltas[hidden]{display:none}' +
+    '#lme-fin .lme-faltas b{flex:none;position:relative;width:34px;height:34px;border-radius:8px;border:2px solid #facc15;box-sizing:border-box}' +
+    '#lme-fin .lme-faltas:hover{border-color:#facc15}' +
+    '#lme-fin .lme-faltas.on{border-color:#22c55e;color:#bbf7d0}' +
+    '#lme-fin .lme-faltas.on b{border-color:#22c55e;background:#22c55e}' +
+    '#lme-fin .lme-faltas.on b::after{content:"";position:absolute;left:10px;top:4px;width:8px;height:16px;border:solid #0b1320;border-width:0 3.5px 3.5px 0;transform:rotate(45deg)}' +
+    '#lme-fin .lme-faltas.lme-pide{animation:lmeFaltas .5s ease}' +
+    '@keyframes lmeFaltas{0%,100%{transform:none}20%{transform:translateX(-10px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}' +
     'html.lm-esc-on.lm-fam-portal .hero{margin-top:64px!important}' +   /* en el portal, el logo baja lo justo mientras está la tarjeta */
     '.lme-ic{outline:2px solid #facc15!important;outline-offset:2px!important}' +
     /* (15-oct-2026, 19:10, Iago: «el contorno amarillo… quiero que esté visible aunque la notificación de ritmo esté ya gris,
@@ -991,14 +1014,20 @@
     cartel.innerHTML = '<div class="lme-ey"></div><div class="lme-tit"></div><div class="lme-sub"></div><div class="lme-mi"></div>' +
       '<button type="button" class="lme-ir" hidden>Abrir <span aria-hidden="true">›</span></button><div class="lme-barra5"><b></b></div>';   /* (16-oct-2026) el botón a la actividad: discreto y siempre el mismo */
     var fin = D.createElement('div'); fin.id = 'lme-fin'; fin.className = 'lme-full'; fin.hidden = true;
-    fin.innerHTML = '<div class="lme-ey"></div><div class="lme-tit">Fin de la clase</div><div class="lme-tareas" hidden></div><div class="lme-cerrar">toca para cerrar</div>';
+    fin.innerHTML = '<div class="lme-ey"></div><div class="lme-tit">Fin de la clase</div><div class="lme-tareas" hidden></div>' +
+      '<button type="button" class="lme-faltas" aria-pressed="false"><b aria-hidden="true"></b><span>Poner faltas</span></button><div class="lme-cerrar"></div>';   /* (16-oct-2026) «poner faltas»: hay que marcarlo para salir */
     /* (15-oct-2026, Iago) «si pulso en la pantalla, ese cartel desaparezca instantáneamente»: el toque lo quita y no llega a lo de debajo */
     cartel.addEventListener('pointerdown', function (e) {
       if (e.target && e.target.closest && e.target.closest('.lme-ir')) { e.stopPropagation(); return; }   /* (16-oct-2026) el botón: lo hace su click */
       e.preventDefault(); e.stopPropagation(); quitarCartel(true); tragar(); }, true);
     cartel.querySelector('.lme-ir').addEventListener('click', function (e) {
       e.preventDefault(); e.stopPropagation(); var acc = CART.ir; quitarCartel(true); if (acc) { try { acc.fn(); } catch (x) {} } });
-    fin.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); finVisto(); ver(fin, false); tragar(); }, true);
+    fin.addEventListener('pointerdown', function (e) {
+      if (e.target && e.target.closest && e.target.closest('.lme-faltas')) { e.stopPropagation(); return; }   /* (16-oct-2026) el check: lo hace su click */
+      e.preventDefault(); e.stopPropagation();
+      if (!FALTAS) { avisaFaltas(); return; }          /* (16-oct-2026) sin «Poner faltas» marcado, la pantalla no se va */
+      finVisto(); ver(fin, false); tragar(); }, true);
+    fin.querySelector('.lme-faltas').addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); FALTAS = !FALTAS; pintaFaltas(); });
     [indice, cuenta, cartel, fin].forEach(function (x) { ['click', 'mousedown', 'touchstart', 'wheel'].forEach(function (ev) { x.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); }); });
     D.body.appendChild(isla); D.body.appendChild(play); D.body.appendChild(indice); D.body.appendChild(cuenta); D.body.appendChild(cartel); D.body.appendChild(fin);
     UI = { isla: isla, play: play, indice: indice, cuenta: cuenta, cartel: cartel, fin: fin,
@@ -1008,7 +1037,7 @@
            bar: isla.querySelector('.lme-barra b'), ex: isla.querySelector('.lme-ex'), sig: isla.querySelector('.lme-sigt'), bPausa: isla.querySelector('[data-a="pausa"]'),
            cEy: cuenta.querySelector('.lme-ey'), cRec: cuenta.querySelector('.lme-rec'), cNum: cuenta.querySelector('.lme-num'), cBar: cuenta.querySelector('.lme-barra5 b'), cv: cuenta.querySelector('canvas'),
            kIr: cartel.querySelector('.lme-ir'), kEy: cartel.querySelector('.lme-ey'), kT: cartel.querySelector('.lme-tit'), kS: cartel.querySelector('.lme-sub'), kM: cartel.querySelector('.lme-mi'), kBar: cartel.querySelector('.lme-barra5 b'),
-           fEy: fin.querySelector('.lme-ey'), fT: fin.querySelector('.lme-tareas') };
+           fEy: fin.querySelector('.lme-ey'), fT: fin.querySelector('.lme-tareas'), fF: fin.querySelector('.lme-faltas'), fC: fin.querySelector('.lme-cerrar') };
     return UI;
   }
   /* el «clic» que sigue a ese toque no debe caer en lo que hay debajo */
@@ -1299,6 +1328,7 @@
       txt(UI.fEy, grupoBonito(v.c.grupo) + ' · ' + v.c.clase.toUpperCase() + ' · ' + DIA_NOMBRE[v.c.dia]);
       var ls = v.c.clase === 'c2' ? tareas(v.pub, v.c.curso) : [];
       UI.fT.innerHTML = ls.length ? '<h3>Tareas para casa</h3>' + ls.map(function (x) { return '<div class="lme-tarea ' + x.tema + '"><i></i><span>' + esc(x.t) + '</span></div>'; }).join('') : '';
+      FALTAS = false; pintaFaltas();   /* (16-oct-2026) «poner faltas», sin marcar */
       ver(UI.fT, ls.length > 0); ver(UI.fin, true); ding();
     } else if (!conFin && !UI.fin.hidden) ver(UI.fin, false);
   }
@@ -1357,7 +1387,7 @@
     if (e.key !== 'Escape' && e.key !== 'Esc') return;
     if ($('lme-video')) { cerrarVideo(); return; }   /* (16-oct-2026) vídeo */
     if (UI && !UI.cartel.hidden) { quitarCartel(true); }
-    else if (UI && !UI.fin.hidden) { finVisto(); ver(UI.fin, false); }
+    else if (UI && !UI.fin.hidden) { if (!FALTAS) { avisaFaltas(); return; } finVisto(); ver(UI.fin, false); }   /* (16-oct-2026) sin «Poner faltas», no */
   }, true);
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', function () { pintar(true); }); else pintar(true);
   W.LMEscaleta = { version: '15-oct-2026', app: APP, grado: GRADO,
