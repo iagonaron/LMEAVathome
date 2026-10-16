@@ -967,6 +967,8 @@
     '#lme-fin .lme-faltas.on b::after{content:"";position:absolute;left:4.5px;top:1px;width:4.5px;height:9px;border:solid #0b1320;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}' +
     '#lme-fin .lme-faltas.lme-pide{animation:lmeFaltas .5s ease}' +
     '@keyframes lmeFaltas{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}' +
+    'html.lm-esc-on.lm-fam-portal #lm-fmt-centro{visibility:hidden!important}' +   /* (16-oct-2026) la píldora «Digital/papel» quedaba debajo de la tarjeta */
+    'html.lm-fam-portal .topbar-right{transition:transform .25s ease}' +
     'html.lm-esc-on.lm-fam-portal .hero{margin-top:64px!important}' +   /* en el portal, el logo baja lo justo mientras está la tarjeta */
     '.lme-ic{outline:2px solid #facc15!important;outline-offset:2px!important}' +
     /* (15-oct-2026, 19:10, Iago: «el contorno amarillo… quiero que esté visible aunque la notificación de ritmo esté ya gris,
@@ -1231,24 +1233,33 @@
       if (si !== c.classList.contains('lme-ic')) c.classList.toggle('lme-ic', si);
     });
   }
-  function colocar(si) {   /* en el portal: a la altura de los botones y de la tira de la música; si algo los tapa, como en las apps */
-    var isla = UI.isla, al = false;
-    if (PORTAL && si) {
-      try {
-        var ic = $('lm-iconos'), mu = $('lm-musica'), w = $('portal-welcome');
-        var sa = w ? Array.prototype.filter.call(w.querySelectorAll('button, a'), function (x) { return /salir/i.test(x.textContent || ''); })[0] : null;
-        if (ic && visible(ic) && sa) {
-          var ri = ic.getBoundingClientRect(), rs = sa.getBoundingClientRect();
-          var tapado = D.elementFromPoint(Math.round(ri.left + 6), Math.round(ri.top + ri.height / 2));
-          if (tapado && (ic.contains(tapado) || tapado === ic)) {
-            var abajo = (mu && visible(mu)) ? mu.getBoundingClientRect().bottom : ri.bottom + 40;
-            var ancho = 333, x = Math.round((rs.right + ri.left) / 2 - ancho / 2);
-            isla.style.left = x + 'px'; isla.style.top = Math.round(ri.top) + 'px'; isla.style.height = Math.max(70, Math.round(abajo - ri.top)) + 'px';
-            al = true;
-          }
+  /* (16-oct-2026, 18:00, Iago: «en el portal… la escaleta tapa algunos botones, como el de los morosos y alguno más… me gustaría
+     que el lugar donde esté la escaleta siga siendo en el centro, arriba, para que… en las ventanas, aunque haya variantes, se
+     sigan viendo en el mismo lugar») la tarjeta va SIEMPRE arriba en el centro, como en las apps, y lo que habría debajo se
+     aparta: la fila de botones de la derecha (⚠ morosos, pizarra, libros, ritmo… campana) se corre a la derecha lo justo, sin
+     salirse de la pantalla; si ni así cabe (pantalla estrecha), la tarjeta se estrecha. La píldora «Digital/papel», con la
+     tarjeta, no se ve (CSS). Antes: la tarjeta se iba a la izquierda, entre «Salir» y los botones, y tapaba el ⚠ y la píldora. */
+  var APARTA = { dx: 0, w: '' };
+  function apartar() {
+    try {
+      var fila = PORTAL ? D.querySelector('.topbar-right') : null; if (!fila || !UI) return;
+      var on = H.classList.contains('lm-esc-on') && !UI.isla.hidden, dx = 0, w = '';
+      if (on) {
+        var ri = UI.isla.getBoundingClientRect(), rf = fila.getBoundingClientRect();
+        var l0 = rf.left - APARTA.dx, r0 = rf.right - APARTA.dx;   /* donde estaría sin apartar */
+        if (l0 < ri.right + 12 && r0 > ri.left - 12 && rf.top < ri.bottom) {
+          dx = Math.max(0, Math.min(ri.right + 12 - l0, W.innerWidth - 8 - r0));
+          var cabe = Math.floor(2 * (l0 + dx - 12 - W.innerWidth / 2));   /* lo ancha que puede ser la tarjeta, centrada */
+          if (cabe < 333) w = Math.max(250, cabe) + 'px';
         }
-      } catch (e) {}
-    }
+      }
+      if (dx !== APARTA.dx) { fila.style.transform = dx ? 'translateX(' + Math.round(dx) + 'px)' : ''; APARTA.dx = dx; }
+      if (w !== APARTA.w) { UI.isla.style.width = w; APARTA.w = w; }
+    } catch (e) {}
+  }
+  function colocar(si) {   /* (16-oct-2026) en el portal también arriba en el centro (ver apartar) */
+    var isla = UI.isla, al = false;
+    if (PORTAL && si) apartar();
     if (!al) { isla.style.left = ''; isla.style.top = ''; isla.style.height = ''; }
     isla.classList.toggle('lme-alineada', al);
     /* el ▶ amarillo, a la derecha de «Salir» */
@@ -1368,6 +1379,7 @@
     var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla';
     ver(UI.isla, conIsla);
     H.classList.toggle('lm-esc-on', conIsla);
+    if (PORTAL) apartar();   /* (16-oct-2026) la fila de botones, apartada o en su sitio */
     try { miniLibro(v.fase === 'clase' && !!v.a ? v : null); } catch (e) {}   /* (16-oct-2026, tarde) con un libro abierto */
     if (conIsla) {
       var B = v.B, a = v.a, b = B[a.i], p = B[a.i - 1], n = B[a.i + 1];
