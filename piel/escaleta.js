@@ -813,7 +813,22 @@
     /* (16-oct-2026, tarde, Iago: «en el aula se pulsó la campana de notificaciones… el icono de la escaleta, ese círculo con el
        play, aparece en primer plano… no aparece detrás de la ventana») lme-tras-ventana: con la campana (o Mis resultados, u otra
        ventana del portal) abierta, el ▶ y la tarjeta quedan detrás de ella (la ventana va a z-index 90) */
-    'html:has(.alu-modal.open,#mr-overlay.open,#lb-ov.open,#amj-modal.open) #lme-play,html:has(.alu-modal.open,#mr-overlay.open,#lb-ov.open,#amj-modal.open) #lme-isla{z-index:80!important}' +
+    'html:has(.alu-modal.open,#mr-overlay.open,#amj-modal.open) #lme-play,html:has(.alu-modal.open,#mr-overlay.open,#amj-modal.open) #lme-isla{z-index:80!important}' +
+    /* (16-oct-2026, tarde) con un libro abierto (FaActos, Intervalia…), la escaleta va DENTRO del libro, en una línea (#lme-mini):
+       en su barra, entre el título («FaActos · Acto 3») y el cambio de página; con «Ampliar», flotando arriba en el centro */
+    'html:has(#lb-ov.open) #lme-play,html:has(#lb-ov.open) #lme-isla{display:none!important}' +
+    '#lme-mini{position:relative;flex:0 1 auto;min-width:0;max-width:46%;height:40px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:0 13px;' +
+      'border:1.5px solid #facc15;border-radius:10px;background:rgba(250,204,21,.07);color:#fff;font:600 13px/1 ' + F + ';white-space:nowrap;overflow:hidden;' +
+      '-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;pointer-events:none}' +
+    '#lme-mini[hidden]{display:none!important}' +
+    '#lme-mini .lme-mt{font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}' +
+    '#lme-mini .lme-mm{font-weight:800;color:#facc15;font-variant-numeric:tabular-nums;flex:none}' +
+    '#lme-mini .lme-ms{font-weight:500;font-size:11.5px;color:#9aa6bb;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 2 auto}' +
+    '#lme-mini .lme-mb{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.12)}' +
+    '#lme-mini .lme-mb b{display:block;height:100%;width:0;background:#facc15}' +
+    '#lme-mini.lme-extra .lme-mm{color:#fb923c}#lme-mini.lme-extra .lme-mb b{background:#fb923c}' +
+    '#lme-mini.lme-flota{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;max-width:min(620px,56vw);' +
+      'background:rgba(11,19,32,.86);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 6px 22px rgba(0,0,0,.35)}' +
     /* (16-oct-2026) vídeo: el botón de la tarjeta y el vídeo a pantalla completa (la ✕, arriba en el centro: los portales tienen botones en las esquinas) */
     '#lme-isla .lme-vrow{display:flex;min-width:0;margin:1px 0 0}' +
     '#lme-isla .lme-vrow[hidden]{display:none}' +
@@ -1220,6 +1235,31 @@
       }).join('') + '</div>';
     el.hidden = false;
   }
+  /* (16-oct-2026, tarde, Iago: «cuando abro el libro de FaActos me desaparece la escaleta… saber cuánto tiempo me queda… en
+     versión simplificada arriba, en el margen entre donde pone Acto 3 y cambio de página… lo mismo para Intervalia») con un
+     libro del aula abierto (#lb-ov, a pantalla completa), la escaleta en una línea DENTRO de su barra: qué toca, cuánto queda
+     y qué viene, con su barrita; con «Ampliar» (sin barra), flotando arriba en el centro. No se pulsa ni tapa la partitura. */
+  function miniLibro(v) {
+    var lb = $('lb-ov'), el = $('lme-mini');
+    if (!v || !lb || !lb.classList.contains('open')) { if (el) el.hidden = true; return; }
+    if (!el) {
+      el = D.createElement('div'); el.id = 'lme-mini';
+      el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><span class="lme-ms"></span><i class="lme-mb"><b></b></i>';
+    }
+    var amp = lb.classList.contains('lb-amp'), top = lb.querySelector('.lb-top'), prev = $('lb-prev');
+    if (!amp && top && prev && prev.parentNode === top) { if (el.parentNode !== top || el.nextSibling !== prev) top.insertBefore(el, prev); }
+    else if (el.parentNode !== lb) lb.appendChild(el);
+    el.classList.toggle('lme-flota', el.parentNode === lb);
+    var B = v.B, a = v.a, b = B[a.i], n = B[a.i + 1], extra = a.resto < 0 && a.mg > 0;
+    var m = extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto));
+    if (a.pausa) m = 'en pausa · ' + m;
+    txt(el.children[0], b.t);   /* solo qué toca (el acto y la lección ya se ven en el libro) */
+    txt(el.children[1], m);
+    txt(el.children[2], n ? 'luego ' + n.t : 'luego, fin de la clase');
+    el.classList.toggle('lme-extra', extra);
+    el.children[3].firstChild.style.width = (extra ? 100 : Math.max(0, Math.min(100, (1 - Math.max(0, a.resto) / a.dur) * 100))).toFixed(1) + '%';
+    el.hidden = false;
+  }
   var ULT = 0, COLOCADA = 0;
   function pintar(forzar) {
     if (D.hidden && !forzar) return;
@@ -1287,6 +1327,7 @@
     var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla';
     ver(UI.isla, conIsla);
     H.classList.toggle('lm-esc-on', conIsla);
+    try { miniLibro(v.fase === 'clase' && !!v.a ? v : null); } catch (e) {}   /* (16-oct-2026, tarde) con un libro abierto */
     if (conIsla) {
       var B = v.B, a = v.a, b = B[a.i], p = B[a.i - 1], n = B[a.i + 1];
       txt(UI.ant, p ? p.t + ' · ' + p.m + ' min' : '');
