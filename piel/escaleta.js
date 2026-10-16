@@ -266,6 +266,62 @@
     return 'otra';
   }
 
+  /* ---------- (16-oct-2026, Iago) EL VÍDEO DEL BLOQUE DE TEORÍA, A UN TOQUE ----------
+     «Que no solo haya la opción de escribir en bloque de teoría, sino que haya la opción de elegir un vídeo… todo más
+     vinculado». Si la actividad que toca lleva un vídeo, la tarjeta enseña «▶ Inversión de acordes» y, al tocarlo, el vídeo
+     se abre aquí mismo, a pantalla completa (✕ arriba, o Esc, para volver; la escaleta sigue contando y su tarjeta se
+     esconde mientras tanto). El vídeo sale del que se elija en la preparación (b.video = {t, u}) o, mientras no lo haya, de
+     lo que esté escrito en el bloque de teoría: una línea «Vídeo …» con el título de uno de los vídeos didácticos de Teoría
+     at home (los de VIDEOS en teoriaathome y teoriapro: si se añade uno allí, añadirlo aquí) o, en GP, «Día N Cabaña»
+     (y Atonalidad / Fonógrafo), que abre ese portal interactivo con la cuenta en «#c=», como el medallero.
+     Para quitarlo: borrar este bloque y lo marcado «(16-oct-2026) vídeo». */
+  var VID_BASE = { ge: 'https://teoria.ge.lmathome.es/', gp: 'https://teoria.gp.lmathome.es/' };
+  var VID_LISTA = {
+    ge: [['La tonalidad', 'la-tonalidad'], ['Indica la tonalidad', 'indica-la-tonalidad'], ['Indica la armadura', 'indica-la-armadura'],
+      ['Tonalidades vecinas', 'tonalidades-vecinas'], ['Intervalos', 'intervalos'], ['Intervalos compuestos', 'intervalos-compuestos'],
+      ['Inversión de intervalos', 'inversion-intervalos'], ['Inversión de compuestos', 'inversion-compuestos'], ['Compases', 'compases'],
+      ['Escalas menores', 'escalas-menores'], ['Escalas mayores', 'escalas-mayores'], ['Otras escalas', 'otras-escalas'], ['Grados', 'grados'],
+      ['Semitono cromático y diatónico', 'semitonos'], ['Acordes', 'acordes'], ['Inversión de acordes', 'inversion-acordes'],
+      ['Enarmonías', 'enarmonias'], ['Claves', 'claves'], ['Cadencias', 'cadencias'], ['Términos', 'terminos'],
+      ['Términos de movimiento', 'terminos-movimiento']],
+    gp: [['Compases extraños', 'compases-extranos'], ['Intervalos', 'intervalos'], ['Intervalos compuestos', 'intervalos-compuestos'],
+      ['Inversión de intervalos', 'inversion-intervalos'], ['Inversión de compuestos', 'inversion-compuestos'], ['Escalas menores', 'escalas-menores'],
+      ['Escalas mayores', 'escalas-mayores'], ['Otras escalas', 'otras-escalas'], ['La tonalidad', 'la-tonalidad'],
+      ['Indica la tonalidad', 'indica-la-tonalidad'], ['Indica la armadura', 'indica-la-armadura'], ['Tonalidades vecinas', 'tonalidades-vecinas'],
+      ['Índice acústico', 'indice-acustico'], ['Modos', 'modos'], ['Serie armónica', 'serie-armonica'], ['Dodecafonismo', 'dodecafonismo'],
+      ['Acordes avanzados', 'acordes-avanzados'], ['Cadencias', 'cadencias-pro'], ['Modulación diatónica', 'modulacion'], ['Transporte', 'transporte'],
+      ['Acordes', 'acordes'], ['Inversión de acordes', 'inversion-acordes'], ['Enarmonías', 'enarmonias']]
+  };
+  /* los vídeos temáticos de GP: los portales interactivos (por días o capítulos) */
+  var VID_TEMA = [
+    { re: /\b(caba[nñ]a|acustica)\b/, t: 'La cabaña', d: 'Día', u: 'https://acustica.gp.lmathome.es/prueba.html' },
+    { re: /\b(atonalidad|museo)\b/, t: 'Atonalidad', d: 'Capítulo', u: 'https://atonalidad.gp.lmathome.es/prueba.html' },
+    { re: /\bfonografo\b/, t: 'Fonógrafo', d: 'Día', u: 'https://iagonaron.github.io/fon-grafo/' }
+  ];
+  function conCuenta(u) { var id = cuenta(); return id ? String(u).split('#')[0] + '#c=' + id : u; }
+  function videoDe(b) {
+    try {
+      var v = b && b.video;
+      if (v && typeof v === 'object' && /^https:\/\//.test(String(v.u || ''))) return { t: String(v.t || 'Vídeo'), u: String(v.u) };
+      if (!b || !/teor/.test(norm((b.tit || '') + ' ' + (b.slot || '')))) return null;
+      var gr = GRADO === 'gp' ? 'gp' : 'ge', lineas = String(b.sub || '').split(/\n+/);
+      for (var i = 0; i < lineas.length; i++) {
+        var l = norm(quitarEmojis(lineas[i])), m;
+        if (gr === 'gp') {
+          for (var k = 0; k < VID_TEMA.length; k++) {
+            var x = VID_TEMA[k];
+            if (x.re.test(l)) { m = /\b(?:dia|capitulo|cap\.?)\s*(\d)\b/.exec(l) || /\b(\d)\b/.exec(l); return { t: x.t + (m ? ' · ' + x.d + ' ' + m[1] : ''), u: conCuenta(x.u), tema: 1 }; }
+          }
+        }
+        m = /^videos?\b[\s:.\-]*(.+)$/.exec(l); if (!m) continue;
+        var c = ' ' + m[1].replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim() + ' ', mejor = null;
+        VID_LISTA[gr].forEach(function (y) { var n = ' ' + norm(y[0]) + ' '; if (c.indexOf(n) >= 0 && (!mejor || y[0].length > mejor.t.length)) mejor = { t: y[0], u: VID_BASE[gr] + 'intros/' + y[1] + '/index.html' }; });
+        if (mejor) return mejor;
+      }
+    } catch (e) {}
+    return null;
+  }
+
   /* ---------- el modelo: qué toca ahora (todo sale de la hora y del estado) ---------- */
   /* (15-oct-2026, Iago) «pon solo 30 segundos de preparatorio… y 15 de índice… cuidado porque la batería a veces se
      descuadra… que sea fluida»: 32 s y 16 s, compases enteros a 120 (16 + 8), así el índice entra en el 1 de un compás */
@@ -288,7 +344,7 @@
   function bloquesDe(pub, grupo) {
     if (MEMO.pub === pub && MEMO.g === grupo) return MEMO.B;
     var l = (pub && Array.isArray(pub.bloques)) ? pub.bloques.filter(function (b) { return b && +b.m > 0 && b.slot !== '__no_clase'; }) : [];
-    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f) }; });
+    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f), vid: videoDe(b) }; });   /* (16-oct-2026) vídeo */
     return MEMO.B;
   }
   /* (15-oct-2026, Iago) «HOY EN CLASE»: el índice que ven los alumnos. Lo que eligió (por la tarde): «Ritmo: carta 1.3»,
@@ -696,6 +752,7 @@
   /* ---------- inmersivo: dictado animado, vídeo sonando o pantalla completa de una parte ---------- */
   function visible(el) { try { if (!el || !el.isConnected) return false; var cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; } catch (e) { return false; } }
   function inmersivo() {
+    if ($('lme-video')) return 'pantalla';   /* (16-oct-2026) vídeo abierto desde la tarjeta */
     var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
     var dc = $('dcOverlay'), dictado = !!(dc && visible(dc)), carrusel = /^carrusel-/.test(APP);
     if (fs && fs !== H && fs !== D.body) return 'pantalla';           /* una parte a pantalla completa: la tarjeta no se ve */
@@ -737,6 +794,15 @@
     '#lme-isla .lme-b svg{width:9px;height:9px;display:block;pointer-events:none}' +
     '#lme-play{position:fixed;z-index:2147483600;width:35px;height:35px;border-radius:50%;border:0;background:#facc15;color:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;margin:0;box-shadow:none}' +   /* (Iago, 18:05) sin resplandor */
     '#lme-play svg{width:14px;height:14px;margin-left:2px;display:block}' +
+    /* (16-oct-2026) vídeo: el botón de la tarjeta y el vídeo a pantalla completa (la ✕, arriba en el centro: los portales tienen botones en las esquinas) */
+    '#lme-isla .lme-vrow{display:flex;min-width:0;margin:1px 0 0}' +
+    '#lme-isla .lme-vrow[hidden]{display:none}' +
+    '#lme-isla .lme-vid{max-width:100%;height:18px;padding:0 9px;border-radius:5px;border:1px solid #facc15;background:rgba(250,204,21,.13);color:#facc15;font:700 10px/1 ' + F + ';letter-spacing:.02em;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:none;min-width:0}' +
+    '#lme-isla .lme-vid:hover{background:rgba(250,204,21,.25)}' +
+    '#lme-video{position:fixed;inset:0;z-index:2147483646;background:#000;display:block;margin:0;padding:0}' +
+    '#lme-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}' +
+    '#lme-video .lme-vx{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:rgba(11,19,32,.72);color:#fff;font:700 17px/1 ' + F + ';cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.5;transition:opacity .2s;padding:0;margin:0;box-shadow:none}' +
+    '#lme-video .lme-vx:hover{opacity:1}' +
     '.lme-full{position:fixed;inset:0;z-index:2147483640;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;color:#fff;font-family:' + F + ';-webkit-font-smoothing:antialiased;' +
       'background:linear-gradient(rgba(6,9,17,.84),rgba(6,9,17,.84)),url("' + BASE + 'fondo-apaisado.jpg") center/cover #070b14;transition:opacity .45s ease,transform .45s ease;transform-origin:50% 6%;user-select:none;-webkit-user-select:none;cursor:default}' +
     '.lme-full *{box-sizing:border-box;margin:0;padding:0;letter-spacing:normal;text-transform:none;font-style:normal}' +
@@ -845,6 +911,35 @@
     parar: '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>',
     sig: '<svg viewBox="0 0 24 24"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     play: '<svg viewBox="0 0 24 24"><path d="M7 4.5v15L19.5 12z" fill="currentColor"/></svg>' };
+  /* (16-oct-2026) vídeo: se abre aquí mismo, a pantalla completa; ✕ (arriba en el centro) o Esc para volver */
+  var VID_ACTUAL = null;
+  function abrirVideo(vd) {
+    if (!vd || !vd.u) return;
+    cerrarVideo(true);
+    var ov = D.createElement('div'); ov.id = 'lme-video';
+    ov.innerHTML = '<iframe allow="autoplay; fullscreen; microphone" allowfullscreen title="' + esc(vd.t) + '"></iframe>' +
+      '<button type="button" class="lme-vx" title="Volver (Esc)" aria-label="Volver">✕</button>';
+    ov.querySelector('iframe').src = vd.u;
+    ov.querySelector('.lme-vx').addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); cerrarVideo(); });
+    ['click', 'mousedown', 'pointerdown', 'touchstart', 'wheel'].forEach(function (ev) { ov.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); });
+    D.body.appendChild(ov);
+    try {
+      var rq = ov.requestFullscreen || ov.webkitRequestFullscreen;
+      if (rq) { var p = rq.call(ov); if (p && p.then) p.then(function () { ov.__fs = 1; }, function () {}); else ov.__fs = 1; }
+    } catch (e) {}
+    try { ov.querySelector('iframe').focus(); } catch (e) {}
+    pintar(true);
+  }
+  function cerrarVideo(sinPintar) {
+    var ov = $('lme-video'); if (!ov) return;
+    ov.__cerrando = 1;
+    try {
+      var fs = D.fullscreenElement || D.webkitFullscreenElement;
+      if (fs && (fs === ov || ov.contains(fs))) { var ex = D.exitFullscreen || D.webkitExitFullscreen; if (ex) { var p = ex.call(D); if (p && p.catch) p.catch(function () {}); } }
+    } catch (e) {}
+    if (ov.parentNode) ov.parentNode.removeChild(ov);
+    if (!sinPintar) pintar(true);
+  }
   var UI = null;
   function montar() {
     if (UI) { if (!UI.isla.isConnected) D.body.appendChild(UI.isla); [UI.play, UI.indice, UI.cuenta, UI.cartel, UI.fin].forEach(function (x) { if (!x.isConnected) D.body.appendChild(x); }); return UI; }
@@ -852,6 +947,7 @@
     var st = D.createElement('style'); st.id = 'lme-css'; st.textContent = CSS; (D.head || H).appendChild(st);
     var isla = D.createElement('div'); isla.id = 'lme-isla'; isla.hidden = true; isla.setAttribute('role', 'status');
     isla.innerHTML = '<div class="lme-ant"></div><div class="lme-ahora"><span class="lme-t"></span><span class="lme-s"></span><span class="lme-m"></span></div>' +
+      '<div class="lme-vrow" hidden><button type="button" class="lme-vid" title="Ver el vídeo"></button></div>' +   /* (16-oct-2026) vídeo */
       '<div class="lme-barra"><b></b><span class="lme-ex" hidden><i></i></span></div>' +
       '<div class="lme-sig"><span class="lme-sigt"></span><span class="lme-bts">' +
         '<button type="button" class="lme-b" data-a="ant" title="Anterior" aria-label="Anterior">' + SVG.ant + '</button>' +
@@ -859,6 +955,8 @@
         '<button type="button" class="lme-b" data-a="parar" title="Parar la escaleta" aria-label="Parar la escaleta">' + SVG.parar + '</button>' +
         '<button type="button" class="lme-b" data-a="sig" title="Siguiente" aria-label="Siguiente">' + SVG.sig + '</button></span></div>';
     isla.addEventListener('click', function (e) {
+      var vb = e.target && e.target.closest ? e.target.closest('.lme-vid') : null;   /* (16-oct-2026) vídeo */
+      if (vb) { e.preventDefault(); e.stopPropagation(); abrirVideo(VID_ACTUAL); return; }
       var b = e.target && e.target.closest ? e.target.closest('.lme-b') : null;
       e.preventDefault(); e.stopPropagation();
       if (b) { audio(); despierto(true); accion(b.getAttribute('data-a')); }
@@ -884,6 +982,7 @@
     D.body.appendChild(isla); D.body.appendChild(play); D.body.appendChild(indice); D.body.appendChild(cuenta); D.body.appendChild(cartel); D.body.appendChild(fin);
     UI = { isla: isla, play: play, indice: indice, cuenta: cuenta, cartel: cartel, fin: fin,
            iEy: indice.querySelector('.lme-ey'), iList: indice.querySelector('.lme-ilist'), iBar: indice.querySelector('.lme-barra5 b'), iCarga: indice.querySelector('.lme-carga-p'),
+           vrow: isla.querySelector('.lme-vrow'), vid: isla.querySelector('.lme-vid'),
            ant: isla.querySelector('.lme-ant'), t: isla.querySelector('.lme-t'), s: isla.querySelector('.lme-s'), m: isla.querySelector('.lme-m'),
            bar: isla.querySelector('.lme-barra b'), ex: isla.querySelector('.lme-ex'), sig: isla.querySelector('.lme-sigt'), bPausa: isla.querySelector('[data-a="pausa"]'),
            cEy: cuenta.querySelector('.lme-ey'), cRec: cuenta.querySelector('.lme-rec'), cNum: cuenta.querySelector('.lme-num'), cBar: cuenta.querySelector('.lme-barra5 b'), cv: cuenta.querySelector('canvas'),
@@ -1098,6 +1197,7 @@
       var B = v.B, a = v.a, b = B[a.i], p = B[a.i - 1], n = B[a.i + 1];
       txt(UI.ant, p ? p.t + ' · ' + p.m + ' min' : '');
       txt(UI.t, b.t); txt(UI.s, b.s);
+      VID_ACTUAL = b.vid || null; ver(UI.vrow, !!VID_ACTUAL); if (VID_ACTUAL) txt(UI.vid, '▶ ' + VID_ACTUAL.t);   /* (16-oct-2026) vídeo */
       var extra = a.resto < 0 && a.mg > 0, isla = UI.isla;
       isla.classList.toggle('lme-extra', extra); isla.classList.toggle('lme-pausa', !!a.pausa);
       var mh;
@@ -1186,16 +1286,22 @@
   D.addEventListener('visibilitychange', function () { if (!D.hidden) { EST.t = 0; ESC.t = Math.min(ESC.t, Date.now() - 4 * 60000); pintar(true); } });
   W.addEventListener('focus', function () { EST.t = 0; });
   W.addEventListener('resize', function () { COLOCADA = 0; });
-  D.addEventListener('fullscreenchange', function () { pintar(true); });
+  D.addEventListener('fullscreenchange', function () {
+    /* (16-oct-2026) vídeo: si se sale de su pantalla completa (Esc), se cierra; si es el propio vídeo el que la pide, no */
+    var ov = $('lme-video'), fs = D.fullscreenElement || D.webkitFullscreenElement;
+    if (ov && ov.__fs && !ov.__cerrando && !(fs && (fs === ov || ov.contains(fs)))) cerrarVideo(true);
+    pintar(true);
+  });
   D.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape' && e.key !== 'Esc') return;
+    if ($('lme-video')) { cerrarVideo(); return; }   /* (16-oct-2026) vídeo */
     if (UI && !UI.cartel.hidden) { quitarCartel(true); }
     else if (UI && !UI.fin.hidden) { finVisto(); ver(UI.fin, false); }
   }, true);
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', function () { pintar(true); }); else pintar(true);
   W.LMEscaleta = { version: '15-oct-2026', app: APP, grado: GRADO,
     vista: function () { var v = vista(ahora()); return { fase: v.fase, grupo: v.c && v.c.grupo, clase: v.c && v.c.clase, i: v.i, bloques: v.B, a: v.a || null }; },
-    accion: accion, pintar: function () { pintar(true); }, formatea: formatea, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios,
+    accion: accion, pintar: function () { pintar(true); }, formatea: formatea, videoDe: videoDe, abrirVideo: abrirVideo, cerrarVideo: cerrarVideo, tareas: tareas, nombreCorto: nombreCorto, inmersivo: inmersivo, recordatorios: recordatorios,
     sonido: function () { return { previa: !!SON.previa, item: !!SON.item, cambio: SON.cambio.filter(Boolean).length, n: SON.n, pista: BAT.pista, vivo: BAT.vivo, ac: AC ? AC.state : '' }; },
     indice: function () {   /* para mirar (y para el banco): el índice de la clase que toca y en qué golpe sale cada cosa */
       var v = vista(ahora()); if (!v.c) return null;
