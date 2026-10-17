@@ -2390,6 +2390,592 @@ var TEO = (function () {
       fin(a);
     } };
 
+  /* ---- (18-oct-2026, «¡Ojo! que faltan») una etiqueta gris que se enciende en rosa ---- */
+  function aRosa(e, t) { PROG.it.push({ k: 'svgcls0', e: e, c: 'gris', t: t }); clase(e, 'rosa', t); return e; }
+
+  /* ================= 25 · SERIE ARMÓNICA (seriearmonica · GP) =================
+     Como en el vídeo «Serie armónica»: «solo necesitas un código… ocho, cinco, cuatro, tres, tres pequeños, tres pequeños, dos: son
+     los intervalos, siempre ascendentes, de un armónico al siguiente»; «hay que estar frescos con los intervalos, porque como
+     cometamos un error, la cadena ya se rompe»; y el truco para autocorregirte: «el uno, el dos, el cuatro y el ocho son el mismo
+     Mi, cada vez una octava más alta». En el sistema doble de la ficha (por debajo del Do4, en clave de fa), con el número de cada
+     armónico encima, el intervalo entre uno y otro y su nombre debajo. El armónico que más se falló (P.h): su intervalo y su
+     nombre, en rosa, y su alteración, a lápiz. */
+  var SUMA_SA = [0, 12, 19, 24, 28, 31, 34, 36], LET_SA = [0, 0, 4, 0, 2, 4, 6, 0], INT_SA = ['', '8J', '5J', '4J', '3M', '3m', '3m', '2M'];
+  function serieDe(f) {   /* los 8 primeros armónicos de f (como serieFromFund de la ficha) */
+    var li = TEO.li(f), base = TEO.cro(f), r = [];
+    for (var h = 0; h < 8; h++) {
+      var obj = base + SUMA_SA[h], ri = li + LET_SA[h], s = 'CDEFGAB'[ri % 7], o = f.o + Math.floor(ri / 7), nat = TEO.cro(TEO.N(s, 0, o));
+      while (obj - nat > 6) { o++; nat += 12; }
+      while (nat - obj > 6) { o--; nat -= 12; }
+      r.push(TEO.N(s, obj - nat, o));
+    }
+    return r;
+  }
+  MOLDES.serieArmonica = { rotacion: false, nombre: 'Serie armónica', area: 'Acústica', claves: ['seriearmonica'], nivel: 'GP',
+    desc: function (p) { return 'Sobre ' + TEO.nom(TEO.nt(p.f), true) + (p.h ? ' · armónico ' + p.h : ''); },
+    regla: 'Como en el vídeo: el código, siempre hacia arriba y de un armónico al siguiente: 8J, 5J, 4J, 3M, 3m, 3m, 2M. Hay que estar frescos con los intervalos, porque con un error la cadena se rompe. Y el truco para autocorregirte: el 1, el 2, el 4 y el 8 se llaman igual (la misma nota, cada vez una octava más alta).',
+    ejemplos: [{ f: 'Mi2', h: 5, ficha: 'Ficha 6' }, { f: 'Sib2', h: 7, ficha: 'Ficha 6' }, { f: 'Re2', h: 3, ficha: 'Ficha 7' }, { f: 'Do#2', h: 6, ficha: 'Ficha 7' }],
+    monta: function (raiz, a, P) {
+      var F = TEO.nt(P.f), S = serieDe(F), hM = Math.max(2, Math.min(8, +P.h || 5)), CPS = 17, nF = TEO.nom(F, true);
+      cabecera(raiz, a, fichaDe(P, 'Serie armónica'));
+      titulo(raiz, a, 'Serie armónica <span class="rosa">sobre ' + nF + '</span>');
+      lin(raiz, 326, 'El código: <span class="rosa">8J · 5J · 4J · 3M · 3m · 3m · 2M</span>', a + 3.9, 19);
+      /* el sistema doble: por debajo del Do4, en clave de fa (como en la ficha) */
+      var W = 1400, sp = 20, yT = 100, yB = yT + 4 * sp + 64, enFa = function (n) { return TEO.cro(n) < 48; };
+      var yDe = function (n) { return enFa(n) ? yB + 4 * sp - (TEO.dia(n) - BASEK.fa) * sp / 2 : yT + 4 * sp - (TEO.dia(n) - BASEK.sol) * sp / 2; };
+      /* las más agudas (con su aro o su alteración), por debajo de la fila de los números */
+      var baja = Math.max(0, 64 - Math.min.apply(null, S.map(function (n) { return yDe(n) - (n.a ? 1.7 : 1.3) * sp; }))); yT += baja; yB += baja;
+      var yLow = Math.max.apply(null, S.map(yDe)), labY = Math.max(yB + 4 * sp + 24, yLow + sp / 2 + 18), H = labY + 58;
+      var pn = panel(raiz, 260, 380, W, H, a + 4.6); sfx('servo', a + 4.6);
+      var oT = pk(pn.svg, 50, W - 50, yT, sp, 'sol'), oB = pk(pn.svg, 50, W - 50, yB, sp, 'fa'); claveK(oT, 64); claveK(oB, 64);
+      sv('line', { x1: 50, x2: 50, y1: yT, y2: yB + 4 * sp, class: 'lin' }, pn.svg); sv('line', { x1: W - 50, x2: W - 50, y1: yT, y2: yB + 4 * sp, class: 'lin' }, pn.svg);
+      var X0 = 196, dx = (W - 50 - 96 - X0) / 7, cx = function (i) { return X0 + i * dx + .844 * sp; }, G = [], NOMS = [], NUMS = [], INTS = [];
+      var tN = function (i) { return i ? a + 5.9 + (i - 1) * .78 + .22 : a + 5.2; };
+      S.forEach(function (n, i) {
+        var o = enFa(n) ? oB : oT, t = tN(i), mal = i + 1 === hM && i > 0;
+        if (i) {   /* el intervalo, entre los dos números */
+          var e = etiqueta(raiz, pn, (cx(i - 1) + cx(i)) / 2, 17, INT_SA[i], t - .22, null, mal ? 'rosa' : '', 12); e.style.fontSize = '31px'; INTS.push(e);
+        }
+        var g = notaK(o, X0 + i * dx, n, null, '', n.a && !mal ? n.a : null); aparece(g, t); sfx('pulsa', t, .07); G.push({ g: g, o: o });
+        if (mal && n.a) alLapiz(o, GX.alt[n.a], X0 + i * dx - (GX.altW[n.a] + .35) * sp, o.p(n), pn.svg, t + .25, .6);
+        NUMS.push(etiqueta(raiz, pn, cx(i), 12, String(i + 1), t, null, 'gris', 12));
+        NOMS.push(etiqueta(raiz, pn, cx(i), labY, TEO.nom(n, true), t + .08, null, mal ? 'rosa' : '', 14));
+      });
+      /* el que más se falló: su cuenta, despacio */
+      var nM = S[hM - 1], nA = S[hM - 2], gM = G[hM - 1], tA = tN(7) + .75;
+      var hA = 'Armónico ' + hM + ': ' + TEO.nom(nA, true) + ' + ' + INT_SA[hM - 1] + ' = <span class="rosa">' + TEO.nom(nM, true) + '</span>';
+      var lA = lin(raiz, 380 + H + 18, hA, tA, CPS), tR = cuando(hA, TEO.nom(nM, true), tA, CPS);
+      var wA = nM.a ? (GX.altW[nM.a] + .35) * sp : 0;   /* con alteración, el aro la abarca */
+      aroE(pn, cxN(gM.o, gM.g) - wA / 2, cyN(gM.o, gM.g), 1.6 * sp + wA / 2, nM.a ? 1.65 * sp : 1.3 * sp, tR); rosaEn(gM.g._cab, tR); flecha(tR - .15, 2);
+      /* el truco: el 1, el 2, el 4 y el 8 se llaman igual */
+      var hB = 'El 1, el 2, el 4 y el 8: <span class="rosa">siempre ' + TEO.nom(F) + '</span>', tB = lA.fin + .45, lB = lin(raiz, 380 + H + 98, hB, tB, CPS), q = 0, pl = planoH(hB);
+      [0, 1, 3, 7].forEach(function (i) {
+        var j = pl.indexOf(String(i + 1), q); q = j + 1; var t = tB + j / CPS;
+        aRosa(NUMS[i], t); if (i + 1 !== hM) aroE(pn, cxN(G[i].o, G[i].g), cyN(G[i].o, G[i].g), 1.5 * sp, 1.2 * sp, t); sfx('clic', t);
+      });
+      var tS = cuando(hB, 'siempre', tB, CPS); [0, 1, 3, 7].forEach(function (i) { clase(NOMS[i], 'rosa', tS); });
+      okTras(lB.e, lB.fin + .3);
+      fin(a);
+    } };
+
+  /* ================= 26 · DODECAFONISMO (dode_construir · dode_completa · dode_identifica · GP) =================
+     Como en el vídeo «Dodecafonismo»: la regla de oro, «coges los doce sonidos… y no repites ninguno hasta que hayan sonado los
+     doce», con la P0 del libro, y los tres avisos del portal: «un sonido y su enarmónico cuentan como el mismo» (Sol♭ = Fa♯), «todo
+     va en un único compás, así que las alteraciones duran hasta el final… a veces te faltará algún becuadro» y «evita las
+     escalitas: cuatro notas seguidas por grado conjunto en la misma dirección no es demasiado atonal». Las variantes, como en el
+     repaso final: «R: retrógrada, al revés. Y el número, en su última nota»; «I: el espejo: cada intervalo en dirección contraria»;
+     P, «se puede transportar tantos semitonos como diga el número»; y «puedes cambiarlo de octava… la altura absoluta da igual». */
+  var DPC = [['C', 0], ['D', -1], ['D', 0], ['E', -1], ['E', 0], ['F', 0], ['G', -1], ['G', 0], ['A', -1], ['A', 0], ['B', -1], ['B', 0]];
+  var DINT = { 1: '2ª m', 2: '2ª M', 3: '3ª m', 4: '3ª M', 5: '4ª J', 6: '4ª aum.', 7: '5ª J', 8: '6ª m', 9: '6ª M', 10: '7ª m', 11: '7ª M', 12: '8ª J' };
+  var P0_LIBRO = ['Re4', 'Sib4', 'Sol4', 'Mib4', 'Do4', 'Lab4', 'Si4', 'La4', 'Solb4', 'Mi4', 'Reb4', 'Fa4'];
+  function pcDe(n) { return ((TEO.cro(n) % 12) + 12) % 12; }
+  function dodeSpell(pcs) {   /* como DODE_PURE.spellSeq de la ficha: bemoles, y la octava (de Sol3 a La5) con los saltos más pequeños */
+    var LO = TEO.cro(TEO.N('G', 0, 3)), HI = TEO.cro(TEO.N('A', 0, 5));
+    var cand = pcs.map(function (pc) {
+      var s = DPC[((pc % 12) + 12) % 12], r = [];
+      for (var o = 3; o <= 5; o++) { var x = TEO.N(s[0], s[1], o), m = TEO.cro(x); if (m >= LO && m <= HI) r.push({ n: x, m: m }); }
+      if (!r.length) r.push({ n: TEO.N(s[0], s[1], 4), m: TEO.cro(TEO.N(s[0], s[1], 4)) });
+      return r;
+    });
+    var cost = [cand[0].map(function () { return 0; })], back = [cand[0].map(function () { return -1; })];
+    for (var i = 1; i < cand.length; i++) {
+      cost[i] = []; back[i] = [];
+      cand[i].forEach(function (c, ci) { var bC = 1e9, bP = 0; cand[i - 1].forEach(function (p, pi) { var cc = cost[i - 1][pi] + Math.abs(c.m - p.m); if (cc < bC) { bC = cc; bP = pi; } }); cost[i][ci] = bC; back[i][ci] = bP; });
+    }
+    var L = cand.length, bi = 0, bc = 1e9; cost[L - 1].forEach(function (v, k) { if (v < bc) { bc = v; bi = k; } });
+    var out = [], idx = bi; for (var j = L - 1; j >= 0; j--) { out[j] = cand[j][idx].n; idx = back[j][idx]; }
+    return out;
+  }
+  function dodeVar(p0, kind, n) {   /* como DODE_PURE.variant */
+    var m = function (x) { return ((x % 12) + 12) % 12; };
+    if (kind === 'I') return p0.map(function (p) { return m(2 * p0[0] - p + n); });
+    var t = p0.map(function (p) { return m(p + n); }); return kind === 'R' ? t.reverse() : t;
+  }
+  /* en un solo compás: la alteración que se escribe en cada nota (null, ninguna; 0, el becuadro) */
+  function enCompas(ns) { var est = {}; return ns.map(function (x) { var k = x.s + x.o, cur = est[k] || 0; if (x.a !== cur) { est[k] = x.a; return x.a; } return null; }); }
+  function intTxt(s) { return (s > 0 ? 'sube ' : 'baja ') + (DINT[Math.abs(s)] || Math.abs(s) + ' st'); }
+  /* el compás de 12 redondas (clave, notas y doble barra); devuelve { o, G, X } */
+  function compas12(pn, ns, xS, xF, y0, sp, t0, paso, acc) {
+    var o = pk(pn.svg, xS, xF, y0, sp, 'sol'); claveK(o, xS + 16);
+    sv('line', { x1: xF - 12, x2: xF - 12, y1: y0, y2: y0 + 4 * sp, class: 'lin' }, o.g); sv('rect', { x: xF - 7, y: y0 - 1.7, width: 7, height: 4 * sp + 3.4, fill: '#fff' }, o.g);
+    var X0 = xS + 4.4 * sp + 26, dx = (xF - 40 - 2 * sp - X0) / 11, A = acc || enCompas(ns), G = [], X = [];
+    ns.forEach(function (x, i) { X.push(X0 + i * dx); if (!x) { G.push(null); return; } var g = notaK(o, X0 + i * dx, x, null, '', A[i]); if (paso != null) { aparece(g, t0 + i * paso); sfx('pulsa', t0 + i * paso, .05); } G.push(g); });
+    return { o: o, G: G, X: X, dx: dx };
+  }
+
+  MOLDES.dodeConstruir = { rotacion: false, nombre: 'Dodecafonismo: construir la serie', area: 'Siglo XX', claves: ['dode_construir'], nivel: 'GP',
+    desc: function (p) { return ['', 'enarmónicos: el mismo sonido', 'un solo compás: el becuadro', 'nada de escalitas'][p.aviso] || ''; },
+    regla: 'Como en el vídeo: la regla de oro, 12 sonidos sin repetir ninguno, y los tres avisos del portal: un sonido y su enarmónico cuentan como el mismo (Sol♭ = Fa♯); todo va en un solo compás, así que la alteración dura hasta el final (no te olvides del becuadro); y nada de escalitas (4 notas seguidas por grado conjunto, en la misma dirección, suenan demasiado tonales).',
+    ejemplos: [{ aviso: 1, ficha: 'Ficha 6' }, { aviso: 2, ficha: 'Ficha 6' }, { aviso: 3, ficha: 'Ficha 7' }],
+    monta: function (raiz, a, P) {
+      var av = [1, 2, 3].indexOf(+P.aviso) >= 0 ? +P.aviso : 1, CPS = 17, W = 1400;
+      cabecera(raiz, a, fichaDe(P, 'Dodecafonismo'));
+      titulo(raiz, a, 'La serie: <span class="rosa">12 sonidos sin repetir</span>');
+      lin(raiz, 326, ['', 'Un sonido y su enarmónico <span class="rosa">cuentan como el mismo</span>', 'Un solo compás: <span class="rosa">la alteración dura hasta el final</span>',
+        'Nada de <span class="rosa">escalitas</span>: 4 por grado conjunto'][av], a + 3.9, 19);
+      if (av === 3) {   /* la escalita (sube, por grado conjunto) y cómo se rompe: la última, a otra octava */
+        var pn3 = panel(raiz, 260, 380, W, 330, a + 4.6); sfx('servo', a + 4.6);
+        var E = ['Do4', 'Re4', 'Mib4', 'Fa4'].map(TEO.nt), o3 = pk(pn3.svg, 300, 1100, 76, 26, 'sol'); claveK(o3, 316);
+        var X3 = [480, 630, 780, 930], g3 = [], tE = a + 5.1;
+        E.forEach(function (x, i) { var g = notaK(o3, X3[i], x, null, '', x.a || null); aparece(g, tE + i * .4); sfx('pulsa', tE + i * .4, .07); g3.push(g); });
+        var pts = E.map(function (x, i) { return { x: cxN(o3, g3[i]), y: cyN(o3, g3[i]) }; });
+        cadenaTS(pn3, pts, [2, 1, 2], [tE + .45, tE + .85, tE + 1.25]);
+        var hE = '4 notas, por grado conjunto y hacia arriba: <span class="rosa">demasiado tonal</span>', tL = tE + 1.9, lE = lin(raiz, 770, hE, tL, CPS);
+        aparece(sv('rect', { x: X3[0] - 44, y: cyN(o3, g3[3]) - 44, width: X3[3] - X3[0] + 2 * 26 + 88, height: 300 - cyN(o3, g3[3]), rx: 26, class: 'aro' }, pn3.svg), cuando(hE, 'demasiado', tL, CPS)); flecha(cuando(hE, 'demasiado', tL, CPS) - .15, 2);
+        g3.forEach(function (g) { clase(g, 'sombra', lE.fin + .5); });
+        var hF = 'Cámbiala de octava: <span class="rosa">la altura da igual</span>', tF = lE.fin + .6, lF = lin(raiz, 850, hF, tF, CPS), tO = cuando(hF, 'octava', tF, CPS);
+        var F5 = TEO.nt('Fa5'), xF5 = cxN(o3, g3[3]) + 150; vueltaOctava(pn3, o3, g3[3], F5, xF5, tO, .9, false);
+        etiqueta(raiz, pn3, xF5 + 84, o3.y(o3.p(F5)) - 22, 'Fa5', tO + 1.0, null, 'rosa', 12);
+        okTras(lF.e, Math.max(lF.fin, tO + 1.3) + .3); fin(a); return;
+      }
+      var N = P0_LIBRO.map(TEO.nt), A = enCompas(N), sp = 26, pn = panel(raiz, 260, 380, W, 322, a + 4.6); sfx('servo', a + 4.6);
+      if (av === 2) A = A.map(function (x, i) { return x === 0 ? null : x; });   /* los becuadros, a lápiz */
+      var C = compas12(pn, N, 50, W - 50, 96, sp, a + 5.0, .22, A), o = C.o, nums = [];
+      N.forEach(function (x, i) { nums.push(etiqueta(raiz, pn, cxN(o, C.G[i]), 20, String(i + 1), a + 5.0 + i * .22, null, 'gris', 12)); });
+      var tC;
+      if (av === 1) {   /* Sol♭ = Fa♯ */
+        var h1 = 'Sol♭ y Fa♯: <span class="rosa">el mismo sonido</span>', t1 = a + 8.0, l1 = lin(raiz, 770, h1, t1, CPS), g9 = C.G[8], tS = cuando(h1, 'Sol♭', t1, CPS);
+        aroE(pn, cxN(o, g9) - 12, cyN(o, g9), 2.0 * sp, 1.6 * sp, tS); rosaEn(g9._cab, tS); if (g9._alt) rosaEn(g9._alt, tS); flecha(tS - .15, 2);
+        etiqueta(raiz, pn, cxN(o, g9), 262, 'Sol♭ = Fa♯', cuando(h1, 'mismo', t1, CPS), null, 'rosa', 14);
+        tC = l1.fin + .5;
+      } else {   /* el ♭ del Si dura hasta el final del compás: Si♮ (y La♮, Mi♮) */
+        var h2 = '¡No te olvides del <span class="rosa">becuadro</span>!', t2 = a + 8.0, tB = cuando(h2, 'becuadro', t2, CPS), g2 = C.G[1], g7 = C.G[6];
+        var yB = cyN(o, g7), xa = cxN(o, g2) + 1.2 * sp, xb = g7._x - 1.6 * sp;
+        aparece(sv('path', { d: 'M' + xa + ' ' + yB + ' H' + xb, class: 'raya', 'stroke-width': 4, 'stroke-dasharray': '10 9' }, pn.svg), t2 - .6); sfx('servo', t2 - .6, .06);
+        if (g2._alt) rosaEn(g2._alt, t2 - .6);
+        var l2 = lin(raiz, 770, h2, t2, CPS);
+        [6, 7, 9].forEach(function (i, k) { var g = C.G[i], tl = tB + k * .7; alLapiz(o, GX.alt[0], g._x - (GX.altW[0] + .35) * sp, g._p, pn.svg, tl, .6); etiqueta(raiz, pn, cxN(o, g), 262, TEO.nom(N[i], false, true), tl + .5, null, 'rosa', 14); });
+        tC = Math.max(l2.fin, tB + 2.0) + .5;
+      }
+      var hC = 'Cuenta: <span class="rosa">12 distintos</span>', lC = lin(raiz, 850, hC, tC, CPS), tN = cuando(hC, '12', tC, CPS);
+      nums.forEach(function (e, i) { aRosa(e, tN + i * .12); sfx('pulsa', tN + i * .12, .04); });
+      okTras(lC.e, Math.max(lC.fin, tN + 12 * .12) + .3); fin(a);
+    } };
+
+  MOLDES.dodeVariante = { rotacion: false, nombre: 'Dodecafonismo: las variantes P, R e I', area: 'Siglo XX', claves: ['dode_completa', 'dode_identifica'], nivel: 'GP',
+    desc: function (p) { return (p.modo === 'identifica' ? '¿Qué variante es? ' : 'Completa la ') + p.kind + p.n; },
+    regla: 'Como en el repaso del vídeo: P, la serie, transportada tantos semitonos como diga el número; R, la retrógrada, al revés (y el número, en su última nota); I, el espejo (cada intervalo, en dirección contraria). La octava da igual: lo que importa es la relación.',
+    ejemplos: [{ modo: 'completa', kind: 'R', n: 3, p0: [2, 10, 7, 3, 0, 8, 11, 9, 6, 4, 1, 5], miss: [1, 4, 8, 10], i: 4, ficha: 'Ficha 6' },
+      { modo: 'completa', kind: 'I', n: 2, p0: [2, 10, 7, 3, 0, 8, 11, 9, 6, 4, 1, 5], miss: [3, 7], i: 3, ficha: 'Ficha 6' },
+      { modo: 'identifica', kind: 'I', n: 5, p0: [7, 1, 10, 0, 9, 4, 3, 11, 2, 8, 6, 5], ficha: 'Ficha 7' },
+      { modo: 'identifica', kind: 'R', n: 4, p0: [2, 10, 7, 3, 0, 8, 11, 9, 6, 4, 1, 5], ficha: 'Ficha 7' },
+      { modo: 'identifica', kind: 'P', n: 7, p0: [0, 4, 11, 9, 2, 10, 5, 3, 7, 1, 6, 8], ficha: 'Ficha 7' }],
+    monta: function (raiz, a, P) {
+      var p0 = (P.p0 || []).map(Number), k = P.kind, n = ((+P.n || 0) % 12 + 12) % 12, id = P.modo === 'identifica', CPS = 17;
+      if (p0.length !== 12 || ['P', 'R', 'I'].indexOf(k) < 0) throw new Error('dodeVariante: datos');
+      var V = dodeVar(p0, k, n), N0 = dodeSpell(p0), NV = dodeSpell(V), miss = id ? [] : (P.miss || [P.i]).map(Number), iT = id ? -1 : +P.i;
+      if (!id && (iT < 0 || iT > 11)) throw new Error('dodeVariante: hueco');
+      if (!id && miss.indexOf(iT) < 0) miss.push(iT);
+      while (k === 'I' && iT > 0 && miss.indexOf(iT - 1) >= 0) iT--;   /* en la I se va de una a la siguiente: si la de antes también falta, se explica esa */
+      var semi = function (x, y) { return TEO.cro(y) - TEO.cro(x); }, mueve8 = function (x, d) { return TEO.N(x.s, x.a, x.o + d); };
+      /* (como en el vídeo, «puedes cambiarlo de octava») la nota que se explica, a la octava que deja ver el salto tal cual */
+      var ajusta = function (j, ref, s) { var x = NV[j]; for (var d = -2; d <= 2; d++) { var y = mueve8(NV[j], d); if (semi(ref, y) === s && TEO.cro(y) >= TEO.cro(TEO.nt('Mi3')) && TEO.cro(y) <= TEO.cro(TEO.nt('Do6'))) x = y; } NV[j] = x; };
+      /* el salto que se compara: el primero que no sea una 4ª aumentada (esa es igual en espejo) */
+      var j0 = 0; while (j0 < 10 && [0, 6].indexOf(((p0[j0 + 1] - p0[j0]) % 12 + 12) % 12) >= 0) j0++;
+      var s0 = semi(N0[j0], N0[j0 + 1]);
+      if (id && k !== 'R') ajusta(j0 + 1, NV[j0], k === 'I' ? -s0 : s0);
+      if (id && k === 'R') ajusta(10 - j0, NV[11 - j0], s0);
+      if (!id && k === 'I' && iT > 0) ajusta(iT, NV[iT - 1], -semi(N0[iT - 1], N0[iT]));
+      cabecera(raiz, a, fichaDe(P, 'Dodecafonismo'));
+      titulo(raiz, a, id ? '¿Qué <span class="rosa">variante</span> es?' : 'Completa la <span class="rosa">' + k + n + '</span>');
+      lin(raiz, 326, '<span class="rosa">P</span> transporta · <span class="rosa">R</span> al revés · <span class="rosa">I</span> en espejo', a + 3.9, 19);
+      /* dos compases de 12: P0 arriba y la variante abajo (cada uno, con sitio para sus notas más agudas y más graves) */
+      var W = 1400, sp = 21, xS = 150, yN = function (y0, x) { return y0 + 4 * sp - (TEO.dia(x) - BASEK.sol) * sp / 2; };
+      var alto = function (L) { return Math.min.apply(null, L.map(function (x) { return yN(0, x) - 1.8 * sp; }).concat([-.5 * sp])); };
+      var bajo = function (L) { return Math.max.apply(null, L.map(function (x) { return yN(0, x) + .8 * sp; }).concat([4.5 * sp])); };
+      var y1 = 66 - alto(N0), y2 = y1 + bajo(N0) + 70 - alto(NV), H = y2 + bajo(NV) + 22;
+      var pn = panel(raiz, 260, 380, W, H, a + 4.6); sfx('servo', a + 4.6);
+      var AV = enCompas(NV), C1 = compas12(pn, N0, xS, W - 40, y1, sp, a + 5.0, .11), C2 = compas12(pn, NV.map(function (x, i) { return miss.indexOf(i) >= 0 ? null : x; }), xS, W - 40, y2, sp, a + 6.5, .11, AV);
+      txt(pn, 78, y1 + 2 * sp + 14, 'P0', '', a + 4.9, null, 40);
+      var eV = txt(pn, 78, y2 + 2 * sp + 14, id ? '¿?' : k + n, 'rosa', a + 6.4, null, 40);
+      miss.forEach(function (i) { aparece(sv('rect', { x: C2.X[i] - 12, y: y2 - 1.5 * sp, width: 1.69 * sp + 24, height: 7 * sp, rx: 12, class: 'raya suave', 'stroke-width': 3, 'stroke-dasharray': '8 8' }, pn.svg), a + 6.5 + i * .11, null); });
+      var cx1 = function (i) { return C1.X[i] + .844 * sp; }, cx2 = function (i) { return C2.X[i] + .844 * sp; };
+      var y1n = function (i) { return yN(y1, N0[i]); }, y2n = function (i) { return yN(y2, NV[i]); };
+      var salto = function (cx, ya, cxb, yb, s, t, cls, yS) {   /* el salto de una nota a la siguiente: un arco por encima y su intervalo (por encima del pentagrama) */
+        arco(pn, cx + 10, ya - 16, cxb - 10, yb - 16, 34, t);
+        var tx = txt(pn, (cx + cxb) / 2, Math.min(yS - 14, Math.min(ya, yb) - 50), intTxt(s), cls || 'rosa', t + .2, null, 30);
+        tx.setAttribute('stroke', '#0e141d'); tx.setAttribute('stroke-width', 9); tx.setAttribute('paint-order', 'stroke'); sfx('clic', t); return tx;
+      };
+      var lA = 380 + H + 16, tL = a + 8.1, l1, l2, h1, h2, fin2;
+      if (id) {
+        if (k !== 'R') {
+          salto(cx1(j0), y1n(j0), cx1(j0 + 1), y1n(j0 + 1), s0, tL - .5, '', y1);
+          h1 = (k === 'P' ? 'Los mismos saltos: ' : 'Los saltos, en espejo: ') + '<span class="rosa">' + k + '</span>';
+          l1 = lin(raiz, lA, h1, tL, CPS); salto(cx2(j0), y2n(j0), cx2(j0 + 1), y2n(j0 + 1), semi(NV[j0], NV[j0 + 1]), cuando(h1, 'saltos', tL, CPS), null, y2);
+        } else {
+          salto(cx1(j0), y1n(j0), cx1(j0 + 1), y1n(j0 + 1), s0, tL - .5, '', y1);
+          h1 = 'Al revés, desde el final, los mismos saltos: <span class="rosa">R</span>';
+          l1 = lin(raiz, lA, h1, tL, CPS); salto(cx2(11 - j0), y2n(11 - j0), cx2(10 - j0), y2n(10 - j0), semi(NV[11 - j0], NV[10 - j0]), cuando(h1, 'desde el final', tL, CPS), null, y2);
+        }
+        var j = k === 'R' ? 11 : 0, nA = TEO.nom(N0[0]), nB = TEO.nom(NV[j]);
+        h2 = (k === 'R' ? 'El número, en su última nota: ' : 'El número: ') + nA + ' → ' + nB + ', <span class="rosa">' + n + ' semitono' + (n === 1 ? '' : 's') + ': ' + k + n + '</span>';
+        var t2 = l1.fin + .5; l2 = lin(raiz, lA + 80, h2, t2, CPS);
+        var tA = cuando(h2, nA, t2, CPS), tB2 = cuando(h2, nB, t2, CPS);
+        aroE(pn, cx1(0) - 6, y1n(0), 1.7 * sp, 1.35 * sp, tA); rosaEn(C1.G[0]._cab, tA);
+        aroE(pn, cx2(j) - 6, y2n(j), 1.7 * sp, 1.35 * sp, tB2); rosaEn(C2.G[j]._cab, tB2); flecha(tB2 - .15, 2);
+        hastaEl(eV, l2.fin); txt(pn, 78, y2 + 2 * sp + 14, k + n, 'rosa', l2.fin, null, 40);
+        fin2 = l2.fin;
+      } else {
+        var xT = C2.X[iT], gT = notaK(C2.o, xT, NV[iT], null, 'rosa', AV[iT]); aparece(gT, 1e9);
+        if (k === 'R') {
+          var jR = 11 - iT;
+          h1 = 'R' + n + ' = P' + n + ' al revés: <span class="rosa">su pareja es la ' + (jR + 1) + '.ª</span>';
+          l1 = lin(raiz, lA, h1, tL, CPS); var tP = cuando(h1, 'su pareja', tL, CPS);
+          aroE(pn, cx1(jR) - 6, y1n(jR), 1.7 * sp, 1.35 * sp, tP); rosaEn(C1.G[jR]._cab, tP); flecha(tP - .15, 2);
+          arco(pn, cx1(jR), y1n(jR) + 22, cx2(iT), y2n(iT) - 26, -(y2n(iT) - y1n(jR)) / 2 + 30, tP + .4); sfx('servo', tP + .4, .06);
+          h2 = (n ? TEO.nom(N0[jR]) + ' + ' + n + ' semitono' + (n === 1 ? '' : 's') + ' = ' : 'Su pareja: ') + '<span class="rosa">' + TEO.nom(NV[iT]) + '</span>';
+        } else if (iT === 0) {
+          h1 = 'I' + n + ': el espejo, que empieza <span class="rosa">' + (n ? n + ' semitono' + (n === 1 ? '' : 's') + ' más arriba' : 'en la misma nota') + '</span>';
+          l1 = lin(raiz, lA, h1, tL, CPS); var tQ = cuando(h1, 'empieza', tL, CPS);
+          aroE(pn, cx1(0) - 6, y1n(0), 1.7 * sp, 1.35 * sp, tQ); rosaEn(C1.G[0]._cab, tQ); flecha(tQ - .15, 2);
+          h2 = (n ? TEO.nom(N0[0]) + ' + ' + n + ' = ' : 'Igual que P0: ') + '<span class="rosa">' + TEO.nom(NV[0]) + '</span>';
+        } else {
+          var sP = semi(N0[iT - 1], N0[iT]);
+          h1 = 'I' + n + ': el espejo, <span class="rosa">cada salto al contrario</span>';
+          l1 = lin(raiz, lA, h1, tL, CPS); var tS = cuando(h1, 'cada salto', tL, CPS);
+          salto(cx1(iT - 1), y1n(iT - 1), cx1(iT), y1n(iT), sP, tS, '', y1);
+          h2 = 'Desde ' + TEO.nom(NV[iT - 1]) + ', ' + intTxt(-sP) + ': <span class="rosa">' + TEO.nom(NV[iT]) + '</span>';
+        }
+        var t3 = l1.fin + .5; l2 = lin(raiz, lA + 80, h2, t3, CPS); var tN2 = cuando(h2, TEO.nom(NV[iT]), t3, CPS);
+        if (k === 'I' && iT > 0) salto(cx2(iT - 1), y2n(iT - 1), cx2(iT), y2n(iT), -semi(N0[iT - 1], N0[iT]), cuando(h2, 'Desde', t3, CPS) + .3, null, y2);
+        PROG.it.forEach(function (it) { if (it.e === gT) it.t = tN2; }); sfx('pulsa', tN2, .08); flecha(tN2 - .15, 2);
+        fin2 = l2.fin;
+      }
+      okTras(l2.e, fin2 + .3); fin(a);
+    } };
+
+  /* ================= 27 · TÉRMINOS (terminos · GE) =================
+     Como en los vídeos «Términos» y «Términos de movimiento»: «casi todos los términos musicales están en italiano… y están
+     organizados en familias» (la dinámica, «lo fuerte y lo suave»; la articulación; el carácter, «la emoción»; el tempo); «la mayoría
+     son palabras muy parecidas al español»; y para el tempo, «Moderato… es como el que está en el medio y nos sirve como de brújula»,
+     «los diminutivos, -etto, -ino, acercan la palabra… a Moderato» y «los superlativos, -issimo… se alejan». Tres apartados, como en
+     la ficha: A, clasificar (P.term, P.cat); B, el significado (P.t, P.ok, P.mal); C, ordenar los tempos (P.c, de lento a rápido). */
+  var TER_FAM = { tempo: ['Tempo', 'la velocidad', 'andante'], intensidad: ['Dinámica', 'lo fuerte y lo suave', 'forte'], acentuacion: ['Acentuación', 'el acento, el golpe', 'sforzando'],
+    articulacion: ['Articulación', 'cómo se unen o separan las notas', 'legato'], caracter: ['Carácter', 'la emoción', 'dolce'] };
+  var TER_SIG = { largo: 'muy lento, amplio', adagio: 'lento', andante: 'al paso', andantino: 'algo más vivo que andante', moderato: 'moderado', allegretto: 'algo rápido', allegro: 'rápido',
+    vivace: 'vivo', presto: 'muy rápido', lento: 'lento', grave: 'muy lento y solemne', larghetto: 'algo menos lento que largo', prestissimo: 'rapidísimo', accelerando: 'acelerando poco a poco',
+    ritardando: 'frenando poco a poco', rallentando: 'frenando poco a poco', ritenuto: 'más lento de repente', stringendo: 'apretando, cada vez más rápido', allargando: 'ensanchando, más lento',
+    piano: 'suave', forte: 'fuerte', mezzoforte: 'medio fuerte', mezzopiano: 'medio suave', pianissimo: 'muy suave', fortissimo: 'muy fuerte', crescendo: 'cada vez más fuerte',
+    diminuendo: 'cada vez más suave', decrescendo: 'cada vez más suave', calando: 'bajando el volumen y frenando', smorzando: 'apagándose, y frena', morendo: 'muriendo el sonido',
+    sforzando: 'un acento fuerte, de golpe', sforzato: 'un acento fuerte, de golpe', rinforzando: 'reforzando de golpe', forzando: 'forzando, acentuado', fortepiano: 'fuerte y enseguida suave',
+    staccato: 'notas cortas y separadas', picado: 'notas cortas y separadas', legato: 'ligado', ligado: 'ligado', staccatissimo: 'muy cortas', portato: 'entre ligado y picado',
+    pizzicato: 'pellizcando la cuerda', marcato: 'marcado', dolce: 'dulce', cantabile: 'como cantando', maestoso: 'majestuoso', agitato: 'agitado', grazioso: 'con gracia', espressivo: 'expresivo',
+    affettuoso: 'con afecto', risoluto: 'decidido', 'con brio': 'con energía', tranquillo: 'tranquilo', giocoso: 'juguetón, alegre', marziale: 'marcial', appassionato: 'apasionado', mesto: 'triste',
+    deciso: 'decidido' };
+  var TER_FR = [['grave', 'larghissimo', 'largo', 'lento', 'adagio'], ['adagietto', 'andante', 'andantino'], ['moderato'], ['allegretto', 'allegro'], ['vivace', 'presto', 'prestissimo']];
+  function franja(t) { for (var i = 0; i < TER_FR.length; i++) if (TER_FR[i].indexOf(String(t).toLowerCase()) >= 0) return i; return -1; }
+  function chip(pn, x, y, s, t, cls, tam) {   /* una palabra en su pastilla */
+    var g = sv('g', {}, pn.svg), w = Math.max(120, s.length * (tam || 40) * .56 + 56);
+    sv('rect', { x: x - w / 2, y: y - (tam || 40) * .95, width: w, height: (tam || 40) * 1.5, rx: (tam || 40) * .75, fill: '#151d29', stroke: cls === 'rosa' ? '#ec4899' : '#3a4556', 'stroke-width': 4 }, g);
+    var tx = sv('text', { x: x, y: y + (tam || 40) * .02, 'text-anchor': 'middle', class: 'o-svgt' + (cls ? ' ' + cls : ''), 'font-size': tam || 40, 'font-style': 'italic' }, g); tx.textContent = s;
+    return aparece(g, t);
+  }
+  MOLDES.terminos = { rotacion: false, nombre: 'Términos', area: 'Términos', claves: ['terminos'], nivel: 'GE',
+    desc: function (p) { return p.parte === 'A' ? 'A · ' + p.term + ' (' + (TER_FAM[p.cat] || [''])[0] + ')' : p.parte === 'B' ? 'B · ' + p.t + ': ' + p.ok : 'C · ' + (p.c || []).join(' < '); },
+    regla: 'Como en los vídeos: casi todos en italiano y organizados en familias (dinámica, acentuación, articulación, carácter y tempo); muchos se parecen al español; y para ordenar los tempos, Moderato es el centro, la brújula (-etto e -ino se acercan a él; -issimo se aleja).',
+    ejemplos: [{ parte: 'A', term: 'smorzando', cat: 'intensidad', ficha: 'Ficha 6' }, { parte: 'B', t: 'subito', ok: 'de repente', mal: 'poco a poco', ficha: 'Ficha 6' },
+      { parte: 'C', c: ['adagio', 'andantino', 'presto'], ficha: 'Ficha 7' }, { parte: 'A', term: 'tenuto', cat: 'articulacion', ficha: 'Ficha 7' }],
+    monta: function (raiz, a, P) {
+      var CPS = 17, W = 1400, parte = ['A', 'B', 'C'].indexOf(P.parte) >= 0 ? P.parte : 'A';
+      cabecera(raiz, a, fichaDe(P, 'Términos'));
+      if (parte === 'A') {
+        var F = TER_FAM[P.cat]; if (!F || !P.term) throw new Error('terminos: A');
+        var term = String(P.term), sig = TER_SIG[term.toLowerCase()];
+        titulo(raiz, a, 'Términos: <span class="rosa">en familias</span>');
+        lin(raiz, 326, 'Casi todos en italiano y <span class="rosa">organizados en familias</span>', a + 3.9, 19);
+        var pn = panel(raiz, 260, 380, W, 370, a + 4.6); sfx('servo', a + 4.6);
+        var KS = Object.keys(TER_FAM), bw = 244, X = function (i) { return 50 + i * (bw + 20); }, cajas = {};
+        KS.forEach(function (k, i) {
+          var t = a + 5.0 + i * .3, g = sv('g', {}, pn.svg);
+          var r = sv('rect', { x: X(i), y: 150, width: bw, height: 196, rx: 26, fill: '#151d29', stroke: '#3a4556', 'stroke-width': 4 }, g);
+          var l = sv('text', { x: X(i) + bw / 2, y: 196, 'text-anchor': 'middle', class: 'o-svgt', 'font-size': 32 }, g); l.textContent = TER_FAM[k][0];
+          var ej = TER_FAM[k][2] === term ? (k === 'intensidad' ? 'piano' : k === 'caracter' ? 'cantabile' : k === 'tempo' ? 'allegro' : k === 'articulacion' ? 'staccato' : 'sforzato') : TER_FAM[k][2];
+          var e = sv('text', { x: X(i) + bw / 2, y: 320, 'text-anchor': 'middle', class: 'o-svgt gris', 'font-size': 28, 'font-style': 'italic' }, g); e.textContent = ej;
+          aparece(g, t); sfx('pulsa', t, .05); cajas[k] = { r: r, l: l, i: i };
+        });
+        var tC = a + 7.0, c = chip(pn, 700, 72, term, tC, 'rosa', Math.min(42, 400 / Math.max(6, term.length))); sfx('servo', tC);
+        var C = cajas[P.cat], dx = X(C.i) + bw / 2 - 700, h1 = term + ': <span class="rosa">' + (sig || 'de la familia ' + F[0].toLowerCase()) + '</span>', t1 = tC + .6, l1 = lin(raiz, 770, h1, t1, CPS);
+        var tV = l1.fin + .4;
+        PROG.it.push({ k: 'svgtw', e: c, t: tV, d: .6, dx0: 0, dy0: 0, dx1: dx, dy1: 184 }); sfx('servo', tV, .07);
+        aparece(sv('rect', { x: X(C.i) - 7, y: 143, width: bw + 14, height: 210, rx: 30, class: 'aro' }, pn.svg), tV + .6); flecha(tV + .45, 2); rosaEn(C.l, tV + .6);
+        var h2 = 'Familia: <span class="rosa">' + F[0] + '</span> (' + F[1] + ')', t2 = tV + .9, l2 = lin(raiz, 850, h2, t2, CPS);
+        okTras(l2.e, l2.fin + .3); fin(a); return;
+      }
+      if (parte === 'B') {
+        if (!P.t || !P.ok || !P.mal) throw new Error('terminos: B');
+        titulo(raiz, a, 'Términos: <span class="rosa">¿qué significa?</span>');
+        lin(raiz, 326, 'Casi todos en italiano: <span class="rosa">muchos se parecen al español</span>', a + 3.9, 19);
+        var pnB = panel(raiz, 260, 380, W, 370, a + 4.6); sfx('servo', a + 4.6);
+        chip(pnB, 700, 84, String(P.t), a + 5.1, 'rosa', 56); sfx('pulsa', a + 5.1);
+        var ops = (String(P.t).length % 2) ? [P.ok, P.mal] : [P.mal, P.ok], filas = ops.map(function (op, i) {
+          var y = 160 + i * 100, g = sv('g', {}, pnB.svg);
+          sv('rect', { x: 200, y: y, width: 1000, height: 80, rx: 24, fill: '#151d29', stroke: '#3a4556', 'stroke-width': 3 }, g);
+          var tx = sv('text', { x: 700, y: y + 53, 'text-anchor': 'middle', class: 'o-svgt', 'font-size': 40 }, g); tx.textContent = op;
+          aparece(g, a + 5.9 + i * .45); sfx('pulsa', a + 5.9 + i * .45); return { g: g, t: tx, y: y };
+        });
+        var kOk = ops.indexOf(P.ok), b = filas[kOk], tB = a + 7.6;
+        var hB = esc(P.t) + ': <span class="rosa">' + esc(P.ok) + '</span>', lB = lin(raiz, 770, hB, tB, CPS), tR = cuando(hB, P.ok, tB, CPS);
+        aparece(sv('rect', { x: 192, y: b.y - 8, width: 1016, height: 96, rx: 28, fill: 'none', stroke: '#ec4899', 'stroke-width': 6 }, pnB.svg), tR); sfx('disparo', tR);
+        rosaEn(b.t, tR); filas.forEach(function (f, i) { if (i !== kOk) PROG.it.push({ k: 'svgcls', e: f.g, c: 'tenue', t: tR + .3 }); });
+        okTras(lB.e, lB.fin + .3); fin(a); return;
+      }
+      /* C · de lento a rápido, con Moderato en el centro */
+      var T3 = (P.c || []).map(String).filter(function (x) { return franja(x) >= 0; });
+      if (T3.length < 2) throw new Error('terminos: C');
+      T3.sort(function (u, v) { return franja(u) - franja(v); });
+      titulo(raiz, a, 'Ordena los <span class="rosa">tempos</span>');
+      lin(raiz, 326, 'Moderato es el centro: <span class="rosa">la brújula</span>', a + 3.9, 19);
+      var pnC = panel(raiz, 260, 380, W, 370, a + 4.6); sfx('servo', a + 4.6); var XF = [200, 450, 700, 950, 1200];
+      aparece(sv('path', { d: 'M110 230 H1290 M1268 214 L1292 230 L1268 246', fill: 'none', stroke: '#fff', 'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, pnC.svg), a + 5.0);
+      txt(pnC, 200, 336, '← más lento', 'gris', a + 5.2, null, 30); txt(pnC, 1200, 336, 'más rápido →', 'gris', a + 5.2, null, 30);
+      aparece(sv('line', { x1: 700, x2: 700, y1: 206, y2: 254, stroke: '#fff', 'stroke-width': 6, 'stroke-linecap': 'round' }, pnC.svg), a + 5.5);
+      var mo = T3.indexOf('moderato') >= 0; txt(pnC, 700, 296, 'Moderato', mo ? 'rosa' : '', a + 5.5, null, 34); sfx('clic', a + 5.5);
+      var pre = 'De lento a rápido: ', hC = T3.map(function (x) { return '<span class="rosa">' + esc(x) + '</span>'; }).join(' < '), tL = a + 6.6, lC = lin(raiz, 770, pre + hC, tL, CPS), pos = pre.length;
+      T3.forEach(function (x, i) {
+        var f = franja(x), tx = tL + pos / CPS; pos += x.length + 3; if (x === 'moderato') return;
+        aparece(sv('circle', { cx: XF[f], cy: 230, r: 13, fill: '#ec4899' }, pnC.svg), tx); sfx('pulsa', tx, .07);
+        var e = txt(pnC, XF[f], 176, x, 'rosa', tx, null, 40); e.setAttribute('font-style', 'italic');
+      });
+      var dim = T3.filter(function (x) { return /(etto|ino|issimo)$/.test(x); })[0], h4;
+      if (dim) h4 = esc(dim) + ': <span class="rosa">' + (/issimo$/.test(dim) ? '-issimo se aleja de Moderato' : (/ino$/.test(dim) ? '-ino' : '-etto') + ' se acerca a Moderato') + '</span>';
+      else h4 = 'A la izquierda, <span class="rosa">los lentos</span>; a la derecha, <span class="rosa">los rápidos</span>';
+      var l4 = lin(raiz, 850, h4, lC.fin + .5, CPS);
+      okTras(l4.e, l4.fin + .3); fin(a);
+    } };
+
+  /* ================= 28 · MODULACIÓN (modulacion · GP) =================
+     Como en el vídeo «Modulación»: «el paso cero… poner las armaduras… y ya sabemos cuál es la nota conflictiva»; «asentamos la
+     tonalidad A con una cadencia básica: primero, cuarto, quinto con séptima… y primero»; «la casilla cinco, la puerta: un acorde
+     común a las dos tonalidades. Solo tienes que evitar los que llevan la nota conflictiva»; «en la casilla seis va siempre su
+     dominante, con séptima»; «el acorde de dominante es siempre Mayor, diga lo que diga la armadura»; y «el acorde cuarto… va a ser
+     del mismo modo que la tónica». Las casillas, como en la ficha (7 u 8); la que más se falló (P.i), con su porqué. */
+  var NOMC = { C: 'Do', D: 'Re', E: 'Mi', F: 'Fa', G: 'Sol', A: 'La', B: 'Si' }, ROM = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+  function triadas(T, menor) {   /* las 7 tríadas de la tonalidad (escala natural), como diatonicTriads de la ficha */
+    var q = TEO.quintas(T, menor), G = [], pc = function (x) { return ((TEO.cro(TEO.N(x.s, x.a, 4)) % 12) + 12) % 12; };
+    for (var g = 0; g < 7; g++) { var x = TEO.paso(TEO.N(T.s, T.a, 4), g); x.a = TEO.altDe(q, x.s); G.push(x); }
+    return G.map(function (r, g) {
+      var t3 = G[(g + 2) % 7], t5 = G[(g + 4) % 7], i3 = ((pc(t3) - pc(r)) % 12 + 12) % 12, i5 = ((pc(t5) - pc(r)) % 12 + 12) % 12;
+      var modo = i3 === 4 && i5 === 7 ? 'M' : i3 === 3 && i5 === 7 ? 'm' : i3 === 3 && i5 === 6 ? 'dis' : i3 === 4 && i5 === 8 ? 'aum' : '?';
+      return { r: TEO.N(r.s, r.a, 4), modo: modo, g: g, pcs: [pc(r), pc(t3), pc(t5)].sort(function (u, v) { return u - v; }).join(',') };
+    });
+  }
+  function nomAcorde(c, s7) { var b = NOMC[c.r.s] + ['𝄫', '♭', '', '♯', '𝄪'][c.r.a + 2]; return s7 ? b + '7' : b + ({ M: 'M', m: 'm', dis: '°', aum: '+' }[c.modo] || ''); }
+  function romanoC(c, s7) { var b = ROM[c.g]; return (c.modo === 'M' || s7 ? b : c.modo === 'aum' ? b + '+' : b.toLowerCase() + (c.modo === 'dis' ? '°' : '')) + (s7 ? '7' : ''); }
+  function nomTon(T, menor) { return TEO.nom(T) + (menor ? ' menor' : ' Mayor'); }
+  MOLDES.modulacion = { rotacion: false, nombre: 'Modulación', area: 'Tonalidades', claves: ['modulacion'], nivel: 'GP',
+    desc: function (p) { return p.a + (p.am === 'm' ? 'm' : 'M') + ' → ' + p.b + (p.bm === 'm' ? 'm' : 'M') + ' · casilla ' + ((+p.i || 0) + 1) + (p.ocho ? ' (8 casillas)' : ''); },
+    regla: 'Como en el vídeo: primero, las armaduras y la nota conflictiva; luego, I, IV, V7 y I en la tonalidad A; en la casilla 5, el puente: un acorde común a las dos, sin la nota conflictiva; y se cierra en B con V7 y I (o IV, V7, I con 8 casillas). El V, siempre Mayor y con 7.ª; el IV, del mismo modo que la tónica.',
+    ejemplos: [{ a: 'Do', am: 'M', b: 'Sol', bm: 'M', ocho: false, i: 4, ficha: 'Ficha 8' }, { a: 'Do', am: 'M', b: 'Mi', bm: 'm', ocho: false, i: 5, ficha: 'Ficha 8' },
+      { a: 'Re', am: 'm', b: 'Sol', bm: 'm', ocho: true, i: 1, ficha: 'Ficha 9' }],
+    monta: function (raiz, a, P) {
+      var A = TEO.nt(P.a), B = TEO.nt(P.b), mA = P.am === 'm', mB = P.bm === 'm', ocho = !!P.ocho, CPS = 17;
+      var qA = TEO.quintas(A, mA), qB = TEO.quintas(B, mB); if (qA === qB) throw new Error('modulacion: misma armadura');
+      var tA = triadas(A, mA), tB = triadas(B, mB), V7 = function (t) { return { r: t[4].r, modo: 'M', g: 4 }; };
+      var com = []; tA.forEach(function (x) { tB.forEach(function (y) { if (x.pcs === y.pcs && x.modo === y.modo && (x.modo === 'M' || x.modo === 'm')) com.push({ a: x, b: y }); }); });
+      var pu = com.filter(function (c) { return c.a.g !== 0 && c.b.g !== 0; }), P5 = pu.filter(function (c) { return c.b.g === 5; })[0] || pu.filter(function (c) { return c.a.modo === 'm'; })[0] || pu[0] || com[0];
+      if (!P5) throw new Error('modulacion: sin puente');
+      var S = [[tA[0], 0], [tA[3], 0], [V7(tA), 1], [tA[0], 0], [P5.a, 0]].concat(ocho ? [[tB[3], 0], [V7(tB), 1], [tB[0], 0]] : [[V7(tB), 1], [tB[0], 0]]), N = S.length;
+      var iT = Math.max(1, Math.min(N - 2, +P.i || 4));
+      var conf = []; 'FCGDAEB'.split('').forEach(function (L) { if (TEO.altDe(qA, L) !== TEO.altDe(qB, L)) conf.push(L); });
+      cabecera(raiz, a, fichaDe(P, 'Modulación'));
+      titulo(raiz, a, 'De ' + nomTon(A, mA) + ' a <span class="rosa">' + nomTon(B, mB) + '</span>');
+      lin(raiz, 326, 'I · IV · V7 · I, <span class="rosa">el puente</span>, ' + (ocho ? 'IV · ' : '') + 'V7 · I', a + 3.9, 19);
+      var W = 1400, pn = panel(raiz, 260, 380, W, 372, a + 4.6); sfx('servo', a + 4.6);
+      /* las dos armaduras (y la nota conflictiva, en medio) */
+      var oA = pk(pn.svg, 60, 520, 52, 20, 'sol'), oB = pk(pn.svg, 880, 1340, 52, 20, 'sol'); claveK(oA, 74); claveK(oB, 894);
+      var arA = armK(oA, qA, 136), arB = armK(oB, qB, 956);
+      txt(pn, 330, 30, nomTon(A, mA), '', a + 4.9, null, 30); txt(pn, 1110, 30, nomTon(B, mB), '', a + 5.2, null, 30);
+      var hC = 'Nota conflictiva: <span class="rosa">' + conf.map(function (L) { return NOMC[L]; }).join(' y ') + '</span>', t1 = a + 6.2, l1 = lin(raiz, 770, hC, t1, CPS), tR = cuando(hC, NOMC[conf[0]], t1, CPS);
+      [[arA, qA, oA], [arB, qB, oB]].forEach(function (z) {   /* las alteraciones de la armadura que cambian, rodeadas */
+        var orden = z[1] > 0 ? 'FCGDAEB' : 'BEADGCF';
+        conf.forEach(function (L) { var k = orden.indexOf(L); if (z[1] && k >= 0 && k < Math.abs(z[1])) { var g = z[0].g[k]; aroE(pn, z[0].x - (Math.abs(z[1]) - k) * z[0].dx + 9, z[2].y(z[0].pos[k]) - (z[1] > 0 ? 0 : 9), 17, 26, tR); rosaEn(g, tR); } });
+      });
+      var tc = txt(pn, 700, 108, conf.map(function (L) { return NOMC[L]; }).join(' · '), 'rosa', tR, null, 48); flecha(tR - .15, 2); sfx('clic', tR);
+      /* las casillas */
+      var bw = 150, gap = 14, x0 = (W - (N * bw + (N - 1) * gap)) / 2, X = function (i) { return x0 + i * (bw + gap); }, NM = [], tF = [];
+      S.forEach(function (c, i) {
+        var g = sv('g', {}, pn.svg), fija = i === 0 || i === N - 1, t0 = a + 5.0 + i * .08;
+        sv('rect', { x: X(i), y: 176, width: bw, height: 100, rx: 20, fill: '#151d29', stroke: i === 4 ? '#ec4899' : '#3a4556', 'stroke-width': 4, 'stroke-dasharray': i === 4 ? '10 8' : '' }, g);
+        var n = txt(pn, X(i) + bw / 2, 240, nomAcorde(c[0], c[1]), i === 4 ? 'rosa' : '', 0, null, 40); g.appendChild(n);
+        aparece(g, t0); var tt = fija ? t0 : (i < 4 ? l1.fin + .3 + (i - 1) * .6 : l1.fin + .3 + 3 * .6 + .4 + (i - 4) * .6); tF.push(tt);
+        aparece(n, tt); if (!fija) sfx('pulsa', tt, .07);
+        var ro = i === 4 ? romanoC(P5.a) + ' = ' + romanoC(P5.b) : romanoC(c[0], c[1]); txt(pn, X(i) + bw / 2, 322, ro, i === 4 ? 'rosa' : 'gris', tt + .1, null, i === 4 ? 26 : 30);
+        NM.push(nomAcorde(c[0], c[1]));
+      });
+      txt(pn, X(4) + bw / 2, 360, 'puente', 'rosa', tF[4] + .2, null, 24);
+      /* el porqué de la casilla que más se falló */
+      var c = S[iT], h2, nT = NM[iT];
+      if (iT === 4) h2 = 'El puente: <span class="rosa">' + nT + '</span>, común a las dos y sin ' + conf.map(function (L) { return NOMC[L]; }).join(' ni ');
+      else if (c[1]) h2 = 'V7: <span class="rosa">siempre Mayor y con 7.ª</span>: ' + nT;
+      else if (c[0].g === 3) h2 = 'El IV, <span class="rosa">del mismo modo que la tónica</span>: ' + nT;
+      else h2 = 'Y vuelve a la tónica: <span class="rosa">' + nT + '</span>';
+      var t2 = Math.max(tF[N - 2] + .8, l1.fin + .5), l2 = lin(raiz, 850, h2, t2, CPS), tK = cuando(h2, ':', t2, CPS);
+      aparece(sv('rect', { x: X(iT) - 9, y: 167, width: bw + 18, height: 118, rx: 26, class: 'aro' }, pn.svg), tK); sfx('clic', tK);
+      okTras(l2.e, l2.fin + .3); fin(a);
+    } };
+
+  /* ================= 29 · TRANSPORTE (transporte_escrito · transporte_mental · transporte_resumen · GP) =================
+     Como en el vídeo «Transporte»: «el transporte es absoluto, el modo no cambia»; «lo primero es ver en qué tonalidad está… si
+     transportamos una tercera menor ascendente, pasaríamos Re, Mi, Fa: Fa Mayor… la armadura ahora es un bemol»; y las
+     diferencias: «vamos a contar los pasos de una armadura a la otra… imagínate que los sostenidos son como lo alto de una montaña…
+     y los bemoles son las profundidades… tres diferencias descendentes» → «si en la partitura transportada apareciese un Si, un Mi o
+     un La con alteración accidental, se la cambias por la inmediatamente inferior». Los cinco pasos del «Resumen» de la ficha
+     (armadura de partida, tonalidad nueva, su armadura, las diferencias y las notas que vigilar); el que más se falló (P.foco), rodeado. */
+  var INTN = { '2m': [2, 'm', '2ª m'], '2M': [2, 'M', '2ª M'], '3m': [3, 'm', '3ª m'], '3M': [3, 'M', '3ª M'] };
+  function armTxt(f) { return f === 0 ? 'sin alteraciones' : Math.abs(f) + (f > 0 ? '♯' : '♭'); }
+  function svgFrase(pn, x, y, segs, t, tam) {   /* una frase con trozos en rosa (SVG, alineada a la izquierda) */
+    var e = sv('text', { x: x, y: y, class: 'o-svgt', 'font-size': tam || 36 }, pn.svg);
+    segs.forEach(function (s) { var ts = sv('tspan', s[1] === 'rosa' ? { fill: '#ec4899' } : s[1] === 'gris' ? { fill: '#8a95a5' } : {}, e); ts.textContent = s[0]; });
+    return aparece(e, t);
+  }
+  MOLDES.transporte = { rotacion: false, nombre: 'Transporte', area: 'Tonalidades', claves: ['transporte_escrito', 'transporte_mental', 'transporte_resumen'], nivel: 'GP',
+    desc: function (p) { return p.t + (p.menor ? ' m' : ' M') + ' · ' + (INTN[p.int] || ['', '', '?'])[2] + (p.dir === 'desc' ? ' ↓' : ' ↑') + ' · paso ' + ((+p.foco || 0) + 1); },
+    regla: 'Como en el vídeo: el transporte es absoluto (el modo no cambia); la tonalidad nueva, contando el intervalo desde la tónica; su armadura; las diferencias (los pasos de una armadura a la otra: hacia los sostenidos, ascendentes; hacia los bemoles, descendentes) y, con ellas, qué notas vigilar si llevan alteración accidental.',
+    ejemplos: [{ t: 'Re', menor: false, int: '3m', dir: 'asc', foco: 3, ficha: 'Ficha 9' }, { t: 'Sol', menor: false, int: '2M', dir: 'desc', foco: 1, ficha: 'Ficha 9' },
+      { t: 'Mi', menor: true, int: '3M', dir: 'asc', foco: 4, ficha: 'Ficha 10' }],
+    monta: function (raiz, a, P) {
+      var I = INTN[P.int]; if (!I) throw new Error('transporte: intervalo');
+      var A = TEO.nt(P.t), menor = !!P.menor, desc = P.dir === 'desc', B = TEO.construye(TEO.N(A.s, A.a, 4), I[0], I[1], desc), foco = Math.max(0, Math.min(4, +P.foco || 0)), CPS = 17;
+      var fA = TEO.quintas(A, menor), fB = TEO.quintas(B, menor), dif = Math.abs(fA - fB), sube = fB > fA;
+      if (!dif || Math.abs(fB) > 7) throw new Error('transporte: armaduras');
+      var vig = (sube ? 'FCGDAEB' : 'BEADGCF').slice(0, dif).split('').map(function (L) { return TEO.NOM[L]; });
+      var camino = []; for (var k = 0; k < I[0]; k++) camino.push(TEO.letra(TEO.paso(TEO.N(A.s, 0, 4), desc ? -k : k)));
+      cabecera(raiz, a, fichaDe(P, 'Transporte'));
+      titulo(raiz, a, 'Transporte: <span class="rosa">' + I[2] + (desc ? ' descendente' : ' ascendente') + '</span>');
+      lin(raiz, 326, 'El transporte es absoluto: <span class="rosa">el modo no cambia</span>', a + 3.9, 19);
+      var W = 1400, H = 390, pn = panel(raiz, 260, 380, W, H, a + 4.6); sfx('servo', a + 4.6);
+      /* el mapa de las armaduras (la montaña: arriba, los sostenidos; abajo, los bemoles) */
+      var top = Math.min(7, Math.max(fA, fB) + 1), bot = Math.max(-7, Math.min(fA, fB) - 1), nR = top - bot + 1, rh = Math.min(48, 330 / nR), y0 = (H - nR * rh) / 2 + rh / 2;
+      var yF = function (f) { return y0 + (top - f) * rh; };
+      txt(pn, 150, 26, 'armaduras', 'gris', a + 5.0, null, 24);
+      for (var f = top; f >= bot; f--) { var e = txt(pn, 150, yF(f) + 11, f === 0 ? '0' : Math.abs(f) + (f > 0 ? '♯' : '♭'), 'gris', a + 5.0, null, 30); if (f === 0) e.setAttribute('font-style', 'italic'); }
+      aparece(sv('line', { x1: 230, x2: 230, y1: yF(top) - rh / 2, y2: yF(bot) + rh / 2, stroke: '#3a4556', 'stroke-width': 4 }, pn.svg), a + 5.0);
+      var filas = [], X0 = 420, yRow = function (i) { return 66 + i * 74; };
+      var R = [[['Partida: ', ''], [nomTon(A, menor), 'rosa'], [' · ' + armTxt(fA), '']],
+        [[I[2] + (desc ? ' ↓: ' : ' ↑: ') + camino.join(', ') + ' → ', ''], [nomTon(B, menor), 'rosa']],
+        [['Su armadura: ', ''], [armTxt(fB), 'rosa']],
+        [['Diferencias: ', ''], [dif + (sube ? ' ascendente' : ' descendente') + (dif > 1 ? 's' : ''), 'rosa']],
+        [['Vigila: ', ''], [vig.join(', '), 'rosa'], [' (orden de los ' + (sube ? 'sostenidos)' : 'bemoles)'), '']]];
+      var tRow = [a + 5.3, a + 6.6, a + 7.9, a + 9.2, a + 10.9];
+      R.forEach(function (segs, i) {
+        aparece(sv('circle', { cx: X0 - 26, cy: yRow(i) - 12, r: 16, fill: 'none', stroke: '#8a95a5', 'stroke-width': 3 }, pn.svg), tRow[i]);
+        var n = txt(pn, X0 - 26, yRow(i) - 2, String(i + 1), 'gris', tRow[i], null, 22);
+        filas.push(svgFrase(pn, X0 + 6, yRow(i), segs, tRow[i] + .1, 38)); sfx('pulsa', tRow[i] + .1, .06);
+      });
+      /* en el mapa: la de partida, la nueva y los pasos */
+      var dot = function (ff, t, lleno) { aparece(sv('circle', { cx: 260, cy: yF(ff) + 1, r: 11, fill: lleno ? '#ec4899' : 'none', stroke: '#ec4899', 'stroke-width': 4 }, pn.svg), t); sfx('clic', t); };
+      dot(fA, tRow[0] + .4, false); dot(fB, tRow[2] + .4, true);
+      for (var s = 0; s < dif; s++) {
+        var ya = yF(sube ? fA + s : fA - s), yb = yF(sube ? fA + s + 1 : fA - s - 1), ts = tRow[3] + .3 + s * .35;
+        arco(pn, 282, ya, 282, yb + (sube ? 6 : -6), -26, ts); txt(pn, 322, (ya + yb) / 2 + 9, String(s + 1), 'rosa', ts + .1, null, 24); sfx('pulsa', ts, .05);
+      }
+      /* el paso que más se falló */
+      var tF = tRow[foco] + .9;
+      aparece(sv('rect', { x: X0 - 54, y: yRow(foco) - 50, width: W - X0 + 30, height: 66, rx: 22, class: 'aro' }, pn.svg), Math.max(tF, tRow[4] + .8)); flecha(Math.max(tF, tRow[4] + .8) - .15, 2);
+      var h = (sube ? '' : '') + vig.join(', ') + ' con alteración: <span class="rosa">' + (sube ? 'una más alta (♭ → ♮, ♮ → ♯)' : 'una más baja (♯ → ♮, ♮ → ♭)') + '</span>';
+      var t2 = tRow[4] + 1.4, l2 = lin(raiz, 790, h, t2, CPS);
+      okTras(l2.e, l2.fin + .3); fin(a);
+    } };
+
+  /* ================= 30 · BLUES (blues · GP) =================
+     La estructura de 12 compases de la ficha (4 × 3: I I I I · IV IV I I · V IV I V), en cifrado americano y todos con 7.ª (la
+     ficha resta por cada 7.ª olvidada). Primero los grados, luego I, IV y V de la tonalidad y, por último, cada compás con su acorde;
+     el compás que más se falló (P.i), rodeado (o, si lo que más se olvidó fue la 7.ª, la regla de la 7.ª). */
+  var BLUES_G = ['I', 'I', 'I', 'I', 'IV', 'IV', 'I', 'I', 'V', 'IV', 'I', 'V'];
+  function cifra(n) { return n.s + ['𝄫', '♭', '', '♯', '𝄪'][n.a + 2]; }
+  MOLDES.blues = { rotacion: false, nombre: 'Blues: los 12 compases', area: 'Acordes y cadencias', claves: ['blues'], nivel: 'GP',
+    desc: function (p) { return 'Blues en ' + p.l + (['♭♭', '♭', '', '♯', '♯♯'][(+p.a || 0) + 2]) + (p.s7 ? ' · la 7.ª' : ' · compás ' + ((+p.i || 0) + 1)); },
+    regla: 'La estructura del blues: 12 compases (I I I I · IV IV I I · V IV I V), en cifrado americano y todos con 7.ª. Se ponen los grados y se cambian por los acordes de I, IV y V de la tonalidad.',
+    ejemplos: [{ l: 'C', a: 0, i: 9, ficha: 'Ficha 6' }, { l: 'B', a: -1, s7: true, ficha: 'Ficha 6' }, { l: 'E', a: 0, i: 8, ficha: 'Ficha 7' }],
+    monta: function (raiz, a, P) {
+      if ('CDEFGAB'.indexOf(P.l) < 0) throw new Error('blues: tonalidad');
+      var T = TEO.N(P.l, +P.a || 0, 4), Cs = { I: T, IV: TEO.construye(T, 4, 'J'), V: TEO.construye(T, 5, 'J') }, s7 = !!P.s7, iT = Math.max(0, Math.min(11, +P.i || 0)), CPS = 17;
+      cabecera(raiz, a, fichaDe(P, 'Blues'));
+      titulo(raiz, a, 'Blues en <span class="rosa">' + TEO.nom(T) + '</span>: 12 compases');
+      lin(raiz, 326, 'I I I I · IV IV I I · V IV I V, <span class="rosa">todos con 7</span>', a + 3.9, 19);
+      var W = 1400, H = 372, pn = panel(raiz, 260, 380, W, H, a + 4.6); sfx('servo', a + 4.6);
+      var cw = 300, ch = 98, gx = 16, gy = 16, x0 = (W - (4 * cw + 3 * gx)) / 2, yc0 = 28, CX = function (i) { return x0 + (i % 4) * (cw + gx); }, CY = function (i) { return yc0 + Math.floor(i / 4) * (ch + gy); };
+      var tG = function (i) { return a + 5.0 + i * .12; }, tA0 = a + 8.3, tA = function (i) { return tA0 + i * .2; };
+      BLUES_G.forEach(function (g, i) {
+        var gg = sv('g', {}, pn.svg);
+        sv('rect', { x: CX(i), y: CY(i), width: cw, height: ch, rx: 18, fill: '#151d29', stroke: '#3a4556', 'stroke-width': 3 }, gg);
+        var n = sv('text', { x: CX(i) + 22, y: CY(i) + 34, class: 'o-svgt gris', 'font-size': 24 }, gg); n.textContent = String(i + 1);
+        aparece(gg, tG(i));
+        var gr = txt(pn, CX(i) + cw / 2, CY(i) + 64, g, '', tG(i) + .05, tA(i), 40); sfx('pulsa', tG(i), .04);
+        var c = txt(pn, CX(i) + cw / 2, CY(i) + 66, cifra(Cs[g]) + '7', i === iT && !s7 ? 'rosa' : '', tA(i), null, 46); sfx('clic', tA(i), .04);
+      });
+      var hI = 'I, IV y V de ' + TEO.nom(T) + ' Mayor: <span class="rosa">' + cifra(Cs.I) + ' · ' + cifra(Cs.IV) + ' · ' + cifra(Cs.V) + '</span>', t1 = a + 6.6, l1 = lin(raiz, 770, hI, t1, CPS);
+      var h2, t2 = Math.max(l1.fin, tA(11)) + .5, l2;
+      if (s7) {
+        h2 = 'En el blues, <span class="rosa">todos con séptima</span>: ' + [Cs.I, Cs.IV, Cs.V].map(function (x) { return cifra(x) + '7'; }).join(', ');
+        l2 = lin(raiz, 850, h2, t2, CPS); var tS = cuando(h2, 'todos', t2, CPS);
+        aparece(sv('rect', { x: x0 - 10, y: yc0 - 10, width: 4 * cw + 3 * gx + 20, height: 3 * ch + 2 * gy + 20, rx: 26, class: 'aro' }, pn.svg), tS); flecha(tS - .15, 2);
+      } else {
+        h2 = 'Compás ' + (iT + 1) + ': el <span class="rosa">' + BLUES_G[iT] + '</span> → <span class="rosa">' + cifra(Cs[BLUES_G[iT]]) + '7</span>';
+        l2 = lin(raiz, 850, h2, t2, CPS); var tK = cuando(h2, ':', t2, CPS);
+        aparece(sv('rect', { x: CX(iT) - 8, y: CY(iT) - 8, width: cw + 16, height: ch + 16, rx: 24, class: 'aro' }, pn.svg), tK); flecha(tK - .15, 2);
+        txt(pn, CX(iT) + cw - 30, CY(iT) + 34, BLUES_G[iT], 'rosa', tK + .2, null, 24);
+      }
+      okTras(l2.e, l2.fin + .3); fin(a);
+    } };
+
+  /* ================= 31 · NOTAS DE ADORNO Y ABREVIACIONES (adorno_quiz · abrev_quiz · GE) =================
+     (sin vídeo didáctico) Como en la ficha: el test (a, b o c) con su signo, y la buena rodeada. Si lo que más se falló fue el
+     verdadero o falso (una ejecución escrita), sale la idea de ese adorno o esa abreviatura con una pregunta de su propio banco. */
+  var QZ_VF = {
+    trino: ['Este trino alterna la nota real con su…', ['auxiliar superior', 'auxiliar inferior', 'octava'], 'trino'],
+    mordente: ['Este mordente se ejecuta…', ['lo más rápido posible', 'muy lento', 'con calderón'], 'mordente'],
+    grupeto: ['El grupeto rodea la nota real con sus…', ['notas auxiliares (vecinas)', 'octavas', 'silencios'], 'grupeto'],
+    apoyatura: ['La notita de la apoyatura, respecto a la nota real…', ['le roba parte de su valor', 'no le quita nada', 'vale una redonda'], 'apoyatura'],
+    apoyValor: ['En la ejecución barroca, la notita de la apoyatura roba…', ['la mitad (en ternario, dos tercios)', 'nada', 'un cuarto'], 'apoyatura'],
+    barras: ['Las barras en la plica indican que la nota se repite en…', ['corcheas (una barra) o semicorcheas (dos)', 'la octava de arriba', 'silencios'], null],
+    cifra: ['Un 3 sobre un grupo de notas indica…', ['un tresillo: tres en el tiempo de dos', 'tres compases', 'tres octavas'], null],
+    octava: ['Con la 8ª alta, la música suena…', ['una octava más aguda', 'una octava más grave', 'igual, pero más fuerte'], null],
+    octavab: ['Con la 8ª bassa, la música suena…', ['una octava más grave', 'una octava más aguda', 'dos octavas más grave'], null],
+    puntos: ['Los puntos sobre una nota la dividen en…', ['tantas figuras iguales como puntos', 'dos octavas', 'dos compases'], null],
+    plicas: ['Unas plicas o corchetes solos indican que se repite…', ['la última nota o acorde', 'el primer compás', 'nada'], null] };
+  var QZ_SIGNO = { trino: 'trino', mordente: 'mordente', grupeto: 'grupeto', apoyatura: 'apoyatura', apoy_bin: 'apoyatura', apoy_ter: 'apoyatura' };
+  function dibujaSigno(pd, il, t) {   /* el signo sobre su nota (o la notita delante, en la apoyatura) */
+    var o = pk(pd.svg, 30, 280, 130, 22, 'sol'); claveK(o, 40); aparece(o.g, t);
+    var B4 = TEO.nt('Si4'), g = notaK(o, 170, B4, null, ''); aparece(g, t);
+    var cl = QZ_SIGNO[il];
+    if (cl === 'apoyatura') { var ap = glifo(o, GX.apoyatura, 118, o.p(TEO.nt('Do5')), null, 'rosa'); aparece(ap, t + .3); }
+    else if (cl) { var s = glifo(o, GX[cl], 160, 12, null, 'rosa'); aparece(s, t + .3); }
+    sfx('clic', t + .3);
+  }
+  MOLDES.quizGE = { rotacion: false, nombre: 'Notas de adorno y abreviaciones', area: 'Notación', claves: ['adorno_quiz', 'abrev_quiz'], nivel: 'GE',
+    desc: function (p) { return (p.tema === 'abrev' ? 'Abreviaciones · ' : 'Adornos · ') + (p.q || (QZ_VF[p.vf] || [''])[0]); },
+    regla: 'Como en la ficha (no hay vídeo de estos temas): la pregunta que más se falló, con su signo, sus tres opciones y la buena rodeada; si lo que más se falló fue el verdadero o falso, la idea de ese adorno o esa abreviatura, con una pregunta de su propio banco.',
+    ejemplos: [{ tema: 'adorno', q: '¿Qué adorno es este signo?', ops: ['Mordente', 'Grupeto', 'Trino'], ok: 1, il: 'grupeto', ficha: 'Ficha 7' }, { tema: 'adorno', vf: 'apoyValor', ficha: 'Ficha 7' },
+      { tema: 'abrev', vf: 'barras', ficha: 'Ficha 8' }, { tema: 'abrev', q: 'Con este signo, la música suena…', ops: ['una octava más grave', 'una octava más aguda', 'igual, más fuerte'], ok: 1, il: 'octava', ficha: 'Ficha 8' }],
+    monta: function (raiz, a, P) {
+      var ad = P.tema !== 'abrev', Q = null;
+      if (P.q && Array.isArray(P.ops) && P.ops.length === 3 && +P.ok >= 0 && +P.ok < 3) Q = { q: String(P.q), ops: P.ops.map(String), ok: +P.ok, il: P.il };
+      /* un signo que aquí no se puede dibujar: su idea, con la pregunta de su banco */
+      if (Q && /este signo/i.test(Q.q) && !QZ_SIGNO[Q.il]) Q = null;
+      if (!Q) { var v = QZ_VF[P.vf] || QZ_VF[P.il]; if (!v) throw new Error('quizGE: datos'); var r = v[0].length % 3, ops = v[1].slice(r).concat(v[1].slice(0, r)); Q = { q: v[0], ops: ops, ok: (3 - r) % 3, il: v[2] }; }
+      cabecera(raiz, a, fichaDe(P, ad ? 'Notas de adorno' : 'Abreviaciones'));
+      titulo(raiz, a, ad ? 'Notas de <span class="rosa">adorno</span>' : '<span class="rosa">Abreviaciones</span>');
+      lin(raiz, 326, ad ? 'El signo y <span class="rosa">cómo se toca</span>' : 'Para escribir menos: <span class="rosa">el signo y lo que significa</span>', a + 3.6, 19);
+      var cpsQ = 24, pq = lin(raiz, 404, esc(Q.q), a + 5.0, cpsQ); pq.e.style.left = pq.e.style.right = '170px';
+      var tQ = a + 5.0 + planoH(esc(Q.q)).length / cpsQ, sig = !!QZ_SIGNO[Q.il], xP = sig ? 600 : 260, W = sig ? 1060 : 1400, H = 330;
+      if (sig) { var pd = panel(raiz, 260, 540, 320, H, tQ + .1); dibujaSigno(pd, Q.il, tQ + .1); }
+      var pn = panel(raiz, xP, 540, W, H, tQ + .3); sfx('servo', tQ + .3);
+      var filas = Q.ops.map(function (op, i) {
+        var y = 28 + i * 98, g = sv('g', {}, pn.svg);
+        sv('rect', { x: 40, y: y, width: W - 80, height: 78, rx: 22, fill: '#151d29', stroke: '#3a4556', 'stroke-width': 3 }, g);
+        sv('circle', { cx: 92, cy: y + 39, r: 24, fill: 'none', stroke: '#8a95a5', 'stroke-width': 3 }, g);
+        var l = sv('text', { x: 92, y: y + 51, 'text-anchor': 'middle', class: 'o-svgt gris', 'font-size': 32 }, g); l.textContent = 'abc'[i];
+        var tam = Math.min(38, (W - 220) / Math.max(1, op.length * .52)), t = sv('text', { x: 142, y: y + 52, class: 'o-svgt', 'font-size': tam }, g); t.textContent = op;
+        aparece(g, tQ + .7 + i * .45); sfx('pulsa', tQ + .7 + i * .45); return { g: g, t: t, y: y };
+      });
+      var tB = tQ + .7 + 3 * .45 + .9, b = filas[Q.ok];
+      aparece(sv('rect', { x: 32, y: b.y - 8, width: W - 64, height: 94, rx: 28, fill: 'none', stroke: '#ec4899', 'stroke-width': 6 }, pn.svg), tB); sfx('disparo', tB);
+      rosaEn(b.t, tB); filas.forEach(function (f, i) { if (i !== Q.ok) PROG.it.push({ k: 'svgcls', e: f.g, c: 'tenue', t: tB + .3 }); });
+      aparece(sv('path', { d: 'M' + (W - 110) + ' ' + (b.y + 40) + ' l16 16 l30 -34', fill: 'none', stroke: '#4ade80', 'stroke-width': 8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, pn.svg), tB + .6);
+      sfx('bien', tB + .6); marcaOk(); fin(a);
+    } };
+
   /* ===================== (17-oct-2026) EL ¡OJO! DE CADA SEMANA, SIN IA =====================
      Iago: «Cada semana tendrá que elegirse de forma automática, sin necesidad de inteligencia artificial»: el error que más se repitió
      en la última ficha del grupo, si lo cometieron 2 o más; clase 1, el primero; clase 2, el segundo (de otro molde); y si no llega,
@@ -2400,6 +2986,18 @@ var TEO = (function () {
   var NOMN = { C: 'Do', D: 'Re', E: 'Mi', F: 'Fa', G: 'Sol', A: 'La', B: 'Si' }, ALTN = { '-2': 'bb', '-1': 'b', '0': '', '1': '#', '2': 'x' };
   var TIPON = { natural: 'natural', 'armónica': 'armonica', 'melódica': 'melodica', 'dórica': 'dorica', 'tipo 1': 'tipo1', 'tipo 2': 'tipo2', 'tipo 3': 'tipo3', 'tipo 4': 'tipo4' };
   function sinTilde(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  /* (18-oct) las notas de una serie dodecafónica de la ficha ({ step, octave, acc }, en un solo compás: la alteración dura) → sus 12 sonidos (0–11) */
+  var SEMIN = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }, ACCN = { '': 0, n: 0, b: -1, '#': 1 };
+  function dodePcs(ns) {
+    if (!Array.isArray(ns) || ns.length !== 12) return null;
+    var est = {}, r = [];
+    for (var i = 0; i < 12; i++) {
+      var x = ns[i]; if (!x || SEMIN[x.step] == null) return null;
+      var kk = x.step + x.octave, al = x.acc ? (ACCN[x.acc] || 0) : (est[kk] || 0); if (x.acc) est[kk] = al;
+      r.push(((SEMIN[x.step] + al) % 12 + 12) % 12);
+    }
+    return r;
+  }
   function moldeDe(key) { for (var m in MOLDES) if (MOLDES[m].claves.indexOf(key) >= 0) return m; return null; }
   function compasDe(tot, den) {   /* una duración (en redondas) y su denominador → { den, ent, fr } (½, ¼ o ¾ de pulso) */
     for (var k = 0; k < 3; k++, den *= 2) {
@@ -2416,6 +3014,7 @@ var TEO = (function () {
     return null;
   }
   function apartadoDificil(M) {   /* sin saber qué apartado falló (papel), el más difícil: las menores y las de más alteraciones */
+    if (M._spec && M._spec._serie) return 3;   /* (18-oct) la serie armónica: el 5.º armónico, la 3M (la que suele llevar alteración) */
     var best = 0, sc = -1;
     (M._solData || []).forEach(function (x, i) { var v = Math.abs(x.fifths || 0) + (/m$/.test(x.nom || '') ? 10 : 0); if (v > sc) { sc = v; best = i; } });
     return best;
@@ -2437,6 +3036,24 @@ var TEO = (function () {
       case 'comp_elegir': sub = (S.subs || [])[k]; c = sub && (sub.options || []).filter(function (o) { return o.ok; })[0]; d = c && durForma(c.form, c.spec); return d ? compasDe(d.tot, d.den) : null;
       case 'comp_rellenar': sub = (S.subs || [])[k]; d = sub && durForma(sub.form, sub.spec); return d ? compasDe(d.tot, d.den) : null;
       case 'comp_replicar': d = S.dispar; return d ? compasDe(d.n / d.d, d.d / 2) : null;
+      case 'dode_construir': return { aviso: Math.min(3, k + 1) };
+      case 'dode_completa': case 'dode_identifica':
+        var p0 = dodePcs(S.p0notes); if (!p0 || ['P', 'R', 'I'].indexOf(S.kind) < 0 || !(+S.n >= 0 && +S.n < 12)) return null;
+        if (key === 'dode_identifica') return { modo: 'identifica', kind: S.kind, n: +S.n, p0: p0 };
+        var ms = (S.missing || []).map(Number).filter(function (x) { return x >= 0 && x < 12; });
+        return ms.length ? { modo: 'completa', kind: S.kind, n: +S.n, p0: p0, miss: ms, i: ms[Math.min(k, ms.length - 1)] } : null;
+      case 'modulacion':
+        var EX = S.EX, kn = function (K) { var m2 = /^([A-G])(#|b)?$/.exec((K && K.name) || ''); return m2 ? NOMN[m2[1]] + (m2[2] || '') : null; };
+        if (!EX || !kn(EX.keyA) || !kn(EX.keyB)) return null;
+        return { a: kn(EX.keyA), am: EX.keyA.mode === 'minor' ? 'm' : 'M', b: kn(EX.keyB), bm: EX.keyB.mode === 'minor' ? 'm' : 'M', ocho: !!EX.conOcho, i: Math.min((EX.N || 7) - 2, k + 1) };
+      case 'transporte_resumen':
+        return NOMN[S.letterA] && /^[23][mM]$/.test(S.interval || '') ? { t: NOMN[S.letterA] + ALTN[S.altA || 0], menor: S.mode === 'm', int: S.interval, dir: S.dir === 'desc' ? 'desc' : 'asc', foco: Math.min(4, k) } : null;
+      case 'transporte_escrito': case 'transporte_mental':
+        var kt = /^([A-G])(#|b)?$/.exec((S.key && S.key.name) || ''), tr = S.transp || {}, ints = { '1,1': '2m', '1,2': '2M', '2,3': '3m', '2,4': '3M' }[tr.dgrado + ',' + tr.semis];
+        return kt && ints ? { t: NOMN[kt[1]] + (kt[2] || ''), menor: false, int: ints, dir: tr.dir < 0 ? 'desc' : 'asc', foco: [1, 2, 3][Math.min(2, k)] } : null;
+      case 'blues':
+        var kb = S.key && S.key.t; return kb && NOMN[kb[0]] ? (k >= 12 ? { l: kb[0], a: +kb[1] || 0, s7: true } : { l: kb[0], a: +kb[1] || 0, i: k }) : null;
+      case 'seriearmonica': d = S.fund; return d && NOMN[d.step] ? { f: NOMN[d.step] + ALTN[d.alter || 0] + (d.octave == null ? 2 : d.octave), h: Math.min(8, k + 2) } : null;
     }
     if (/^test_/.test(key)) { var tr = key.slice(5).replace('_', '.'); return MOLDES.test.ejemplos.filter(function (x) { return x.tramo === tr; })[0] || null; }
     return null;
@@ -2458,7 +3075,8 @@ var TEO = (function () {
     };
     E.forEach(function (e) { if (picks.length < 2 && e.fallos >= 2 && !usado(e.molde)) toma(e, 'error'); });
     E.forEach(function (e) { if (picks.length < 2 && e.fallos >= 1 && !usado(e.molde) && hist.indexOf(e.molde) < 0) toma(e, 'flojo'); });
-    var rot = Object.keys(MOLDES).filter(function (m) { return MOLDES[m].nivel === 'ambos' || MOLDES[m].nivel === G.curso; }), i0 = (semana || 0) % rot.length;
+    /* (18-oct) los moldes de temas que llegan más tarde en el curso (rotacion: false) solo salen por un error de verdad, nunca de repaso */
+    var rot = Object.keys(MOLDES).filter(function (m) { return MOLDES[m].rotacion !== false && (MOLDES[m].nivel === 'ambos' || MOLDES[m].nivel === G.curso); }), i0 = (semana || 0) % rot.length;
     rot = rot.slice(i0).concat(rot.slice(0, i0));
     rot.forEach(function (m) { if (picks.length < 2 && !usado(m) && hist.indexOf(m) < 0) picks.push({ molde: m, P: Object.assign({}, MOLDES[m].ejemplos[0], { ficha: F.titulo }), e: null, motivo: 'rotacion' }); });
     return picks;
@@ -2940,7 +3558,7 @@ var TEO = (function () {
     var fuentes = D.fonts && D.fonts.load ? Promise.all([D.fonts.load('40px lmMusica', ''), D.fonts.load('40px lmAlt', '𝄪')]).catch(function () {}) : Promise.resolve();
     var tope = new Promise(function (ok) { setTimeout(ok, 4000); });
     Promise.race([fuentes, tope]).then(function () { AU.listoF = true; if (AU.pend) { var c = AU.pend; AU.pend = null; montaAula(c); } });
-    window.__previa = { resumen: function () { var o = {}; Object.keys(MOLDES).forEach(function (m) { o[m] = { claves: MOLDES[m].claves, nivel: MOLDES[m].nivel, ejemplos: m === 'test' ? MOLDES[m].ejemplos : [MOLDES[m].ejemplos[0]] }; }); return o; },
+    window.__previa = { resumen: function () { var o = {}; Object.keys(MOLDES).forEach(function (m) { o[m] = { claves: MOLDES[m].claves, nivel: MOLDES[m].nivel, rotacion: MOLDES[m].rotacion === false ? false : undefined, ejemplos: m === 'test' ? MOLDES[m].ejemplos : [MOLDES[m].ejemplos[0]] }; }); return o; },
       cfg: function (c) { return limpioCfg(c); }, ojoDe: function (c) { return ojoDe(limpioCfg(c)); }, consejoDe: function (c) { return consejoDe(limpioCfg(c)); }, E: function () { return E; }, pinta: pinta, PROG: function () { return PROG; } };
     avisa({ tipo: 'hola' });
   }
