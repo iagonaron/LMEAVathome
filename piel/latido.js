@@ -79,6 +79,18 @@
   function sonando() {
     var m = document.querySelectorAll('video, audio');
     for (var i = 0; i < m.length; i++) { if (!m[i].paused && !m[i].ended && m[i].currentTime > 0) return true; }
+    /* (17-oct-2026, Iago: «qué tipo de ejercicios hizo, cuánto tiempo estuvo en cada uno») también el vídeo o el audio que suena
+       dentro de un iframe de la misma web: los vídeos de Teoría (intros/…) van en uno y, vistos sin tocar nada, a los 2 minutos
+       dejaban de contar. Los iframes de otra web no se pueden mirar (contentDocument es null): no cuentan, como antes. */
+    try {
+      var fr = document.querySelectorAll('iframe');
+      for (var j = 0; j < fr.length; j++) {
+        var dd = null; try { dd = fr[j].contentDocument; } catch (e) {}
+        if (!dd) continue;
+        var mm = dd.querySelectorAll('video, audio');
+        for (var k = 0; k < mm.length; k++) { if (!mm[k].paused && !mm[k].ended && mm[k].currentTime > 0) return true; }
+      }
+    } catch (e) {}
     return false;
   }
   /* el ejercicio: en Teoría, la vista que se ve (view-intervalos → «intervalos»); en otras, si la app lo dice */
