@@ -1797,7 +1797,8 @@ function showEnig(kind){
      sus áreas: ap, nota, items [{t, nota, det}], apps). Cerrada: el icono de los cuatro colores, «Semana N · días» y la nota de
      cada área; a la derecha «Marcar como visto» y «Ver mi semana» (en blanco, con su botoncito). Abierta: una caja por área con el
      detalle y, en lo más flojo, «Practicar en …». Para quitarlo: borrar este bloque, su «if» en el pintado, su barrido y su CSS. */
-  CV2_IC.semana='<path d="M3 20.5h18" stroke-width="2"/><rect x="4" y="10" width="3" height="8" rx="1" fill="#22c55e" stroke="none"/><rect x="8.5" y="12.5" width="3" height="5.5" rx="1" fill="#4a9eff" stroke="none"/><rect x="13" y="8" width="3" height="10" rx="1" fill="#f97316" stroke="none"/><rect x="17.5" y="14" width="3" height="4" rx="1" fill="#ec4899" stroke="none"/>';
+  /* (17-oct-2026, noche, Iago) sin la raya de abajo y con las barras más grandes */
+  CV2_IC.semana='<rect x="2" y="9" width="4.4" height="13" rx="1.4" fill="#22c55e" stroke="none"/><rect x="7.2" y="13.5" width="4.4" height="8.5" rx="1.4" fill="#4a9eff" stroke="none"/><rect x="12.4" y="4" width="4.4" height="18" rx="1.4" fill="#f97316" stroke="none"/><rect x="17.6" y="11" width="4.4" height="11" rx="1.4" fill="#ec4899" stroke="none"/>';
   var RSM_AREA={ ritmo:['Ritmo','#22c55e','#86efac'], entonacion:['Entonación','#4a9eff','#93c5fd'], audicion:['Dictado','#f97316','#fdba74'], teoria:['Teoría','#ec4899','#f9a8d4'] };
   var RSM_MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   function rsmN(v){ var n=Number(v); return isFinite(n)?(Math.round(n*100)/100).toFixed(2).replace('.',','):'—'; }
@@ -1852,12 +1853,16 @@ function showEnig(kind){
   function rsmTarjeta(o,_f){
     var pj=o.payload_json||{}, areas=(Array.isArray(pj.areas)?pj.areas:[]).filter(function(a){ return a && RSM_AREA[a.ap]; });
     var recos=rsmRecos(areas);
-    var chips=areas.map(function(a){ var A=RSM_AREA[a.ap]; return '<span class="rsm-chip" style="--ac:'+A[1]+'"><span style="color:'+A[2]+'">'+A[0]+'</span><b>'+rsmN(a.nota)+'</b></span>'; }).join('');
+    /* (17-oct-2026, noche, Iago) en GP, las cuatro notas siempre (sin nota: «—») y sin «Ver mi semana»: «nos lo ahorramos» */
+    var gp=pj.nivel==='gp', lista=gp?['ritmo','entonacion','audicion','teoria'].map(function(k){ return areas.filter(function(a){ return a.ap===k; })[0]||{ap:k,nota:null,_vacia:true}; }):areas;
+    var chips=lista.map(function(a){ var A=RSM_AREA[a.ap]; return '<span class="rsm-chip'+(a._vacia?' rsm-vacia':'')+'" style="--ac:'+A[1]+'"><span style="color:'+A[2]+'">'+A[0]+'</span><b>'+(a._vacia?'—':rsmN(a.nota))+'</b></span>'; }).join('');
     var dias=rsmDias(pj.desde,pj.hasta);
-    var ver='<button type="button" class="rsm-ver" aria-expanded="false"><span class="rsm-ver-t">Ver mi semana</span><span class="rsm-mini">'+cv2Svg('semana')+'</span></button>';
-    var html=cv2Tarjeta({cls:'rsm cv2-info'+(o.leido?'':' no-leido'), id:o.id, col:'blanco', ic:'semana',
-      tit:'Resumen de tu semana', chip:'<span class="cv2-chip neu">Semana '+esc(pj.semana!=null?pj.semana:'')+(dias?' · '+esc(dias):'')+'</span>',
+    var ver=gp?'':'<button type="button" class="rsm-ver" aria-expanded="false"><span class="rsm-ver-t">Ver mi semana</span><span class="rsm-mini">'+cv2Svg('semana')+'</span></button>';
+    /* (17-oct-2026, noche, Iago) la fecha, discreta y sin marco, justo después del título: «12–18 oct» (sin el número de semana) */
+    var html=cv2Tarjeta({cls:'rsm cv2-info'+(gp?' rsm-gp':'')+(o.leido?'':' no-leido'), id:o.id, col:'blanco', ic:'semana',
+      tit:'Resumen de tu semana'+(dias?'<span class="rsm-fecha">'+esc(dias)+'</span>':''),
       datos:'<span class="rsm-chips">'+chips+'</span>', sec:o.leido?'':cv2Visto(o.id), btn:ver, fecha:_f});
+    if(gp) return html;
     var panel='<div class="rsm-panel"><div class="rsm-grid">'+areas.map(function(a){ return rsmCaja(a, recos.indexOf(a.ap)>=0); }).join('')+'</div>'
       +'<div class="rsm-ley"><span><i style="background:#4ade80"></i>bien (7 o más · 70 % o más)</span><span><i style="background:#facc15"></i>flojito (de 5 a 6,99 · 50 % o más)</span><span><i style="background:#ff7a8a"></i>menos de la mitad · lo que resta</span><span>La semana que viene, intenta que no se repita.</span></div></div>';
     return html.replace(/<\/div>$/, panel+'</div>');
@@ -2030,6 +2035,10 @@ function showEnig(kind){
       C+'.rsm-ley{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:12px;color:#8b97c4}',
       C+'.rsm-ley span{display:inline-flex;align-items:center;gap:6px}',
       C+'.rsm-ley i{width:9px;height:9px;border-radius:50%}',
+      C+'.rsm-fecha{margin-left:12px;font-size:14px;font-weight:600;color:#8b97c4;letter-spacing:0;white-space:nowrap}',
+      C+'.rsm-vacia{opacity:.45}',
+      '#alu-body .alu-item.cv2.rsm .cv2-tile .cv2-ico{width:26px;height:26px}',
+      '#alu-body .alu-item.cv2.rsm .cv2-tile .alu-dot{background:conic-gradient(#22c55e 0 25%,#4a9eff 0 50%,#f97316 0 75%,#ec4899 0)!important}',
       '@media (max-width:640px){'+C+'.rsm-grid{grid-template-columns:minmax(0,1fr)}'+C+'.rsm-barra{grid-template-columns:minmax(0,1fr) 70px 40px}'+C+'.rsm-barra span:first-child{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}'+C+'.rsm-ver{justify-content:flex-start}}',
       C+'.cv2-visto:hover{background:rgba(34,197,94,.16)!important}',
       C+'.cv2-sobre{border:1.5px solid #facc15!important;color:#facc15!important}',
@@ -2374,6 +2383,7 @@ function showEnig(kind){
         n++; return;
       }
       if(pj.quiz && pj.envio_id){ if(!_quizHechos[pj.envio_id] && !quizFuera(o)) n++; return; }
+      if(pj.resumen_semana){ if(!o.leido && semanaDespues(o.creado_en)>Date.now()) n++; return; }   // (17-oct-2026) una semana
       if(pj.recomendacion) return;                                          // @RECO: consejo, no tarea
       if(pj.dictado_revision){ if(!o.leido) n++; return; }
       if(!o.leido && !esValidacionTxt(o)) n++;                               // aviso sin leer
@@ -3270,6 +3280,8 @@ function showEnig(kind){
     }
     var listTodas=list;
     list=list.filter(function(o){ return !esNotifValidacion(o); });
+    /* (17-oct-2026, noche, Iago) el resumen de la semana, solo una semana: luego desaparece solo, sin marcarlo */
+    list=list.filter(function(o){ var pj=(o&&o.payload_json)||{}; return !pj.resumen_semana || semanaDespues(o.creado_en)>Date.now(); });
     // @FORMATO · al de PAPEL no le llegan fichas digitales y solo ve el ciclo en curso
     try{ if(window.__LM_FMT__){ await window.__LM_FMT__.cargar(); list=window.__LM_FMT__.filtrar(list); } }catch(e){}
     if(!list.length){ body.innerHTML='<div class="alu-vacio">Todavía no tienes notificaciones.</div>'; return; }
