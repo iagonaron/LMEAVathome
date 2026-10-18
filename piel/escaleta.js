@@ -2026,7 +2026,11 @@
      pausa / seguir; F5 (su botón de empezar) = el ▶ amarillo, y en clase nunca recarga la página. Las flechas → y ←, como Av Pág y
      Re Pág, solo en el portal y sin nada con el foco. Antes de empezar, Av Pág también es el ▶. En la previa, Av Pág, → o Esc la
      saltan. Con un libro, la pizarra, el dictado animado, un editor, un vídeo, un menú, la escaleta entera abierta o escribiendo
-     en un campo, las teclas son suyas: no se toca nada. Para quitarlo: MANDO = false. */
+     en un campo, las teclas son suyas: no se toca nada. Para quitarlo: MANDO = false.
+     (18-oct-2026, Iago, con su Norwii N76: «el botón de arriba… es el que utilizaré para play y pause») su botón de arriba (Fn)
+     manda Tab: Tab = pausa / seguir, y antes de empezar, el ▶ (como cualquier tecla de pausa). Sus flechas, de fábrica, mandan
+     ↑ y ↓: como Re Pág y Av Pág. Las flechas valen también con el foco en un botón o un enlace. Mantener el de arriba es
+     Alt-Tab (cambia de ventana): ese no se toca. */
   var MANDO = true;
   function algoAbierto() {
     var lb = $('lb-ov'), dc = $('dcOverlay');
@@ -2037,9 +2041,9 @@
     if (!MANDO || e.altKey || e.ctrlKey || e.metaKey) return;
     var k = e.key, q = '';
     if (k === 'F5') q = 'empezar';
-    else if (k === 'PageDown' || k === 'ArrowRight') q = 'sig';
-    else if (k === 'PageUp' || k === 'ArrowLeft') q = 'ant';
-    else if (k === 'b' || k === 'B' || k === '.') q = 'pausa';
+    else if (k === 'PageDown' || k === 'ArrowRight' || k === 'ArrowDown') q = 'sig';
+    else if (k === 'PageUp' || k === 'ArrowLeft' || k === 'ArrowUp') q = 'ant';
+    else if (k === 'b' || k === 'B' || k === '.' || (k === 'Tab' && !e.shiftKey)) q = 'pausa';   /* (18-oct-2026) Tab: el botón de arriba del N76 */
     else if (k === 'Escape' || k === 'Esc') q = 'esc';
     if (!q || !cuenta()) return;
     var v = vista(ahora()); if (!v.c || v.fase === 'nada' || v.fase === 'acabada') return;
@@ -2047,10 +2051,10 @@
     if (PV.caja && PV.caja.classList.contains('lme-on')) { if (q === 'sig' || q === 'esc') { e.preventDefault(); e.stopPropagation(); pvSalta(); } return; }
     if (q === 'esc' || (e.defaultPrevented && q !== 'empezar')) return;
     var tg = e.target; if (tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName || ''))) return;
-    if ((k === 'ArrowRight' || k === 'ArrowLeft') && (!PORTAL || (tg && tg !== D.body && tg !== H))) return;
+    if (/^Arrow/.test(k) && (!PORTAL || (tg && tg !== D.body && tg !== H && !/^(BUTTON|A)$/.test(tg.tagName || '')))) return;
     if (algoAbierto()) return;
     if (v.fase === 'clase' && v.a && UI && !UI.isla.hidden) { if (q === 'empezar') return; e.preventDefault(); audio(); despierto(true); accion(q); return; }
-    if ((v.fase === 'antes' || v.fase === 'entrada' || v.fase === 'parada') && UI && !UI.play.hidden && (q === 'sig' || q === 'empezar')) { e.preventDefault(); audio(); despierto(true); accion('empezar'); }
+    if ((v.fase === 'antes' || v.fase === 'entrada' || v.fase === 'parada') && UI && !UI.play.hidden && (q === 'sig' || q === 'empezar' || q === 'pausa')) { e.preventDefault(); audio(); despierto(true); accion('empezar'); }   /* (18-oct-2026) la pausa también es el ▶ */
   });
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', function () { pintar(true); }); else pintar(true);
   W.LMEscaleta = { version: '15-oct-2026', app: APP, grado: GRADO,
