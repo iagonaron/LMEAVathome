@@ -1206,6 +1206,7 @@ var TEO = (function () {
     var st = Math.abs(alt), x1 = de.x + (de.mini ? 7 : 12), y1 = de.y + (de.mini ? 14 : 22), x2 = a.x - (a.mini ? 7 : 12) - (corta || 0), y2 = a.y + (a.mini ? 14 : 22);
     marcaTS(pn, x1, y1, x2, y2, st, t); sfx('clic', t);
     txt(pn, (x1 + x2) / 2, Math.max(y1, y2) + (st === 1 ? 66 : 84), (mas ? '+ ' : '− ') + (st === 1 ? 'st' : 'T'), 'rosa', t + .1, null, 30);
+    return Math.max(y1, y2) + (st === 1 ? 66 : 84);   /* la línea base de su «± st», para no pisarla */
   }
   MOLDES.intClasif = { nombre: 'Clasificar intervalos', area: 'Intervalos', claves: ['int_clasif', 'intervalos_id'], nivel: 'ambos',
     desc: function (p) { return TEO.nom(TEO.nt(p.a)) + ' – ' + TEO.nom(TEO.nt(p.b)); },
@@ -1317,7 +1318,11 @@ var TEO = (function () {
       titulo(raiz, a, 'Construye el <span class="rosa">intervalo</span>');
       var W = 1400, H = 360, pn = panel(raiz, 260, 380, W, H, a + 4.2); sfx('servo', a + 4.2);
       var o = pk(pn.svg, 50, W - 50, 96, 31, 'sol'); claveK(o, 72);
-      var sep = s >= 6 ? 116 : 130, xA = 300, xB = xA + (P.num - 1) * sep, gA = notaK(o, xA, A, null, '', A.a ? A.a : null);
+      /* (18-oct-2026, Iago: «y si construyo el intervalo, que lo haga igual») si hay que alterar la de arriba, como en clasificar:
+         la natural se queda en cabecita pequeña y la alterada, a su lado, con la raya de lo que sube o baja (ver rayaAlt). En las 6ª
+         y 7ª, la natural pequeña va justo después de la de abajo de la vuelta, y la alteración, a lápiz en su sitio */
+      var apC = dif !== 0 && s < 6, apV6 = dif !== 0 && s >= 6;
+      var sep = s >= 6 || P.num >= 8 ? 116 : 130, xA = 300, xB = xA + (P.num - 1) * sep, gA = notaK(o, xA, A, null, '', A.a ? A.a : null);
       aparece(gA, a + 4.5); sfx('pulsa', a + 4.5);
       /* el enunciado: la nota en el pentagrama y, a su lado, el intervalo con la flechita hacia arriba */
       var cA = cxN(o, gA); etiqueta(raiz, pn, cA + 96, 12, '<span class="rosa">' + P.num + 'ª ' + P.cal + ' ↑</span>', a + 4.8, null, '', 10);
@@ -1330,16 +1335,17 @@ var TEO = (function () {
       var C = cuentaMini(raiz, pn, o, A, P.num - 1, cxs, labY, tC0, paso, tE, guarda ? null : tE);
       aparece(gB, tC0 + (P.num - 1) * paso); sfx('disparo', tC0 + (P.num - 1) * paso);
       /* 2) la especie de lo que queda */
-      var tL, Ik;
+      var tL, Ik, yR = 0;
       if (guarda) {
         var pts = C.pts.slice(); pts[0] = { x: cA, y: cyN(o, gA) }; pts[pts.length - 1] = { x: cB, y: cyN(o, gB) };
         var R = analizaTS(raiz, pn, o, A, Bn, pts, tE, 770, CPS); tL = R.fin + .4; Ik = R.I;
       } else if (s >= 6) {
-        var A2 = TEO.N(A.s, A.a, A.o + 1), s2 = 9 - s, cA2 = cB + (s2 - 1) * sep;
+        var A2 = TEO.N(A.s, A.a, A.o + 1), s2 = 9 - s, dV = apV6 ? 1 : 0, cA2 = cB + (s2 - 1 + dV) * sep;
         var h2 = 'Le damos la vuelta: <span class="rosa">' + TEO.letra(Bn) + '–' + TEO.letra(A2) + '</span>';
         var l2v = lin(raiz, 770, h2, tE, CPS), V = vueltaOctava(pn, o, gA, A2, cA2, cuando(h2, 'vuelta', tE, CPS), 1.0, true);
-        var pts2 = [{ x: cB, y: cyN(o, gB) }], tM2 = l2v.fin + .4;
-        if (s2 === 3) { var nm = TEO.paso(Bn, 1), gm = miniCab(o, cB + sep, o.p(nm), pn.svg); aparece(gm, tM2); pts2.push({ x: cB + sep, y: o.y(o.p(nm)), mini: true }); }
+        var pts2 = [{ x: cB, y: cyN(o, gB) }], tM2 = l2v.fin + .4, nB6 = null;
+        if (dV) { var gN6 = miniCab(o, cB + sep, o.p(Bn), pn.svg); aparece(gN6, tM2); nB6 = { x: cB + sep, y: o.y(o.p(Bn)), mini: true }; pts2[0] = nB6; }
+        if (s2 === 3) { var nm = TEO.paso(Bn, 1), xm6 = cB + (1 + dV) * sep, gm = miniCab(o, xm6, o.p(nm), pn.svg); aparece(gm, tM2); pts2.push({ x: xm6, y: o.y(o.p(nm)), mini: true }); }
         pts2.push({ x: cA2, y: V.y, mini: true });
         var R2 = analizaTS(raiz, pn, o, Bn, A2, pts2, tM2 + .2, 850, CPS);
         Ik = TEO.intervalo(A, Bn); tL = R2.fin + .4; var J2c = TEO.intervalo(Bn, A2);
@@ -1354,13 +1360,23 @@ var TEO = (function () {
       if (dif) {   /* tiene que ser más grande o más pequeño: se altera la de arriba, a lápiz */
         var grande = dif > 0, h3 = pre0 + (s >= 6 ? 'tiene' : 'Tiene') + ' que ser ' + TEO.CALN[P.cal] + ': <span class="rosa">' + (grande ? 'sube' : 'baja') + '</span> la de arriba';
         var l3 = lin(raiz, lineaFin, h3, tL, CPS); var tLap = cuando(h3, grande ? 'sube' : 'baja', tL, CPS) + .4;
-        alLapiz(o, GX.alt[B.a], xB - (GX.altW[B.a] + .35) * o.sp, gB._p, pn.svg, tLap, .6); tL = Math.max(l3.fin, tLap + .7) + .3;
-        if (guarda && R && !R.nat) { var PS2 = pasosTS(A, B); if (!PS2.nat) { R.marcas.forEach(function (e) { hastaEl(e, tLap + .5); }); cadenaTS(pn, R.pts, PS2.sts, PS2.sts.map(function (x, i) { return tLap + .55 + i * .25; })); } }
+        if (apC) {   /* la natural se queda, pequeña; la de arriba se aparta una casilla y se altera, a lápiz */
+          PROG.it.push({ k: 'svgtw', e: gB, t: tLap - .55, d: .4, dx0: 0, dy0: 0, dx1: sep, dy1: 0 }); sfx('servo', tLap - .55, .06);
+          var gNB = miniCab(o, cB, o.p(Bn), pn.svg); aparece(gNB, tLap - .15); sfx('pulsa', tLap - .15, .05);
+          alLapiz(o, GX.alt[B.a], xB + sep - (GX.altW[B.a] + .35) * o.sp, gB._p, pn.svg, tLap, .6);
+          yR = rayaAlt(pn, { x: cB, y: cyN(o, gB), mini: true }, { x: cB + sep, y: cyN(o, gB) }, B.a, grande, tLap + .75, (GX.altW[B.a] + .35 + .844) * o.sp - 6);
+          tL = Math.max(l3.fin, tLap + 1.2) + .3;
+        } else {
+          alLapiz(o, GX.alt[B.a], xB - (GX.altW[B.a] + .35) * o.sp, gB._p, pn.svg, tLap, .6); tL = Math.max(l3.fin, tLap + .7) + .3;
+          if (apV6 && nB6) { yR = rayaAlt(pn, { x: cB, y: cyN(o, gB) }, nB6, B.a, grande, tLap + .75); tL = Math.max(tL, tLap + 1.2 + .3); }
+        }
       } else {
         tL = lin(raiz, lineaFin, pre0 + (s >= 6 ? '<span class="rosa">¡ya está!</span>' : 'Ya es ' + TEO.CALN[P.cal] + ': <span class="rosa">¡ya está!</span>'), tL, CPS).fin + .3;
       }
       rosaEn(gB._cab, tL - .3);
-      var ans = etiqueta(raiz, pn, cB, labY + 4, '<span class="rosa">' + TEO.nom(B) + '</span>', tL, null, '', 10);
+      /* la respuesta, debajo de su nota, sin pisar el «± st» de la raya ni salirse del panel */
+      var ansY = Math.min(yR ? Math.max(labY + 4, yR + 14) : labY + 4, H - 48);
+      var ans = etiqueta(raiz, pn, cB + (apC ? sep : 0), ansY, '<span class="rosa">' + TEO.nom(B) + '</span>', tL, null, '', 10);
       okTras(ans, tL + .5); fin(a, MOLDES.intConstr.dur(P));
     } };
 
