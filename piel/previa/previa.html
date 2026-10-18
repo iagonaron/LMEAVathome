@@ -1772,7 +1772,8 @@ var TEO = (function () {
   MOLDES.acordePro = { nombre: 'Acordes PRO (cifrado)', area: 'Acordes y cadencias', claves: ['acordespro_id', 'acordespro_build'], nivel: 'GP',
     desc: function (p) { return (p.modo === 'construir' ? 'construir · ' : 'identificar · ') + TEO.nom(TEO.nt(p.r)) + ' ' + PROT[p.tipo][1] + (PROT[p.tipo][0] ? ' ' + PROT[p.tipo][0] : ''); },
     regla: 'Como en el vídeo: siempre en estado fundamental y en posición cerrada. Tríadas: la 3ª y la 5ª (sus4: sin 3ª, una 4ª J y la 5ª J). Cuatríadas: la tríada que ya conoces más la 7ª: 7 = PM + 7ª m · -7 = Pm + 7ª m · △ = PM + 7ª M · °7 = Dis + 7ª d · ∅ = Dis + 7ª m.',
-    ejemplos: [{ r: 'Re4', tipo: 'm7b5', ficha: 'Ficha 6' }, { r: 'Fa4', tipo: 'maj7', ficha: 'Ficha 6' }, { r: 'Sol4', tipo: 'sus4', ficha: 'Ficha 7' }, { r: 'Re4', tipo: 'm7', modo: 'construir', ficha: 'Ficha 7' }],
+    ejemplos: [{ r: 'Re4', tipo: 'm7b5', ficha: 'Ficha 6' }, { r: 'Fa4', tipo: 'maj7', ficha: 'Ficha 6' }, { r: 'Sol4', tipo: 'sus4', ficha: 'Ficha 7' }, { r: 'Re4', tipo: 'm7', modo: 'construir', ficha: 'Ficha 7' },
+      { r: 'Sol4', tipo: 'd7', modo: 'construir', ficha: 'Ficha 7' }, { r: 'Mi4', tipo: 'm7b5', modo: 'construir', ficha: 'Ficha 7' }],   /* (18-oct) más variantes de construir */
     monta: function (raiz, a, P) {
       var D = PROT[P.tipo], R = TEO.nt(P.r), N = TEO.acorde(R, D[2]), cuatri = N.length === 4, sus = P.tipo === 'sus4', cons = P.modo === 'construir', CPS = 17;
       var nomFin = TEO.nom(R) + ' ' + D[1].toLowerCase() + (D[0] ? ' (' + D[0] + ')' : ''), ints = N.slice(1).map(function (n) { return TEO.nomInt(TEO.intervalo(R, n)); });
@@ -3154,8 +3155,9 @@ var TEO = (function () {
         d = apartadosDe(M, S)[k]; if (!d || !Array.isArray(d.dada) || d.dada.length !== 2) return null;
         var p1 = nomNota(d.dada[0]), p2 = nomNota(d.dada[1]); return p1 && p2 ? { a: p1, b: p2 } : null;
       case 'acordes': case 'acordes_id': case 'acordes_build':
-        d = apartadosDe(M, S)[k]; if (!d) return null; var fu = nomNota(d.fund || d.root);
-        return fu && ['PM', 'Pm', 'Aum', 'Dis'].indexOf(d.tipo) >= 0 ? { r: fu, tipo: d.tipo } : null;
+        d = apartadosDe(M, S)[k]; if (!d) return null; var fu = nomNota(d.fund || d.root), cons = d.modo === 'build' || key === 'acordes_build';
+        if (!fu || ['PM', 'Pm', 'Aum', 'Dis'].indexOf(d.tipo) < 0) return null;
+        return cons ? { r: fu, tipo: d.tipo, modo: 'construir' } : { r: fu, tipo: d.tipo };
       case 'aco_identificar': case 'aco_construir': case 'inversion_aco_identifica': case 'inversion_aco_construir':
         d = apartadosDe(M, S)[k]; if (!d) return null; var ro = nomNota(d.root || d.fund);
         if (!ro || ['PM', 'Pm', 'Aum', 'Dis', '7'].indexOf(d.tipo) < 0 || !(+d.inv >= 0 && +d.inv <= 3)) return null;
@@ -3171,6 +3173,27 @@ var TEO = (function () {
     if (/^test_/.test(key)) { var tr = key.slice(5).replace('_', '.'); return MOLDES.test.ejemplos.filter(function (x) { return x.tramo === tr; })[0] || null; }
     return null;
   }
+  /* (18-oct-2026, Iago: «si sabes que el ejercicio de claves ha salido mal, pues pones un ojo sobre explicación de cómo se resuelve…
+     y que tengas varias variantes según el día… eso puedes aplicarlo a cualquier ejercicio del que no puedes tener un rastreo tan
+     preciso. Lo importante es identificar que el problema está en ese ejercicio») si del ejercicio fallado no se puede sacar el
+     apartado exacto (las claves: la ficha no guarda en qué clave estaba; o un tipo que aún no se lee), una de las variantes de
+     ejemplo de ese mismo tipo, cambiando según la semana: la explicación de cómo se resuelve */
+  function variante(m, key, curso, semilla) {
+    var L = ((MOLDES[m] && MOLDES[m].ejemplos) || []).filter(function (p) {
+      var cons = p.modo === 'construir';
+      switch (m) {
+        case 'escala': return /mayor/.test(key) ? /^tipo/.test(p.tipo) : (/menor/.test(key) ? !/^tipo/.test(p.tipo) : true);
+        case 'acorde': case 'invAcorde': case 'acordePro': return /(build|construir)$/.test(key) ? cons : (/(_id|identificar|identifica)$/.test(key) ? !cons : true);
+        case 'dodeVariante': return key === 'dode_identifica' ? p.modo === 'identifica' : p.modo !== 'identifica';
+        case 'cadencia': return curso === 'GP' || p.perfecta == null;
+        case 'quizGE': return key === 'abrev_quiz' ? p.tema === 'abrev' : p.tema !== 'abrev';
+        case 'enarmonia': return key === 'ena_a' ? !p.tipo : (key === 'ena_avanzado' ? !!p.tipo : true);
+        case 'test': return false;   /* el test de otro tramo sería otra cosa */
+      }
+      return true;
+    });
+    return L.length ? L[((semilla || 0) % L.length + L.length) % L.length] : null;
+  }
   /* G = { grupo, curso: 'GE'|'GP', stats: [[n, digitales, fallos dig., déficit dig., en papel, fallos papel, déficit papel, (fallos por apartado)]] };
      F = la ficha ({ titulo, ejercicios: [{ n, key, enun, motor }] }); hist = moldes de las últimas semanas; semana = n.º de semana (rotación) */
   function eligeOjos(G, F, hist, semana) {
@@ -3183,8 +3206,10 @@ var TEO = (function () {
     var picks = [], usado = function (m) { return picks.some(function (p) { return p.molde === m; }); };
     var toma = function (e, motivo) {
       var item = e.items ? e.items.indexOf(Math.max.apply(null, e.items)) : (e.papF && !e.digF ? apartadoDificil(e.ej.motor || {}) : 0);
-      var P = paramsDe(e.key, e.ej, item); if (!P) return false;
-      picks.push({ molde: e.molde, P: Object.assign({}, P, { ficha: F.titulo }), e: e, motivo: motivo }); return true;
+      var P = null, gen = false; try { P = paramsDe(e.key, e.ej, item); } catch (er) { P = null; }
+      if (!P) { P = variante(e.molde, e.key, G.curso, (+semana || 0) + e.n); gen = !!P; }   /* (18-oct) sin el apartado exacto: una variante del tipo */
+      if (!P) return false;
+      picks.push({ molde: e.molde, P: Object.assign({}, P, { ficha: F.titulo }), e: e, motivo: motivo, generico: gen }); return true;
     };
     E.forEach(function (e) { if (picks.length < 2 && e.fallos >= 2 && !usado(e.molde)) toma(e, 'error'); });
     E.forEach(function (e) { if (picks.length < 2 && e.fallos >= 1 && !usado(e.molde) && hist.indexOf(e.molde) < 0) toma(e, 'flojo'); });
@@ -3673,7 +3698,7 @@ var TEO = (function () {
     var fuentes = D.fonts && D.fonts.load ? Promise.all([D.fonts.load('40px lmMusica', ''), D.fonts.load('40px lmAlt', '𝄪')]).catch(function () {}) : Promise.resolve();
     var tope = new Promise(function (ok) { setTimeout(ok, 4000); });
     Promise.race([fuentes, tope]).then(function () { AU.listoF = true; if (AU.pend) { var c = AU.pend; AU.pend = null; montaAula(c); } });
-    window.__previa = { resumen: function () { var o = {}; Object.keys(MOLDES).forEach(function (m) { o[m] = { claves: MOLDES[m].claves, nivel: MOLDES[m].nivel, rotacion: MOLDES[m].rotacion === false ? false : undefined, ejemplos: m === 'test' ? MOLDES[m].ejemplos : [MOLDES[m].ejemplos[0]] }; }); return o; },
+    window.__previa = { resumen: function () { var o = {}; Object.keys(MOLDES).forEach(function (m) { o[m] = { claves: MOLDES[m].claves, nivel: MOLDES[m].nivel, rotacion: MOLDES[m].rotacion === false ? false : undefined, ejemplos: MOLDES[m].ejemplos }; }); return o; },   /* (18-oct-2026) todas las variantes: sin el apartado exacto, una de ellas según la semana */
       cfg: function (c) { return limpioCfg(c); }, ojoDe: function (c) { return ojoDe(limpioCfg(c)); }, consejoDe: function (c) { return consejoDe(limpioCfg(c)); }, E: function () { return E; }, pinta: pinta, PROG: function () { return PROG; } };
     avisa({ tipo: 'hola' });
   }
