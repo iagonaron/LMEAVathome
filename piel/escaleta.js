@@ -39,7 +39,7 @@
      cuarto de segundo con la página a la vista (nada si está escondida); la animación solo durante la cuenta atrás.
    · (17-oct-2026) LA PREVIA: en lugar de los 32 s de la preparación, la previa del aula (piel/previa/previa.html, en un marco):
      el aviso con la cuenta atrás y los recordatorios, «¡Ojo! Cuidado con esto» (el error más repetido de la última ficha del
-     grupo, que manda el iPad; si no hay, uno de repaso), un respiro y, en GE, un consejo. Dura lo que mida; si no está lista a
+     grupo, que calcula esta pantalla; si no hay, uno de repaso), un respiro y, en GE, un consejo. Dura lo que mida; si no está lista a
      tiempo, la de siempre. «Saltar» (o Av Pág / → / Esc) vuelve a la de siempre. Y EL MANDO: Av Pág / Re Pág, B o «.», F5.
    Para quitarla en una pestaña: ?escaleta=0 (y ?escaleta=1 para volver). Para quitarla del todo: su línea en lm-piel.js.
    ===================================================================== */
@@ -1392,7 +1392,7 @@
      · «Saltar» (abajo a la derecha, al mover el ratón), Av Pág, → o Esc la quitan: la cuenta atrás de siempre hasta el índice,
        con su pista donde vaya. Si el marco deja de dar señales (3,5 s), lo mismo.
      Para quitarla: PREVIA_ON = false. */
-  var PREVIA_ON = true, PREVIA_V = '2026-10-17a', PREVIA_ADELANTE = 480;
+  var PREVIA_ON = true, PREVIA_V = '2026-10-18a', PREVIA_ADELANTE = 480;
   var PV = { caja: null, fr: null, bot: null, hola: false, cfg: null, cfgK: '', k: '', n: 0, enviada: '', listo: null, buf: {}, pide: {},
              modo: {}, uso: {}, src: [], g: null, vivo: 0, visto: 0, play: 0, raf: 0, botT: 0, err: 0 };
   function pvModoLee(k) { try { var x = JSON.parse(sessionStorage.getItem('lm_esc_pv:' + k) || 'null'); return x && x.m ? x : null; } catch (e) { return null; } }
@@ -1413,11 +1413,56 @@
     if (desde >= ini && desde < 300) { M = { m: L ? 'previa' : 'vieja', dur: D }; PV.modo[c.clave] = M; pvModoPon(c.clave, M); }
     return D;
   }
+  /* ---------- (18-oct-2026, Iago: «en clase ya ni toco el iPad… lo que sí abro es el portal tester o el protester… ahí es donde
+     decida… lo más certero posible en base a las fichas de ese grupo») EL ¡OJO! LO CALCULA ESTA PANTALLA ----------
+     Una vez por clase, con el portal abierto (desde 8 min antes como mucho; a la hora en punto sobra) y solo con la cuenta
+     Tester / Protester: una llamada pequeña (escaleta_previa_fichas: las entregas de la última ficha cerrada del grupo, sin
+     nombres) y la elección con previa/elige.js (el mismo motor que la previa y el Diario). Se guarda para esa clase en la
+     pestaña (recargar no vuelve a pedirlo). Mientras tanto, o si falla, el bloque «__previa» del iPad (si lo hay) o uno de
+     repaso. Para quitarlo: OJO_ON = false. */
+  var OJO_ON = true, OJO = { k: '', r: undefined, t: 0, n: 0, pidiendo: false, nota: '' }, ELIGE = { p: null };
+  function ojoLee(k) { try { var x = JSON.parse(sessionStorage.getItem('lm_esc_ojo:' + k) || 'null'); return x && x.v === 1 ? x : null; } catch (e) { return null; } }
+  function ojoPon(k, x) { try { sessionStorage.setItem('lm_esc_ojo:' + k, JSON.stringify(x)); } catch (e) {} }
+  function cargaElige() {   /* el motor de la elección (unos 30 KB, una vez) */
+    if (W.PreviaElige && typeof W.PreviaElige.elige === 'function') return Promise.resolve(W.PreviaElige);
+    if (!ELIGE.p) ELIGE.p = new Promise(function (ok, mal) {
+      var sc = D.createElement('script'); sc.async = true; sc.src = BASE + 'previa/elige.js?v=' + PREVIA_V;
+      sc.onload = function () { if (W.PreviaElige && typeof W.PreviaElige.elige === 'function') ok(W.PreviaElige); else { ELIGE.p = null; mal(new Error('sin motor')); } };
+      sc.onerror = function () { ELIGE.p = null; mal(new Error('no carga')); };
+      (D.head || H).appendChild(sc);
+    });
+    return ELIGE.p;
+  }
+  /* el ¡Ojo! de esta clase: undefined mientras no esté; null si no hay nada que destacar (la previa pone uno de repaso); si no, { m, p } */
+  function ojoDe(c) {
+    if (!OJO_ON || !c || !c.grupo) return undefined;
+    var k = c.clave + '|' + c.clase;
+    if (OJO.k !== k) { var g0 = ojoLee(k); OJO.k = k; OJO.t = 0; OJO.n = 0; OJO.r = g0 ? g0.o : undefined; OJO.nota = g0 ? String(g0.nota || '') : ''; }
+    if (OJO.r !== undefined) return OJO.r;
+    var id = cuenta();
+    if (id && !OJO.pidiendo && OJO.n < 4 && Date.now() - OJO.t > 90000) {
+      OJO.pidiendo = true; OJO.t = Date.now(); OJO.n++;
+      Promise.all([rpc('escaleta_previa_fichas', { p_cuenta_id: id, p_grupo: c.grupo, p_anio: c.anio, p_semana: c.semana }), cargaElige()]).then(function (x) {
+        if (OJO.k !== k) return;
+        var d = x[0], o = null;
+        if (!d || typeof d !== 'object') { OJO.nota = 'respuesta rara'; return; }
+        if (d.ok === true) {
+          o = x[1].elige(d, c.clase, c.semana, c.grupo);
+          o = (o && typeof o.m === 'string' && o.p && typeof o.p === 'object') ? { m: o.m, p: o.p } : null;
+          OJO.nota = (o ? 'el de la ficha ' : 'nada que destacar en la ficha ') + (+d.ficha || 0);
+        } else OJO.nota = 'sin datos (' + String(d.error || '').slice(0, 20) + ')';
+        OJO.r = o; ojoPon(k, { v: 1, o: o, t: Date.now(), nota: OJO.nota });
+        pintar(true);
+      }).catch(function (e) { if (OJO.k === k) OJO.nota = 'falló: ' + String(e && e.message || e).slice(0, 60); }).then(function () { OJO.pidiendo = false; });
+    }
+    return undefined;
+  }
   /* lo que se le manda al marco: el grupo, el día, la clase, el ¡Ojo! (del bloque «__previa» del iPad), los recordatorios y las
      actividades de hoy (para elegir el consejo de sus áreas). Sin nombres de alumnos, salvo lo que ya diga algún recordatorio. */
   function pvConfig(v) {
-    var c = v.c, pub = v.pub, g = codigoG(c.grupo), ojo = null;
-    try {
+    var c = v.c, pub = v.pub, g = codigoG(c.grupo), ojo = null, oj = ojoDe(c);
+    if (oj !== undefined) ojo = oj;   /* (18-oct-2026) el que calcula esta pantalla (null: uno de repaso) */
+    else try {
       var b = (pub && Array.isArray(pub.bloques)) ? pub.bloques.filter(function (x) { return x && x.slot === '__previa'; })[0] : null;
       var x = (b && b.g && typeof b.g === 'object') ? b.g[g] : null;
       if (x && x[c.clase] && typeof x[c.clase] === 'object') x = x[c.clase];
@@ -2018,6 +2063,10 @@
         buf: Object.keys(PV.buf).length, visible: !!(PV.caja && PV.caja.classList.contains('lme-on')), err: PV.err, src: PV.src.length, pista: BAT.pista, cfg: PV.cfg ? { ojo: PV.cfg.ojo, recs: PV.cfg.recs.length, clase: PV.cfg.clase, grupo: PV.cfg.grupo } : null };
     },
     saltarPrevia: function () { pvSalta(); },
+    ojo: function () {   /* (18-oct-2026) el ¡Ojo! calculado aquí para la clase de ahora */
+      return { on: OJO_ON, clave: OJO.k, listo: OJO.r !== undefined, ojo: OJO.r === undefined ? null : OJO.r, pedidos: OJO.n, pidiendo: OJO.pidiendo, nota: OJO.nota,
+        motor: W.PreviaElige ? { version: W.PreviaElige.version, ultimo: W.PreviaElige.ultimo } : null };
+    },
     sonido: function () { return { previa: !!SON.previa, item: !!SON.item, cambio: SON.cambio.filter(Boolean).length, n: SON.n, pista: BAT.pista, vivo: BAT.vivo, ac: AC ? AC.state : '' }; },
     indice: function () {   /* para mirar (y para el banco): el índice de la clase que toca y en qué golpe sale cada cosa */
       var v = vista(ahora()); if (!v.c) return null;
