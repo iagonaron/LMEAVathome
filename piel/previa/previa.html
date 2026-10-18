@@ -1197,6 +1197,16 @@ var TEO = (function () {
     var marcas = cadenaTS(pn, pts, PS.sts, ts);
     return { fin: l.fin, I: I, nat: PS.nat, l: l, marcas: marcas, pts: pts };
   }
+  /* (18-oct-2026, Iago, sobre Mi–Sol♯: «prefiero que añadas en el medio un sol natural pequeño… y una raya más… de fa a sol hay un tono
+     y después luego es todavía más… desplazas el sol♯ a la derecha para meter el sol en pequeñito y añades un piquito más entre el sol
+     y el sol♯») cuando se cuenta sin alteraciones y la alteración cambia el intervalo: la nota alterada se aparta una casilla, en su
+     sitio queda la natural en cabecita pequeña (gris) y, al decir «con la alteración», sale la raya de lo que añade o quita la
+     alteración (el semitono, un pico; dos, un arco), con «+ st» o «− st» debajo. */
+  function rayaAlt(pn, de, a, alt, mas, t, corta) {   /* de la natural (de) a la alterada (a), o al revés: la raya y su «± st» (corta: lo que ocupa la alteración de a) */
+    var st = Math.abs(alt), x1 = de.x + (de.mini ? 7 : 12), y1 = de.y + (de.mini ? 14 : 22), x2 = a.x - (a.mini ? 7 : 12) - (corta || 0), y2 = a.y + (a.mini ? 14 : 22);
+    marcaTS(pn, x1, y1, x2, y2, st, t); sfx('clic', t);
+    txt(pn, (x1 + x2) / 2, Math.max(y1, y2) + (st === 1 ? 66 : 84), (mas ? '+ ' : '− ') + (st === 1 ? 'st' : 'T'), 'rosa', t + .1, null, 30);
+  }
   MOLDES.intClasif = { nombre: 'Clasificar intervalos', area: 'Intervalos', claves: ['int_clasif', 'intervalos_id'], nivel: 'ambos',
     desc: function (p) { return TEO.nom(TEO.nt(p.a)) + ' – ' + TEO.nom(TEO.nt(p.b)); },
     regla: 'Como en el vídeo: el número, contando las notas (la primera y la última también). 2ª y 3ª: tonos y semitonos (el tono, un arco; el semitono, un pico). 4ª, 5ª y 8ª: si se apellidan igual, justas (Fa–Si y Si–Fa, la excepción); si no, el truco de las manos. 6ª y 7ª: les damos la vuelta (queda una 3ª o una 2ª) y la especie cambia.',
@@ -1209,10 +1219,13 @@ var TEO = (function () {
       var W = 1400, H = 360, pn = panel(raiz, 260, 380, W, H, a + 4.2); sfx('servo', a + 4.2);
       var usaManos = (s === 4 || s === 5 || s === 1) && A.a !== B.a;   /* con las manos, el pentagrama deja sitio a la derecha */
       var o = pk(pn.svg, 50, usaManos ? 940 : W - 50, 96, 31, 'sol'); claveK(o, 72);
-      var sep = s >= 6 ? 116 : (usaManos ? 118 : 130), xA = usaManos ? 260 : 300, xB = xA + (I.num - 1) * sep;
+      /* (18-oct) 2ª y 3ª contadas sin alteraciones que la alteración cambia: la natural, pequeña, en medio (ver rayaAlt) */
+      var aparta = (s === 2 || s === 3) && pasosTS(A, B).nat && I.st !== especieNat(A, B).st, dA = aparta && A.a ? 1 : 0, dB = aparta && B.a ? 1 : 0;
+      var sep = s >= 6 ? 116 : (usaManos ? 118 : (aparta ? 150 : 130)), xA = usaManos ? 260 : 300, xB = xA + (I.num - 1) * sep;
       var gA = notaK(o, xA, A, null, '', A.a ? A.a : null), gB = notaK(o, xB, B, null, '', B.a ? B.a : null);
       aparece(gA, a + 4.5); aparece(gB, a + 4.7); sfx('pulsa', a + 4.5); sfx('pulsa', a + 4.7);
       var cA = cxN(o, gA), cB = cxN(o, gB), labY = Math.max(250, yBajo(o, [gA, gB]) + 62);
+      var cBf = cB + (dA + dB) * sep;
       /* 1) el número */
       var nom = [], x = TEO.cp(A); for (var i = 0; i < I.num; i++) { nom.push(TEO.letra(x)); x = TEO.paso(x, 1); }
       var tC0 = a + 5.3, paso = Math.min(.42, 2.6 / I.num), cxs = []; for (var j = 0; j < I.num; j++) cxs.push(cA + j * (cB - cA) / (I.num - 1));
@@ -1221,13 +1234,26 @@ var TEO = (function () {
       var C = cuentaMini(raiz, pn, o, A, I.num - 1, cxs, labY, tC0, paso, tE, guarda ? null : tE);
       var tAns, amar = false;
       if (guarda) {   /* 2) 2ª y 3ª: tonos y semitonos */
-        var pts = C.pts.slice(); pts[0] = { x: cA, y: cyN(o, gA) }; pts[pts.length - 1] = { x: cB, y: cyN(o, gB) };
-        var R = analizaTS(raiz, pn, o, A, B, pts, tE, 770, CPS);
+        var pts = C.pts.slice(), tT = tE, nA = null, nB = null;
+        pts[0] = { x: cA, y: cyN(o, gA) }; pts[pts.length - 1] = { x: cB, y: cyN(o, gB) };
+        if (aparta) {   /* la alterada se aparta y en su sitio queda la natural, pequeña */
+          C.minis.forEach(function (g) { if (dA) PROG.it.push({ k: 'svgtw', e: g, t: tE, d: .4, dx0: 0, dy0: 0, dx1: dA * sep, dy1: 0 }); });
+          PROG.it.push({ k: 'svgtw', e: gB, t: tE, d: .4, dx0: 0, dy0: 0, dx1: (dA + dB) * sep, dy1: 0 }); sfx('servo', tE, .06);
+          for (var q = 1; q < pts.length - 1; q++) pts[q] = { x: pts[q].x + dA * sep, y: pts[q].y, mini: true };
+          if (dA) { var gNA = miniCab(o, cA + sep, o.p(A), pn.svg); aparece(gNA, tE + .35); nA = { x: cA + sep, y: o.y(o.p(A)), mini: true }; pts[0] = nA; }
+          if (dB) { var gNB = miniCab(o, cB + dA * sep, o.p(B), pn.svg); aparece(gNB, tE + .35); nB = { x: cB + dA * sep, y: o.y(o.p(B)), mini: true }; pts[pts.length - 1] = nB; }
+          else pts[pts.length - 1] = { x: cBf, y: cyN(o, gB) };
+          sfx('pulsa', tE + .35, .05); tT = tE + .6;
+        }
+        var R = analizaTS(raiz, pn, o, A, B, pts, tT, 770, CPS);
         if (R.nat) [gA, gB].forEach(function (g) { if (g._alt) clase(g._alt, 'tenue', tE, R.fin + .6); });
         tAns = R.fin + .4;
         if (R.nat && I.st !== R.I.st) {
           var mas = I.st > R.I.st, h3 = 'Con la alteración, <span class="rosa">más ' + (mas ? 'grande' : 'pequeño') + '</span> → <span class="rosa">' + TEO.nomInt(I) + '</span>';
           [gA, gB].forEach(function (g) { if (g._alt) rosaEn(g._alt, tAns); });
+          var tR = cuando(h3, 'alteración', tAns, CPS) + .2;
+          if (nA) rayaAlt(pn, { x: cA, y: cyN(o, gA) }, nA, A.a, mas, tR);
+          if (nB) rayaAlt(pn, nB, { x: cBf, y: cyN(o, gB) }, B.a, mas, tR + (nA ? .35 : 0), (GX.altW[B.a] + .35 + .844) * o.sp - 6);
           tAns = lin(raiz, 850, h3, tAns, CPS).fin + .4;
         }
       } else if (s === 4 || s === 5 || s === 1) {   /* 2) 4ª, 5ª y 8ª: el apellido; si no, las manos */
@@ -1247,18 +1273,31 @@ var TEO = (function () {
           [gA, gB].forEach(function (g) { if (g._alt) rosaEn(g._alt, tM + .5); });
         }
       } else {   /* 2) 6ª y 7ª: les damos la vuelta */
-        var A2 = TEO.N(A.s, A.a, A.o + 1), s2 = 9 - s, cA2 = cB + (s2 - 1) * sep;
+        /* (18-oct) si la 3ª o la 2ª que queda se cuenta sin alteraciones y la alteración la cambia, como en las 2ª y 3ª: la natural,
+           pequeña, en medio, y la raya de la alteración (antes faltaba ese paso y la línea final no cuadraba con la cadena) */
+        var A2 = TEO.N(A.s, A.a, A.o + 1), s2 = 9 - s, J2 = TEO.intervalo(B, A2), N2 = especieNat(B, A2);
+        var apV = pasosTS(B, A2).nat && J2.st !== N2.st, dB2 = apV && B.a ? 1 : 0, dA2 = apV && A2.a ? 1 : 0, sepV = dB2 + dA2 === 2 ? 96 : sep;
+        var cA2 = cB + (s2 - 1 + dB2 + dA2) * sepV;
         var h2 = 'Le damos la vuelta: <span class="rosa">' + TEO.letra(B) + '–' + TEO.letra(A2) + '</span>';
         var l2v = lin(raiz, 770, h2, tE, CPS), tV = cuando(h2, 'vuelta', tE, CPS);
         var V = vueltaOctava(pn, o, gA, A2, cA2, tV, 1.0, true);
-        var pts2 = [{ x: cB, y: cyN(o, gB) }], tM2 = l2v.fin + .4;
-        if (s2 === 3) { var nm = TEO.paso(B, 1), pmid = o.p(nm), gm = miniCab(o, cB + sep, pmid, pn.svg); aparece(gm, tM2); pts2.push({ x: cB + sep, y: o.y(pmid), mini: true }); }
-        pts2.push({ x: cA2, y: V.y, mini: true });
+        var pts2 = [{ x: cB, y: cyN(o, gB) }], tM2 = l2v.fin + .4, nB2 = null, nA2 = null;
+        if (dB2) { var gN1 = miniCab(o, cB + sepV, o.p(B), pn.svg); aparece(gN1, tM2); nB2 = { x: cB + sepV, y: o.y(o.p(B)), mini: true }; pts2[0] = nB2; }
+        if (s2 === 3) { var xm = cB + (1 + dB2) * sepV, nm = TEO.paso(B, 1), pmid = o.p(nm), gm = miniCab(o, xm, pmid, pn.svg); aparece(gm, tM2); pts2.push({ x: xm, y: o.y(pmid), mini: true }); }
+        if (dA2) { var xa = cB + (s2 - 1 + dB2) * sepV, gN2 = miniCab(o, xa, o.p(A2), pn.svg); aparece(gN2, tM2); nA2 = { x: xa, y: o.y(o.p(A2)), mini: true }; pts2.push(nA2); }
+        else pts2.push({ x: cA2, y: V.y, mini: true });
         var R2 = analizaTS(raiz, pn, o, B, A2, pts2, tM2 + .2, 850, CPS);
-        var J2 = TEO.intervalo(B, A2), h4 = 'La ' + s2 + 'ª, ' + TEO.CALN[J2.cal] + ' → la ' + s + 'ª, <span class="rosa">' + TEO.CALN[I.cal] + '</span>';
-        tAns = lin(raiz, 930, h4, R2.fin + .4, CPS).fin + .4;
+        if (apV && gB._alt) clase(gB._alt, 'tenue', tM2, R2.fin + .6);
+        var mas2 = J2.st > N2.st, h4 = (apV ? 'Con la alteración, más ' + (mas2 ? 'grande' : 'pequeño') + ': la ' : 'La ') + s2 + 'ª, ' + TEO.CALN[J2.cal] + ' → la ' + s + 'ª, <span class="rosa">' + TEO.CALN[I.cal] + '</span>';
+        var t4 = R2.fin + .4, l4 = lin(raiz, 930, h4, t4, CPS);
+        if (apV) {
+          var tR2 = cuando(h4, 'alteración', t4, CPS) + .2; if (gB._alt) rosaEn(gB._alt, tR2);
+          if (nB2) rayaAlt(pn, { x: cB, y: cyN(o, gB) }, nB2, B.a, mas2, tR2);
+          if (nA2) rayaAlt(pn, nA2, { x: cA2, y: V.y, mini: true }, A2.a, mas2, tR2 + (nB2 ? .35 : 0), (GX.altW[A2.a] + .3) * o.sp * KMIN + 4);
+        }
+        tAns = l4.fin + .4;
       }
-      var ans = etiqueta(raiz, pn, (cA + cB) / 2, labY + 4, '<span class="' + (amar ? 'amarillo' : 'rosa') + '">' + TEO.nomInt(I) + '</span>', tAns, null, '', 10);
+      var ans = etiqueta(raiz, pn, (cA + cBf) / 2, labY + 4 + (aparta ? 26 : 0), '<span class="' + (amar ? 'amarillo' : 'rosa') + '">' + TEO.nomInt(I) + '</span>', tAns, null, '', 10);
       okTras(ans, tAns + .6); fin(a, MOLDES.intClasif.dur(P));
     } };
 
