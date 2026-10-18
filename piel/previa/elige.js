@@ -13,13 +13,41 @@
 (function () {
   'use strict';
   if (window.PreviaElige) return;
-  var VERSION = '2026-10-18a';
+  var VERSION = '2026-10-18b';
   /* ---------- el motor de la elección, copiado de la previa (generado) ---------- */
   var MOLDES = {"escala": {"claves": ["esc_menor", "esc_mayor", "escala_menor", "escala_mayor"], "nivel": "ambos", "ejemplos": [{"t": "Sol4", "tipo": "armonica", "ficha": "Ficha 4"}]}, "modo": {"claves": ["modos"], "nivel": "GP", "ejemplos": [{"t": "Si3", "modo": "frigio", "ficha": "Ficha 4"}]}, "armaduraTono": {"claves": ["ton_arm_tono", "ton_nombre"], "nivel": "ambos", "ejemplos": [{"q": 3, "ficha": "Ficha 4"}]}, "tonoArmadura": {"claves": ["ton_tono_arm", "ton_armadura"], "nivel": "ambos", "ejemplos": [{"t": "Fa#", "menor": true, "ficha": "Ficha 4"}]}, "indice": {"claves": ["indice"], "nivel": "GP", "ejemplos": [{"n": "Si3", "clave": "sol", "ficha": "Ficha 4"}]}, "intClasif": {"claves": ["int_clasif", "intervalos_id"], "nivel": "ambos", "ejemplos": [{"a": "Mi4", "b": "Sol#4", "ficha": "Ficha 3"}]}, "intConstr": {"claves": ["int_constr", "intervalos_build"], "nivel": "ambos", "ejemplos": [{"a": "Re4", "num": 3, "cal": "M", "ficha": "Ficha 3"}]}, "invSimple": {"claves": ["inv_simples", "inversion_int_simples"], "nivel": "ambos", "ejemplos": [{"a": "Re4", "b": "Fa4", "ficha": "Ficha 3"}]}, "compas": {"claves": ["com_clasif"], "nivel": "GE", "ejemplos": [{"num": 2, "den": 4, "ficha": "Ficha 4"}]}, "acorde": {"claves": ["acordes", "acordes_id", "acordes_build"], "nivel": "ambos", "ejemplos": [{"r": "Re4", "tipo": "Pm", "ficha": "Ficha 5"}]}, "invAcorde": {"claves": ["aco_identificar", "aco_construir", "inversion_aco_identifica", "inversion_aco_construir"], "nivel": "ambos", "ejemplos": [{"r": "Re4", "tipo": "PM", "estado": 1, "ficha": "Ficha 5"}]}, "acordePro": {"claves": ["acordespro_id", "acordespro_build"], "nivel": "GP", "ejemplos": [{"r": "Re4", "tipo": "m7b5", "ficha": "Ficha 6"}]}, "cadencia": {"claves": ["cadencias_quiz", "cadencias"], "nivel": "ambos", "ejemplos": [{"t": "Sol", "menor": false, "grados": ["I", "IV", "V", "I"], "tipo": "autentica", "ficha": "Ficha 5"}]}, "claves": {"claves": ["cla_a", "cla_b"], "nivel": "GE", "ejemplos": [{"clave": "do3", "n": "Mi4", "ficha": "Ficha 3"}]}, "semitono": {"claves": ["semitonos"], "nivel": "GE", "ejemplos": [{"a": "Fa4", "b": "Fa#4", "ficha": "Ficha 3"}]}, "enarmonia": {"claves": ["ena_a", "ena_avanzado", "enarmoniapro"], "nivel": "ambos", "ejemplos": [{"n": "Fa#4", "ficha": "Ficha 3"}]}, "grados": {"claves": ["gra_senalar"], "nivel": "GE", "ejemplos": [{"t": "Fa", "menor": false, "g": 4, "ficha": "Ficha 3"}]}, "vecinos": {"claves": ["ton_vecinos"], "nivel": "ambos", "ejemplos": [{"t": "Mib", "menor": false, "ficha": "Ficha 5"}]}, "escalaOtras": {"claves": ["esc_otras", "escala_otras"], "nivel": "ambos", "ejemplos": [{"t": "Re4", "tipo": "pentaM", "ficha": "Ficha 6"}]}, "compasPro": {"claves": ["comp_elegir", "comp_rellenar", "comp_replicar"], "nivel": "GP", "ejemplos": [{"den": 4, "ent": 2, "fr": [1, 2], "ficha": "Ficha 4"}]}, "test": {"claves": ["test_1_1", "test_1_2", "test_2_1", "test_2_2", "test_2_3", "test_3_1", "test_3_2", "test_3_3", "test_4_1", "test_4_2", "test_4_3", "test_5_1", "test_5_2", "test_8_1", "test_8_2", "test_8_3", "test_9_1", "test_9_2"], "nivel": "GP", "ejemplos": [{"tramo": "1.2", "titulo": "Compases poco habituales", "q": "En un compás fraccionario, la fracción hace referencia a…", "opts": ["El número de compases", "La figura del pulso", "La clave"], "correcta": 1, "ficha": "Ficha 4"}, {"tramo": "2.1", "titulo": "Cualidades del sonido", "q": "Una reflexión del sonido inferior a 50 ms se percibe como…", "opts": ["Eco", "Difracción", "Reverb"], "correcta": 2, "ficha": "Ficha 5"}, {"tramo": "1.1", "titulo": "Fonógrafo", "q": "En el fonógrafo, ¿qué función cumple el cono?", "opts": ["Hacer girar el cilindro", "Solo amplificar el sonido", "Micrófono al grabar y resonador al reproducir"], "correcta": 2, "ficha": "Ficha 4"}]}, "invCompuesto": {"claves": ["inv_compuestos", "inversion_int_compuestos"], "nivel": "ambos", "ejemplos": [{"a": "Do4", "b": "Mi5", "ficha": "Ficha 5"}]}, "serieArmonica": {"claves": ["seriearmonica"], "nivel": "GP", "rotacion": false, "ejemplos": [{"f": "Mi2", "h": 5, "ficha": "Ficha 6"}]}, "dodeConstruir": {"claves": ["dode_construir"], "nivel": "GP", "rotacion": false, "ejemplos": [{"aviso": 1, "ficha": "Ficha 6"}]}, "dodeVariante": {"claves": ["dode_completa", "dode_identifica"], "nivel": "GP", "rotacion": false, "ejemplos": [{"modo": "completa", "kind": "R", "n": 3, "p0": [2, 10, 7, 3, 0, 8, 11, 9, 6, 4, 1, 5], "miss": [1, 4, 8, 10], "i": 4, "ficha": "Ficha 6"}]}, "terminos": {"claves": ["terminos"], "nivel": "GE", "rotacion": false, "ejemplos": [{"parte": "A", "term": "smorzando", "cat": "intensidad", "ficha": "Ficha 6"}]}, "modulacion": {"claves": ["modulacion"], "nivel": "GP", "rotacion": false, "ejemplos": [{"a": "Do", "am": "M", "b": "Sol", "bm": "M", "ocho": false, "i": 4, "ficha": "Ficha 8"}]}, "transporte": {"claves": ["transporte_escrito", "transporte_mental", "transporte_resumen"], "nivel": "GP", "rotacion": false, "ejemplos": [{"t": "Re", "menor": false, "int": "3m", "dir": "asc", "foco": 3, "ficha": "Ficha 9"}]}, "blues": {"claves": ["blues"], "nivel": "GP", "rotacion": false, "ejemplos": [{"l": "C", "a": 0, "i": 9, "ficha": "Ficha 6"}]}, "quizGE": {"claves": ["adorno_quiz", "abrev_quiz"], "nivel": "GE", "rotacion": false, "ejemplos": [{"tema": "adorno", "q": "¿Qué adorno es este signo?", "ops": ["Mordente", "Grupeto", "Trino"], "ok": 1, "il": "grupeto", "ficha": "Ficha 7"}]}};
   /* <<< copia de ojos.js (generada) */
   var NOMN = { C: 'Do', D: 'Re', E: 'Mi', F: 'Fa', G: 'Sol', A: 'La', B: 'Si' }, ALTN = { '-2': 'bb', '-1': 'b', '0': '', '1': '#', '2': 'x' };
   var TIPON = { natural: 'natural', 'armónica': 'armonica', 'melódica': 'melodica', 'dórica': 'dorica', 'tipo 1': 'tipo1', 'tipo 2': 'tipo2', 'tipo 3': 'tipo3', 'tipo 4': 'tipo4' };
   function sinTilde(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  /* (18-oct-2026, Iago: «que sea lo más certero posible» y «todos los tipos de ojo de elemental se podrían utilizar en grado
+     profesional») las notas de la ficha ({ step, alter, octave }) → 'Mi4', y los intervalos sin TEO (paramsDe va también en elige.js
+     y en el Diario, que no lo llevan) */
+  var LETN = 'CDEFGAB', SEMI7 = [0, 2, 4, 5, 7, 9, 11];
+  function nomNota(n) { var a = String(+(n && n.alter) || 0); return n && NOMN[n.step] && ALTN[a] != null && isFinite(+n.octave) && n.octave !== null && n.octave !== '' ? NOMN[n.step] + ALTN[a] + (+n.octave) : null; }
+  function construyeN(n1, num, code) {   /* la nota a «num» de n1, hacia arriba, con esa especie (J, M, m, A, d) */
+    var li = LETN.indexOf(n1 && n1.step), d = (+num || 0) - 1; if (li < 0 || d < 0) return null;
+    var s = d % 7, oc = Math.floor(d / 7), l2 = li + d, st2 = LETN[l2 % 7], o2 = +n1.octave + Math.floor(l2 / 7);
+    var just = s === 0 || s === 3 || s === 4, dif = (just ? { d: -1, J: 0, A: 1 } : { d: -2, m: -1, M: 0, A: 1 })[code];
+    if (dif == null) return null;
+    var alt = SEMI7[s] + 12 * oc + dif - ((o2 * 12 + SEMI7[l2 % 7]) - (+n1.octave * 12 + SEMI7[li] + (+n1.alter || 0)));
+    return Math.abs(alt) <= 2 ? { step: st2, alter: alt, octave: o2 } : null;
+  }
+  function espN(e) { e = String(e == null ? '' : e).replace(/\.$/, ''); return { Aum: 'A', Dis: 'd', aum: 'A', dis: 'd' }[e] || e; }
+  function baseInt(num, code) {   /* «Clasifica» de GE no guarda las notas: una pareja con ese intervalo (mejor, con una alteración arriba) */
+    var mejor = null, cs = ['D', 'E', 'A', 'G', 'C', 'F', 'B'];
+    for (var i = 0; i < cs.length; i++) {
+      var A = { step: cs[i], alter: 0, octave: 4 }, B = construyeN(A, num, code); if (!B || B.octave > 5) continue;
+      if (Math.abs(B.alter) === 1) return [A, B];
+      if (!mejor && B.alter === 0) mejor = [A, B];
+    }
+    return mejor;
+  }
+  function apartadosDe(M, S) {   /* los apartados de un ejercicio, estén donde estén (GE: _solData, _aco, _inv; GP: subs, items, pares) */
+    var x = [S.subs, S.items, S.pares, S._aco && S._aco.items, S._inv && S._inv.pares, M._aco && M._aco.items, M._inv && M._inv.pares, M._solData];
+    for (var i = 0; i < x.length; i++) if (Array.isArray(x[i]) && x[i].length) return x[i];
+    return [];
+  }
   /* (18-oct) las notas de una serie dodecafónica de la ficha ({ step, octave, acc }, en un solo compás: la alteración dura) → sus 12 sonidos (0–11) */
   var SEMIN = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }, ACCN = { '': 0, n: 0, b: -1, '#': 1 };
   function dodePcs(ns) {
@@ -64,8 +92,8 @@
     switch (key) {
       case 'modos': return S.tonica ? { t: NOMN[S.tonica.s] + ALTN[S.tonica.alt || 0] + (S.tonica.o || 4), modo: sinTilde(S._mode || S.tipo) } : null;
       case 'com_clasif': m = /^(\d+)\/(\d+)$/.exec(M.sig || (M._comSpec || {}).sig || ''); return m ? { num: +m[1], den: +m[2] } : null;
-      case 'ton_arm_tono': case 'ton_nombre': d = (M._solData || [])[k]; return d ? { q: d.fifths } : null;
-      case 'ton_tono_arm': case 'ton_armadura': d = (M._solData || [])[k]; m = d && /^(Do|Re|Mi|Fa|Sol|La|Si)(b|#)?(M|m)$/.exec(d.nom || ''); return m ? { t: m[1] + (m[2] || ''), menor: m[3] === 'm' } : null;
+      case 'ton_arm_tono': case 'ton_nombre': d = (M._solData || S.subs || [])[k]; return d && isFinite(d.fifths != null ? d.fifths : d.f) ? { q: +(d.fifths != null ? d.fifths : d.f) } : null;
+      case 'ton_tono_arm': case 'ton_armadura': d = (M._solData || S.subs || [])[k]; m = d && /^(Do|Re|Mi|Fa|Sol|La|Si)(b|#)?(M|m)$/.exec(d.nom || ''); return m ? { t: m[1] + (m[2] || ''), menor: m[3] === 'm' } : null;
       case 'indice': d = (S.notas || [])[k]; return d ? { n: NOMN[d.step] + ALTN[d.alter || 0] + d.oct, clave: d.clef === 'bass' ? 'fa' : 'sol' } : null;
       case 'comp_elegir': sub = (S.subs || [])[k]; c = sub && (sub.options || []).filter(function (o) { return o.ok; })[0]; d = c && durForma(c.form, c.spec); return d ? compasDe(d.tot, d.den) : null;
       case 'comp_rellenar': sub = (S.subs || [])[k]; d = sub && durForma(sub.form, sub.spec); return d ? compasDe(d.tot, d.den) : null;
@@ -88,6 +116,32 @@
       case 'blues':
         var kb = S.key && S.key.t; return kb && NOMN[kb[0]] ? (k >= 12 ? { l: kb[0], a: +kb[1] || 0, s7: true } : { l: kb[0], a: +kb[1] || 0, i: k }) : null;
       case 'seriearmonica': d = S.fund; return d && NOMN[d.step] ? { f: NOMN[d.step] + ALTN[d.alter || 0] + (d.octave == null ? 2 : d.octave), h: Math.min(8, k + 2) } : null;
+      /* (18-oct-2026) los que faltaban: intervalos, inversiones, acordes y cadencias, en GE y en GP (GP: el ejercicio entero; GE: su motor) */
+      case 'int_clasif': case 'intervalos_id':
+        d = apartadosDe(M, S)[k]; if (!d) return null;
+        if (d.n1 && d.n2 && +d.num <= 8) { var a1 = nomNota(d.n1), b1 = nomNota(d.n2); return a1 && b1 ? { a: a1, b: b1 } : null; }
+        var par = +d.num >= 2 && +d.num <= 8 ? baseInt(+d.num, espN(d.code)) : null; return par ? { a: nomNota(par[0]), b: nomNota(par[1]) } : null;
+      case 'int_constr': case 'intervalos_build':
+        d = apartadosDe(M, S)[k]; if (!d || !(+d.num >= 2 && +d.num <= 8) || !/^(J|M|m|A|d)$/.test(espN(d.code))) return null;
+        var n2 = d.n2 || d._n2cat, baj = d.direccion === 'desc' ? n2 : d.n1, ab = nomNota(baj);   /* hacia abajo: desde la de abajo, hacia arriba */
+        return ab ? { a: ab, num: +d.num, cal: espN(d.code) } : null;
+      case 'inv_simples': case 'inversion_int_simples': case 'inv_compuestos': case 'inversion_int_compuestos':
+        d = apartadosDe(M, S)[k]; if (!d || !Array.isArray(d.dada) || d.dada.length !== 2) return null;
+        var p1 = nomNota(d.dada[0]), p2 = nomNota(d.dada[1]); return p1 && p2 ? { a: p1, b: p2 } : null;
+      case 'acordes': case 'acordes_id': case 'acordes_build':
+        d = apartadosDe(M, S)[k]; if (!d) return null; var fu = nomNota(d.fund || d.root);
+        return fu && ['PM', 'Pm', 'Aum', 'Dis'].indexOf(d.tipo) >= 0 ? { r: fu, tipo: d.tipo } : null;
+      case 'aco_identificar': case 'aco_construir': case 'inversion_aco_identifica': case 'inversion_aco_construir':
+        d = apartadosDe(M, S)[k]; if (!d) return null; var ro = nomNota(d.root || d.fund);
+        if (!ro || ['PM', 'Pm', 'Aum', 'Dis', '7'].indexOf(d.tipo) < 0 || !(+d.inv >= 0 && +d.inv <= 3)) return null;
+        return /construir$/.test(key) ? { r: ro, tipo: d.tipo, estado: +d.inv, modo: 'construir' } : { r: ro, tipo: d.tipo, estado: +d.inv };
+      case 'cadencias': case 'cadencias_quiz':
+        var Gc = S.gen || M.gen || (M._cad && M._cad.gen); if (!Gc || !Gc.key || !Array.isArray(Gc.harm)) return null;
+        var kc = /^([A-G])(#|b)?$/.exec(Gc.key.name || ''), tc = /^(autentica|plagal|semicadencia|rota)(?:_(perfecta|imperfecta))?$/.exec(Gc.type || '');
+        if (!kc || !tc || Gc.harm.length < 2 || Gc.harm.length > 8) return null;
+        var Pc = { t: NOMN[kc[1]] + (kc[2] || ''), menor: Gc.mode === 'minor' || Gc.key.mode === 'minor', grados: Gc.harm.map(function (h) { return String(h.rn || '').slice(0, 6); }), tipo: tc[1] === 'semicadencia' ? 'semi' : tc[1] };
+        if (tc[2]) Pc.perfecta = tc[2] === 'perfecta';
+        return Pc;
     }
     if (/^test_/.test(key)) { var tr = key.slice(5).replace('_', '.'); return MOLDES.test.ejemplos.filter(function (x) { return x.tramo === tr; })[0] || null; }
     return null;
@@ -110,7 +164,9 @@
     E.forEach(function (e) { if (picks.length < 2 && e.fallos >= 2 && !usado(e.molde)) toma(e, 'error'); });
     E.forEach(function (e) { if (picks.length < 2 && e.fallos >= 1 && !usado(e.molde) && hist.indexOf(e.molde) < 0) toma(e, 'flojo'); });
     /* (18-oct) los moldes de temas que llegan más tarde en el curso (rotacion: false) solo salen por un error de verdad, nunca de repaso */
-    var rot = Object.keys(MOLDES).filter(function (m) { return MOLDES[m].rotacion !== false && (MOLDES[m].nivel === 'ambos' || MOLDES[m].nivel === G.curso); }), i0 = (semana || 0) % rot.length;
+    /* (18-oct-2026, Iago: «todos los tipos de ojo de elemental se podrían utilizar en grado profesional… son contenidos que se suman»)
+       en GP entran también los de GE; en GE, los de GP no */
+    var rot = Object.keys(MOLDES).filter(function (m) { return MOLDES[m].rotacion !== false && (MOLDES[m].nivel !== 'GP' || G.curso === 'GP'); }), i0 = (semana || 0) % rot.length;
     rot = rot.slice(i0).concat(rot.slice(0, i0));
     rot.forEach(function (m) { if (picks.length < 2 && !usado(m) && hist.indexOf(m) < 0) picks.push({ molde: m, P: Object.assign({}, MOLDES[m].ejemplos[0], { ficha: F.titulo }), e: null, motivo: 'rotacion' }); });
     return picks;
@@ -228,6 +284,29 @@
         return mi.map(function (i) { return !(sh[i] && vn[i] && pcEf(sh, i) === pcEf(vn, i)); });
       }
       if (key === 'dode_identifica') return est ? [est.selKind !== est.kind, +est.selN !== +est.n || est.selN == null] : null;
+      /* (18-oct-2026) los que faltaban: intervalos, inversiones y acordes; y las tonalidades de GP (el ejercicio entero: subs) */
+      var mismaNota = function (x, y) { return !!(x && y && x.step === y.step && (+x.alter || 0) === (+y.alter || 0) && +x.octave === +y.octave); };
+      if (key === 'int_clasif') {
+        var sd = motor._solData || [], ss = (resp && resp.sel) || [];
+        return sd.map(function (d, k) { var u = ss[k] || {}; return !(+u.num === +d.num && espN(u.esp) === espN(d.code)); });
+      }
+      if (key === 'intervalos_id') return ((est && est.subs) || []).map(function (x) { var u = x.sel || {}; return !(+u.num === +x.num && espN(u.esp) === espN(x.code)); });
+      if (key === 'int_constr') { var sc = motor._solData || [], rr = (resp && resp.resp) || []; return sc.map(function (d, k) { return !mismaNota(rr[k], d.n2); }); }
+      if (key === 'intervalos_build') return ((est && est.subs) || []).map(function (x) { return !mismaNota(x.resp, x._n2cat); });
+      if (/^(inv_simples|inv_compuestos|inversion_int_simples|inversion_int_compuestos)$/.test(key)) {
+        var ip = (motor._inv && motor._inv.pares) || (est && (est.pares || est.subs || (est._inv && est._inv.pares))) || null;
+        return ip && ip.some(function (x) { return x && '_ok' in x; }) ? ip.map(function (x) { return !(x && x._ok); }) : null;
+      }
+      if (/^(aco_identificar|aco_construir|inversion_aco_identifica|inversion_aco_construir)$/.test(key)) {
+        var ai = (motor._aco && motor._aco.items) || (est && (est.items || (est._aco && est._aco.items))) || null;
+        return ai && ai.some(function (x) { return x && '_ok' in x; }) ? ai.map(function (x) { return !(x && x._ok); }) : null;
+      }
+      if (key === 'acordes') {   /* solo los de construir (en los de identificar no se guarda qué contestó) */
+        var sa = motor._solData || [], ra = (resp && resp.resp) || [], nn = function (x) { return x ? x.step + (+x.alter || 0) : ''; };
+        return sa.map(function (d, k) { if (d.modo !== 'build' || !Array.isArray(d.objetivo)) return false; return (ra[k] || []).map(nn).sort().join(',') !== d.objetivo.map(nn).sort().join(','); });
+      }
+      if (key === 'ton_armadura' && est && Array.isArray(est.subs)) return est.subs.map(function (x) { return !(x.sel != null && +x.sel === +x.f); });
+      if (key === 'ton_nombre' && est && Array.isArray(est.subs)) return est.subs.map(function (x) { var q = +x.f; return !(x.selM && (String(x.selM.nota || '') + altS(x.selM.alt)) === MAY[q + 7] && x.selm && (String(x.selm.nota || '') + altS(x.selm.alt)) === MEN[q + 7]); });
       if (key === 'ton_tono_arm' || key === 'ton_armadura') {
         var sol = motor._solData || [], sel = (resp && resp.sel) || [];
         return sol.map(function (d, k) { return !(sel[k] != null && +sel[k] === +d.fifths); });
@@ -270,16 +349,12 @@
     if (!D.length) { ULT.nota = 'sin entregas digitales'; return null; }
     /* la ficha: sus ejercicios (los de una entrega) y los datos de cada uno (en GP, el propio ejercicio; en GE, su motor) */
     var ref = D[0], est0 = Array.isArray(ref.est) ? ref.est : [];
-    var motorDe = function (s, key) {
-      s = s || {}; if (gp) return { _spec: s };
-      var m = { _spec: s._spec, _solData: s._solData, sig: s.sig, _comSpec: s._comSpec };
-      if (key === 'terminos') m._terminos = s._terminos;
-      if (key === 'adorno_quiz' || key === 'abrev_quiz') m._quiz = s._quiz;
-      return m;
+    var motorDe = function (s) {   /* (18-oct) en GE, todo lo del ejercicio (sin su dibujo): _spec, _solData, _aco, _inv… */
+      s = s && typeof s === 'object' ? s : {}; return gp ? { _spec: s } : Object.assign({}, s);
     };
     var EJ = ref.ejs.map(function (e, i) { e = e || {}; return { i: i, n: +e.n || (i + 1), key: String(e.key || ''), enun: String(e.enun || '') }; })
       .filter(function (e) { return e.n <= 7; });
-    EJ.forEach(function (e) { e.motor = motorDe(est0[e.i], e.key); });
+    EJ.forEach(function (e) { e.motor = motorDe(est0[e.i]); });
     var F = { titulo: 'Ficha ' + N, ejercicios: EJ.map(function (e) { return { n: e.n, key: e.key, enun: e.enun, motor: e.motor }; }) };
     /* por ejercicio: [n, digitales, fallos dig., déficit dig., en papel, fallos papel, déficit papel, (fallos por apartado)] */
     var stats = EJ.map(function (e) {
@@ -291,7 +366,7 @@
         var ex = Array.isArray(x.est) ? (x.est[e.i] || null) : null;
         /* lo de cada uno: en GP, su ejercicio; en GE, su motor (los datos de su ficha) y, en términos, adornos y abreviaciones, lo que contestó */
         var f = gp ? fallados(e.key, e.motor, (Array.isArray(x.resp) ? x.resp : [])[e.i], ex, pc)
-          : fallados(e.key, ex ? motorDe(ex, e.key) : e.motor, (Array.isArray(x.resp) ? x.resp : [])[e.i], ex ? { x: e.key === 'terminos' ? ex._terminos : ex._quiz } : null, pc);
+          : fallados(e.key, ex ? motorDe(ex) : e.motor, (Array.isArray(x.resp) ? x.resp : [])[e.i], ex ? { x: e.key === 'terminos' ? ex._terminos : ex._quiz } : null, pc);
         if (f && f.length) { items = items || f.map(function () { return 0; }); f.forEach(function (v, k) { if (v && k < items.length) items[k]++; }); }
       });
       P.forEach(function (x) { var pc = +x.pct[e.n - 1]; if (!isFinite(pc)) return; s[4]++; if (pc < 99.5) { s[5]++; s[6] += (100 - pc) / 100; } });
@@ -302,6 +377,12 @@
     var G = { grupo: String(grupo || ''), curso: gp ? 'GP' : 'GE', stats: stats }, picks = [];
     try { picks = eligeOjos(G, F, [], +semana || 0); } catch (e) { picks = []; ULT.nota = 'error: ' + String(e && e.message || e).slice(0, 120); }
     ULT.stats = stats; ULT.alumnos = D.length + P.length;
+    /* para mirar: de cada ejercicio, el apartado que más se falló y lo que sacaría de él (null: ese tipo aún no da ¡Ojo!) */
+    ULT.ejercicios = EJ.map(function (e, j) {
+      var s = stats[j], it = s[7] ? s[7].indexOf(Math.max.apply(null, s[7])) : 0, Pj = null;
+      try { Pj = paramsDe(e.key, F.ejercicios[j], it); } catch (er) { Pj = 'error: ' + String(er && er.message || er).slice(0, 80); }
+      return { n: e.n, key: e.key, molde: moldeDe(e.key), fallos: s[2] + s[5], apartado: it, p: Pj };
+    });
     ULT.picks = picks.map(function (p) { return { m: p.molde, motivo: p.motivo, n: p.e ? p.e.n : null }; });
     var x = picks[clase === 'c2' ? 1 : 0];
     if (!x || x.motivo === 'rotacion') { ULT.nota = ULT.nota || 'nada que destacar'; return null; }

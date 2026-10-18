@@ -101,7 +101,10 @@ select{height:44px;border-radius:12px;border:1px solid var(--borde);background:v
 .o-cab .o-badge{width:72px;height:72px;border-radius:18px;font-size:54px;animation:none}
 .o-cabt{font:800 44px/1 "Helvetica Neue",Helvetica,Arial,sans-serif}
 .o-cabt b{color:#ec4899}
-.o-tag{position:absolute;left:96px;top:150px;font:600 28px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#aab4c5}
+/* (18-oct-2026, Iago: «es importante que en el ojo digas el título del tipo de ejercicio») el tipo, en la línea del «¡Ojo!», grande y blanco; la ficha, al lado y pequeña */
+.o-tag{display:flex;align-items:baseline;gap:18px;border-left:4px solid #ec4899;white-space:nowrap;font:800 44px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff}
+#stage .o-tag{margin-left:14px;padding-left:30px}
+.o-tag span{font:600 28px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#aab4c5}
 .o-tit{position:absolute;left:0;right:0;top:214px;text-align:center;font:800 92px/1 "Helvetica Neue",Helvetica,Arial,sans-serif}
 .o-lin{position:absolute;left:0;right:0;text-align:center;font:700 50px/1.15 "Helvetica Neue",Helvetica,Arial,sans-serif}
 .o-panel{position:absolute;background:#0e141d;border:2px solid #2d3643;border-radius:34px;display:none}
@@ -390,7 +393,8 @@ var DATOS = {"glifos": {"": "M376 415C374 427 376 428 382 434C490 535 572 662
     var cab = ver(el('div', 'o-cab', raiz), a + CAB);
     el('div', 'o-badge', cab, '!'); el('div', 'o-cabt', cab).innerHTML = '¡Ojo! <b>Cuidado con esto</b>';
     sfx('clic', a + CAB);
-    var tg = ver(el('div', 'o-tag', raiz, tag), a + CAB); tg.classList.add('ver');
+    var ix = String(tag).indexOf(' · '), fic = ix >= 0 ? tag.slice(0, ix) : '', tipo = ix >= 0 ? tag.slice(ix + 3) : String(tag);
+    var tg = el('div', 'o-tag', cab); el('b', '', tg, tipo); if (fic) el('span', '', tg, fic);   /* (18-oct-2026) el tipo, en la línea del «¡Ojo!» */
   }
   function panel(raiz, x, y, w, h, t) {
     var p = ver(el('div', 'o-panel', raiz), t); p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.width = w + 'px'; p.style.height = h + 'px';
@@ -3041,6 +3045,34 @@ var TEO = (function () {
   var NOMN = { C: 'Do', D: 'Re', E: 'Mi', F: 'Fa', G: 'Sol', A: 'La', B: 'Si' }, ALTN = { '-2': 'bb', '-1': 'b', '0': '', '1': '#', '2': 'x' };
   var TIPON = { natural: 'natural', 'armónica': 'armonica', 'melódica': 'melodica', 'dórica': 'dorica', 'tipo 1': 'tipo1', 'tipo 2': 'tipo2', 'tipo 3': 'tipo3', 'tipo 4': 'tipo4' };
   function sinTilde(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  /* (18-oct-2026, Iago: «que sea lo más certero posible» y «todos los tipos de ojo de elemental se podrían utilizar en grado
+     profesional») las notas de la ficha ({ step, alter, octave }) → 'Mi4', y los intervalos sin TEO (paramsDe va también en elige.js
+     y en el Diario, que no lo llevan) */
+  var LETN = 'CDEFGAB', SEMI7 = [0, 2, 4, 5, 7, 9, 11];
+  function nomNota(n) { var a = String(+(n && n.alter) || 0); return n && NOMN[n.step] && ALTN[a] != null && isFinite(+n.octave) && n.octave !== null && n.octave !== '' ? NOMN[n.step] + ALTN[a] + (+n.octave) : null; }
+  function construyeN(n1, num, code) {   /* la nota a «num» de n1, hacia arriba, con esa especie (J, M, m, A, d) */
+    var li = LETN.indexOf(n1 && n1.step), d = (+num || 0) - 1; if (li < 0 || d < 0) return null;
+    var s = d % 7, oc = Math.floor(d / 7), l2 = li + d, st2 = LETN[l2 % 7], o2 = +n1.octave + Math.floor(l2 / 7);
+    var just = s === 0 || s === 3 || s === 4, dif = (just ? { d: -1, J: 0, A: 1 } : { d: -2, m: -1, M: 0, A: 1 })[code];
+    if (dif == null) return null;
+    var alt = SEMI7[s] + 12 * oc + dif - ((o2 * 12 + SEMI7[l2 % 7]) - (+n1.octave * 12 + SEMI7[li] + (+n1.alter || 0)));
+    return Math.abs(alt) <= 2 ? { step: st2, alter: alt, octave: o2 } : null;
+  }
+  function espN(e) { e = String(e == null ? '' : e).replace(/\.$/, ''); return { Aum: 'A', Dis: 'd', aum: 'A', dis: 'd' }[e] || e; }
+  function baseInt(num, code) {   /* «Clasifica» de GE no guarda las notas: una pareja con ese intervalo (mejor, con una alteración arriba) */
+    var mejor = null, cs = ['D', 'E', 'A', 'G', 'C', 'F', 'B'];
+    for (var i = 0; i < cs.length; i++) {
+      var A = { step: cs[i], alter: 0, octave: 4 }, B = construyeN(A, num, code); if (!B || B.octave > 5) continue;
+      if (Math.abs(B.alter) === 1) return [A, B];
+      if (!mejor && B.alter === 0) mejor = [A, B];
+    }
+    return mejor;
+  }
+  function apartadosDe(M, S) {   /* los apartados de un ejercicio, estén donde estén (GE: _solData, _aco, _inv; GP: subs, items, pares) */
+    var x = [S.subs, S.items, S.pares, S._aco && S._aco.items, S._inv && S._inv.pares, M._aco && M._aco.items, M._inv && M._inv.pares, M._solData];
+    for (var i = 0; i < x.length; i++) if (Array.isArray(x[i]) && x[i].length) return x[i];
+    return [];
+  }
   /* (18-oct) las notas de una serie dodecafónica de la ficha ({ step, octave, acc }, en un solo compás: la alteración dura) → sus 12 sonidos (0–11) */
   var SEMIN = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }, ACCN = { '': 0, n: 0, b: -1, '#': 1 };
   function dodePcs(ns) {
@@ -3085,8 +3117,8 @@ var TEO = (function () {
     switch (key) {
       case 'modos': return S.tonica ? { t: NOMN[S.tonica.s] + ALTN[S.tonica.alt || 0] + (S.tonica.o || 4), modo: sinTilde(S._mode || S.tipo) } : null;
       case 'com_clasif': m = /^(\d+)\/(\d+)$/.exec(M.sig || (M._comSpec || {}).sig || ''); return m ? { num: +m[1], den: +m[2] } : null;
-      case 'ton_arm_tono': case 'ton_nombre': d = (M._solData || [])[k]; return d ? { q: d.fifths } : null;
-      case 'ton_tono_arm': case 'ton_armadura': d = (M._solData || [])[k]; m = d && /^(Do|Re|Mi|Fa|Sol|La|Si)(b|#)?(M|m)$/.exec(d.nom || ''); return m ? { t: m[1] + (m[2] || ''), menor: m[3] === 'm' } : null;
+      case 'ton_arm_tono': case 'ton_nombre': d = (M._solData || S.subs || [])[k]; return d && isFinite(d.fifths != null ? d.fifths : d.f) ? { q: +(d.fifths != null ? d.fifths : d.f) } : null;
+      case 'ton_tono_arm': case 'ton_armadura': d = (M._solData || S.subs || [])[k]; m = d && /^(Do|Re|Mi|Fa|Sol|La|Si)(b|#)?(M|m)$/.exec(d.nom || ''); return m ? { t: m[1] + (m[2] || ''), menor: m[3] === 'm' } : null;
       case 'indice': d = (S.notas || [])[k]; return d ? { n: NOMN[d.step] + ALTN[d.alter || 0] + d.oct, clave: d.clef === 'bass' ? 'fa' : 'sol' } : null;
       case 'comp_elegir': sub = (S.subs || [])[k]; c = sub && (sub.options || []).filter(function (o) { return o.ok; })[0]; d = c && durForma(c.form, c.spec); return d ? compasDe(d.tot, d.den) : null;
       case 'comp_rellenar': sub = (S.subs || [])[k]; d = sub && durForma(sub.form, sub.spec); return d ? compasDe(d.tot, d.den) : null;
@@ -3109,6 +3141,32 @@ var TEO = (function () {
       case 'blues':
         var kb = S.key && S.key.t; return kb && NOMN[kb[0]] ? (k >= 12 ? { l: kb[0], a: +kb[1] || 0, s7: true } : { l: kb[0], a: +kb[1] || 0, i: k }) : null;
       case 'seriearmonica': d = S.fund; return d && NOMN[d.step] ? { f: NOMN[d.step] + ALTN[d.alter || 0] + (d.octave == null ? 2 : d.octave), h: Math.min(8, k + 2) } : null;
+      /* (18-oct-2026) los que faltaban: intervalos, inversiones, acordes y cadencias, en GE y en GP (GP: el ejercicio entero; GE: su motor) */
+      case 'int_clasif': case 'intervalos_id':
+        d = apartadosDe(M, S)[k]; if (!d) return null;
+        if (d.n1 && d.n2 && +d.num <= 8) { var a1 = nomNota(d.n1), b1 = nomNota(d.n2); return a1 && b1 ? { a: a1, b: b1 } : null; }
+        var par = +d.num >= 2 && +d.num <= 8 ? baseInt(+d.num, espN(d.code)) : null; return par ? { a: nomNota(par[0]), b: nomNota(par[1]) } : null;
+      case 'int_constr': case 'intervalos_build':
+        d = apartadosDe(M, S)[k]; if (!d || !(+d.num >= 2 && +d.num <= 8) || !/^(J|M|m|A|d)$/.test(espN(d.code))) return null;
+        var n2 = d.n2 || d._n2cat, baj = d.direccion === 'desc' ? n2 : d.n1, ab = nomNota(baj);   /* hacia abajo: desde la de abajo, hacia arriba */
+        return ab ? { a: ab, num: +d.num, cal: espN(d.code) } : null;
+      case 'inv_simples': case 'inversion_int_simples': case 'inv_compuestos': case 'inversion_int_compuestos':
+        d = apartadosDe(M, S)[k]; if (!d || !Array.isArray(d.dada) || d.dada.length !== 2) return null;
+        var p1 = nomNota(d.dada[0]), p2 = nomNota(d.dada[1]); return p1 && p2 ? { a: p1, b: p2 } : null;
+      case 'acordes': case 'acordes_id': case 'acordes_build':
+        d = apartadosDe(M, S)[k]; if (!d) return null; var fu = nomNota(d.fund || d.root);
+        return fu && ['PM', 'Pm', 'Aum', 'Dis'].indexOf(d.tipo) >= 0 ? { r: fu, tipo: d.tipo } : null;
+      case 'aco_identificar': case 'aco_construir': case 'inversion_aco_identifica': case 'inversion_aco_construir':
+        d = apartadosDe(M, S)[k]; if (!d) return null; var ro = nomNota(d.root || d.fund);
+        if (!ro || ['PM', 'Pm', 'Aum', 'Dis', '7'].indexOf(d.tipo) < 0 || !(+d.inv >= 0 && +d.inv <= 3)) return null;
+        return /construir$/.test(key) ? { r: ro, tipo: d.tipo, estado: +d.inv, modo: 'construir' } : { r: ro, tipo: d.tipo, estado: +d.inv };
+      case 'cadencias': case 'cadencias_quiz':
+        var Gc = S.gen || M.gen || (M._cad && M._cad.gen); if (!Gc || !Gc.key || !Array.isArray(Gc.harm)) return null;
+        var kc = /^([A-G])(#|b)?$/.exec(Gc.key.name || ''), tc = /^(autentica|plagal|semicadencia|rota)(?:_(perfecta|imperfecta))?$/.exec(Gc.type || '');
+        if (!kc || !tc || Gc.harm.length < 2 || Gc.harm.length > 8) return null;
+        var Pc = { t: NOMN[kc[1]] + (kc[2] || ''), menor: Gc.mode === 'minor' || Gc.key.mode === 'minor', grados: Gc.harm.map(function (h) { return String(h.rn || '').slice(0, 6); }), tipo: tc[1] === 'semicadencia' ? 'semi' : tc[1] };
+        if (tc[2]) Pc.perfecta = tc[2] === 'perfecta';
+        return Pc;
     }
     if (/^test_/.test(key)) { var tr = key.slice(5).replace('_', '.'); return MOLDES.test.ejemplos.filter(function (x) { return x.tramo === tr; })[0] || null; }
     return null;
@@ -3131,7 +3189,9 @@ var TEO = (function () {
     E.forEach(function (e) { if (picks.length < 2 && e.fallos >= 2 && !usado(e.molde)) toma(e, 'error'); });
     E.forEach(function (e) { if (picks.length < 2 && e.fallos >= 1 && !usado(e.molde) && hist.indexOf(e.molde) < 0) toma(e, 'flojo'); });
     /* (18-oct) los moldes de temas que llegan más tarde en el curso (rotacion: false) solo salen por un error de verdad, nunca de repaso */
-    var rot = Object.keys(MOLDES).filter(function (m) { return MOLDES[m].rotacion !== false && (MOLDES[m].nivel === 'ambos' || MOLDES[m].nivel === G.curso); }), i0 = (semana || 0) % rot.length;
+    /* (18-oct-2026, Iago: «todos los tipos de ojo de elemental se podrían utilizar en grado profesional… son contenidos que se suman»)
+       en GP entran también los de GE; en GE, los de GP no */
+    var rot = Object.keys(MOLDES).filter(function (m) { return MOLDES[m].rotacion !== false && (MOLDES[m].nivel !== 'GP' || G.curso === 'GP'); }), i0 = (semana || 0) % rot.length;
     rot = rot.slice(i0).concat(rot.slice(0, i0));
     rot.forEach(function (m) { if (picks.length < 2 && !usado(m) && hist.indexOf(m) < 0) picks.push({ molde: m, P: Object.assign({}, MOLDES[m].ejemplos[0], { ficha: F.titulo }), e: null, motivo: 'rotacion' }); });
     return picks;
