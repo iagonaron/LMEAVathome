@@ -40,7 +40,7 @@
    · (17-oct-2026) LA PREVIA: en lugar de los 32 s de la preparación, la previa del aula (piel/previa/previa.html, en un marco):
      el aviso con la cuenta atrás y los recordatorios, «¡Ojo! Cuidado con esto» (el error más repetido de la última ficha del
      grupo, que calcula esta pantalla; si no hay, uno de repaso), un respiro y, en GE, un consejo. Dura lo que mida; si no está lista a
-     tiempo, la de siempre. «Saltar» (o Av Pág / → / Esc) vuelve a la de siempre. Y EL MANDO: Av Pág / Re Pág, B o «.», F5.
+     tiempo, la de siempre. «Saltar» vuelve a la de siempre. Y EL MANDO: arriba (Tab) play / pausa; → y ← (↓ ↑, Av Pág, Re Pág).
    Para quitarla en una pestaña: ?escaleta=0 (y ?escaleta=1 para volver). Para quitarla del todo: su línea en lm-piel.js.
    ===================================================================== */
 (function () {
@@ -1389,7 +1389,7 @@
      de la previa, el tecleo y los efectos, por el MASTER, como la pista de siempre).
      · El marco se abre (escondido) desde 8 min antes de la clase. Si al empezar la cuenta no está todo listo (el marco montado y
        el sonido cargado), la cuenta de siempre (32 s). Lo que se decide al empezar ya no cambia en esa clase (ni recargando).
-     · «Saltar» (abajo a la derecha, al mover el ratón), Av Pág, → o Esc la quitan: la cuenta atrás de siempre hasta el índice,
+     · «Saltar» (abajo a la derecha, al mover el ratón) la quita (el mando, en la previa, no hace nada): la cuenta atrás de siempre hasta el índice,
        con su pista donde vaya. Si el marco deja de dar señales (3,5 s), lo mismo.
      Para quitarla: PREVIA_ON = false. */
   var PREVIA_ON = true, PREVIA_V = '2026-10-18a', PREVIA_ADELANTE = 480;
@@ -2030,7 +2030,11 @@
      (18-oct-2026, Iago, con su Norwii N76: «el botón de arriba… es el que utilizaré para play y pause») su botón de arriba (Fn)
      manda Tab: Tab = pausa / seguir, y antes de empezar, el ▶ (como cualquier tecla de pausa). Sus flechas, de fábrica, mandan
      ↑ y ↓: como Re Pág y Av Pág. Las flechas valen también con el foco en un botón o un enlace. Mantener el de arriba es
-     Alt-Tab (cambia de ventana): ese no se toca. */
+     Alt-Tab (cambia de ventana): ese no se toca.
+     (18-oct-2026, Iago: «al pulsar el botón este de arriba, play, pause… el de la derecha, siguiente actividad… el de la izquierda,
+     anterior actividad. Ya está, sin funciones de mantener ni cosas extrañas») SOLO ESAS CUATRO: arriba (Tab) = play / pausa (antes
+     de empezar, el ▶); → (o ↓, Av Pág) = siguiente; ← (o ↑, Re Pág) = anterior. Lo que manda el mando al mantener un botón (F5, B,
+     Esc) ya no hace nada (F5, en clase, tampoco recarga) y en la previa el mando no hace nada. */
   var MANDO = true;
   function algoAbierto() {
     var lb = $('lb-ov'), dc = $('dcOverlay');
@@ -2040,21 +2044,20 @@
   D.addEventListener('keydown', function (e) {
     if (!MANDO || e.altKey || e.ctrlKey || e.metaKey) return;
     var k = e.key, q = '';
-    if (k === 'F5') q = 'empezar';
+    if (k === 'Tab' && !e.shiftKey) q = 'pausa';   /* (18-oct-2026) el botón de arriba del N76: play / pausa */
     else if (k === 'PageDown' || k === 'ArrowRight' || k === 'ArrowDown') q = 'sig';
     else if (k === 'PageUp' || k === 'ArrowLeft' || k === 'ArrowUp') q = 'ant';
-    else if (k === 'b' || k === 'B' || k === '.' || (k === 'Tab' && !e.shiftKey)) q = 'pausa';   /* (18-oct-2026) Tab: el botón de arriba del N76 */
-    else if (k === 'Escape' || k === 'Esc') q = 'esc';
+    else if (k === 'F5') q = 'f5';   /* mantener «<» en el mando: nada */
     if (!q || !cuenta()) return;
     var v = vista(ahora()); if (!v.c || v.fase === 'nada' || v.fase === 'acabada') return;
-    if (q === 'empezar') e.preventDefault();   /* el F5 del mando no recarga la página mientras hay clase */
-    if (PV.caja && PV.caja.classList.contains('lme-on')) { if (q === 'sig' || q === 'esc') { e.preventDefault(); e.stopPropagation(); pvSalta(); } return; }
-    if (q === 'esc' || (e.defaultPrevented && q !== 'empezar')) return;
+    if (q === 'f5') { e.preventDefault(); return; }   /* mientras hay clase, F5 no recarga la página (y no hace nada más) */
+    if (PV.caja && PV.caja.classList.contains('lme-on')) return;   /* en la previa, el mando no hace nada */
+    if (e.defaultPrevented) return;
     var tg = e.target; if (tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName || ''))) return;
     if (/^Arrow/.test(k) && (!PORTAL || (tg && tg !== D.body && tg !== H && !/^(BUTTON|A)$/.test(tg.tagName || '')))) return;
     if (algoAbierto()) return;
-    if (v.fase === 'clase' && v.a && UI && !UI.isla.hidden) { if (q === 'empezar') return; e.preventDefault(); audio(); despierto(true); accion(q); return; }
-    if ((v.fase === 'antes' || v.fase === 'entrada' || v.fase === 'parada') && UI && !UI.play.hidden && (q === 'sig' || q === 'empezar' || q === 'pausa')) { e.preventDefault(); audio(); despierto(true); accion('empezar'); }   /* (18-oct-2026) la pausa también es el ▶ */
+    if (v.fase === 'clase' && v.a && UI && !UI.isla.hidden) { e.preventDefault(); audio(); despierto(true); accion(q); return; }
+    if ((v.fase === 'antes' || v.fase === 'entrada' || v.fase === 'parada') && UI && !UI.play.hidden && q === 'pausa') { e.preventDefault(); audio(); despierto(true); accion('empezar'); }   /* (18-oct-2026) antes de empezar, solo el de arriba: el ▶ */
   });
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', function () { pintar(true); }); else pintar(true);
   W.LMEscaleta = { version: '15-oct-2026', app: APP, grado: GRADO,
