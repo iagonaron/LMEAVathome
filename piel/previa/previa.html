@@ -107,6 +107,10 @@ select{height:44px;border-radius:12px;border:1px solid var(--borde);background:v
 .o-tag span{font:600 28px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#aab4c5}
 .o-tit{position:absolute;left:0;right:0;top:214px;text-align:center;font:800 92px/1 "Helvetica Neue",Helvetica,Arial,sans-serif}
 .o-lin{position:absolute;left:0;right:0;text-align:center;font:700 50px/1.15 "Helvetica Neue",Helvetica,Arial,sans-serif}
+/* (19-oct-2026) el parrafito del tipo test: un panel oscuro centrado, con el texto que se teclea dentro */
+.o-ppar{left:200px;top:372px;width:1520px;height:auto}
+#stage .o-ppar{padding:44px 76px}
+.o-par{text-align:center;font:600 46px/1.45 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#eef2f7;text-wrap:balance}
 .o-panel{position:absolute;background:#0e141d;border:2px solid #2d3643;border-radius:34px;display:none}
 .o-panel.on{display:block}
 .o-panel svg{position:absolute;left:0;top:0;overflow:visible}
@@ -2381,36 +2385,159 @@ var TEO = (function () {
     } };
 
   /* ================= 22 · TIPO TEST DEL LIBRO (test_1_1 … test_9_2) =================
-     La pregunta del tramo que más se falló, sus tres opciones y la buena, rodeada. Nunca se enseña lo que se marcó mal. */
+     (19-oct-2026, Iago: «no quiero que el ojo sea literalmente responder, porque eso es simplemente decir cuál es la respuesta… Lo que
+     quiero es la explicación… la unidad de medida objetiva de la intensidad son los decibelios. El cero no existe. A partir de ciertos
+     decibelios es peligroso. Se mide con un sonómetro… un párrafo así, muy breve, pero que sea informativo, no la resolución del tipo
+     test… Puedes coger de referencia lo que se vio en la cabaña») De la pregunta del tramo que más se falló, ni la pregunta ni sus
+     opciones: el concepto, de título, y un parrafito que lo explica (EXPL_TEST, uno por pregunta del banco de la ficha; si la pregunta
+     no estuviera, el del tramo, EXPL_TRAMO). En el título, [lo rosa]; en el parrafito, *lo rosa*. */
   var TESTS = ['1_1', '1_2', '2_1', '2_2', '2_3', '3_1', '3_2', '3_3', '4_1', '4_2', '4_3', '5_1', '5_2', '8_1', '8_2', '8_3', '9_1', '9_2'];
+  function nqTest(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
+  var EXPL_TEST = {}, EXPL_TRAMO = {
+    "1.1": ["El [fonógrafo]", "El *fonógrafo* (Edison, *1877*) fue el primer aparato capaz de *grabar y reproducir* sonido: una aguja grababa las vibraciones en un *cilindro de cera*, y el cono hacía de micrófono y de resonador."],
+    "1.2": ["Compases [poco habituales]", "Un mismo compás irregular se puede escribir de tres formas: *mixto* (2/4 + 1/8), *decimal* (2,5/4) y *fraccionario* (un 2/4 con medio pulso más). Bartók y Kodály los encontraron en la *música popular*."],
+    "2.1": ["Duración e [intensidad]", "El sonido es una *onda mecánica*. Sus rebotes se oyen como *reverb* (menos de 50 ms) o como *eco* (más de 50 ms). La intensidad se mide en *decibelios (dB)*, con un *sonómetro*."],
+    "2.2": ["Altura y [timbre]", "La *altura* se mide en *hercios (Hz)*: el La4 vibra a *440 Hz* y oímos de 20 a 20.000 Hz. El *timbre* depende de *cuánto suena cada armónico*."],
+    "2.3": ["La [serie armónica]", "Cada nota trae su *fundamental* y sus *armónicos*, siempre hacia el agudo. Estudiamos los *8 primeros*: los 1, 2, 4 y 8 son la misma nota, en *octavas*."],
+    "3.1": ["La [atonalidad]", "La música *atonal* no tiene *centro tonal*. El azar puede entrar al *crear* la obra (los dados) o al *interpretarla*; y en la composición libre decide el compositor, sin azar ni reglas."],
+    "3.2": ["El [dodecafonismo]", "*Schoenberg*: los *12 sonidos* sin repetir ninguno hasta que suenen todos. La serie *P0*, su retrógrada (*R*), su inversión (*I*) y la RI, en los 12 transportes: *48 variaciones*."],
+    "3.3": ["Música [estocástica]", "La música *estocástica* (*Xenakis*, *Metástasis*) nace de la *probabilidad* y los datos: a cada dato se le asigna un *parámetro musical*."],
+    "4.1": ["El [magnetófono]", "El *magnetófono* (Alemania, *años 30*) graba *magnetizando una cinta* de partículas metálicas: el cabezal es un *electroimán*. Nada que ver con el surco del fonógrafo."],
+    "4.2": ["Música [concreta]", "Con el magnetófono nace la *música concreta*: *sonidos grabados* que se manipulan en la cinta, cortando y pegando *de verdad*, acelerando, rebobinando…"],
+    "4.3": ["Nuevas [grafías]", "Las *nuevas grafías* (escritura moderna) reducen la partitura a la *mínima expresión*: ya no se agrupa por pulsos y el compás deja de ser relevante."],
+    "5.1": ["El [blues]", "El *blues* nace de los *cantos de trabajo* de los esclavos africanos en América: modo *mixolidio*, *12 compases*, pregunta y respuesta e *improvisación*. Es el abuelo del rock."],
+    "5.2": ["GVE en [varios pulsos]", "Para los *grupos de valoración especial en varios pulsos*: primero, un *compás modelo*; luego, el *borrador*, con tantos grupos como pulsos. Lo razonado *se guarda* y se reutiliza."],
+    "8.1": ["La [modulación]", "*Modular* es *viajar de una tonalidad a otra*. Le da al compositor más recursos, como explorar el mapa en un mundo abierto: *diatónica*, *cromática* o *enarmónica*."],
+    "8.2": ["Modulación [diatónica]", "La modulación *diatónica* usa un *acorde puente común* a las dos tonalidades (mismas notas y mismo modo) y se asienta con la *dominante*, mayor y con 7.ª."],
+    "8.3": ["Otras [modulaciones]", "La *cromática* va a tonalidades lejanas con acordes que solo cambian en *algún cromatismo*; la *enarmónica*, la menos común, *reinterpreta* notas del acorde puente."],
+    "9.1": ["El [transporte]", "*Transportar* es tocar o escribir una obra *en otra tonalidad*, sin cambiar el modo. El transporte *escrito* reescribe la obra: cuesta hacerlo, pero luego solo hay que tocar."],
+    "9.2": ["Transporte [mental]", "En el transporte *mental* se cambian, en la cabeza, la *armadura* y la *clave*. Las *diferencias* corrigen las alteraciones accidentales para que el intervalo sea exacto."]
+  };
+  [
+    ["¿Quién presentó el fonógrafo en 1877?", "Edison y el [fonógrafo]", "El fonógrafo lo presentó *Thomas Edison* en *1877*. Fue el primer aparato capaz de *grabar y reproducir* el sonido: una aguja grababa las vibraciones de la voz en un cilindro."],
+    ["¿De qué material era el cilindro donde se grababa el sonido en el fonógrafo?", "El cilindro de [cera]", "En el fonógrafo, el sonido se grababa en un *cilindro de cera*: la aguja abría un *surco* que copiaba las vibraciones. El disco de vinilo y la cinta magnética llegaron mucho después."],
+    ["En el fonógrafo, ¿qué función cumple el cono?", "El [cono] del fonógrafo", "El *cono* hacía dos trabajos. Al grabar, recogía la voz y la llevaba hasta la aguja: era el *micrófono*. Al reproducir, agrandaba el sonido que sacaba la aguja para que se oyera: era el *resonador*."],
+    ["¿Cuál era una limitación clara del fonógrafo?", "Los cilindros se [gastaban]", "Cada vez que se escuchaba un cilindro, la aguja *desgastaba el surco*, y el sonido se iba perdiendo *con cada uso*. Y no necesitaba electricidad: era un aparato *mecánico*, de manivela."],
+    ["El fonógrafo fue importante porque permitió, por primera vez…", "Grabar y [reproducir]", "Con el fonógrafo, por primera vez, el sonido se pudo *guardar*: *grabar* lo que sonaba y *reproducirlo* después. Hasta entonces, la música solo existía mientras alguien la tocaba."],
+    ["Los compases mixtos se caracterizan por…", "Compases [mixtos]", "Un compás *mixto* une compases con *denominadores distintos*, como *2/4 + 1/8*: dos negras y una corchea. Es una de las tres formas de escribir el mismo compás, junto al decimal y al fraccionario."],
+    ["¿Qué distingue a un compás decimal?", "Compases [decimales]", "En un compás *decimal*, el *numerador lleva decimales*: *2,5/4* son dos negras y media, es decir, dos negras y una corchea. El denominador sigue diciendo la figura del pulso."],
+    ["Un compás fraccionario es…", "Compases [fraccionarios]", "Un compás *fraccionario* es un compás de los de siempre al que se le *suma o se le resta una fracción* de pulso. Por ejemplo, un 2/4 con *medio pulso más*: dos negras y una corchea."],
+    ["En un compás fraccionario, la fracción hace referencia a…", "La fracción es del [pulso]", "En el compás fraccionario, la fracción se cuenta sobre la *figura del pulso*. Si el pulso es la negra, *½* es media negra (una corchea) y *¼*, un cuarto de negra (una semicorchea)."],
+    ["Mixtos, decimales y fraccionarios son…", "Tres formas, [un compás]", "*Mixto*, *decimal* y *fraccionario* son *tres maneras de escribir lo mismo*: 2/4 + 1/8, 2,5/4 y un 2/4 con medio pulso más duran exactamente igual. Cambia la escritura, no lo que suena."],
+    ["Bartók y Kodály hallaron estos ritmos inusuales investigando…", "Bartók y [Kodály]", "*Bartók* y *Kodály* recorrieron las *aldeas* de Hungría y sus alrededores grabando con fonógrafo la *música popular*. Allí encontraron estos ritmos irregulares y los llevaron a sus obras: es el *Nacionalismo musical*."],
+    ["El sonido es una vibración que se propaga como…", "Una [onda mecánica]", "El sonido es una *vibración* que viaja como *onda mecánica*: necesita un *medio* (aire, agua, madera…) para propagarse. Por eso en el *vacío* no hay sonido."],
+    ["Una reflexión del sonido inferior a 50 ms se percibe como…", "La [reverb]", "Cuando el sonido rebota y vuelve en *menos de 50 ms*, el oído no lo separa del original: lo oímos pegado a él, como una *cola* que alarga el sonido. Es la *reverb*."],
+    ["Una reflexión superior a 50 ms se percibe como…", "El [eco]", "Si el rebote tarda *más de 50 ms* en volver, el oído ya lo separa del sonido original y lo oímos *repetido*: es el *eco*. Con menos de 50 ms no se separa: es la reverb."],
+    ["La capacidad del sonido de atravesar los materiales se llama…", "La [refracción]", "La *refracción* es la capacidad del sonido de *atravesar los materiales*. Por eso oímos la música del vecino a través de la pared, aunque apagada: pasan sobre todo los *graves*."],
+    ["Que el sonido gire esquinas o se cuele por huecos minúsculos es la…", "La [difracción]", "Por la *difracción*, el sonido *rodea los obstáculos* y se cuela por *huecos* muy pequeños. Por eso oyes a alguien que habla detrás de una esquina, aunque no lo veas."],
+    ["La unidad objetiva para medir la intensidad es…", "Los [decibelios]", "Piano o forte son medidas *subjetivas*. La unidad *objetiva* de la intensidad es el *decibelio (dB)*, y se mide con un *sonómetro*. El *0 dB* no es el silencio (que no existe): es lo más débil que oímos. Por encima de *85 dB*, durante horas, el oído se daña."],
+    ["Para que una sala suene seca (rebote mínimo) se usan materiales…", "Una sala [seca]", "Para que una sala suene *seca*, casi sin rebote, se llena de materiales *absorbentes*: cortinas, alfombras, paneles, muebles… Las superficies duras y lisas (metal, cristal, azulejo) hacen lo contrario: *reflejan*."],
+    ["La altura del sonido se mide objetivamente en…", "La altura, en [hercios]", "La *altura* (si un sonido es agudo o grave) se mide en *hercios (Hz)*: cuantas más vibraciones por segundo, más aguda es la nota. Los decibelios miden otra cosa: la intensidad."],
+    ["Los hercios indican…", "¿Qué es un [hercio]?", "Un *hercio* es *una vibración por segundo*. El La4 vibra *440 veces* cada segundo: 440 Hz. Si doblas los hercios, la nota sube una *octava*: 880 Hz es el La5."],
+    ["La frecuencia de resonancia del La4 (afinación estándar) es…", "El [La 440]", "La nota de afinación estándar es el *La4 = 440 Hz*: el La del diapasón, con el que afina la orquesta. Una octava más grave, el La3, vibra a la mitad: *220 Hz*."],
+    ["El límite inferior de la audición humana está en torno a…", "De [20] a 20.000 Hz", "El oído humano oye, más o menos, de *20 Hz* (lo más grave) a *20.000 Hz* (lo más agudo). Por debajo están los *infrasonidos*; por encima, los *ultrasonidos*, que sí oye un murciélago."],
+    ["El timbre es la cualidad que permite…", "El [timbre]", "El *timbre* es el «color» del sonido: lo que te deja saber si una nota la toca un *oboe*, un *clarinete* o la canta una *voz*, aunque sea la misma nota y con la misma fuerza."],
+    ["El timbre se determina por…", "El timbre y los [armónicos]", "Toda nota lleva dentro sus *armónicos*. El timbre depende de *cuánto suena cada uno*, de la *proporción* entre sus intensidades. Cambia esa proporción y un *oboe* empieza a sonar a *clarinete*."],
+    ["La misma nota en dos instrumentos distintos: sus armónicos…", "Misma nota, [otro timbre]", "Un oboe y un clarinete que tocan el mismo La tienen sus armónicos *en los mismos sitios* (las mismas frecuencias). Lo que cambia es *cuánto suena cada armónico*: por eso suenan distinto."],
+    ["Un sonido es \"puro\" (sin armónicos) solo cuando…", "El sonido [puro]", "Un sonido *puro*, sin armónicos (una sola frecuencia), no lo da ningún instrumento ni ninguna voz: solo se consigue *sintetizándolo*, con un oscilador. Por eso suena tan «electrónico»."],
+    ["Al tocar una nota, en realidad escuchamos…", "La [serie armónica]", "Cuando suena una nota no oímos un sonido solo: oímos la *fundamental* (la nota que reconocemos) y, encima, sus *armónicos*, más débiles. Juntos forman la *serie armónica* y le dan su timbre."],
+    ["La serie armónica que estudiamos se acota a los…", "Los [8 primeros]", "Los armónicos siguen hacia el agudo, cada vez *más débiles* y *más juntos*. Por eso, de la serie armónica estudiamos solo los *8 primeros sonidos*."],
+    ["El código de la serie se refiere a intervalos…", "Siempre [hacia arriba]", "La serie armónica se construye *hacia el agudo*, empezando en la *fundamental*: los intervalos de su código son *siempre ascendentes*. La serie nunca baja de la fundamental."],
+    ["En la serie de un Mi, las posiciones 1, 2, 4 y 8 son…", "1, 2, 4 y 8: [octavas]", "En la serie armónica, las posiciones *1, 2, 4 y 8* son siempre *la misma nota* que la fundamental, cada vez una *octava* más arriba. En la serie de Mi: *Mi*, *Mi*, *Mi* y *Mi*."],
+    ["Un tambor suena \"indeterminado\" porque…", "Altura [indeterminada]", "Un *tambor* produce *tantísimos armónicos*, y tan desordenados, que el cerebro no consigue colocarlos en una nota. Por eso decimos que su sonido es de *altura indeterminada*."],
+    ["El intervalo entre la fundamental y el 2.º armónico es una…", "Del 1 al 2: [octava]", "Entre la fundamental y el *2.º armónico* hay una *octava*: el 2.º vibra *el doble* de rápido. Si la fundamental es un La de 220 Hz, el 2.º armónico es el La de 440 Hz."],
+    ["La atonalidad se define, a grandes rasgos, como música que…", "La [atonalidad]", "La música *atonal* no tiene un *centro tonal*: ninguna nota manda sobre las demás. No hay tónica a la que volver, ni jerarquía de reposo y tensión como en la música tonal."],
+    ["La aleatoriedad puede aparecer en dos momentos:", "El [azar], ¿cuándo?", "El *azar* puede entrar en la música en dos momentos: al *crearla* (el compositor decide tirando dados, por ejemplo) o al *interpretarla* (el músico decide mientras toca). O en los dos."],
+    ["Lanzar unos dados asignando un sonido a cada número es aleatoriedad en…", "Azar al [crear]", "Si el compositor tira *dados* y a cada número le asigna un sonido, el azar está en la *creación*. Una vez escrita, la obra queda *fija*: se toca siempre igual."],
+    ["Si el intérprete sigue indicaciones para ir construyendo la obra, la aleatoriedad está en…", "Azar al [interpretar]", "Si la partitura da *indicaciones* y el músico va *construyendo la obra* mientras la toca, el azar está en la *interpretación*: cada vez que se toca, suena distinta."],
+    ["La \"composición libre\" atonal consiste en…", "Composición [libre]", "En la *composición libre* atonal no hay azar ni reglas fijas como las del dodecafonismo: cada nota es una *decisión particular* del compositor."],
+    ["El dodecafonismo fue impulsado sobre todo por…", "[Schoenberg]", "El *dodecafonismo* lo impulsó sobre todo *Arnold Schoenberg*, en *Viena*, en los años 20 del siglo XX. Lo siguieron sus alumnos *Berg* y *Webern*."],
+    ["La regla básica del dodecafonismo es…", "Los [12 sonidos]", "La regla del *dodecafonismo*: usar los *12 sonidos* de la escala cromática *sin repetir ninguno* hasta que hayan sonado todos. Así ninguna nota se convierte en tónica."],
+    ["La serie original se llama…", "La serie [P0]", "La serie original, tal como la escribe el compositor, se llama *P0* (*Principal cero*). De ella salen las demás: la retrógrada (*R*), la inversión (*I*) y sus transportes."],
+    ["Obtener P5 significa…", "Transportar: [P5]", "El número dice el *transporte* en *semitonos ascendentes*: *P5* es la serie original subida *5 semitonos*. Si P0 empieza en Do, P5 empieza en *Fa*."],
+    ["La serie retrógrada (R) consiste en…", "La [retrógrada]", "La *retrógrada (R)* es la serie *al revés*: de la última nota a la primera. Los mismos sonidos, leídos hacia atrás."],
+    ["La inversión (I) consiste en…", "La [inversión]", "En la *inversión (I)*, cada intervalo *cambia de dirección*: lo que subía, *baja*, y lo que bajaba, *sube*, con los mismos semitonos. Es la serie en espejo."],
+    ["Sumando todas las variantes, la serie principal genera un total de…", "[48] variaciones", "Cada forma de la serie (*P*, *R*, *I* y *RI*, la retrógrada de la inversión) se puede transportar a los *12 sonidos*: 4 × 12 = *48 variaciones* de una sola serie."],
+    ["El serialismo integral se caracteriza por…", "Serialismo [integral]", "El *serialismo integral* lleva la idea de la serie más allá de las notas: también se ordenan en series el *ritmo*, la *intensidad*, el *timbre*, las articulaciones…"],
+    ["Para los dodecafónicos, la octava en la que se coloca cada nota…", "La octava, [libre]", "Para los dodecafónicos cuenta el *nombre de la nota*, no su *octava*: un Do puede sonar grave o agudo y sigue siendo el mismo sonido de la serie."],
+    ["La música estocástica se basa en…", "Música [estocástica]", "La música *estocástica* nace de procesos *matemáticos*: la *probabilidad* y el análisis de datos. Su gran nombre es *Iannis Xenakis*, que además era ingeniero y arquitecto."],
+    ["Un ejemplo de obra estocástica es…", "[Metástasis]", "*Metástasis*, de *Iannis Xenakis*, es el ejemplo clásico de música estocástica: los glissandos de la cuerda se calcularon como líneas rectas, igual que en sus planos de arquitectura."],
+    ["En la música estocástica se parte de datos a los que…", "De los datos [a la música]", "Se parte de *datos* (números, cálculos, estadísticas) y a cada dato se le asigna un *parámetro musical*: una altura, una duración, una intensidad… Los números deciden la música."],
+    ["La música estocástica encaja dentro de la música…", "Estocástica y [atonal]", "La música estocástica es *atonal*, y su azar está en la *creación*: los cálculos deciden las notas, pero una vez escrita, la obra se toca siempre igual."],
+    ["El magnetófono graba el sonido mediante…", "El [magnetófono]", "El *magnetófono* graba el sonido *magnetizando una cinta*: la señal ordena las partículas de la cinta y, al leerlas otra vez, el sonido vuelve."],
+    ["El magnetófono nació en Alemania en los años…", "Alemania, [años 30]", "El magnetófono nació en *Alemania* en los *años 30* y se comercializó en los *50*. Con él llegó la grabación en *cinta*, que se podía cortar, pegar y volver a grabar."],
+    ["Las partículas de la cinta de cassette son…", "Partículas [magnéticas]", "La cinta, como la del *casete*, está cubierta de *partículas metálicas* que se pueden *magnetizar*. Al grabar, la señal las ordena; al reproducir, ese orden vuelve a ser sonido."],
+    ["La cinta pasa por un cabezal que es…", "El [cabezal]", "El *cabezal* es un *electroimán*: una *bobina* de cable enrollada. Al grabar, la señal crea un campo magnético que magnetiza la cinta que pasa por delante."],
+    ["Respecto al fonógrafo, el magnetófono es un sistema de grabación…", "Mecánico y [magnético]", "El fonógrafo era *mecánico*: una aguja abría un surco en cera. El magnetófono es *magnético*: no hay surco, la cinta guarda el sonido en sus partículas. Son sistemas *totalmente distintos*."],
+    ["La música concreta surge al popularizarse…", "Música [concreta]", "La *música concreta* surge cuando se populariza el *magnetófono*: por fin se podían grabar sonidos en cinta y *manipularlos*. Su pionero fue *Pierre Schaeffer*, en París."],
+    ["La música concreta consiste en…", "Sonidos [grabados]", "La *música concreta* se hace con *sonidos grabados* (trenes, voces, objetos…) que luego se *manipulan*: cortar, pegar, acelerar, ralentizar, dar la vuelta a la cinta…"],
+    ["\"Cortar y pegar\" en la música concreta era…", "Tijeras y [cinta]", "En la música concreta, cortar y pegar era *literal*: se cortaba la *cinta* con cuchilla y se pegaba en otro orden. Mucho antes de cortar y pegar en el ordenador."],
+    ["¿Cuál NO es una manipulación típica de la música concreta?", "Manipular la [cinta]", "Las manipulaciones de la música concreta se hacen con la *cinta*: *rebobinar*, *acelerar o decelerar*, cortar y pegar, hacer bucles… *Armonizar a cuatro voces* es otra cosa: armonía clásica."],
+    ["Las nuevas grafías (escritura moderna) buscan…", "Nuevas [grafías]", "Las *nuevas grafías* reducen la escritura a la *mínima expresión gráfica*: solo lo necesario para tocar, sin agrupar por pulsos ni detallar cada cosa."],
+    ["En la notación tradicional, la prioridad es…", "Agrupar por [pulsos]", "En la notación *tradicional*, lo primero es *agrupar las figuras por pulsos*: así el músico ve de un vistazo dónde cae cada parte del compás."],
+    ["Otro nombre de las nuevas grafías es…", "Escritura [moderna]", "A las *nuevas grafías* también se las llama *escritura moderna* o *notación minimalista*: escribir la música con el mínimo de signos."],
+    ["En las nuevas grafías, el compás indicado…", "El compás, [sin importancia]", "En las nuevas grafías el *compás no es relevante*: como ya no se agrupa por pulsos, el compás escrito deja de importar para leer la música."],
+    ["El blues nace de…", "El origen del [blues]", "El *blues* nace de los *cantos de trabajo* de los *esclavos africanos* en América, en las plantaciones del sur de Estados Unidos, a finales del siglo XIX."],
+    ["La escala característica del blues es el modo…", "Blues y [mixolidio]", "El blues se apoya en el modo *mixolidio*: una escala mayor con la *7.ª rebajada*. Por ejemplo, Sol mixolidio: sol, la, si, do, re, mi y *fa natural*."],
+    ["La estructura típica del blues es de…", "[12] compases", "El blues típico dura *12 compases*, en *tres frases* de cuatro: la primera dice algo, la segunda lo repite y la tercera responde."],
+    ["El estilo \"responsorial\" del blues consiste en…", "Pregunta y [respuesta]", "En el estilo *responsorial*, *uno canta* una frase y *los demás responden*, como en los cantos de trabajo. También pasa entre la voz y la guitarra: una pregunta, la otra contesta."],
+    ["El blues recupera de los antiguos el valor de…", "[Improvisar]", "Frente a la partitura cerrada, en la que el compositor lo indica todo, el blues recupera la *improvisación*, como hacían los músicos antiguos: cada versión es distinta."],
+    ["El blues es una mezcla de expresividad africana, show estadounidense y técnica…", "Una [mezcla]", "El blues mezcla tres mundos: la *expresividad africana*, el *espectáculo estadounidense* y la *técnica europea*, con sus instrumentos y su armonía."],
+    ["¿Cuál de estos géneros tiene al blues como \"abuelo\"?", "El [abuelo] del rock", "El blues es el abuelo de buena parte de la música de hoy: de él vienen el *rock*, el *pop*, el *soul* y el *hip hop*."],
+    ["El reto rítmico central del 2.º trimestre son…", "GVE en [varios pulsos]", "El gran reto rítmico del *2.º trimestre* son los *grupos de valoración especial* (tresillos, cinquillos…) repartidos en *varios pulsos*."],
+    ["El primer paso del método es…", "Paso 1: [compás modelo]", "El método para los grupos de valoración especial en varios pulsos empieza siempre por el mismo paso: *establecer un compás modelo*. Todo lo demás se apoya en él."],
+    ["Al hacer el borrador se ponen tantos grupos de la valoración especial como…", "El [borrador]", "En el *borrador* se escriben *tantos grupos* de la valoración especial *como pulsos tiene el compás*: para un cinquillo en 3 pulsos, *3 cinquillos*."],
+    ["Una vez razonado un grupo (p. ej. cinquillo en 3 pulsos)…", "Se [guarda] y se reutiliza", "Un grupo se razona *una sola vez*: cuando ya sabes cómo va, por ejemplo, un *cinquillo en 3 pulsos*, *guardas su estructura* y la aplicas tal cual cada vez que vuelva a salir."],
+    ["Modular consiste en…", "[Modular]", "*Modular* es *viajar de una tonalidad a otra* dentro de la misma obra: la música cambia de casa y una nueva tónica pasa a mandar."],
+    ["La tonalidad se definió como…", "La [tonalidad]", "La *tonalidad* es un *sistema jerárquico* de sonidos: la *tónica* es el reposo, la *dominante* es la tensión, y cada grado tiene su papel alrededor de ellas."],
+    ["Modular aporta al compositor…", "¿Para qué [modular]?", "Modular le da al compositor *más recursos*: nuevas tonalidades, nuevos colores y un *espacio sonoro más amplio*, para que la obra no se quede siempre en la misma casa."],
+    ["El libro compara modular con…", "Como en [Zelda]", "El libro compara modular con un *videojuego de mundo abierto*, como *Zelda*: sales de tu zona, viajas a otras regiones (otras tonalidades) y siempre puedes volver."],
+    ["Entre las formas de modular mencionadas están…", "Tres [modulaciones]", "Hay tres formas de modular: *diatónica* (con acordes comunes), *cromática* (con acordes que solo cambian en algún cromatismo) y *enarmónica* (reinterpretando notas)."],
+    ["La modulación diatónica utiliza…", "Modulación [diatónica]", "La modulación *diatónica* usa *uno o varios acordes comunes* a las dos tonalidades: un acorde que pertenece a la de antes y a la nueva hace de *puente*."],
+    ["El acorde puente debe…", "El acorde [puente]", "El *acorde puente* tiene que ser *común* a las dos tonalidades: las *mismas notas* y el *mismo modo* (mayor o menor) en una y en otra."],
+    ["Al elegir el acorde común hay que evitar…", "Lo que [no comparten]", "Al buscar el acorde común hay que *evitar los sonidos que las dos tonalidades no comparten*: si un acorde lleva una de esas notas, ya no sirve de puente."],
+    ["Los acordes de dominante se escriben…", "Dominante [con 7.ª]", "Los acordes de *dominante* se escriben *con 7.ª*. Es una cuestión de *estilo*: la 7.ª refuerza la tensión que pide resolver en la tónica."],
+    ["Por definición, un acorde de dominante es…", "La dominante, [mayor]", "Un acorde de *dominante* es siempre *mayor*, diga lo que diga la armadura. En las tonalidades menores hay que *subir la sensible* con una alteración accidental."],
+    ["Para asentar la tonalidad B, en la última casilla se opta siempre por…", "Asentar con la [dominante]", "Para asentar la nueva tonalidad (la B), en la última casilla va siempre su *dominante*: la tensión que pide resolver en la nueva tónica y la deja confirmada."],
+    ["En el ejemplo Do M → Sol M, la nota a evitar en el acorde común es…", "Do M → Sol M: [el Fa]", "De *Do M* a *Sol M* casi todas las notas son iguales, menos el *Fa*: natural en Do y *sostenido* en Sol. Por eso el acorde puente no puede llevar Fa."],
+    ["La modulación cromática es útil cuando…", "Modulación [cromática]", "La modulación *cromática* sirve para ir a tonalidades *lejanas*, que no tienen acordes comunes, pero sí acordes *parecidos*: cambian solo en algún cromatismo."],
+    ["En la modulación cromática, los acordes puente se diferencian solo por…", "Un [cromatismo]", "En la modulación cromática, los acordes puente se diferencian solo en *algún cromatismo*. Por ejemplo, Do mayor (do, mi, sol) y Do menor (do, *mi♭*, sol)."],
+    ["La modulación enarmónica se obtiene mediante…", "Modulación [enarmónica]", "La modulación *enarmónica* *reinterpreta* (enarmoniza) una o varias notas del acorde puente: el mismo sonido cambia de nombre, como *Fa♯ = Sol♭*, y abre la puerta a otra tonalidad."],
+    ["¿Cuál de estas modulaciones es la menos común?", "La [menos común]", "La modulación más habitual es la *diatónica*; la *menos común*, la *enarmónica*, que necesita reinterpretar (enarmonizar) notas del acorde puente."],
+    ["Transportar es…", "[Transportar]", "*Transportar* es *escribir o tocar una obra en otra tonalidad*: todas las notas suben o bajan el mismo intervalo, y la música suena igual, solo que más aguda o más grave."],
+    ["En el transporte, el modo…", "El modo, [igual]", "Al transportar, el *modo no cambia*: si la obra está en mayor, sigue en mayor. El transporte es *absoluto*: todas las notas se mueven el mismo intervalo."],
+    ["El transporte escrito consiste en…", "Transporte [escrito]", "El transporte *escrito* consiste en *reescribir la pieza*, nota a nota, en la nueva tonalidad, con su nueva armadura."],
+    ["Una desventaja del transporte escrito es…", "La [pega]", "La pega del transporte escrito: hay que *reescribir la obra entera*, y eso lleva su tiempo."],
+    ["Una ventaja del transporte escrito es…", "La [ventaja]", "La ventaja del transporte escrito: *una vez hecho, solo tocas*, sin pensar más. Todo el trabajo se queda resuelto en el papel."],
+    ["El transporte mental consiste en…", "Transporte [mental]", "El transporte *mental* aprovecha la *partitura original*, con pocas anotaciones, y se transporta *al vuelo*, mientras se toca o se canta."],
+    ["Para el transporte mental cambiamos mentalmente la armadura y…", "Armadura y [clave]", "Para transportar mentalmente se cambian dos cosas en la cabeza: la *armadura*, la de la nueva tonalidad, y la *clave*, que sirve para *renombrar las notas*."],
+    ["Las \"diferencias\" son…", "Las [diferencias]", "Las *diferencias* son los cambios que sufren las *alteraciones accidentales* al pasar de una tonalidad a otra: una alteración del original puede tener que subir o bajar."],
+    ["¿Por qué existen las diferencias?", "¿Por qué [diferencias]?", "Las diferencias existen para que el *intervalo de transporte* sea *exacto*: con el cambio de clave las notas caen en su sitio, pero sus alteraciones hay que corregirlas."],
+    ["De Re M (2♯) a Fa M (1♭) hay…", "Re M → Fa M: [3]", "De *Re M* (2♯) a *Fa M* (1♭) hay *3 diferencias descendentes*: se pierden los 2 sostenidos y se gana 1 bemol (2 + 1 = 3), siempre hacia los bemoles."],
+    ["Las diferencias se llaman \"descendentes\" cuando…", "Diferencias [descendentes]", "Las diferencias son *descendentes* cuando vamos *de sostenidos hacia bemoles*: las notas afectadas *bajan* medio tono."],
+    ["Si una nota afectada tenía un ♯, al aplicar una diferencia descendente le ponemos…", "♯ → [♮]", "Una diferencia *descendente* baja la alteración un paso: el *♯ pasa a ♮*, el ♮ pasa a ♭, y el ♭, a doble bemol."]
+  ].forEach(function (r) { EXPL_TEST[nqTest(r[0])] = [r[1], r[2]]; });
+  function explTest(P) {
+    var e = EXPL_TEST[nqTest(P.q)] || EXPL_TRAMO[P.tramo], rosa = function (s, re) { return esc(s).replace(re, '<span class="rosa">$1</span>'); };
+    if (!e) return { t: 'Test <span class="rosa">' + esc(P.tramo) + '</span>', x: esc(P.titulo || '') };
+    return { t: rosa(e[0], /\[([^\]]+)\]/g), x: rosa(e[1], /\*([^*]+)\*/g) };
+  }
   MOLDES.test = { nombre: 'Tipo test del libro', area: 'Teoría del libro', claves: TESTS.map(function (k) { return 'test_' + k; }), nivel: 'GP',
     desc: function (p) { return 'Test ' + p.tramo + ' · ' + p.titulo; },
-    regla: 'La pregunta que más se falló de ese tramo del libro, sus tres opciones y la buena, rodeada (nunca se enseña lo que se marcó mal).',
+    regla: 'De la pregunta que más se falló de ese tramo del libro, ni la pregunta ni sus opciones: el concepto y un parrafito que lo explica (como en clase o en La cabaña).',
     ejemplos: [{ tramo: '1.2', titulo: 'Compases poco habituales', q: 'En un compás fraccionario, la fracción hace referencia a…', opts: ['El número de compases', 'La figura del pulso', 'La clave'], correcta: 1, ficha: 'Ficha 4' },
-      { tramo: '2.1', titulo: 'Cualidades del sonido', q: 'Una reflexión del sonido inferior a 50 ms se percibe como…', opts: ['Eco', 'Difracción', 'Reverb'], correcta: 2, ficha: 'Ficha 5' },
+      { tramo: '2.1', titulo: 'Cualidades del sonido (duración e intensidad)', q: 'La unidad objetiva para medir la intensidad es…', opts: ['El forte', 'El hercio (Hz)', 'El decibelio (dB)'], correcta: 2, ficha: 'Ficha 5' },
       { tramo: '1.1', titulo: 'Fonógrafo', q: 'En el fonógrafo, ¿qué función cumple el cono?', opts: ['Hacer girar el cilindro', 'Solo amplificar el sonido', 'Micrófono al grabar y resonador al reproducir'], correcta: 2, ficha: 'Ficha 4' }],
     monta: function (raiz, a, P) {
+      var X = explTest(P);
       cabecera(raiz, a, fichaDe(P, 'Test ' + P.tramo));
-      titulo(raiz, a, 'Test <span class="rosa">' + esc(P.tramo) + '</span>');
-      lin(raiz, 326, esc(P.titulo), a + 3.6, 19);
-      var cpsQ = 24, pq = lin(raiz, 404, esc(P.q), a + 5.0, cpsQ); pq.e.style.left = pq.e.style.right = '170px';
-      var tQ = a + 5.0 + planoH(esc(P.q)).length / cpsQ, W = 1400, H = 330, pn = panel(raiz, 260, 540, W, H, tQ + .3); sfx('servo', tQ + .3);
-      var filas = P.opts.map(function (op, i) {
-        var y = 28 + i * 98, g = sv('g', {}, pn.svg);
-        sv('rect', { x: 60, y: y, width: W - 120, height: 78, rx: 22, fill: '#151d29', stroke: '#3a4556', 'stroke-width': 3 }, g);
-        sv('circle', { cx: 112, cy: y + 39, r: 24, fill: 'none', stroke: '#8a95a5', 'stroke-width': 3 }, g);
-        var l = sv('text', { x: 112, y: y + 51, 'text-anchor': 'middle', class: 'o-svgt gris', 'font-size': 32 }, g); l.textContent = 'ABC'[i];
-        var tam = Math.min(40, 1150 / Math.max(1, op.length * .52)), t = sv('text', { x: 162, y: y + 53, class: 'o-svgt', 'font-size': tam }, g); t.textContent = op;
-        aparece(g, tQ + .7 + i * .45); sfx('pulsa', tQ + .7 + i * .45); return { g: g, t: t, y: y };
-      });
-      var tB = tQ + .7 + 3 * .45 + .9, b = filas[P.correcta];
-      aparece(sv('rect', { x: 52, y: b.y - 8, width: W - 104, height: 94, rx: 28, fill: 'none', stroke: '#ec4899', 'stroke-width': 6 }, pn.svg), tB); sfx('disparo', tB);
-      rosaEn(b.t, tB);
-      filas.forEach(function (f, i) { if (i !== P.correcta) PROG.it.push({ k: 'svgcls', e: f.g, c: 'tenue', t: tB + .3 }); });
-      /* (17-oct-2026) el ✓, solo al lado de la buena (antes salía otro arriba a la derecha, a la altura de la A, y parecía marcarla) */
-      aparece(sv('path', { d: 'M' + (W - 130) + ' ' + (b.y + 40) + ' l16 16 l30 -34', fill: 'none', stroke: '#4ade80', 'stroke-width': 8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, pn.svg), tB + .6);
-      sfx('bien', tB + .6); marcaOk(); fin(a);
+      titulo(raiz, a, X.t);
+      /* el parrafito, en un panel oscuro (como los pentagramas), tecleado con calma; sin ✓: aquí no se resuelve ningún ejercicio */
+      var t0 = a + 3.7, pp = ver(el('div', 'o-panel o-ppar', raiz), t0); sfx('servo', t0);
+      teclea(el('div', 'o-par', pp), X.x, t0 + .45, 21);
+      fin(a);
     } };
+
 
   /* ================= 20 · INVERSIÓN DE INTERVALOS COMPUESTOS (inv_compuestos · inversion_int_compuestos) =================
      (17-oct-2026, Iago: «una versión reducida… de los vídeos didácticos») como en el vídeo «Inversión de compuestos»: «uno de mis
