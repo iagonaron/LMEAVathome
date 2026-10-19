@@ -27,13 +27,13 @@
   'use strict';
   if (window.LMMapa) return;
   var D = document, W = window;
-  var VERSION = '2026-10-19b';
+  var VERSION = '2026-10-19c';
   var BASE = { ge: 'https://teoria.ge.lmathome.es/', gp: 'https://teoria.gp.lmathome.es/' };
   /* las cajas de cada nivel: [título, [[concepto, clave, clave…], …]]. Las claves, las de los ejercicios de las fichas
      (GE: teoriaathome, PP_CAT; GP: teoriapro, el catálogo PRO, el repaso y los tipo test del libro) */
   var MAPA = {
     ge: [
-      ['Tonalidades', [['Armadura → tonalidad', 'ton_arm_tono'], ['Tonalidad → armadura', 'ton_tono_arm'], ['Tonos vecinos', 'ton_vecinos']]],
+      ['Tonalidades', [['Indica la tonalidad', 'ton_arm_tono'], ['Indica la armadura', 'ton_tono_arm'], ['Tonalidades vecinas', 'ton_vecinos']]],
       ['Intervalos', [['Clasificar', 'int_clasif'], ['Construir', 'int_constr'], ['Semitonos', 'semitonos'], ['Invertir (simples)', 'inv_simples'], ['Invertir (compuestos)', 'inv_compuestos']]],
       ['Claves y notas', [['Nombrar la nota', 'cla_a'], ['Colocar la clave', 'cla_b'], ['Enarmonías', 'ena_a'], ['Enarmonía avanzada', 'ena_avanzado']]],
       ['Escalas', [['Escalas mayores', 'esc_mayor'], ['Escalas menores', 'esc_menor'], ['Otras escalas', 'esc_otras'], ['Grados', 'gra_senalar']]],
@@ -42,7 +42,7 @@
     ],
     gp: [
       ['Modos y escalas', [['Modos', 'modos'], ['Escalas mayores', 'escala_mayor'], ['Escalas menores', 'escala_menor'], ['Otras escalas', 'escala_otras']]],
-      ['Tonalidades', [['Indica la tonalidad', 'ton_nombre'], ['Indica la armadura', 'ton_armadura'], ['Tonos vecinos', 'ton_vecinos'], ['Enarmonías', 'enarmoniapro']]],
+      ['Tonalidades', [['Indica la tonalidad', 'ton_nombre'], ['Indica la armadura', 'ton_armadura'], ['Tonalidades vecinas', 'ton_vecinos'], ['Enarmonías', 'enarmoniapro']]],
       ['Intervalos y acordes', [['Identificar intervalos', 'intervalos_id'], ['Construir intervalos', 'intervalos_build'], ['Inversión de intervalos', 'inversion_int_simples', 'inversion_int_compuestos'], ['Acordes', 'acordes_id', 'acordes_build', 'acordespro_id', 'acordespro_build'], ['Inversión de acordes', 'inversion_aco_identifica', 'inversion_aco_construir']]],
       ['Armonía y transporte', [['Cadencias', 'cadencias'], ['Modulación', 'modulacion', 'test_8_1', 'test_8_2', 'test_8_3'], ['Transporte', 'transporte_escrito', 'transporte_mental', 'test_9_1', 'test_9_2'], ['Las diferencias', 'transporte_resumen']]],
       ['Compases y ritmo', [['Compases · elegir', 'comp_elegir'], ['Compases · rellenar', 'comp_rellenar'], ['Compases · replicar', 'comp_replicar'], ['Compases poco habituales', 'test_1_2'], ['GVE en varios pulsos', 'test_5_2']]],
@@ -53,7 +53,8 @@
   };
 
   /* ---- lo que hay para repasar cada tipo de ejercicio (lo mismo que ofrece la ficha) ----
-     AP · apuntes: clave → 'Nombre|tema,tema…' (el primero, la pestaña que se abre). Los de la ficha (MAPA de «APUNTES EN LAS FICHAS»).
+     AP · apuntes: clave → 'Nombre|tema,tema…|pestaña' (el primer tema, la pestaña que se abre; «pestaña», cómo se llama en los
+          apuntes, lo que se lee en la ventanita; si no lo hay, el nombre). Los de la ficha (MAPA de «APUNTES EN LAS FICHAS»).
      VI · vídeo didáctico: clave → 'carpeta|Título|duración' (el más cercano al ejercicio: PRIMERO, o el primero de su tema).
      PR · ejercicios libres: las claves con ?practice= (GE: PRACTICE_MAP; GP: FP_PRACTICE_VIEW).
      LIBRO · 2.º GP, tipo test sin apuntes web: unidad → páginas del Libro 2.º GP (UNIDAD_PAGS de teoriapro). */
@@ -63,11 +64,11 @@
   var AP = {
     ge: {
       int_clasif: 'Intervalos|intervalos,int-comp', int_constr: 'Intervalos|intervalos,int-comp',
-      inv_simples: 'Inversión de intervalos|inv-simples,inv-comp', inv_compuestos: 'Inversión de intervalos|inv-comp,inv-simples',
+      inv_simples: 'Inversión de intervalos|inv-simples,inv-comp|Inversión de intervalos simples', inv_compuestos: 'Inversión de intervalos|inv-comp,inv-simples|Inversión de intervalos compuestos',
       com_clasif: 'Compases|compases',
-      ton_arm_tono: 'Tonalidades|' + prim('tonalidad', TON), ton_tono_arm: 'Tonalidades|' + prim('armadura', TON), ton_vecinos: 'Tonalidades|' + prim('vecinas', TON),
-      esc_menor: 'Escalas|' + prim('esc-menores', ESC), esc_mayor: 'Escalas|' + prim('esc-mayores', ESC), esc_otras: 'Escalas|' + prim('esc-otras', ESC),
-      gra_senalar: 'Grados|grados', semitonos: 'Semitonos|semitonos', acordes: 'Acordes|acordes',
+      ton_arm_tono: 'Tonalidades|' + prim('tonalidad', TON) + '|Indica la tonalidad', ton_tono_arm: 'Tonalidades|' + prim('armadura', TON) + '|Indica la armadura', ton_vecinos: 'Tonalidades|' + prim('vecinas', TON) + '|Tonalidades vecinas',
+      esc_menor: 'Escalas|' + prim('esc-menores', ESC) + '|Escalas menores', esc_mayor: 'Escalas|' + prim('esc-mayores', ESC) + '|Escalas mayores', esc_otras: 'Escalas|' + prim('esc-otras', ESC) + '|Otras escalas',
+      gra_senalar: 'Grados|grados', semitonos: 'Semitonos|semitonos|Semitono cromático y diatónico', acordes: 'Acordes|acordes',
       aco_identificar: 'Inversión de acordes|inv-acordes', aco_construir: 'Inversión de acordes|inv-acordes',
       ena_a: 'Enarmonías|enarmonias', ena_avanzado: 'Enarmonías|enarmonias', cla_a: 'Claves|claves', cla_b: 'Claves|claves',
       terminos: 'Términos|terminos', adorno_quiz: 'Notas de adorno|adorno', abrev_quiz: 'Abreviaciones|abrev', cadencias_quiz: 'Cadencias|cadencias'
@@ -77,18 +78,21 @@
       comp_elegir: 'Compases extraños|gp-compases', comp_rellenar: 'Compases extraños|gp-compases', comp_replicar: 'Compases extraños|gp-compases', test_1_2: 'Compases extraños|gp-compases',
       seriearmonica: 'Serie armónica|gp-serie', test_2_3: 'Serie armónica|gp-serie',
       dode_construir: 'Dodecafonismo|gp-serialismo', dode_completa: 'Dodecafonismo|gp-serialismo', dode_identifica: 'Dodecafonismo|gp-serialismo', test_3_2: 'Dodecafonismo|gp-serialismo',
-      acordespro_id: 'Acordes avanzado|gp-cifrado', acordespro_build: 'Acordes avanzado|gp-cifrado', blues: 'Acordes avanzado|gp-cifrado',
+      acordespro_id: 'Acordes avanzado|gp-cifrado|Acordes avanzados', acordespro_build: 'Acordes avanzado|gp-cifrado|Acordes avanzados', blues: 'Acordes avanzado|gp-cifrado|Acordes avanzados (cifrado americano)',
       modulacion: 'Modulación|gp-modulacion', test_8_1: 'Modulación|gp-modulacion', test_8_2: 'Modulación|gp-modulacion', test_8_3: 'Modulación|gp-modulacion',
       transporte_escrito: 'Transporte|gp-transporte', transporte_mental: 'Transporte|gp-transporte', transporte_resumen: 'Transporte|gp-transporte',
       test_9_1: 'Transporte|gp-transporte', test_9_2: 'Transporte|gp-transporte',
       cadencias: 'Cadencias|gp-cadencias',
-      escala_mayor: 'Escalas · repaso|' + prim('esc-mayores', ESC), escala_menor: 'Escalas · repaso|' + prim('esc-menores', ESC), escala_otras: 'Escalas · repaso|' + prim('esc-otras', ESC),
-      intervalos_id: 'Intervalos · repaso|intervalos,int-comp', intervalos_build: 'Intervalos · repaso|intervalos,int-comp',
-      acordes_id: 'Acordes · repaso|acordes', acordes_build: 'Acordes · repaso|acordes',
-      ton_nombre: 'Tonalidades · repaso|' + prim('tonalidad', TON), ton_armadura: 'Tonalidades · repaso|' + prim('armadura', TON), ton_vecinos: 'Tonalidades · repaso|' + prim('vecinas', TON),
-      inversion_int_simples: 'Inversión · repaso|' + prim('inv-simples', INVG), inversion_int_compuestos: 'Inversión · repaso|' + prim('inv-comp', INVG),
-      inversion_aco_identifica: 'Inversión · repaso|' + prim('inv-acordes', INVG), inversion_aco_construir: 'Inversión · repaso|' + prim('inv-acordes', INVG),
-      enarmoniapro: 'Enarmonías · repaso|enarmonias'
+      escala_mayor: 'Escalas · repaso|' + prim('esc-mayores', ESC) + '|Escalas mayores', escala_menor: 'Escalas · repaso|' + prim('esc-menores', ESC) + '|Escalas menores',
+      escala_otras: 'Escalas · repaso|' + prim('esc-otras', ESC) + '|Otras escalas',
+      intervalos_id: 'Intervalos · repaso|intervalos,int-comp|Intervalos', intervalos_build: 'Intervalos · repaso|intervalos,int-comp|Intervalos',
+      acordes_id: 'Acordes · repaso|acordes|Acordes', acordes_build: 'Acordes · repaso|acordes|Acordes',
+      ton_nombre: 'Tonalidades · repaso|' + prim('tonalidad', TON) + '|Indica la tonalidad', ton_armadura: 'Tonalidades · repaso|' + prim('armadura', TON) + '|Indica la armadura',
+      ton_vecinos: 'Tonalidades · repaso|' + prim('vecinas', TON) + '|Tonalidades vecinas',
+      inversion_int_simples: 'Inversión · repaso|' + prim('inv-simples', INVG) + '|Inversión de intervalos simples',
+      inversion_int_compuestos: 'Inversión · repaso|' + prim('inv-comp', INVG) + '|Inversión de intervalos compuestos',
+      inversion_aco_identifica: 'Inversión · repaso|' + prim('inv-acordes', INVG) + '|Inversión de acordes', inversion_aco_construir: 'Inversión · repaso|' + prim('inv-acordes', INVG) + '|Inversión de acordes',
+      enarmoniapro: 'Enarmonías · repaso|enarmonias|Enarmonías'
     }
   };
   var V_INT = 'intervalos|Intervalos|5:21', V_TON1 = 'indica-la-tonalidad|Indica la tonalidad|4:24', V_TON2 = 'indica-la-armadura|Indica la armadura|2:42',
@@ -283,7 +287,7 @@
     var kA = ks.filter(function (k) { return AP[nivel][k] || (nivel === 'gp' && libroDe(k)); })[0];
     if (kA && AP[nivel][kA]) {
       var a = AP[nivel][kA].split('|');
-      out.ops.push({ ico: ICO.libro, t: 'Ver apuntes', s: a[0], u: base + '?apuntes=' + encodeURIComponent(a[1]) + '&nombre=' + encodeURIComponent(a[0]) + h });
+      out.ops.push({ ico: ICO.libro, t: 'Ver apuntes', s: a[2] || a[0], u: base + '?apuntes=' + encodeURIComponent(a[1]) + '&nombre=' + encodeURIComponent(a[0]) + h });
     } else if (kA) out.libro = libroDe(kA);
     var kV = ks.filter(function (k) { return VI[nivel][k]; })[0];
     if (kV) { var v = VI[nivel][kV].split('|'); out.ops.push({ ico: ICO.play, t: 'Vídeo didáctico', s: v[1] + ' · ' + v[2], u: base + 'intros/' + v[0] + '/index.html' }); }
