@@ -313,7 +313,7 @@
        de una pestaña: ?escaleta=0; para quitarla del todo: borrar estas líneas. */
     try {
       if (esTester(sesion()) && !/visor=/.test(location.hash || '')) {
-        var esc = document.createElement('script'); esc.src = BASE + 'escaleta.js?v=2026-10-19a';   /* (17-oct-2026) la previa en la cuenta atrás y el mando · (18-oct-2026) el ¡Ojo!, calculado en el aula; el mando N76, solo cuatro cosas */ esc.async = true;
+        var esc = document.createElement('script'); esc.src = BASE + 'escaleta.js?v=2026-10-19b';   /* (17-oct-2026) la previa en la cuenta atrás y el mando · (18-oct-2026) el ¡Ojo!, calculado en el aula; el mando N76, solo cuatro cosas */ esc.async = true;
         esc.setAttribute('data-app', app); esc.setAttribute('data-grado', grado); (document.head || H).appendChild(esc);
       }
     } catch (e) {}

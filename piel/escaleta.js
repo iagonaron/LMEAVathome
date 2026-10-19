@@ -370,8 +370,8 @@
     } catch (e) { return []; }
   }
   /* (19-oct-2026, Iago) «cuento con que haya un texto que me recuerde lo que tengo que repasar… cuando sea entonación, recordar
-     lo de los matices»: la nota que el Radar puso en ese apartado (b.nota, la manda el iPad con la escaleta) sale en el cartel de
-     esa actividad, en amarillo, y en la escaleta entera */
+     lo de los matices» y «las notas que escriba yo a mano también»: la nota 🗒 de ese apartado (la del Radar o la de Iago; b.nota,
+     la manda el iPad con la escaleta) sale en el cartel de esa actividad, con la letra del subtítulo, y en la escaleta entera */
   function notaTxt(b) { var x = String((b && b.nota) || '').replace(/\s+/g, ' ').trim(); return x.length > 120 ? x.slice(0, 118) + '…' : x; }
   function bloquesDe(pub, grupo) {
     if (MEMO.pub === pub && MEMO.g === grupo) return MEMO.B;
@@ -1057,8 +1057,9 @@
     '@media (prefers-reduced-motion:reduce){#lme-indice *{animation:none!important;opacity:1!important}}' +
     '#lme-cartel .lme-tit{font:800 150px/.92 ' + F + ';color:#facc15;letter-spacing:-.01em;white-space:nowrap}' +
     '#lme-cartel .lme-sub{font:500 36px/1.2 ' + F + ';color:#fff;max-width:88vw}' +
-    /* (19-oct-2026) la nota del Radar («Recordar los matices»), debajo, en amarillo */
-    '#lme-cartel .lme-nota{font:700 30px/1.25 ' + F + ';color:#fde68a;background:rgba(250,204,21,.12);border:1.5px solid rgba(250,204,21,.55);border-radius:14px;padding:8px 18px;margin-top:14px;max-width:86vw}' +
+    /* (19-oct-2026) la nota del apartado («Recordar los matices»), debajo, con la misma letra que el subtítulo (la de «empieza …» en
+       Intervalia y FaActos; Iago: «aprovecharía ese diseño que ya tenemos») */
+    '#lme-cartel .lme-nota{font:500 36px/1.2 ' + F + ';color:#fff;max-width:88vw;text-shadow:0 2px 16px rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.6)}' +
     '#lme-cartel .lme-nota[hidden],#lme-cartel.lme-descanso .lme-nota{display:none}' +
     '#lme-cartel .lme-mi{font:700 24px/1 ' + F + ';color:#9aa6bb;margin-top:4px}' +
     '#lme-cartel .lme-mi b{color:#fff;font-weight:700}' +
@@ -1342,7 +1343,7 @@
     UI.cartel.classList.remove('lme-descanso'); DESC.k = '';   /* (16-oct-2026, 19:00) el normal (si es un descanso, descanso() lo convierte) */
     txt(UI.kEy, 'Ahora · ' + (v.i + 1) + ' de ' + B.length);
     txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
-    txt(UI.kN, b.nota || ''); ver(UI.kN, !!b.nota);   /* (19-oct-2026) la nota del Radar */
+    txt(UI.kN, b.nota || ''); ver(UI.kN, !!b.nota);   /* (19-oct-2026) la nota del apartado */
     UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
     var ir = null; try { ir = irA(b); } catch (e) {} CART.ir = ir; ver(UI.kIr, !!ir); if (ir) UI.kIr.title = ir.t;   /* (16-oct-2026) siempre el mismo botón, «Abrir ›» */
     alFrente(UI.cartel); UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);   /* (16-oct-2026) alFrente */
