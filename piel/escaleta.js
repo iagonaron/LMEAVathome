@@ -369,10 +369,14 @@
       }).slice(0, 4).map(function (x) { return x.length > 140 ? x.slice(0, 138) + '…' : x; });
     } catch (e) { return []; }
   }
+  /* (19-oct-2026, Iago) «cuento con que haya un texto que me recuerde lo que tengo que repasar… cuando sea entonación, recordar
+     lo de los matices»: la nota que el Radar puso en ese apartado (b.nota, la manda el iPad con la escaleta) sale en el cartel de
+     esa actividad, en amarillo, y en la escaleta entera */
+  function notaTxt(b) { var x = String((b && b.nota) || '').replace(/\s+/g, ' ').trim(); return x.length > 120 ? x.slice(0, 118) + '…' : x; }
   function bloquesDe(pub, grupo) {
     if (MEMO.pub === pub && MEMO.g === grupo) return MEMO.B;
     var l = (pub && Array.isArray(pub.bloques)) ? pub.bloques.filter(function (b) { return b && +b.m > 0 && b.slot !== '__no_clase'; }) : [];
-    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f), vid: videoDe(b), det: detalles(b, f) }; });   /* (16-oct-2026) vídeo */
+    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f), vid: videoDe(b), det: (notaTxt(b) ? ['🗒 ' + notaTxt(b)] : []).concat(detalles(b, f)), nota: notaTxt(b) }; });   /* (16-oct-2026) vídeo */
     return MEMO.B;
   }
   /* (15-oct-2026, Iago) «HOY EN CLASE»: el índice que ven los alumnos. Lo que eligió (por la tarde): «Ritmo: carta 1.3»,
@@ -394,6 +398,11 @@
       else if (f.t === 'Dictado') t = b.num ? 'Dictado ' + b.num : 'Dictado';
       else if (f.t === 'Teoría') {   /* (Iago) «en vez de bloque de teoría, simplemente TEORÍA: y lo que viene a continuación» */
         ls = String(b.sub || '').split(/\n+/).map(function (x) { x = quitarEmojis(x); return x.length > 80 ? x.slice(0, 78) + '…' : x; }).filter(Boolean).slice(0, 4);
+        /* (19-oct-2026, Iago) «el vídeo que se selecciona en preparación de clases tiene que tener presencia en la escaleta…
+           en el índice de lo que se va a hacer en clase»: el vídeo elegido (o el escrito «Vídeo …»), como una línea más,
+           «▶ Serie armónica», si no está ya en lo escrito */
+        var vx = videoDe(b), vt = vx ? norm(String(vx.t).split(' · ')[0]) : '';
+        if (vx && vt && !ls.some(function (x) { return norm(x).indexOf(vt) >= 0; })) ls = ls.slice(0, 3).concat(['▶ ' + vx.t]);
         t = ls.length === 1 ? 'Teoría: ' + ls[0] : 'Teoría'; if (ls.length < 2) ls = null; tm = 'teoria';
       }
       else if (f.t === 'Corrección de la ficha') t = f.s ? 'Corrección de la ' + f.s.charAt(0).toLowerCase() + f.s.slice(1) : 'Corrección de la ficha';
@@ -1048,6 +1057,9 @@
     '@media (prefers-reduced-motion:reduce){#lme-indice *{animation:none!important;opacity:1!important}}' +
     '#lme-cartel .lme-tit{font:800 150px/.92 ' + F + ';color:#facc15;letter-spacing:-.01em;white-space:nowrap}' +
     '#lme-cartel .lme-sub{font:500 36px/1.2 ' + F + ';color:#fff;max-width:88vw}' +
+    /* (19-oct-2026) la nota del Radar («Recordar los matices»), debajo, en amarillo */
+    '#lme-cartel .lme-nota{font:700 30px/1.25 ' + F + ';color:#fde68a;background:rgba(250,204,21,.12);border:1.5px solid rgba(250,204,21,.55);border-radius:14px;padding:8px 18px;margin-top:14px;max-width:86vw}' +
+    '#lme-cartel .lme-nota[hidden],#lme-cartel.lme-descanso .lme-nota{display:none}' +
     '#lme-cartel .lme-mi{font:700 24px/1 ' + F + ';color:#9aa6bb;margin-top:4px}' +
     '#lme-cartel .lme-mi b{color:#fff;font-weight:700}' +
     /* (16-oct-2026, Iago) «que no se oscurezca del todo… que se pueda intuir lo que hay detrás»: el cartel y el fin, velados (sin la foto) */
@@ -1272,7 +1284,7 @@
     var cuenta = D.createElement('div'); cuenta.id = 'lme-cuenta'; cuenta.className = 'lme-full'; cuenta.hidden = true;
     cuenta.innerHTML = '<div class="lme-rec" hidden></div><div class="lme-ey"></div><div class="lme-num"></div><div class="lme-frase">Preparamos libro de ritmo y lápiz</div><canvas width="840" height="88"></canvas><div class="lme-barra5"><b></b></div>';
     var cartel = D.createElement('div'); cartel.id = 'lme-cartel'; cartel.className = 'lme-full'; cartel.hidden = true; cartel.setAttribute('role', 'alert');
-    cartel.innerHTML = '<div class="lme-ey"></div><div class="lme-tit"></div><div class="lme-sub"></div><div class="lme-reloj"></div><div class="lme-mi"></div>' +   /* (16-oct-2026, 19:00) lme-reloj: el descanso */
+    cartel.innerHTML = '<div class="lme-ey"></div><div class="lme-tit"></div><div class="lme-sub"></div><div class="lme-nota" hidden></div><div class="lme-reloj"></div><div class="lme-mi"></div>' +   /* (16-oct-2026, 19:00) lme-reloj: el descanso */
       '<button type="button" class="lme-ir" hidden>Abrir <span aria-hidden="true">›</span></button><div class="lme-barra5"><b></b></div>';   /* (16-oct-2026) el botón a la actividad: discreto y siempre el mismo */
     var fin = D.createElement('div'); fin.id = 'lme-fin'; fin.className = 'lme-full'; fin.hidden = true;
     fin.innerHTML = '<div class="lme-ey"></div><div class="lme-tit">Fin de la clase</div><div class="lme-tareas" hidden></div>' +   /* (16-oct-2026, 19:25) el pie: «Poner faltas» y «No vinieron: …», abajo en el centro */
@@ -1297,7 +1309,7 @@
            ant: isla.querySelector('.lme-ant'), t: isla.querySelector('.lme-t'), s: isla.querySelector('.lme-s'), m: isla.querySelector('.lme-m'),
            bar: isla.querySelector('.lme-barra b'), ex: isla.querySelector('.lme-ex'), sig: isla.querySelector('.lme-sigt'), bPausa: isla.querySelector('[data-a="pausa"]'),
            cEy: cuenta.querySelector('.lme-ey'), cRec: cuenta.querySelector('.lme-rec'), cNum: cuenta.querySelector('.lme-num'), cBar: cuenta.querySelector('.lme-barra5 b'), cv: cuenta.querySelector('canvas'),
-           kIr: cartel.querySelector('.lme-ir'), kR: cartel.querySelector('.lme-reloj'), kEy: cartel.querySelector('.lme-ey'), kT: cartel.querySelector('.lme-tit'), kS: cartel.querySelector('.lme-sub'), kM: cartel.querySelector('.lme-mi'), kBar: cartel.querySelector('.lme-barra5 b'),
+           kIr: cartel.querySelector('.lme-ir'), kR: cartel.querySelector('.lme-reloj'), kEy: cartel.querySelector('.lme-ey'), kT: cartel.querySelector('.lme-tit'), kS: cartel.querySelector('.lme-sub'), kN: cartel.querySelector('.lme-nota'), kM: cartel.querySelector('.lme-mi'), kBar: cartel.querySelector('.lme-barra5 b'),
            fEy: fin.querySelector('.lme-ey'), fT: fin.querySelector('.lme-tareas'), fF: fin.querySelector('.lme-faltas'), fA: fin.querySelector('.lme-aus'), fC: fin.querySelector('.lme-cerrar') };
     return UI;
   }
@@ -1330,6 +1342,7 @@
     UI.cartel.classList.remove('lme-descanso'); DESC.k = '';   /* (16-oct-2026, 19:00) el normal (si es un descanso, descanso() lo convierte) */
     txt(UI.kEy, 'Ahora · ' + (v.i + 1) + ' de ' + B.length);
     txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
+    txt(UI.kN, b.nota || ''); ver(UI.kN, !!b.nota);   /* (19-oct-2026) la nota del Radar */
     UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
     var ir = null; try { ir = irA(b); } catch (e) {} CART.ir = ir; ver(UI.kIr, !!ir); if (ir) UI.kIr.title = ir.t;   /* (16-oct-2026) siempre el mismo botón, «Abrir ›» */
     alFrente(UI.cartel); UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);   /* (16-oct-2026) alFrente */
@@ -1369,7 +1382,7 @@
     if (!quiere) { if (cart.classList.contains('lme-descanso')) { cart.classList.remove('lme-descanso'); quitarCartel(true); } DESC.k = ''; return; }
     var a = v.a, b = v.B[a.i];
     if (!cart.classList.contains('lme-descanso') || DESC.k !== k || cart.hidden) {
-      txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
+      txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s); ver(UI.kN, false);
       UI.kM.innerHTML = 'Después: <b>' + esc(luegoTexto(v)) + '</b>';
       CART.ir = null; ver(UI.kIr, false);
       cart.classList.add('lme-descanso'); alFrente(cart); cart.classList.remove('lme-recoge'); ver(cart, true); encaja(UI.kT, 120);
