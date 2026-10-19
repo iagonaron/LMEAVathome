@@ -1156,6 +1156,7 @@
       .then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { st: r.status, d: d }; }); });
   }
   function cargarMorosos(forzar) {
+    if (!forzar && document.hidden) return;   /* (19-oct-2026, ahorro) con la pestaña oculta no se piden */
     var k = llaveProfe(); if (!k || MOR.cargando) return;
     if (!forzar && MOR.d && Date.now() - MOR.t < 120000) return;
     if (!forzar && MOR.tMal && Date.now() - MOR.tMal < 30000) return;   /* (6-oct-2026) si falló, no antes de 30 s (antes, sin lista, repetía sin freno) */
