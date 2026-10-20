@@ -3137,7 +3137,9 @@
       if (!sc) {
         if (Math.abs(e.clientX - p.x0) + Math.abs(e.clientY - p.y0) < 24) return;      /* aún puede ser un toque; y si el navegador va a deslizar él, que empiece antes (su margen es menor) */
         var el = p.el;
-        if (!el || el.nodeType !== 1 || el.closest('canvas, input, textarea, select, [contenteditable=""], [contenteditable="true"], .lm-vl-rueda, .anot-rueda, .lm-fantasma, .lm-enganche')) { p.noDesliza = true; return; }
+        /* (20-oct-2026, Iago: «el scroll se hace solo pulsando a los lados de la partitura») tampoco sobre la página del visor de
+           entonación con herramienta de dibujo ni sobre la pizarra: ahí el dedo solo pinta */
+        if (!el || el.nodeType !== 1 || el.closest('canvas, input, textarea, select, [contenteditable=""], [contenteditable="true"], .lm-vl-rueda, .anot-rueda, .lm-fantasma, .lm-enganche, #lm-ento.lm-en-dibuja .lm-en-pag, #pz-zona')) { p.noDesliza = true; return; }
         sc = el;
         while (sc && sc !== document.body && sc !== document.documentElement) {
           var cs = getComputedStyle(sc);
