@@ -500,9 +500,20 @@
     var a = agendaHoy(pub, grupo), k = (a && a.length) ? planIndice(a).kIni : 0;
     IND.pub = pub; IND.g = grupo; IND.k = k; return k;
   }
+  /* (20-oct-2026, Iago, en clase con 4B: «le di al botón de play unos minutos antes… probando el mando… y no ha empezado la
+     previa»; tampoco se abrió la lista de morosos) Un ▶ ANTES de la hora que luego se para (■) o se pausa (⏸) también antes de
+     la hora NO CUENTA: llegado el minuto 0, la clase va como si no se hubiera tocado (entrada con la lista de morosos, previa,
+     «Hoy en clase» y, al 5:00, la primera actividad). Antes se quedaba «parada» y no salía nada de eso. Empezada antes y sin
+     parar, igual que siempre (la clase ya va); antes de la hora, igual (parada, con su ▶ para seguir). Para volver a lo de
+     antes: ANTES_NO_CUENTA = false. */
+  var ANTES_NO_CUENTA = true;
   function vista(t) {
     var c = claseAhora(t); if (!c) return { fase: 'nada' };
     var pub = escaleta(c), e = estado(c), B = bloquesDe(pub, c.grupo), desde = (t - c.t0) / 1000;
+    if (ANTES_NO_CUENTA && e && +e.arr && +e.arr < c.t0 && desde >= 0) {
+      var quieto0 = +e.parada || +e.pausa || 0;
+      if (quieto0 && quieto0 < c.t0) e = null;   /* empezada y parada (o en pausa) antes de la hora: no cuenta */
+    }
     var v = { c: c, B: B, pub: pub, e: e, desde: desde, fase: 'nada' }, INDICE = kIndice(pub, c.grupo) * PASO;
     v.ind = INDICE;
     if (noHayClase(pub)) return v;
