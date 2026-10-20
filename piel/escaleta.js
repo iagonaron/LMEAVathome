@@ -907,7 +907,11 @@
   function inmersivo() {
     /* (16-oct-2026, tarde, Iago: «durante la reproducción de un vídeo didáctico quiero que la escaleta no se vea… molesta») el
        vídeo abierto desde la tarjeta, didáctico o temático: la tarjeta no se ve; al cerrarlo (✕), vuelve. Antes, con el didáctico se quedaba. */
-    var ovv = $('lme-video'); if (ovv) return 'pantalla';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
+    var ovv = $('lme-video'); if (ovv) return 'pantalla';
+    /* (20-oct-2026, Iago: «sale el botón de la escaleta… delante de todo… no aparece en su lugar… aquí no tiene sentido») la pantalla
+       de Resultados abierta dentro del portal (#lm-marco-app, sección 16 de portal.js): sin tarjeta ni ▶ por encima; con la clase
+       en marcha, la línea en el centro de su barra (miniLibro). Para quitarlo: borrar esta línea. */
+    var mar = $('lm-marco-app'); if (mar && mar.classList.contains('abierto') && mar.querySelector('.lm-ma-bar')) return 'marco';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
     var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
     var dc = $('dcOverlay'), dictado = !!(dc && visible(dc)), carrusel = /^carrusel-/.test(APP);
     if (fs && fs !== H && fs !== D.body) return 'pantalla';           /* una parte a pantalla completa: la tarjeta no se ve */
@@ -984,7 +988,8 @@
     '#lme-mini .lme-mmas::after{content:"";position:absolute;inset:-3px -4px -10px -8px}' +
     '#lme-mini .lme-mmas:hover{border-color:#facc15}' +
     '#lme-mini .lme-mmas svg{width:10px;height:10px;display:block;pointer-events:none}' +
-    '#lme-mini.lme-dic{margin-left:auto;max-width:42%}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
+    '#lme-mini.lme-dic{margin-left:auto;max-width:42%}' +
+    '#lm-marco-app .lm-ma-bar{position:relative}#lme-mini.lme-marco{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:34px;max-width:min(520px,46vw)}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
     '#lme-todo-fondo{position:fixed;inset:0;z-index:2147483611;background:rgba(6,9,17,.55)}' +
     '#lme-todo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147483612;width:min(820px,calc(100vw - 32px));max-height:min(90vh,calc(100vh - 24px));display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;' +
       'background:#0b1320;border:2px solid #facc15;border-radius:18px;padding:14px 18px 13px;color:#fff;text-align:left;font:500 15px/1.3 ' + F + ';-webkit-font-smoothing:antialiased;box-shadow:0 24px 70px rgba(0,0,0,.6);user-select:none;-webkit-user-select:none;pointer-events:auto}' +
@@ -1883,6 +1888,18 @@
      vez por segundo, y solo se toca si cambia de verdad. Solo si ni así cabe (pantalla muy estrecha), la tarjeta se
      estrecha, también de golpe. */
   var APARTA = { dx: 0, w: '', on: false, t: 0 };
+  /* (20-oct-2026, 17:45, Iago: «quiero pulsar… el que tiene la clave de sol de color azul y pulso resultados, no me abre… paré la
+     escaleta… y ahí sí que me dejó abrir») LA FILA SE CORRE CON «left», NO CON transform. El transform hacía de la fila de botones
+     una capa aparte y sus menús (Libros, Ritmo, Entonación) quedaban por debajo del título del portal (.hero, z-index 75): se
+     veían, pero el toque caía en el título. Corrida con left (posición relativa) la fila no es capa aparte y sus menús quedan
+     encima, como con la escaleta parada. Para volver: CORRE_LEFT = false. */
+  var CORRE_LEFT = true;
+  function correr(fila, dx) {
+    if (!CORRE_LEFT) { fila.style.left = ''; fila.style.transform = dx ? 'translateX(' + dx + 'px)' : ''; return; }
+    fila.style.transform = '';
+    if (dx) { if (getComputedStyle(fila).position === 'static') fila.style.position = 'relative'; fila.style.left = dx + 'px'; }
+    else { fila.style.left = ''; if (fila.style.position === 'relative') fila.style.position = ''; }
+  }
   function apartar(forzar) {
     try {
       var fila = PORTAL ? D.querySelector('.topbar-right') : null; if (!fila || !UI) return;
@@ -1890,17 +1907,17 @@
       if (!forzar && on === APARTA.on && ya - APARTA.t < 1000) return;
       APARTA.on = on; APARTA.t = ya;
       if (on) {
-        var tr = fila.style.transform, an = UI.isla.style.width;
-        fila.style.transform = ''; UI.isla.style.width = '';
+        var tr = fila.style.transform, lf = fila.style.left, an = UI.isla.style.width;
+        fila.style.transform = ''; fila.style.left = ''; UI.isla.style.width = '';
         var ri = UI.isla.getBoundingClientRect(), rf = fila.getBoundingClientRect();
-        fila.style.transform = tr; UI.isla.style.width = an;
+        fila.style.transform = tr; fila.style.left = lf; UI.isla.style.width = an;
         if (rf.left < ri.right + 12 && rf.right > ri.left - 12 && rf.top < ri.bottom) {
           dx = Math.round(Math.max(0, Math.min(ri.right + 12 - rf.left, W.innerWidth - 8 - rf.right)));
           var cabe = Math.floor(2 * (rf.left + dx - 12 - W.innerWidth / 2));   /* lo ancha que puede ser la tarjeta, centrada */
           if (cabe < ri.width - 1) w = Math.max(250, cabe) + 'px';
         }
       }
-      if (Math.abs(dx - APARTA.dx) > 1 || !dx !== !APARTA.dx) { fila.style.transform = dx ? 'translateX(' + dx + 'px)' : ''; APARTA.dx = dx; }
+      if (Math.abs(dx - APARTA.dx) > 1 || !dx !== !APARTA.dx) { correr(fila, dx); APARTA.dx = dx; }
       if (w !== APARTA.w) { UI.isla.style.width = w; APARTA.w = w; }
     } catch (e) {}
   }
@@ -1939,9 +1956,10 @@
        hablamos antes») y con el dictado animado abierto, en su barra de arriba, entre «DICTADO nº 5 · …» y Tonalidad · Compás
        (en medio del hueco); la tarjeta no sale (tapaba «SEGUNDA FRASE»). También a pantalla completa: va dentro del dictado. */
     var lb = $('lb-ov'), pz = $('pz-esc'), dc = $('dcOverlay'), el = $('lme-mini');
-    var enLibro = !!(lb && lb.classList.contains('open')), enPiz = !enLibro && !!(pz && H.classList.contains('pz-abierto'));
-    var dTop = (!enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
-    if (!v || !(enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
+    var mar = $('lm-marco-app'), mBar = (mar && mar.classList.contains('abierto')) ? mar.querySelector('.lm-ma-bar') : null, enMarco = !!mBar;   /* (20-oct-2026) Resultados */
+    var enLibro = !enMarco && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
+    var dTop = (!enMarco && !enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
+    if (!v || !(enMarco || enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
     if (!el) {
       el = D.createElement('div'); el.id = 'lme-mini';
       el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><i class="lme-mb"><b></b></i>' +   /* (Iago) solo la actividad actual */
@@ -1951,7 +1969,8 @@
         mb.addEventListener(ev, function (e) { e.stopPropagation(); if (ev === 'click') { e.preventDefault(); abrirTodo(); } });
       });
     }
-    if (enPiz) { if (el.parentNode !== pz) pz.appendChild(el); }
+    if (enMarco) { var mx = mBar.querySelector('.lm-ma-x'); if (el.parentNode !== mBar || (mx && el.nextSibling !== mx)) mBar.insertBefore(el, mx || null); }
+    else if (enPiz) { if (el.parentNode !== pz) pz.appendChild(el); }
     else if (enDic) { var der = dTop.querySelector('.dc-top-derecha'); if (el.parentNode !== dTop || (der && el.nextSibling !== der)) dTop.insertBefore(el, der || null); }
     else {
       var amp = lb.classList.contains('lb-amp'), top = lb.querySelector('.lb-top'), prev = $('lb-prev');
@@ -1960,6 +1979,7 @@
     }
     el.classList.toggle('lme-flota', enLibro && el.parentNode === lb);
     el.classList.toggle('lme-piz', enPiz);
+    el.classList.toggle('lme-marco', enMarco);
     el.classList.toggle('lme-dic', enDic);
     var B = v.B, a = v.a, b = B[a.i], extra = a.resto < 0 && a.mg > 0;
     var m = extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto));
@@ -2041,7 +2061,7 @@
     /* la tarjeta */
     /* (16-oct-2026, tarde) con un libro abierto, la línea dentro de él (y con la pizarra; y desde las 18:50, en el dictado animado) */
     var hayMini = false; try { hayMini = !!miniLibro(v.fase === 'clase' && !!v.a ? v : null); } catch (e) {}
-    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && !(inm === 'dictado' && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
+    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && inm !== 'marco' && !(inm === 'dictado' && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
     ver(UI.isla, conIsla);
     H.classList.toggle('lm-esc-on', conIsla);
     if (PORTAL) apartar();   /* (16-oct-2026) la fila de botones, apartada o en su sitio */
