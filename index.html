@@ -1846,10 +1846,11 @@ function showEnig(kind){
   }
   /* (19-oct-2026) MI MAPA DE TEORÍA: el icono «Circuito» (el que eligió Iago) y el interruptor (RSM_SIN_MAPA=true quita los botones) */
   var RSM_SIN_MAPA=false, RSM_MAPA_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="7" height="7" rx="1.6"/><path d="M12 8.5V4.5M15.5 12h3V6.5M12 15.5v4M8.5 12h-3v5.5"/><circle cx="12" cy="3.3" r="1.3"/><circle cx="18.5" cy="5.2" r="1.3"/><circle cx="12" cy="20.7" r="1.3"/><circle cx="5.5" cy="18.8" r="1.3"/></svg>';
-  /* (19-oct-2026, Iago: «para los de grado profesional… al lado de teoría aparezca también el icono de mapa teórico») en la tira de GP,
+  /* (19-oct-2026, Iago: «para los de grado profesional… al lado de teoría aparezca también el icono de mapa teórico») en la tira de GP
+     (y desde el 20-oct-2026, también en la de GE),
      el iconito del mapa delante de «Teoría», y todo el recuadro de Teoría abre el mapa (sin estrechar los otros tres) */
   function rsmChipMapa(a,gp,h){
-    if(!gp || RSM_SIN_MAPA || !a || a.ap!=='teoria') return h;
+    if(RSM_SIN_MAPA || !a || a.ap!=='teoria') return h;   /* (20-oct-2026, Iago: «en grado elemental… cuando aún está compactado, ya aparezca en teoría el botón de ver mi mapa… al igual que ocurre con profesional») también en GE */
     var A=RSM_AREA.teoria;
     return h.replace('<span class="rsm-chip','<span role="button" tabindex="0" aria-label="Ver mi mapa de teoría" class="rsm-chip rsm-chip-mapa')
             .replace('">'+A[0]+'</span>','"><i class="rsm-mapa-mini">'+RSM_MAPA_SVG+'</i>'+A[0]+'</span>');
