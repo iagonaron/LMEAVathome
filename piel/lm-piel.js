@@ -96,7 +96,17 @@
   var TESTER_ID = { '4a3a8cf5-1ed6-4e86-99d1-5b090d5eacfb': 1, '23a2b7fb-3373-4877-b245-3a37d1f53de6': 1 };
   var TESTER_NOMBRE = { 'iago gonzalez tester': 1, 'iago gonzalez protester': 1, 'iago gonzalez pro tester': 1 };
   function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
-  function sesion() { try { return JSON.parse(localStorage.getItem(grado === 'gp' ? 'lmpro_session' : 'lmeav_session') || 'null'); } catch (e) { return null; } }
+  function sesion() {
+    try {
+      var s = JSON.parse(localStorage.getItem(grado === 'gp' ? 'lmpro_session' : 'lmeav_session') || 'null');
+      if (s || familia !== 'teoria') return s;
+      /* (20-oct-2026, Iago: «en teoría at home, en los ejercicios libres… no aparece la escaleta») Teoría at home / PRO no tienen
+         sesión propia: la cuenta les llega del portal en el «#c=» (apuntes.js la guarda en apx_cuenta_ge / _gp). Si es la de
+         Tester / Protester, vale como su sesión (para la escaleta); la de un alumno, no (como hasta ahora). */
+      var m = /[#&]c=([0-9a-f-]{36})/i.exec(location.hash || ''), c = m ? m[1] : localStorage.getItem('apx_cuenta_' + grado);
+      return (c && TESTER_ID[c]) ? { id: c, estado: 'validado', nombre: '', apx: true } : null;
+    } catch (e) { return null; }
+  }
   function idSesion(s) { return (s && s.id) ? String(s.id) : ''; }
   function esTester(s) { return !!(s && (TESTER_ID[idSesion(s)] || TESTER_NOMBRE[norm(s.nombre)])); }
   /* tarjetas de apartado (27-sep-2026, Iago): B = cristal negro con SOLO el contorno del color del apartado y,
@@ -337,6 +347,7 @@
     if (!escrito) hojas.forEach(css);
     window.LMPiel = { activo: true, app: app, grado: grado, familia: familia, base: BASE, ico: ico, barrer: barrer, P: P,
                       alinearGrado: alinearGrado, colocarGrado: colocarGrado, alPie: alPie };
+    try { var sT = sesion(); if (esTester(sT)) window.LMPiel.cuentaTester = idSesion(sT); } catch (e) {}   /* (20-oct-2026) para escaleta.js (Teoría at home / PRO) */
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
   }
 

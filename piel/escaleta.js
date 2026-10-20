@@ -84,7 +84,8 @@
   function cuenta0() {
     try {
       var s = JSON.parse(localStorage.getItem(GRADO === 'gp' ? 'lmpro_session' : 'lmeav_session') || 'null');
-      return (s && s.id && s.estado === 'validado' && TESTER[norm(s.nombre)]) ? String(s.id) : null;
+      if (s && s.id && s.estado === 'validado' && TESTER[norm(s.nombre)]) return String(s.id);
+      var L = W.LMPiel; return (L && L.cuentaTester) ? String(L.cuentaTester) : null;   /* (20-oct-2026) Teoría at home / PRO: la de lm-piel.js */
     } catch (e) { return null; }
   }
 
@@ -510,8 +511,10 @@
   /* (20-oct-2026, 16:30, Iago: «cada vez que, independientemente de lo que se haga, si pulso el botón… de play, se reproduce
      desde la previa, incluye la previa al pulsar») EL ▶ EMPIEZA POR LA PREVIA: el ▶ amarillo y el botón de arriba del mando
      (antes de la hora, en la entrada o tras un ■ antes de la hora) arrancan la previa en ese momento (o la cuenta atrás de
-     siempre si la previa no está lista en unos segundos), luego «Hoy en clase» y la primera actividad. Tras un ■ en plena
-     clase, el ▶ sigue donde estaba, como siempre. Para volver al ▶ de antes (directo a la primera actividad): false. */
+     siempre si la previa no está lista en unos segundos), luego «Hoy en clase» y la primera actividad. (16:50, Iago: «cuando le
+     di… al botón cuadrado… de stop, yo lo que espero es que cuando le dé al play me reinicie la clase… si no sería lo mismo que
+     dar la pausa») Tras un ■, también en plena clase, el ▶ empieza la clase DE NUEVO; para seguir donde estaba, ⏸. Para volver
+     al ▶ de antes (directo a la primera actividad, y tras ■ seguir donde estaba): false. */
   var PLAY_CON_PREVIA = true;
   function vista(t) {
     var c = claseAhora(t); if (!c) return { fase: 'nada' };
@@ -555,7 +558,7 @@
     var t = ahora(), v = vista(t), c = v.c; if (!c) return;
     var B = v.B, e = v.e ? JSON.parse(JSON.stringify(v.e)) : null, a = v.a;
     if (q === 'empezar') {
-      if (e && e.arr && e.parada && !(PLAY_CON_PREVIA && +e.parada < c.t0)) {   /* después de ■ (en plena clase): sigue donde estaba */
+      if (e && e.arr && e.parada && !PLAY_CON_PREVIA) {   /* (sin PLAY_CON_PREVIA) después de ■: sigue donde estaba */
         var a2 = avanza(e, B, t);
         e.pac = (+e.pac || 0) + (t - (+e.parada)); e.parada = 0; e.pausa = 0;
         if (a2 && !a2.fin) { e.i = a2.i; }
@@ -1782,6 +1785,7 @@
     if (!PORTAL) return;
     var lecs = (b && b.lecs) || null, sel = ICONOS[(b && b.tema) || ''] || '';
     var el = lecs ? $('alu-campana-btn') : (sel ? D.querySelector('#lm-iconos ' + sel) : null);
+    if (!lecs && b && /^PreDict/.test(b.t || '')) el = D.querySelector('#ge-espiral') || D.querySelector('.topbar-right .carrusel-btn') || el;   /* (20-oct-2026, Iago) PreDict Carrusel: la caracola, no el dictado */
     if (ANT.icono && ANT.icono !== el) { ANT.icono.classList.remove('lme-ic'); ANT.icono = null; }
     if (el && !el.classList.contains('lme-ic')) { el.classList.add('lme-ic'); ANT.icono = el; }
     /* y dentro de la campana («Tareas de la semana»), el botón de la lección (o lecciones) de hoy */
