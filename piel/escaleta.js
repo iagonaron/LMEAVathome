@@ -921,7 +921,10 @@
     var mar = $('lm-marco-app'); if (mar && mar.classList.contains('abierto') && mar.querySelector('.lm-ma-bar')) return 'marco';
     /* (20-oct-2026, Iago: «durante la intro de la carta no aparece la escaleta… no tengo referencia del tiempo que queda») la intro
        de la carta en RITMO at home / RITMO PRO (#introOv): la línea en su barra (miniLibro), sin tarjeta encima */
-    var ino = $('introOv'); if (ino && ino.classList.contains('show') && ino.querySelector('.intro-bar')) return 'intro';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
+    var ino = $('introOv'); if (ino && ino.classList.contains('show') && ino.querySelector('.intro-bar')) return 'intro';
+    /* (20-oct-2026, Iago: «¿durante los vídeos podía ocupar menos la escaleta? Ojalá cupiese en el margen negro de arriba sin invadir
+       el vídeo») el vídeo de Teoría at home / PRO (.apxf-vid): la línea en su margen negro de arriba (miniLibro), sin tarjeta */
+    var avo = D.querySelector('.apxf-vid'); if (avo && avo.querySelector('.apxf-vid-caja')) return 'vidteoria';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
     var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
     var dc = $('dcOverlay'), dictado = !!(dc && visible(dc)), carrusel = /^carrusel-/.test(APP);
     if (fs && fs !== H && fs !== D.body) return 'pantalla';           /* una parte a pantalla completa: la tarjeta no se ve */
@@ -1000,7 +1003,8 @@
     '#lme-mini .lme-mmas svg{width:10px;height:10px;display:block;pointer-events:none}' +
     '#lme-mini.lme-dic{margin-left:auto;max-width:42%}' +
     '#lm-marco-app .lm-ma-bar{position:relative}#lme-mini.lme-marco{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:34px;max-width:min(520px,46vw)}' +
-    '#lme-mini.lme-intro{position:absolute;z-index:3;height:36px;margin:0}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
+    '#lme-mini.lme-intro{position:absolute;z-index:3;height:36px;margin:0}' +
+    '#lme-mini.lme-vid{position:absolute;z-index:2;height:36px;margin:0;transform:translateX(-50%)}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
     '#lme-todo-fondo{position:fixed;inset:0;z-index:2147483611;background:rgba(6,9,17,.55)}' +
     '#lme-todo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147483612;width:min(820px,calc(100vw - 32px));max-height:min(90vh,calc(100vh - 24px));display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;' +
       'background:#0b1320;border:2px solid #facc15;border-radius:18px;padding:14px 18px 13px;color:#fff;text-align:left;font:500 15px/1.3 ' + F + ';-webkit-font-smoothing:antialiased;box-shadow:0 24px 70px rgba(0,0,0,.6);user-select:none;-webkit-user-select:none;pointer-events:auto}' +
@@ -1969,9 +1973,10 @@
     var lb = $('lb-ov'), pz = $('pz-esc'), dc = $('dcOverlay'), el = $('lme-mini');
     var mar = $('lm-marco-app'), mBar = (mar && mar.classList.contains('abierto')) ? mar.querySelector('.lm-ma-bar') : null, enMarco = !!mBar;   /* (20-oct-2026) Resultados */
     var ino = $('introOv'), iBar = (!enMarco && ino && ino.classList.contains('show')) ? ino.querySelector('.intro-bar') : null, enIntro = !!iBar;   /* (20-oct-2026) la intro de la carta */
-    var enLibro = !enMarco && !enIntro && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enIntro && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
-    var dTop = (!enMarco && !enIntro && !enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
-    if (!v || !(enMarco || enIntro || enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
+    var avo = (!enMarco && !enIntro) ? D.querySelector('.apxf-vid') : null, vCaja = avo ? avo.querySelector('.apxf-vid-caja') : null, enVid = !!vCaja;   /* (20-oct-2026) un vídeo de Teoría */
+    var enLibro = !enMarco && !enIntro && !enVid && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enIntro && !enVid && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
+    var dTop = (!enMarco && !enIntro && !enVid && !enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
+    if (!v || !(enMarco || enIntro || enVid || enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
     if (!el) {
       el = D.createElement('div'); el.id = 'lme-mini';
       el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><i class="lme-mb"><b></b></i>' +   /* (Iago) solo la actividad actual */
@@ -1982,7 +1987,8 @@
       });
     }
     if (enMarco) { var mx = mBar.querySelector('.lm-ma-x'); if (el.parentNode !== mBar || (mx && el.nextSibling !== mx)) mBar.insertBefore(el, mx || null); }
-    else if (enIntro) { if (el.parentNode !== ino) ino.appendChild(el); }   /* (20-oct-2026) en la intro, encima de su barra (no dentro: en el repaso la barra va en gris) */
+    else if (enIntro) { if (el.parentNode !== ino) ino.appendChild(el); }
+    else if (enVid) { if (el.parentNode !== avo) avo.appendChild(el); }   /* (20-oct-2026) en el margen negro de arriba del vídeo de Teoría */   /* (20-oct-2026) en la intro, encima de su barra (no dentro: en el repaso la barra va en gris) */
     else if (enPiz) { if (el.parentNode !== pz) pz.appendChild(el); }
     else if (enDic) { var der = dTop.querySelector('.dc-top-derecha'); if (el.parentNode !== dTop || (der && el.nextSibling !== der)) dTop.insertBefore(el, der || null); }
     else {
@@ -1994,6 +2000,7 @@
     el.classList.toggle('lme-piz', enPiz);
     el.classList.toggle('lme-marco', enMarco);
     el.classList.toggle('lme-intro', enIntro);
+    el.classList.toggle('lme-vid', enVid);
     el.classList.toggle('lme-dic', enDic);
     var B = v.B, a = v.a, b = B[a.i], extra = a.resto < 0 && a.mg > 0;
     var m = extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto));
@@ -2008,6 +2015,11 @@
         var idt = iBar.querySelector('.intro-dots'), rD = (idt && idt.getClientRects().length) ? idt.getBoundingClientRect() : null, x = Math.round((rT ? rT.right + 16 : rB.left + 12) - rO.left);
         el.style.left = x + 'px'; el.style.top = Math.round(rB.top - rO.top + (rB.height - 36) / 2) + 'px';
         el.style.maxWidth = rD ? Math.max(150, Math.min(440, Math.round(rD.left - rO.left - 18 - x))) + 'px' : '';
+      } catch (e) {}
+    } else if (enVid) {   /* (20-oct-2026) centrada en el margen negro de arriba, sin tocar el vídeo */
+      try {
+        var rA = avo.getBoundingClientRect(), rC = vCaja.getBoundingClientRect(), banda = rC.top - rA.top;
+        el.style.left = '50%'; el.style.top = Math.max(2, Math.round((banda - 36) / 2)) + 'px'; el.style.maxWidth = 'min(560px, 60vw)';
       } catch (e) {}
     } else if (el.style.left) { el.style.left = ''; el.style.top = ''; el.style.maxWidth = ''; }
     el.hidden = false;
@@ -2083,7 +2095,7 @@
     /* la tarjeta */
     /* (16-oct-2026, tarde) con un libro abierto, la línea dentro de él (y con la pizarra; y desde las 18:50, en el dictado animado) */
     var hayMini = false; try { hayMini = !!miniLibro(v.fase === 'clase' && !!v.a ? v : null); } catch (e) {}
-    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && inm !== 'marco' && inm !== 'intro' && !(inm === 'dictado' && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
+    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && inm !== 'marco' && inm !== 'intro' && inm !== 'vidteoria' && !(inm === 'dictado' && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
     ver(UI.isla, conIsla);
     H.classList.toggle('lm-esc-on', conIsla);
     if (PORTAL) apartar();   /* (16-oct-2026) la fila de botones, apartada o en su sitio */
