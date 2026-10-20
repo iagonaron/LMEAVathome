@@ -1003,7 +1003,7 @@
     '#lme-mini .lme-mmas svg{width:10px;height:10px;display:block;pointer-events:none}' +
     '#lme-mini.lme-dic{margin-left:auto;max-width:42%}' +
     '#lm-marco-app .lm-ma-bar{position:relative}#lme-mini.lme-marco{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:34px;max-width:min(520px,46vw)}' +
-    '#lme-mini.lme-intro{position:absolute;z-index:3;height:36px;margin:0}' +
+    '#lme-mini.lme-intro{position:absolute;z-index:3;height:36px;margin:0;transform:translateX(-50%)}' +
     '#lme-mini.lme-vid{position:absolute;z-index:2;height:36px;margin:0;transform:translateX(-50%)}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
     '#lme-todo-fondo{position:fixed;inset:0;z-index:2147483611;background:rgba(6,9,17,.55)}' +
     '#lme-todo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147483612;width:min(820px,calc(100vw - 32px));max-height:min(90vh,calc(100vh - 24px));display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;' +
@@ -1972,6 +1972,7 @@
      versión simplificada arriba, en el margen entre donde pone Acto 3 y cambio de página… lo mismo para Intervalia») con un
      libro del aula abierto (#lb-ov, a pantalla completa), la escaleta en una línea DENTRO de su barra: qué toca, cuánto queda
      y qué viene, con su barrita; con «Ampliar» (sin barra), flotando arriba en el centro. No se pulsa ni tapa la partitura. */
+  var PUNTOS = null;   /* (20-oct-2026, 20:45) los puntitos de la intro, apartados a la derecha de la línea */
   function miniLibro(v) {
     /* (16-oct-2026, tarde, Iago: «cuando estamos con la pizarra… que no ocupe, no me invada ni tape botones… en el medio, solo con
        una línea») y con la pizarra «Pentagrama» abierta, la misma línea en el centro de su barra (#pz-esc, entre colores y grosores) */
@@ -1981,6 +1982,7 @@
     var lb = $('lb-ov'), pz = $('pz-esc'), dc = $('dcOverlay'), el = $('lme-mini');
     var mar = $('lm-marco-app'), mBar = (mar && mar.classList.contains('abierto')) ? mar.querySelector('.lm-ma-bar') : null, enMarco = !!mBar;   /* (20-oct-2026) Resultados */
     var ino = $('introOv'), iBar = (!enMarco && ino && ino.classList.contains('show')) ? ino.querySelector('.intro-bar') : null, enIntro = !!iBar;   /* (20-oct-2026) la intro de la carta */
+    if (PUNTOS && (!enIntro || !v)) { try { PUNTOS.style.transform = ''; } catch (e) {} PUNTOS = null; }   /* (20-oct-2026, 20:45) los puntitos, a su sitio */
     var lv = $('lme-video'), avo = (!enMarco && !enIntro) ? (D.querySelector('.apxf-vid') || ((lv && lv.classList.contains('lme-did')) ? lv : null)) : null;   /* (20-oct-2026) y el del ▶ de la tarjeta */
     var vCaja = avo ? avo.querySelector('.apxf-vid-caja, .lme-vcaja') : null, enVid = !!vCaja;   /* (20-oct-2026) un vídeo de Teoría */
     var enLibro = !enMarco && !enIntro && !enVid && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enIntro && !enVid && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
@@ -2018,12 +2020,14 @@
     txt(el.children[1], m);
     el.classList.toggle('lme-extra', extra);
     el.children[2].firstChild.style.width = (extra ? 100 : Math.max(0, Math.min(100, (1 - Math.max(0, a.resto) / a.dur) * 100))).toFixed(1) + '%';
-    if (enIntro) {   /* (20-oct-2026) a la altura de la barra de la intro, tras «INTRO · 1.6 …», sin llegar a sus puntitos */
+    if (enIntro) {   /* (20-oct-2026, 20:45, Iago: «me gusta que la escaleta esté siempre en el centro, arriba… que la referencia sea arriba
+       en el medio») centrada en la pantalla, a la altura de la barra de la intro, sin pisar «INTRO · 1.6 …» (antes, justo detrás, a la
+       izquierda); los puntitos, si quedan debajo, se apartan a su derecha (más abajo, ya colocada) */
       try {
         var rO = ino.getBoundingClientRect(), rB = iBar.getBoundingClientRect(), ibr = iBar.querySelector('.intro-brand'), rT = (ibr && ibr.getClientRects().length) ? ibr.getBoundingClientRect() : null;
-        var idt = iBar.querySelector('.intro-dots'), rD = (idt && idt.getClientRects().length) ? idt.getBoundingClientRect() : null, x = Math.round((rT ? rT.right + 16 : rB.left + 12) - rO.left);
-        el.style.left = x + 'px'; el.style.top = Math.round(rB.top - rO.top + (rB.height - 36) / 2) + 'px';
-        el.style.maxWidth = rD ? Math.max(150, Math.min(440, Math.round(rD.left - rO.left - 18 - x))) + 'px' : '';
+        var cx = Math.round(rO.width / 2), izq = rT ? Math.round(rT.right - rO.left + 12) : 0;
+        el.style.left = cx + 'px'; el.style.top = Math.round(rB.top - rO.top + (rB.height - 36) / 2) + 'px';
+        el.style.maxWidth = Math.max(150, Math.min(440, 2 * (cx - izq))) + 'px';
       } catch (e) {}
     } else if (enVid) {   /* (20-oct-2026) centrada en el margen negro de arriba, sin tocar el vídeo */
       try {
@@ -2032,6 +2036,14 @@
       } catch (e) {}
     } else if (el.style.left) { el.style.left = ''; el.style.top = ''; el.style.maxWidth = ''; }
     el.hidden = false;
+    if (enIntro) try {   /* (20-oct-2026, 20:45) los puntitos de la intro que queden debajo de la línea, justo a su derecha */
+      var idt = iBar.querySelector('.intro-dots');
+      if (idt) {
+        idt.style.transform = ''; PUNTOS = null;
+        var rM = el.getBoundingClientRect(), rD = idt.getBoundingClientRect();
+        if (rD.width && rD.left < rM.right + 12 && rD.right > rM.left - 12) { idt.style.transform = 'translateX(' + Math.round(rM.right + 14 - rD.left) + 'px)'; PUNTOS = idt; }
+      }
+    } catch (e) {}
     return true;
   }
   var ULT = 0, COLOCADA = 0;
