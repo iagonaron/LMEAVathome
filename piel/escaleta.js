@@ -914,7 +914,7 @@
   function inmersivo() {
     /* (16-oct-2026, tarde, Iago: «durante la reproducción de un vídeo didáctico quiero que la escaleta no se vea… molesta») el
        vídeo abierto desde la tarjeta, didáctico o temático: la tarjeta no se ve; al cerrarlo (✕), vuelve. Antes, con el didáctico se quedaba. */
-    var ovv = $('lme-video'); if (ovv) return 'pantalla';
+    var ovv = $('lme-video'); if (ovv) return (ovv.classList.contains('lme-did') && ovv.querySelector('.lme-vcaja')) ? 'vidteoria' : 'pantalla';   /* (20-oct-2026) el didáctico, como el de Teoría: la línea en su margen de arriba */
     /* (20-oct-2026, Iago: «sale el botón de la escaleta… delante de todo… no aparece en su lugar… aquí no tiene sentido») la pantalla
        de Resultados abierta dentro del portal (#lm-marco-app, sección 16 de portal.js): sin tarjeta ni ▶ por encima; con la clase
        en marcha, la línea en el centro de su barra (miniLibro). Para quitarlo: borrar esta línea. */
@@ -1079,6 +1079,10 @@
     /* (16-oct-2026, tarde) didáctico: por debajo de la tarjeta (que sigue arriba) y la ✕ a la derecha */
     '#lme-video.lme-did{z-index:2147483590}' +
     '#lme-video.lme-did .lme-vx{left:auto;right:14px;top:14px;transform:none}' +
+    /* (20-oct-2026) el didáctico, como el vídeo de Teoría: caja 16:9 centrada sobre negro, ✕ arriba a la derecha */
+    '#lme-video.lme-did{background:#050403;display:flex;align-items:center;justify-content:center}' +
+    '#lme-video .lme-vcaja{position:relative;width:min(92vw,calc(86vh*16/9));height:min(51.75vw,86vh);background:#000;border:1px solid rgba(255,255,255,.22);border-radius:14px;overflow:hidden}' +
+    '#lme-video.lme-did .lme-vx{right:16px;width:40px;height:40px;opacity:.85}' +
     '.lme-full{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;color:#fff;font-family:' + F + ';-webkit-font-smoothing:antialiased;' +
       'background:linear-gradient(rgba(6,9,17,.84),rgba(6,9,17,.84)),url("' + BASE + 'fondo-apaisado.jpg") center/cover #070b14;transition:opacity .45s ease,transform .45s ease;transform-origin:50% 6%;user-select:none;-webkit-user-select:none;cursor:default}' +
     '.lme-full *{box-sizing:border-box;margin:0;padding:0;letter-spacing:normal;text-transform:none;font-style:normal}' +
@@ -1242,6 +1246,9 @@
     menos: '<svg viewBox="0 0 24 24"><path d="M4.5 12h15" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>' };
   /* (16-oct-2026) vídeo: se abre aquí mismo, a pantalla completa; ✕ (arriba en el centro) o Esc para volver */
   var VID_ACTUAL = null;
+  /* (20-oct-2026, Iago: «el botón de play de la tarjeta de la escaleta lo que abra quiero que sea igual, vamos, a unificar») el vídeo
+     didáctico, como los de Teoría: en una caja 16:9 sobre negro y la escaleta en una línea en el margen de arriba. Para quitarlo: false */
+  var VID_CAJA = true;
   function abrirVideo(vd) {
     if (!vd || !vd.u) return;
     cerrarVideo(true);
@@ -1249,7 +1256,8 @@
     /* (16-oct-2026, tarde, Iago) didáctico: la tarjeta sigue arriba, «en segundo plano»; temático (un portal): a pantalla
        completa y la tarjeta desaparece */
     ov.className = vd.tema ? 'lme-tema' : 'lme-did';
-    ov.innerHTML = '<iframe allow="autoplay; fullscreen; microphone" allowfullscreen title="' + esc(vd.t) + '"></iframe>' +
+    var ifr = '<iframe allow="autoplay; fullscreen; microphone" allowfullscreen title="' + esc(vd.t) + '"></iframe>';
+    ov.innerHTML = ((!vd.tema && VID_CAJA) ? '<div class="lme-vcaja">' + ifr + '</div>' : ifr) +   /* (20-oct-2026) la caja, como en Teoría */
       '<button type="button" class="lme-vx" title="Volver (Esc)" aria-label="Volver">✕</button>';
     ov.querySelector('iframe').src = vd.u;
     ov.querySelector('.lme-vx').addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); cerrarVideo(); });
@@ -1973,7 +1981,8 @@
     var lb = $('lb-ov'), pz = $('pz-esc'), dc = $('dcOverlay'), el = $('lme-mini');
     var mar = $('lm-marco-app'), mBar = (mar && mar.classList.contains('abierto')) ? mar.querySelector('.lm-ma-bar') : null, enMarco = !!mBar;   /* (20-oct-2026) Resultados */
     var ino = $('introOv'), iBar = (!enMarco && ino && ino.classList.contains('show')) ? ino.querySelector('.intro-bar') : null, enIntro = !!iBar;   /* (20-oct-2026) la intro de la carta */
-    var avo = (!enMarco && !enIntro) ? D.querySelector('.apxf-vid') : null, vCaja = avo ? avo.querySelector('.apxf-vid-caja') : null, enVid = !!vCaja;   /* (20-oct-2026) un vídeo de Teoría */
+    var lv = $('lme-video'), avo = (!enMarco && !enIntro) ? (D.querySelector('.apxf-vid') || ((lv && lv.classList.contains('lme-did')) ? lv : null)) : null;   /* (20-oct-2026) y el del ▶ de la tarjeta */
+    var vCaja = avo ? avo.querySelector('.apxf-vid-caja, .lme-vcaja') : null, enVid = !!vCaja;   /* (20-oct-2026) un vídeo de Teoría */
     var enLibro = !enMarco && !enIntro && !enVid && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enIntro && !enVid && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
     var dTop = (!enMarco && !enIntro && !enVid && !enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
     if (!v || !(enMarco || enIntro || enVid || enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
