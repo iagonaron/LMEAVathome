@@ -1973,6 +1973,7 @@
      libro del aula abierto (#lb-ov, a pantalla completa), la escaleta en una línea DENTRO de su barra: qué toca, cuánto queda
      y qué viene, con su barrita; con «Ampliar» (sin barra), flotando arriba en el centro. No se pulsa ni tapa la partitura. */
   var PUNTOS = null;   /* (20-oct-2026, 20:45) los puntitos de la intro, apartados a la derecha de la línea */
+  var ESCENA = null;   /* (20-oct-2026, 21:15) el cartel de la intro, un poco más abajo (solo en un móvil: la línea va bajo la barra) */
   function miniLibro(v) {
     /* (16-oct-2026, tarde, Iago: «cuando estamos con la pizarra… que no ocupe, no me invada ni tape botones… en el medio, solo con
        una línea») y con la pizarra «Pentagrama» abierta, la misma línea en el centro de su barra (#pz-esc, entre colores y grosores) */
@@ -1982,7 +1983,8 @@
     var lb = $('lb-ov'), pz = $('pz-esc'), dc = $('dcOverlay'), el = $('lme-mini');
     var mar = $('lm-marco-app'), mBar = (mar && mar.classList.contains('abierto')) ? mar.querySelector('.lm-ma-bar') : null, enMarco = !!mBar;   /* (20-oct-2026) Resultados */
     var ino = $('introOv'), iBar = (!enMarco && ino && ino.classList.contains('show')) ? ino.querySelector('.intro-bar') : null, enIntro = !!iBar;   /* (20-oct-2026) la intro de la carta */
-    if (PUNTOS && (!enIntro || !v)) { try { PUNTOS.style.transform = ''; } catch (e) {} PUNTOS = null; }   /* (20-oct-2026, 20:45) los puntitos, a su sitio */
+    if (PUNTOS && (!enIntro || !v)) { try { PUNTOS.style.transform = ''; PUNTOS.style.visibility = ''; } catch (e) {} PUNTOS = null; }   /* (20-oct-2026, 20:45) los puntitos, a su sitio */
+    if (ESCENA && (!enIntro || !v)) { try { ESCENA.style.marginTop = ''; } catch (e) {} ESCENA = null; }   /* (20-oct-2026, 21:15) y el cartel */
     var lv = $('lme-video'), avo = (!enMarco && !enIntro) ? (D.querySelector('.apxf-vid') || ((lv && lv.classList.contains('lme-did')) ? lv : null)) : null;   /* (20-oct-2026) y el del ▶ de la tarjeta */
     var vCaja = avo ? avo.querySelector('.apxf-vid-caja, .lme-vcaja') : null, enVid = !!vCaja;   /* (20-oct-2026) un vídeo de Teoría */
     var enLibro = !enMarco && !enIntro && !enVid && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enIntro && !enVid && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
@@ -2021,13 +2023,11 @@
     el.classList.toggle('lme-extra', extra);
     el.children[2].firstChild.style.width = (extra ? 100 : Math.max(0, Math.min(100, (1 - Math.max(0, a.resto) / a.dur) * 100))).toFixed(1) + '%';
     if (enIntro) {   /* (20-oct-2026, 20:45, Iago: «me gusta que la escaleta esté siempre en el centro, arriba… que la referencia sea arriba
-       en el medio») centrada en la pantalla, a la altura de la barra de la intro, sin pisar «INTRO · 1.6 …» (antes, justo detrás, a la
-       izquierda); los puntitos, si quedan debajo, se apartan a su derecha (más abajo, ya colocada) */
+       en el medio») centrada en la pantalla, a la altura de la barra de la intro (antes, justo detrás de «INTRO · 1.6 …», a la
+       izquierda); el sitio exacto, más abajo, ya visible (para poder medirla) */
       try {
-        var rO = ino.getBoundingClientRect(), rB = iBar.getBoundingClientRect(), ibr = iBar.querySelector('.intro-brand'), rT = (ibr && ibr.getClientRects().length) ? ibr.getBoundingClientRect() : null;
-        var cx = Math.round(rO.width / 2), izq = rT ? Math.round(rT.right - rO.left + 12) : 0;
-        el.style.left = cx + 'px'; el.style.top = Math.round(rB.top - rO.top + (rB.height - 36) / 2) + 'px';
-        el.style.maxWidth = Math.max(150, Math.min(440, 2 * (cx - izq))) + 'px';
+        var rO = ino.getBoundingClientRect(), rB = iBar.getBoundingClientRect();
+        el.style.left = Math.round(rO.width / 2) + 'px'; el.style.top = Math.round(rB.top - rO.top + (rB.height - 36) / 2) + 'px'; el.style.maxWidth = '440px';
       } catch (e) {}
     } else if (enVid) {   /* (20-oct-2026) centrada en el margen negro de arriba, sin tocar el vídeo */
       try {
@@ -2036,12 +2036,36 @@
       } catch (e) {}
     } else if (el.style.left) { el.style.left = ''; el.style.top = ''; el.style.maxWidth = ''; }
     el.hidden = false;
-    if (enIntro) try {   /* (20-oct-2026, 20:45) los puntitos de la intro que queden debajo de la línea, justo a su derecha */
-      var idt = iBar.querySelector('.intro-dots');
-      if (idt) {
-        idt.style.transform = ''; PUNTOS = null;
-        var rM = el.getBoundingClientRect(), rD = idt.getBoundingClientRect();
-        if (rD.width && rD.left < rM.right + 12 && rD.right > rM.left - 12) { idt.style.transform = 'translateX(' + Math.round(rM.right + 14 - rD.left) + 'px)'; PUNTOS = idt; }
+    if (enIntro) try {   /* (20-oct-2026, 21:15, Iago: «lo importante es que el botón de avanzar esté habilitado, que los títulos de los
+       carteles estén habilitados y ya está… si la escaleta está justo encima de esos puntitos, lo vamos a considerar un mal menor»)
+       1) centrada en la pantalla si cabe entre el título («INTRO · 1.6 …») y ← «Siguiente» ✕ (el aula, el iPad); 2) si no (ventana
+       estrecha), lo más cerca del centro que quepa entre los dos; 3) si ni así (un móvil), justo debajo de la barra, centrada, y el
+       cartel 44 px más abajo (si no, tapaba «EN LA ANTERIOR CARTA…»). Nunca encima de un título ni de los botones. Los puntitos que
+       queden debajo de la línea: a su derecha si caben antes de los botones; si no, a su
+       izquierda si caben tras el título; si no, escondidos mientras tanto (solo dicen en qué paso va; vuelven al cerrar la intro) */
+      var rOi = ino.getBoundingClientRect(), rBi = iBar.getBoundingClientRect(), iTit = iBar.querySelector('.intro-brand'), iNav = iBar.querySelector('.intro-nav'), iPun = iBar.querySelector('.intro-dots');
+      if (iPun) { iPun.style.transform = ''; iPun.style.visibility = ''; PUNTOS = null; }
+      var rTi = (iTit && iTit.getClientRects().length) ? iTit.getBoundingClientRect() : null, rNi = (iNav && iNav.getClientRects().length) ? iNav.getBoundingClientRect() : null;
+      if (rTi && !rTi.width) rTi = null; if (rNi && !rNi.width) rNi = null;
+      var cxI = rOi.width / 2, izI = (rTi ? rTi.right : rBi.left - 2) - rOi.left + 12, deI = (rNi ? rNi.left : rBi.right + 2) - rOi.left - 12;
+      var anI = Math.min(440, el.getBoundingClientRect().width), mxI = 440, ceI = cxI, abI = false;
+      if (cxI - anI / 2 >= izI && cxI + anI / 2 <= deI) { /* 1) cabe en el centro tal cual */ }
+      else if (2 * Math.min(cxI - izI, deI - cxI) >= 150) mxI = Math.floor(2 * Math.min(cxI - izI, deI - cxI));   /* 1) en el centro, más estrecha */
+      else if (deI - izI >= 150) { mxI = Math.floor(Math.min(440, deI - izI)); var anI2 = Math.min(anI, mxI); ceI = Math.min(Math.max(cxI, izI + anI2 / 2), deI - anI2 / 2); }   /* 2) */
+      else { abI = true; mxI = Math.floor(Math.min(440, rOi.width - 32)); }   /* 3) */
+      el.style.maxWidth = mxI + 'px'; el.style.left = Math.round(ceI) + 'px';
+      if (abI) el.style.top = Math.round(rBi.bottom - rOi.top + 4) + 'px';
+      var iEsc = abI ? ino.querySelector('.intro-stage') : null;
+      if (iEsc) { if (iEsc.style.marginTop !== '44px') iEsc.style.marginTop = '44px'; ESCENA = iEsc; } else if (ESCENA) { ESCENA.style.marginTop = ''; ESCENA = null; }
+      if (iPun && !abI) {
+        var rMi = el.getBoundingClientRect(), rDi = iPun.getBoundingClientRect();
+        if (rDi.width && rDi.left < rMi.right + 12 && rDi.right > rMi.left - 12) {
+          var limD = rNi ? rNi.left - 8 : rBi.right - 10, limI = rTi ? rTi.right + 8 : rBi.left + 10;
+          if (rMi.right + 14 + rDi.width <= limD) iPun.style.transform = 'translateX(' + Math.round(rMi.right + 14 - rDi.left) + 'px)';
+          else if (rMi.left - 14 - rDi.width >= limI) iPun.style.transform = 'translateX(' + Math.round(rMi.left - 14 - rDi.right) + 'px)';
+          else iPun.style.visibility = 'hidden';
+          PUNTOS = iPun;
+        }
       }
     } catch (e) {}
     return true;
