@@ -507,6 +507,12 @@
      parar, igual que siempre (la clase ya va); antes de la hora, igual (parada, con su ▶ para seguir). Para volver a lo de
      antes: ANTES_NO_CUENTA = false. */
   var ANTES_NO_CUENTA = true;
+  /* (20-oct-2026, 16:30, Iago: «cada vez que, independientemente de lo que se haga, si pulso el botón… de play, se reproduce
+     desde la previa, incluye la previa al pulsar») EL ▶ EMPIEZA POR LA PREVIA: el ▶ amarillo y el botón de arriba del mando
+     (antes de la hora, en la entrada o tras un ■ antes de la hora) arrancan la previa en ese momento (o la cuenta atrás de
+     siempre si la previa no está lista en unos segundos), luego «Hoy en clase» y la primera actividad. Tras un ■ en plena
+     clase, el ▶ sigue donde estaba, como siempre. Para volver al ▶ de antes (directo a la primera actividad): false. */
+  var PLAY_CON_PREVIA = true;
   function vista(t) {
     var c = claseAhora(t); if (!c) return { fase: 'nada' };
     var pub = escaleta(c), e = estado(c), B = bloquesDe(pub, c.grupo), desde = (t - c.t0) / 1000;
@@ -514,8 +520,13 @@
       var quieto0 = +e.parada || +e.pausa || 0;
       if (quieto0 && quieto0 < c.t0) e = null;   /* empezada y parada (o en pausa) antes de la hora: no cuenta */
     }
+    var t5 = c.t0 + 300000;   /* (20-oct-2026) cuándo empieza la primera actividad: al 5:00 de la hora de la clase… */
+    if (PLAY_CON_PREVIA && e && +e.pre && !+e.arr) {   /* …o, con el ▶, al acabar la previa que empezó al pulsarlo */
+      t5 = +e.pre + (cuentaPrevista(c) + kIndice(pub, c.grupo) * PASO) * 1000;
+      desde = (t - (t5 - 300000)) / 1000;
+    }
     var v = { c: c, B: B, pub: pub, e: e, desde: desde, fase: 'nada' }, INDICE = kIndice(pub, c.grupo) * PASO;
-    v.ind = INDICE;
+    v.ind = INDICE; v.t5 = t5;
     if (noHayClase(pub)) return v;
     if (desde < 0) { v.fase = (e && e.arr) ? 'clase' : 'antes'; }
     else if (!e || !e.arr) {
@@ -524,7 +535,7 @@
       if (desde < 300 - CU - INDICE) v.fase = 'entrada';
       else if (desde < 300 - INDICE) { v.fase = 'cuenta'; v.queda = 300 - INDICE - desde; }
       else if (desde < 300) { v.fase = 'indice'; v.queda = 300 - desde; }
-      else if (B.length) { v.fase = 'clase'; v.e = e = { arr: c.t0 + 300000, i: 0, ini: c.t0 + 300000, pac: 0, mg: 0, auto: true }; }
+      else if (B.length) { v.fase = 'clase'; v.e = e = { arr: t5, i: 0, ini: t5, pac: 0, mg: 0, auto: true }; }
       else v.fase = desde < (DURA + 15) * 60 ? 'sin' : 'nada';
     } else v.fase = 'clase';
     if (v.fase === 'clase') {
@@ -544,13 +555,14 @@
     var t = ahora(), v = vista(t), c = v.c; if (!c) return;
     var B = v.B, e = v.e ? JSON.parse(JSON.stringify(v.e)) : null, a = v.a;
     if (q === 'empezar') {
-      if (e && e.arr && e.parada) {   /* después de ■: sigue donde estaba */
+      if (e && e.arr && e.parada && !(PLAY_CON_PREVIA && +e.parada < c.t0)) {   /* después de ■ (en plena clase): sigue donde estaba */
         var a2 = avanza(e, B, t);
         e.pac = (+e.pac || 0) + (t - (+e.parada)); e.parada = 0; e.pausa = 0;
         if (a2 && !a2.fin) { e.i = a2.i; }
         guardarEstado(c, e); pintar(true); return;
       }
       if (!B.length) return;
+      if (PLAY_CON_PREVIA) { empezarConPrevia(c); return; }   /* (20-oct-2026) por la previa */
       e = { arr: t, i: 0, ini: t, pac: 0, mg: 0, pausa: 0, parada: 0 };
       guardarEstado(c, e); cartelPara(0, true); pintar(true); return;
     }
@@ -574,6 +586,32 @@
       if (base.pausa) { base.pac += t - base.pausa; base.pausa = 0; }
       base.parada = t; guardarEstado(c, base); pintar(true); return;
     }
+  }
+  /* (20-oct-2026) el ▶ por la previa: si la previa aún no está lista, se prepara y se espera como mucho 6 s (el ▶, a media
+     luz); luego se apunta { pre: ahora } y la cuenta empieza en ese momento. La previa de esta clase se vuelve a decidir. */
+  var EMPIEZA = { k: '', hasta: 0 };
+  function empezarConPrevia(c) {
+    var k = c.clave;
+    if (EMPIEZA.k === k && EMPIEZA.hasta > Date.now()) return;   /* ya se está preparando (otro toque) */
+    try { delete PV.modo[k]; delete PV.uso[k]; sessionStorage.removeItem('lm_esc_pv:' + k); } catch (er) {}
+    EMPIEZA.k = k; EMPIEZA.hasta = Date.now() + 6500;
+    var luz = function (x) { try { if (UI && UI.play) UI.play.style.opacity = x ? '' : '.45'; } catch (er) {} };
+    var ya = function () {
+      if (EMPIEZA.k !== k || !EMPIEZA.hasta) return;
+      EMPIEZA.hasta = 0; luz(true);
+      var v = vista(ahora()); if (!v.c || v.c.clave !== k) return;
+      guardarEstado(v.c, { pre: ahora(), arr: 0, i: 0, ini: 0, pac: 0, mg: 0, pausa: 0, parada: 0 });
+      pintar(true);
+    };
+    if (!PREVIA_ON || pvLista(c)) { ya(); return; }
+    luz(false);
+    var n = 0;
+    (function mira() {
+      if (EMPIEZA.k !== k || !EMPIEZA.hasta) return;
+      try { var v = vista(ahora()); if (v.c && v.c.clave === k) pvPrepara(v); } catch (er) {}
+      if (pvLista(c) || ++n >= 20) { ya(); return; }
+      setTimeout(mira, 300);
+    })();
   }
   /* (16-oct-2026, Iago) «PONER FALTAS»: «una especie de nota para mí que sea poner faltas y que yo tenga que darle a check…
      para yo poder salir de esa pantalla tengo que marcar check de que he puesto las faltas». En la pantalla final de C1 y
@@ -1417,7 +1455,7 @@
      · «Saltar» (abajo a la derecha, al mover el ratón) la quita (el mando, en la previa, no hace nada): la cuenta atrás de siempre hasta el índice,
        con su pista donde vaya. Si el marco deja de dar señales (3,5 s), lo mismo.
      Para quitarla: PREVIA_ON = false. */
-  var PREVIA_ON = true, PREVIA_V = '2026-10-18a', PREVIA_ADELANTE = 480;
+  var PREVIA_ON = true, PREVIA_V = '2026-10-18a', PREVIA_ADELANTE = 600;   /* (20-oct-2026) antes 480: el ▶ sale 10 min antes */
   var PV = { caja: null, fr: null, bot: null, hola: false, cfg: null, cfgK: '', k: '', n: 0, enviada: '', listo: null, buf: {}, pide: {},
              modo: {}, uso: {}, src: [], g: null, vivo: 0, visto: 0, play: 0, raf: 0, botT: 0, err: 0 };
   function pvModoLee(k) { try { var x = JSON.parse(sessionStorage.getItem('lm_esc_pv:' + k) || 'null'); return x && x.m ? x : null; } catch (e) { return null; } }
@@ -1428,6 +1466,12 @@
     var L = PV.listo; if (!L || !c || L.k !== c.clave || L.cfgK !== PV.cfgK || !PV.hola) return null;
     for (var i = 0; i < L.audio.archivos.length; i++) if (!PV.buf[L.audio.archivos[i]]) return null;
     return L;
+  }
+  /* (20-oct-2026) lo que durará la cuenta de esta clase si empieza ahora (sin decidirlo: eso lo hace cuentaDe) */
+  function cuentaPrevista(c) {
+    if (!PREVIA_ON || !c) return CUENTA;
+    var M = PV.modo[c.clave] || pvModoLee(c.clave); if (M) return M.dur;
+    var L = pvLista(c); return L ? L.dur : CUENTA;
   }
   /* cuántos segundos dura la cuenta de esta clase: la previa (si está lista al empezar) o la de siempre; se decide una vez */
   function cuentaDe(c, desde, IND) {
@@ -1918,14 +1962,14 @@
     var v = vista(t);
     ANT.nada = (v.fase === 'nada' || v.fase === 'acabada') ? t + 2000 : 0;
     if (ANT.nada) { despierto(false); callarBateria(true); }
-    if (PV.caja && !/^(antes|entrada|cuenta|indice)$/.test(v.fase) && Date.now() - PV.visto > 5000) pvQuita();   /* (17-oct-2026) la previa, fuera */
+    if (PV.caja && !/^(antes|entrada|cuenta|indice)$/.test(v.fase) && !(v.fase === 'parada' && v.desde < 0) && !(EMPIEZA && EMPIEZA.hasta > Date.now()) && Date.now() - PV.visto > 5000) pvQuita();   /* (17-oct-2026) la previa, fuera */
     if (v.fase === 'nada' && !UI) return;
     if (!montar()) return;
     var inm = inmersivo();
     avisar(v); abrirMorosos(v);
     /* la salida de sonido despierta un poco antes de «Hoy en clase» (el mini-jack del aula tarda en espabilar) */
     if (v.fase === 'entrada' && v.desde >= 300 - (v.cu || CUENTA) - (v.ind || 0) - 12) despierto(true);
-    try { if (v.c && (v.fase === 'antes' || v.fase === 'entrada') && v.desde >= -PREVIA_ADELANTE) pvPrepara(v); } catch (e) {}   /* (17-oct-2026) la previa, escondida y lista */
+    try { if (v.c && (v.fase === 'antes' || v.fase === 'entrada' || (v.fase === 'parada' && v.desde < 0)) && v.desde >= -PREVIA_ADELANTE) pvPrepara(v); } catch (e) {}   /* (17-oct-2026) la previa, escondida y lista */
     if (v.c && v.fase !== 'nada' && v.fase !== 'acabada') cargarSonidos();
     /* la PREPARACIÓN (4:16–4:48, la cuenta atrás) y «HOY EN CLASE» (4:48–5:00, cargando las actividades) */
     var enPrevia = (v.fase === 'cuenta' || v.fase === 'indice') && inm !== 'pantalla';
@@ -1937,7 +1981,7 @@
       if (UI.indice.hidden) {
         txt(UI.iEy, grupoBonito(v.c.grupo) + ' · ' + DIA_NOMBRE[v.c.dia]);
         /* cada línea, cuando le toca su golpe (en segundos desde ahora: si la página se abre a medias, lo de antes ya está) */
-        var fin = v.c.t0 + 300000, ya = t, num = 0;
+        var fin = v.t5, ya = t, num = 0;
         var dk = function (k) { return ((fin - k * PASO * 1000 - ya) / 1000).toFixed(2) + 's'; };
         UI.indice.classList.toggle('lme-apretado', plan.n > 8);
         UI.iList.innerHTML = plan.filas.map(function (fi) {
@@ -1973,8 +2017,8 @@
     }
     /* la batería suena en las dos; en el 5:00 cierra sola (y el platillo se deja oír); si la clase se empieza antes con
        ▶, o se para, o se va a pantalla completa, se calla */
-    var autoIni = v.fase === 'clase' && v.e && (v.e.auto || +v.e.arr === v.c.t0 + 300000) && v.desde <= 303;
-    if (enPrevia) { despierto(true); bateria(v.c.t0 + 300000, pvSonido(v)); }
+    var autoIni = v.fase === 'clase' && v.e && (v.e.auto || +v.e.arr === v.t5) && v.desde <= 303;
+    if (enPrevia) { despierto(true); bateria(v.t5, pvSonido(v)); }
     else if (BAT.vivo && !autoIni) callarBateria();
     /* la tarjeta */
     /* (16-oct-2026, tarde) con un libro abierto, la línea dentro de él (y con la pizarra; y desde las 18:50, en el dictado animado) */
@@ -2126,6 +2170,29 @@
     return !!((lb && lb.classList.contains('open')) || H.classList.contains('pz-abierto') || (dc && visible(dc)) || $('lme-video') || TODO.abierto ||
       D.querySelector('.lm-vl-bar, .lm-ic-menu, [id$="-modal"].open, [id$="-ov"].open, [id$="-overlay"].open'));   /* la lista de morosos no: no usa estas teclas */
   }
+  /* (20-oct-2026, Iago, en clase: «si estoy en la parte de escribir partituras… si le doy para adelante me cambia el tipo de
+     puntero… o me cambia la tonalidad de arriba… yo quiero que me permita ir a lo siguiente… hay que discriminarlo») CON LA
+     PIZARRA, EL VISOR DE LAS LECCIONES DE RITMO (#ts-visor) O EL DE ENTONACIÓN (#lm-ento) ABIERTOS y la clase en marcha, las teclas
+     del mando son de la escaleta, antes que de nadie: ↓ / Av Pág / → = siguiente, ↑ / Re Pág / ← = anterior, Tab = pausa /
+     seguir. Antes caían en el control con el foco (la rueda de la tonalidad, las herramientas de anotar) y lo cambiaban.
+     Escribiendo en un campo de texto, siguen siendo del campo; sin clase en marcha, como antes. Los libros, igual que antes.
+     Para quitarlo: MANDO_PIZARRA = false. */
+  var MANDO_PIZARRA = true;
+  W.addEventListener('keydown', function (e) {
+    if (!MANDO || !MANDO_PIZARRA || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (!(H.classList.contains('pz-abierto') || D.getElementById('ts-visor') || D.getElementById('lm-ento'))) return;   /* pizarra · ritmo · entonación */
+    var k = e.key, q = '';
+    if (k === 'Tab' && !e.shiftKey) q = 'pausa';
+    else if (k === 'PageDown' || k === 'ArrowDown' || k === 'ArrowRight') q = 'sig';
+    else if (k === 'PageUp' || k === 'ArrowUp' || k === 'ArrowLeft') q = 'ant';
+    if (!q || !cuenta()) return;
+    var tg = e.target, tipo = tg && tg.tagName === 'INPUT' ? String(tg.type || 'text').toLowerCase() : '';
+    if (tg && (tg.isContentEditable || tg.tagName === 'TEXTAREA' || /^(text|search|number|email|url|tel|password)$/.test(tipo))) return;   /* escribiendo: del campo */
+    var v = vista(ahora()); if (v.fase !== 'clase' || !v.a) return;
+    e.preventDefault(); e.stopPropagation(); if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    try { if (tg && tg !== D.body && tg !== H && tg.blur) tg.blur(); } catch (er) {}   /* que el desplegable no se quede con el foco */
+    audio(); despierto(true); accion(q);
+  }, true);
   D.addEventListener('keydown', function (e) {
     if (!MANDO || e.altKey || e.ctrlKey || e.metaKey) return;
     var k = e.key, q = '';
