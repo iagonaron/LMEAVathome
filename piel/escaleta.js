@@ -1116,8 +1116,8 @@
     '.lme-ic{outline:2px solid #facc15!important;outline-offset:2px!important}' +
     /* (15-oct-2026, 19:10, Iago: «el contorno amarillo… quiero que esté visible aunque la notificación de ritmo esté ya gris,
        porque ya la he hecho») la tarjeta (y la fila) gris que lleva la lección de hoy recupera su color mientras toca */
-    'html body #alu-body .alu-item.cv2.hecha:has(.lme-ic),html body #alu-body .cv2 .ts-parte.cv2-parte.ts-hecha:has(.lme-ic),' +
-    'html body .alu-item-tareas.hecha:has(.lme-ic),html body .ts-parte.ts-hecha:has(.lme-ic){filter:none!important;opacity:1!important}' +
+    /* (20-oct-2026) antes aquí, con :has(): la tarjeta y la fila grises de la lección recuperaban TODO su color (y en algunos
+       navegadores no hacía nada). Ahora el gris se aparta solo del contorno: grisDebajo(), en iconoActivo. */
     /* (15-oct-2026, 19:10, Iago: «pulso el botón de libro… la ventana en la que elijo el libro aparece detrás de la escaleta»)
        mientras está abierto un menú de los botones de arriba (o la lista de morosos), la tarjeta de la escaleta se aparta */
     'html:has(.lm-ic-menu) #lme-isla,html:has(.lm-mor-panel) #lme-isla{opacity:0!important;pointer-events:none!important;transition:opacity .15s}' +
@@ -1734,6 +1734,66 @@
     Array.prototype.forEach.call(D.querySelectorAll('.ts-lec-chip'), function (c) {
       var si = quiero.indexOf(c.getAttribute('data-parte') || '') >= 0;
       if (si !== c.classList.contains('lme-ic')) c.classList.toggle('lme-ic', si);
+    });
+    try { grisDebajo(); } catch (e) {}   /* (20-oct-2026) el contorno, por encima del gris */
+  }
+  /* (20-oct-2026, Iago: «si yo esa notificación la tengo grisácea porque ya la hice, veo el contorno, pero no lo veo de color
+     amarillo… que el gris no esté por encima de mi contorno amarillo… que se vea amarillo, aunque el resto de la notificación
+     siga estando gris») EL GRIS, DEBAJO DEL CONTORNO. El gris de lo hecho (un filtro grayscale y una opacidad en la tarjeta o en
+     la fila) apaga también el contorno de lo que llevan dentro. Mientras la lección está marcada, el gris se quita de los
+     «padres» de su botón y se pone igual en todo lo demás (sus hermanos); el propio botón, con sus colores apagados como el resto
+     y el contorno, amarillo de verdad. Sin :has() (antes, una regla con :has() devolvía el color a TODA la tarjeta, y en algunos
+     navegadores no hacía nada). Solo dentro de la campana (#alu-body). Para quitarlo: GRIS_ON = false. */
+  var GRIS_ON = true, GRIS = { chips: [], cambios: [] };
+  function grisPon(el, p, v) { GRIS.cambios.push({ el: el, p: p, v: el.style.getPropertyValue(p), pr: el.style.getPropertyPriority(p) }); el.style.setProperty(p, v, 'important'); }
+  function grisFuera() {
+    for (var i = GRIS.cambios.length - 1; i >= 0; i--) {
+      var c = GRIS.cambios[i];
+      try { if (c.v) c.el.style.setProperty(c.p, c.v, c.pr); else c.el.style.removeProperty(c.p); } catch (e) {}
+    }
+    GRIS.cambios = []; GRIS.chips = [];
+  }
+  function grisApagado(col, op) {   /* un color como lo dejarían grayscale(1) y la opacidad de lo hecho */
+    var m = /rgba?\(([^)]+)\)/.exec(col || ''); if (!m) return null;
+    var p = m[1].split(',').map(function (x) { return parseFloat(x); }), a = p.length > 3 ? p[3] : 1;
+    var l = Math.round(0.2126 * p[0] + 0.7152 * p[1] + 0.0722 * p[2]);
+    return 'rgba(' + l + ',' + l + ',' + l + ',' + (Math.round(a * op * 1000) / 1000) + ')';
+  }
+  function grisDebajo() {
+    if (!GRIS_ON) return;
+    var chips = Array.prototype.slice.call(D.querySelectorAll('#alu-body .lme-ic'));
+    var igual = chips.length === GRIS.chips.length && chips.every(function (c, i) { return c === GRIS.chips[i] && c.isConnected; }) &&
+      GRIS.cambios.every(function (c) { return c.el.isConnected; });
+    if (igual) return;
+    grisFuera();
+    GRIS.chips = chips;
+    chips.forEach(function (chip) {
+      var ruta = [], a = chip.parentElement, k = 0;
+      while (a && a.id !== 'alu-body' && a !== D.body && k++ < 14) { ruta.unshift(a); a = a.parentElement; }
+      if (!a || a.id !== 'alu-body' || !ruta.length) return;
+      var nat = ruta.map(function (el) { var cs = getComputedStyle(el); return { g: /grayscale/.test(cs.filter || ''), o: parseFloat(cs.opacity) }; });
+      if (!nat.some(function (x) { return x.g || x.o < 0.999; })) return;   /* nada en gris: nada que hacer */
+      var g = false, o = 1;
+      ruta.forEach(function (el, i) {
+        var n = nat[i], sig = ruta[i + 1] || chip;
+        if (n.g || n.o < 0.999) { grisPon(el, 'filter', 'none'); grisPon(el, 'opacity', '1'); }
+        g = g || n.g; o = o * (isNaN(n.o) ? 1 : n.o);
+        if (!g && o >= 0.999) return;
+        Array.prototype.forEach.call(el.children, function (h) {
+          if (h === sig) return;
+          var cs = getComputedStyle(h), f = (cs.filter && cs.filter !== 'none') ? cs.filter : '', oh = parseFloat(cs.opacity);
+          if (g && !/grayscale/.test(f)) grisPon(h, 'filter', (f + ' grayscale(1)').replace(/^\s+/, ''));
+          if (o < 0.999) grisPon(h, 'opacity', String(Math.round((isNaN(oh) ? 1 : oh) * o * 1000) / 1000));
+        });
+      });
+      /* el propio botón: su texto, icono y borde, apagados como lo demás; el contorno, sin tocar (amarillo) */
+      var cc = getComputedStyle(chip), c1 = g ? grisApagado(cc.color, o) : null, c2 = g ? grisApagado(cc.borderTopColor, o) : null;
+      if (!g && o < 0.999) {
+        c1 = (function (col) { var m = /rgba?\(([^)]+)\)/.exec(col || ''); if (!m) return null; var p = m[1].split(',').map(parseFloat); return 'rgba(' + p[0] + ',' + p[1] + ',' + p[2] + ',' + (Math.round((p.length > 3 ? p[3] : 1) * o * 1000) / 1000) + ')'; })(cc.color);
+        c2 = (function (col) { var m = /rgba?\(([^)]+)\)/.exec(col || ''); if (!m) return null; var p = m[1].split(',').map(parseFloat); return 'rgba(' + p[0] + ',' + p[1] + ',' + p[2] + ',' + (Math.round((p.length > 3 ? p[3] : 1) * o * 1000) / 1000) + ')'; })(cc.borderTopColor);
+      }
+      if (c1) grisPon(chip, 'color', c1);
+      if (c2) grisPon(chip, 'border-color', c2);
     });
   }
   /* (16-oct-2026, 18:00, Iago: «en el portal… la escaleta tapa algunos botones, como el de los morosos y alguno más… me gustaría
