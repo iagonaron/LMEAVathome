@@ -253,6 +253,10 @@
       var partes = [ast, modo, emp].filter(Boolean);
       return { t: /^fa-intervalia/.test(slot) ? 'FaActos + Intervalia' : (/pro/.test(slot) ? 'Intervalia PRO' : (/faactos/.test(slot) ? 'FaActos' : 'Intervalia')), s: partes.join(' · ') };
     }
+    /* (20-oct-2026, Iago, en GP: «en el índice… sale el dictado número 6… pero también sale dictado en plan redundante y sin datos.
+       Solo tiene que salir uno») «Corregir dictado» (slot corregir-dictado del iPad) es la corrección del dictado, no otro dictado:
+       se lee «Corrección del dictado» y, en el índice, no sale aparte si la clase ya tiene su dictado (agendaHoy). */
+    if (/corre(c|g)/i.test(slot + ' ' + tit) && /dictado/i.test(slot + ' ' + tit)) return { t: 'Corrección del dictado', s: b.num ? 'Dictado nº ' + b.num : primeraLinea(sub) };
     if (/dictado|dictclase/.test(slot)) return { t: 'Dictado', s: b.num ? 'Dictado nº ' + b.num : primeraLinea(sub) };
     if (/descanso/.test(slot) || /^descanso/i.test(tit)) return { t: 'Descanso', s: primeraLinea(sub) };
     if (/prepar/i.test(tit) && /entonaci/i.test(tit)) return { t: 'Preparación entonación', s: b.lecE ? 'Lección ' + b.lecE : '' };
@@ -364,6 +368,7 @@
         var n = norm(x); if (!n || n === ya || (ya && ya.indexOf(n) >= 0)) return false;
         if (ya && n.indexOf(ya) >= 0 && n.length <= ya.length + 12) return false;   /* «Ficha · Ficha 3» con «Ficha 3» */
         if (/^trabajar en clase$/.test(n)) return false;
+        if (/^editar en\b/.test(n)) return false;   /* (20-oct-2026) «Editar en DICTADO PRO»: un enlace del iPad, no una nota */
         if (/^[\d\s,.;·y]+$/.test(n)) return false;                                            /* «14», «16»: ya en el subtítulo */
         if (/^((leccion|lecciones)\s*\d+[\s,.;·y]*)+$/.test(n) && /^lecci/i.test(f.s || '')) return false;
         return true;
@@ -402,6 +407,7 @@
   function minus(s) { s = String(s || ''); return s.charAt(0).toLowerCase() + s.slice(1); }
   function agendaHoy(pub, grupo) {
     var l = (pub && Array.isArray(pub.bloques)) ? pub.bloques : [], out = [], vistos = {};
+    var conDictado = l.some(function (b) { return b && +b.m > 0 && !/^__/.test(String(b.slot || '')) && formatea(b, grupo).t === 'Dictado'; });   /* (20-oct-2026) */
     l.forEach(function (b) {
       if (!b || !(+b.m > 0) || /^__/.test(String(b.slot || ''))) return;
       var f = formatea(b, grupo), tm = temaDe(b), t = '', ls = null, lec = /^Lecci/.test(f.s || '') ? ' ' + minus(f.s) : '';
@@ -410,6 +416,7 @@
       else if (f.t === 'Evaluación de ritmo') t = 'Ritmo: evaluación' + lec;
       else if (f.t === 'Evaluación') t = 'Ritmo entonado: evaluación' + lec;
       else if (f.t === 'Entonación' || f.t === 'Preparación entonación') { t = 'Lección de entonación'; tm = 'entonacion'; }
+      else if (f.t === 'Corrección del dictado') { if (conDictado) return; t = 'Corrección del dictado'; }   /* (20-oct-2026) con su dictado, una sola línea */
       else if (f.t === 'Dictado') t = b.num ? 'Dictado ' + b.num : 'Dictado';
       else if (f.t === 'Teoría') {   /* (Iago) «en vez de bloque de teoría, simplemente TEORÍA: y lo que viene a continuación» */
         ls = String(b.sub || '').split(/\n+/).map(function (x) { x = quitarEmojis(x); return x.length > 80 ? x.slice(0, 78) + '…' : x; }).filter(Boolean).slice(0, 4);
@@ -911,7 +918,10 @@
     /* (20-oct-2026, Iago: «sale el botón de la escaleta… delante de todo… no aparece en su lugar… aquí no tiene sentido») la pantalla
        de Resultados abierta dentro del portal (#lm-marco-app, sección 16 de portal.js): sin tarjeta ni ▶ por encima; con la clase
        en marcha, la línea en el centro de su barra (miniLibro). Para quitarlo: borrar esta línea. */
-    var mar = $('lm-marco-app'); if (mar && mar.classList.contains('abierto') && mar.querySelector('.lm-ma-bar')) return 'marco';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
+    var mar = $('lm-marco-app'); if (mar && mar.classList.contains('abierto') && mar.querySelector('.lm-ma-bar')) return 'marco';
+    /* (20-oct-2026, Iago: «durante la intro de la carta no aparece la escaleta… no tengo referencia del tiempo que queda») la intro
+       de la carta en RITMO at home / RITMO PRO (#introOv): la línea en su barra (miniLibro), sin tarjeta encima */
+    var ino = $('introOv'); if (ino && ino.classList.contains('show') && ino.querySelector('.intro-bar')) return 'intro';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
     var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
     var dc = $('dcOverlay'), dictado = !!(dc && visible(dc)), carrusel = /^carrusel-/.test(APP);
     if (fs && fs !== H && fs !== D.body) return 'pantalla';           /* una parte a pantalla completa: la tarjeta no se ve */
@@ -989,7 +999,8 @@
     '#lme-mini .lme-mmas:hover{border-color:#facc15}' +
     '#lme-mini .lme-mmas svg{width:10px;height:10px;display:block;pointer-events:none}' +
     '#lme-mini.lme-dic{margin-left:auto;max-width:42%}' +
-    '#lm-marco-app .lm-ma-bar{position:relative}#lme-mini.lme-marco{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:34px;max-width:min(520px,46vw)}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
+    '#lm-marco-app .lm-ma-bar{position:relative}#lme-mini.lme-marco{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:34px;max-width:min(520px,46vw)}' +
+    '#lme-mini.lme-intro{position:absolute;z-index:3;height:36px;margin:0}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
     '#lme-todo-fondo{position:fixed;inset:0;z-index:2147483611;background:rgba(6,9,17,.55)}' +
     '#lme-todo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147483612;width:min(820px,calc(100vw - 32px));max-height:min(90vh,calc(100vh - 24px));display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;' +
       'background:#0b1320;border:2px solid #facc15;border-radius:18px;padding:14px 18px 13px;color:#fff;text-align:left;font:500 15px/1.3 ' + F + ';-webkit-font-smoothing:antialiased;box-shadow:0 24px 70px rgba(0,0,0,.6);user-select:none;-webkit-user-select:none;pointer-events:auto}' +
@@ -1794,7 +1805,7 @@
     if (/^FaActos/.test(t)) return libroIr('faactos', 'Abrir FaActos');
     if (t === 'Intervalia') return libroIr('intervalia', 'Abrir Intervalia');
     if (t === 'Intervalia PRO') return libroIr('intervalia_pro', 'Abrir Intervalia PRO');
-    if (t === 'Dictado' && (el = D.querySelector('#lm-iconos .lm-ic-dict'))) { m = /(\d+)/.exec(s); return { t: 'Abrir el dictado' + (m ? ' nº ' + m[1] : ''), fn: function () { pulsa(el); } }; }
+    if ((t === 'Dictado' || t === 'Corrección del dictado') && (el = D.querySelector('#lm-iconos .lm-ic-dict'))) { m = /(\d+)/.exec(s); return { t: 'Abrir el dictado' + (m ? ' nº ' + m[1] : ''), fn: function () { pulsa(el); } }; }
     if (/^(Preparación entonación|Entonación)$/.test(t) && (el = D.querySelector('#lm-iconos .lm-ic-ento'))) return { t: 'Abrir entonación', fn: function () { pulsa(el); } };
     if (/^PreDict/.test(t) && (el = D.querySelector('#ge-espiral') || D.querySelector('.topbar-right .carrusel-btn'))) return { t: 'Abrir PreDict Carrusel', fn: function () { pulsa(el); } };   /* GE: la espiral (PreDict Carrusel) · GP: PreDict PRO Carrusel */
     return null;
@@ -1957,9 +1968,10 @@
        (en medio del hueco); la tarjeta no sale (tapaba «SEGUNDA FRASE»). También a pantalla completa: va dentro del dictado. */
     var lb = $('lb-ov'), pz = $('pz-esc'), dc = $('dcOverlay'), el = $('lme-mini');
     var mar = $('lm-marco-app'), mBar = (mar && mar.classList.contains('abierto')) ? mar.querySelector('.lm-ma-bar') : null, enMarco = !!mBar;   /* (20-oct-2026) Resultados */
-    var enLibro = !enMarco && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
-    var dTop = (!enMarco && !enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
-    if (!v || !(enMarco || enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
+    var ino = $('introOv'), iBar = (!enMarco && ino && ino.classList.contains('show')) ? ino.querySelector('.intro-bar') : null, enIntro = !!iBar;   /* (20-oct-2026) la intro de la carta */
+    var enLibro = !enMarco && !enIntro && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enIntro && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
+    var dTop = (!enMarco && !enIntro && !enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
+    if (!v || !(enMarco || enIntro || enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
     if (!el) {
       el = D.createElement('div'); el.id = 'lme-mini';
       el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><i class="lme-mb"><b></b></i>' +   /* (Iago) solo la actividad actual */
@@ -1970,6 +1982,7 @@
       });
     }
     if (enMarco) { var mx = mBar.querySelector('.lm-ma-x'); if (el.parentNode !== mBar || (mx && el.nextSibling !== mx)) mBar.insertBefore(el, mx || null); }
+    else if (enIntro) { if (el.parentNode !== ino) ino.appendChild(el); }   /* (20-oct-2026) en la intro, encima de su barra (no dentro: en el repaso la barra va en gris) */
     else if (enPiz) { if (el.parentNode !== pz) pz.appendChild(el); }
     else if (enDic) { var der = dTop.querySelector('.dc-top-derecha'); if (el.parentNode !== dTop || (der && el.nextSibling !== der)) dTop.insertBefore(el, der || null); }
     else {
@@ -1980,6 +1993,7 @@
     el.classList.toggle('lme-flota', enLibro && el.parentNode === lb);
     el.classList.toggle('lme-piz', enPiz);
     el.classList.toggle('lme-marco', enMarco);
+    el.classList.toggle('lme-intro', enIntro);
     el.classList.toggle('lme-dic', enDic);
     var B = v.B, a = v.a, b = B[a.i], extra = a.resto < 0 && a.mg > 0;
     var m = extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto));
@@ -1988,6 +2002,14 @@
     txt(el.children[1], m);
     el.classList.toggle('lme-extra', extra);
     el.children[2].firstChild.style.width = (extra ? 100 : Math.max(0, Math.min(100, (1 - Math.max(0, a.resto) / a.dur) * 100))).toFixed(1) + '%';
+    if (enIntro) {   /* (20-oct-2026) a la altura de la barra de la intro, tras «INTRO · 1.6 …», sin llegar a sus puntitos */
+      try {
+        var rO = ino.getBoundingClientRect(), rB = iBar.getBoundingClientRect(), ibr = iBar.querySelector('.intro-brand'), rT = (ibr && ibr.getClientRects().length) ? ibr.getBoundingClientRect() : null;
+        var idt = iBar.querySelector('.intro-dots'), rD = (idt && idt.getClientRects().length) ? idt.getBoundingClientRect() : null, x = Math.round((rT ? rT.right + 16 : rB.left + 12) - rO.left);
+        el.style.left = x + 'px'; el.style.top = Math.round(rB.top - rO.top + (rB.height - 36) / 2) + 'px';
+        el.style.maxWidth = rD ? Math.max(150, Math.min(440, Math.round(rD.left - rO.left - 18 - x))) + 'px' : '';
+      } catch (e) {}
+    } else if (el.style.left) { el.style.left = ''; el.style.top = ''; el.style.maxWidth = ''; }
     el.hidden = false;
     return true;
   }
@@ -2061,7 +2083,7 @@
     /* la tarjeta */
     /* (16-oct-2026, tarde) con un libro abierto, la línea dentro de él (y con la pizarra; y desde las 18:50, en el dictado animado) */
     var hayMini = false; try { hayMini = !!miniLibro(v.fase === 'clase' && !!v.a ? v : null); } catch (e) {}
-    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && inm !== 'marco' && !(inm === 'dictado' && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
+    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && inm !== 'marco' && inm !== 'intro' && !(inm === 'dictado' && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
     ver(UI.isla, conIsla);
     H.classList.toggle('lm-esc-on', conIsla);
     if (PORTAL) apartar();   /* (16-oct-2026) la fila de botones, apartada o en su sitio */

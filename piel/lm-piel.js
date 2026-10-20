@@ -109,6 +109,24 @@
   }
   function idSesion(s) { return (s && s.id) ? String(s.id) : ''; }
   function esTester(s) { return !!(s && (TESTER_ID[idSesion(s)] || TESTER_NOMBRE[norm(s.nombre)])); }
+  /* (20-oct-2026, 18:45, Iago, en clase con 2.º GP: «durante la intro de la carta no aparece la escaleta… en ese rato no tengo
+     referencia del tiempo que queda») LA CUENTA DEL PROFE, DEL PORTAL A RITMO. El botón INTRO del portal abre la carta en RITMO
+     at home / RITMO PRO (otra web), donde no hay sesión del profe, y la escaleta no cargaba. El portal, con la sesión de Tester /
+     Protester, deja su cuenta en una cookie de *.lmathome.es (lm_cta_ge / lm_cta_gp, 12 h; con otra sesión o sin ella, la borra);
+     en RITMO, sin sesión propia, vale para la escaleta SOLO si es la de Tester / Protester. Para quitarlo: CTA_COOKIE = false. */
+  var CTA_COOKIE = true, CTA_RE = new RegExp('(?:^|;\\s*)lm_cta_' + grado + '=([^;]*)');
+  function cuentaCookie() { try { var m = CTA_RE.exec(document.cookie || ''), c = m ? decodeURIComponent(m[1]) : ''; return (c && TESTER_ID[c]) ? c : ''; } catch (e) { return ''; } }
+  function cuentaApp() { return (CTA_COOKIE && !ES_PORTAL && familia === 'ritmo' && !esTester(sesion())) ? cuentaCookie() : ''; }
+  var CTA_T = 0;
+  function guardaCuenta() {
+    if (!CTA_COOKIE || !ES_PORTAL || !DOMINIO || Date.now() - CTA_T < 3000) return; CTA_T = Date.now();
+    try {
+      var se = sesion(), id = (esTester(se) && TESTER_ID[idSesion(se)]) ? idSesion(se) : '', m = CTA_RE.exec(document.cookie || ''), ya = m ? decodeURIComponent(m[1]) : '';
+      var fin = '; path=/; SameSite=Lax' + DOMINIO + (location.protocol === 'https:' ? '; Secure' : '');
+      if (id) document.cookie = 'lm_cta_' + grado + '=' + encodeURIComponent(id) + '; max-age=43200' + fin;
+      else if (ya) document.cookie = 'lm_cta_' + grado + '=; max-age=0' + fin;
+    } catch (e) {}
+  }
   /* tarjetas de apartado (27-sep-2026, Iago): B = cristal negro con SOLO el contorno del color del apartado y,
      al pasar el ratón, relleno liso opaco de ese color (la que se queda) · A = rellenas de color liso (?tarjetas=a) */
   function tarjetas() {
@@ -316,13 +334,14 @@
     } catch (e) {}
     window.addEventListener('resize', repasar);
     window.addEventListener('load', repasar);
-    document.addEventListener('click', function () { setTimeout(repasar, 60); setTimeout(repasar, 400); }, true);
+    document.addEventListener('click', function () { guardaCuenta(); setTimeout(repasar, 60); setTimeout(repasar, 400); }, true);   /* (20-oct-2026) guardaCuenta: antes de que el INTRO cambie de página */
+    guardaCuenta();
     if (CON_JS[familia]) js(BASE + 'apps/' + familia + '.js?v=' + V);
     /* (15-oct-2026, Iago) ESCALETA EN LA PANTALLA DEL AULA: solo con la cuenta Iago González Tester / Protester (y nunca en
        el Ojeador). La tarjeta de tres líneas arriba en el centro, la cuenta atrás y los carteles: escaleta.js. Para quitarla
        de una pestaña: ?escaleta=0; para quitarla del todo: borrar estas líneas. */
     try {
-      if (esTester(sesion()) && !/visor=/.test(location.hash || '')) {
+      if ((esTester(sesion()) || cuentaApp()) && !/visor=/.test(location.hash || '')) {   /* (20-oct-2026) cuentaApp: RITMO, con la cuenta del portal */
         var esc = document.createElement('script'); esc.src = BASE + 'escaleta.js?v=2026-10-19b';   /* (17-oct-2026) la previa en la cuenta atrás y el mando · (18-oct-2026) el ¡Ojo!, calculado en el aula; el mando N76, solo cuatro cosas */ esc.async = true;
         esc.setAttribute('data-app', app); esc.setAttribute('data-grado', grado); (document.head || H).appendChild(esc);
       }
@@ -347,7 +366,7 @@
     if (!escrito) hojas.forEach(css);
     window.LMPiel = { activo: true, app: app, grado: grado, familia: familia, base: BASE, ico: ico, barrer: barrer, P: P,
                       alinearGrado: alinearGrado, colocarGrado: colocarGrado, alPie: alPie };
-    try { var sT = sesion(); if (esTester(sT)) window.LMPiel.cuentaTester = idSesion(sT); } catch (e) {}   /* (20-oct-2026) para escaleta.js (Teoría at home / PRO) */
+    try { var sT = sesion(); if (esTester(sT)) window.LMPiel.cuentaTester = idSesion(sT); else if (cuentaApp()) window.LMPiel.cuentaTester = cuentaApp(); } catch (e) {}   /* (20-oct-2026) para escaleta.js (Teoría at home / PRO) */
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
   }
 
