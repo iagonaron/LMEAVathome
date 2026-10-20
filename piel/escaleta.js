@@ -378,6 +378,20 @@
     if (MEMO.pub === pub && MEMO.g === grupo) return MEMO.B;
     var l = (pub && Array.isArray(pub.bloques)) ? pub.bloques.filter(function (b) { return b && +b.m > 0 && b.slot !== '__no_clase'; }) : [];
     MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f), vid: videoDe(b), det: (notaTxt(b) ? ['🗒 ' + notaTxt(b)] : []).concat(detalles(b, f)), nota: notaTxt(b) }; });   /* (16-oct-2026) vídeo */
+    /* (20-oct-2026, Iago: «el consejo de entonación y la lección de entonación me la digas en preparación de entonación… ese es el
+       momento… y no después») la lección y la nota 🗒 de Entonación pasan a su Preparación (la de antes); en Entonación, ya no. */
+    try {
+      for (var iP = 0; iP < MEMO.B.length; iP++) {
+        var bP = MEMO.B[iP]; if (bP.t !== 'Preparación entonación') continue;
+        for (var jE = iP + 1; jE < MEMO.B.length; jE++) {
+          var bE = MEMO.B[jE]; if (bE.t !== 'Entonación') continue;
+          if (/^Lecci/.test(bE.s || '')) { if (!bP.s || !/^Lecci/.test(bP.s)) bP.s = bE.s; bE.s = ''; }
+          if (bE.nota) { var nE = bE.nota; bE.nota = ''; bE.det = (bE.det || []).filter(function (x) { return x !== '🗒 ' + nE; });
+            if (!bP.nota) { bP.nota = nE; bP.det = ['🗒 ' + nE].concat(bP.det || []); } }
+          break;
+        }
+      }
+    } catch (e) {}
     return MEMO.B;
   }
   /* (15-oct-2026, Iago) «HOY EN CLASE»: el índice que ven los alumnos. Lo que eligió (por la tarde): «Ritmo: carta 1.3»,
