@@ -17,7 +17,8 @@
    · En el móvil (o en una ventana estrecha), las cajas en columna y sin pistas.
    · «PRACTICAR» (solo en lo que está en rojo) abre una ventanita con lo que haya para ese concepto, en una pestaña nueva:
      Ver apuntes (Teoría at home / Teoría PRO, ?apuntes=), Vídeo didáctico (intros/…) y Ejercicios libres (?practice=). Los enlaces
-     llevan la cuenta en el «#» (#c=…), como los del portal, salvo en el modo profesor («viendo como el alumno»). En los tipo test de
+     llevan la cuenta en el «#» (#c=…), como los del portal; desde el 21-oct-2026, también en el modo profesor («viendo como el
+     alumno»: la de ese alumno; sin ella, Teoría salía como invitado y no abría los apuntes). En los tipo test de
      2.º GP sin apuntes web, dónde están en el Libro. Nunca los portales interactivos: esos se abren con su medalla.
      Las tablas AP, VI y PR son las de la ficha (bloque «APUNTES EN LAS FICHAS» de teoriaathome y teoriapro, y su ?practice=): si
      cambian allí, cambiarlas aquí.
@@ -27,7 +28,7 @@
   'use strict';
   if (window.LMMapa) return;
   var D = document, W = window;
-  var VERSION = '2026-10-19c';
+  var VERSION = '2026-10-21a';   /* (21-oct-2026) «Ver apuntes» también en el modo profesor */
   var BASE = { ge: 'https://teoria.ge.lmathome.es/', gp: 'https://teoria.gp.lmathome.es/' };
   /* las cajas de cada nivel: [título, [[concepto, clave, clave…], …]]. Las claves, las de los ejercicios de las fichas
      (GE: teoriaathome, PP_CAT; GP: teoriapro, el catálogo PRO, el repaso y los tipo test del libro) */
@@ -268,13 +269,19 @@
     return { m: m, col: m >= 0.7 ? 'v' : (m >= 0.5 ? 'a' : 'r') };
   }
 
-  /* la cuenta, para los enlaces (#c=…), como hace el portal con Teoría at home. En el modo profesor («viendo como el
-     alumno») no se pasa: lo que se abra no debe quedar a nombre del alumno */
+  /* la cuenta, para los enlaces (#c=…), como hace el portal con Teoría at home.
+     (21-oct-2026, Iago, con «ver como el alumno» desde el Diario: «al pulsar ver apuntes… me ha llevado al portal de teoría at
+     home… el de invitados… Al pulsar apuntes me tiene que llevar directamente a los apuntes de eso») En el modo profesor
+     («viendo como el alumno») ahora TAMBIÉN se pasa la cuenta, la de ese alumno: Teoría at home solo abre los apuntes (y enseña
+     los vídeos) a una cuenta validada, y sin ella salía como invitado. Con la cuenta, Teoría solo comprueba que está validada:
+     no escribe nada a su nombre. Antes: en el modo profesor, sin cuenta (if (W.__VISOR) return null;). */
   function cuentaDe(nivel) {
-    if (W.__VISOR) return null;
     var s = null;
-    try { s = JSON.parse(localStorage.getItem(nivel === 'gp' ? 'lmpro_session' : 'lmeav_session') || 'null'); } catch (e) {}
-    s = s || W.__LM_SES || null;
+    if (W.__VISOR) s = W.__VISOR.session || (W.__VISOR.id ? { id: W.__VISOR.id, estado: 'validado' } : null);
+    else {
+      try { s = JSON.parse(localStorage.getItem(nivel === 'gp' ? 'lmpro_session' : 'lmeav_session') || 'null'); } catch (e) {}
+      s = s || W.__LM_SES || null;
+    }
     return (s && s.id && s.estado === 'validado' && /^[0-9a-f-]{36}$/i.test(String(s.id))) ? String(s.id) : null;
   }
   /* lo que se puede abrir para un concepto: de sus claves, primero la que peor ha salido */

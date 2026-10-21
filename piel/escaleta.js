@@ -924,7 +924,11 @@
     var ino = $('introOv'); if (ino && ino.classList.contains('show') && ino.querySelector('.intro-bar')) return 'intro';
     /* (20-oct-2026, Iago: «¿durante los vídeos podía ocupar menos la escaleta? Ojalá cupiese en el margen negro de arriba sin invadir
        el vídeo») el vídeo de Teoría at home / PRO (.apxf-vid): la línea en su margen negro de arriba (miniLibro), sin tarjeta */
-    var avo = D.querySelector('.apxf-vid'); if (avo && avo.querySelector('.apxf-vid-caja')) return 'vidteoria';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
+    var avo = D.querySelector('.apxf-vid'); if (avo && avo.querySelector('.apxf-vid-caja')) return 'vidteoria';
+    /* (21-oct-2026, Iago: «en este vídeo se sigue viendo la escaleta invasiva. He abierto el vídeo manualmente yendo desde Teoría
+       at home… también quiero que se comprima arriba para no invadir») el visor de vídeos de las TARJETAS de Teoría at home / PRO
+       (▶ de la tarjeta → la lista → el vídeo: .ivg-caja): igual, la línea en el margen de arriba (miniLibro), sin tarjeta */
+    if (D.querySelector('.ivg-caja')) return 'vidteoria';   /* (16-oct-2026) vídeo abierto desde la tarjeta: didáctico, la tarjeta se queda; temático, no */
     var fs = D.fullscreenElement || D.webkitFullscreenElement || null;
     var dc = $('dcOverlay'), dictado = !!(dc && visible(dc)), carrusel = /^carrusel-/.test(APP);
     if (fs && fs !== H && fs !== D.body) return 'pantalla';           /* una parte a pantalla completa: la tarjeta no se ve */
@@ -1004,7 +1008,8 @@
     '#lme-mini.lme-dic{margin-left:auto;max-width:42%}' +
     '#lm-marco-app .lm-ma-bar{position:relative}#lme-mini.lme-marco{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:34px;max-width:min(520px,46vw)}' +
     '#lme-mini.lme-intro{position:absolute;z-index:3;height:36px;margin:0;transform:translateX(-50%)}' +
-    '#lme-mini.lme-vid{position:absolute;z-index:2;height:36px;margin:0;transform:translateX(-50%)}' +   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
+    '#lme-mini.lme-vid{position:absolute;z-index:2;height:36px;margin:0;transform:translateX(-50%)}' +
+    '#lme-mini.lme-ivg{position:fixed;z-index:10001;background:#15140d}' +   /* (21-oct-2026) el visor de las tarjetas de Teoría (.ivg-caja); fondo opaco: detrás, la página de Teoría se transparenta un poco por el velo del visor */   /* (16-oct-2026, 18:50) en la barra del dictado animado, en medio del hueco */
     '#lme-todo-fondo{position:fixed;inset:0;z-index:2147483611;background:rgba(6,9,17,.55)}' +
     '#lme-todo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2147483612;width:min(820px,calc(100vw - 32px));max-height:min(90vh,calc(100vh - 24px));display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;' +
       'background:#0b1320;border:2px solid #facc15;border-radius:18px;padding:14px 18px 13px;color:#fff;text-align:left;font:500 15px/1.3 ' + F + ';-webkit-font-smoothing:antialiased;box-shadow:0 24px 70px rgba(0,0,0,.6);user-select:none;-webkit-user-select:none;pointer-events:auto}' +
@@ -1804,8 +1809,25 @@
     pulsa($('alu-campana-btn'));
     var n = 0, tm = setInterval(function () { var c = D.querySelector(sel); if ((c && visible(c)) || ++n > 30) { clearInterval(tm); if (c) pulsa(c); } }, 100);
   }
+  /* (21-oct-2026, Iago: «cuando aparece la portada, PreDict Carrusel, no me aparece el enlace para ir directamente a la
+     aplicación») PreDict Carrusel, fuera del portal (Teoría, Ritmo…) o sin su botón en el portal: la app directamente. GE: el
+     Carrusel Elemental en modo pantalla (la dirección de la espiral del portal); GP: PreDict PRO Carrusel. En la pestaña del
+     carrusel (la de la espiral), recién pedida; si el navegador no deja abrirla, en esta. */
+  var CARRUSEL = { ge: 'https://iagonaron.github.io/PredictCarrusel/?pantalla=1', gp: 'https://iagonaron.github.io/PreDictPROCarrusel/' };
+  function carruselGP() { return /gp/i.test(MEMO.g || '') || (!MEMO.g && GRADO === 'gp'); }
+  function abreCarrusel(gp) {
+    var u = gp ? CARRUSEL.gp + '?t=' + Date.now() : CARRUSEL.ge + '&t=' + Date.now(), w = null;
+    try { w = W.open(u, 'lm-carrusel-pantalla'); } catch (e) {}
+    if (!w) { try { location.href = u; } catch (e) {} }
+  }
   function irA(b) {
-    if (!PORTAL || !b) return null;
+    if (!b) return null;
+    if (/^PreDict/.test(String(b.t || ''))) {   /* (21-oct-2026) PreDict Carrusel: también fuera del portal */
+      var eC = PORTAL ? (D.querySelector('#ge-espiral') || D.querySelector('.topbar-right .carrusel-btn')) : null, gpC = carruselGP();
+      if (eC) return { t: 'Abrir PreDict Carrusel', fn: function () { pulsa(eC); } };   /* en el portal, su botón (como antes) */
+      return { t: 'Abrir PreDict ' + (gpC ? 'PRO ' : '') + 'Carrusel', fn: function () { abreCarrusel(gpC); } };
+    }
+    if (!PORTAL) return null;
     var t = String(b.t || ''), s = String(b.s || ''), m, el;
     if (b.vid) return { t: b.vid.tema ? 'Abrir ' + String(b.vid.t).split(' · ')[0] : '▶ ' + b.vid.t, fn: function () { abrirVideo(b.vid); } };
     if (b.lecs && b.lecs.length && $('alu-campana-btn')) return { t: 'Abrir la lección ' + listaY(b.lecs), fn: function () { leccionIr(b.lecs); } };
@@ -1819,7 +1841,7 @@
     if (t === 'Intervalia PRO') return libroIr('intervalia_pro', 'Abrir Intervalia PRO');
     if ((t === 'Dictado' || t === 'Corrección del dictado') && (el = D.querySelector('#lm-iconos .lm-ic-dict'))) { m = /(\d+)/.exec(s); return { t: 'Abrir el dictado' + (m ? ' nº ' + m[1] : ''), fn: function () { pulsa(el); } }; }
     if (/^(Preparación entonación|Entonación)$/.test(t) && (el = D.querySelector('#lm-iconos .lm-ic-ento'))) return { t: 'Abrir entonación', fn: function () { pulsa(el); } };
-    if (/^PreDict/.test(t) && (el = D.querySelector('#ge-espiral') || D.querySelector('.topbar-right .carrusel-btn'))) return { t: 'Abrir PreDict Carrusel', fn: function () { pulsa(el); } };   /* GE: la espiral (PreDict Carrusel) · GP: PreDict PRO Carrusel */
+    /* PreDict Carrusel: al principio de irA (21-oct-2026). GE: la espiral (PreDict Carrusel) · GP: PreDict PRO Carrusel */
     return null;
   }
   var ICONOS = { ritmo: '.lm-ic-ritmo', entonacion: '.lm-ic-ento', dictado: '.lm-ic-dict', intervalia: '.lm-ic-libros', teoria: '.lm-ic-penta' };
@@ -1986,7 +2008,10 @@
     if (PUNTOS && (!enIntro || !v)) { try { PUNTOS.style.transform = ''; PUNTOS.style.visibility = ''; } catch (e) {} PUNTOS = null; }   /* (20-oct-2026, 20:45) los puntitos, a su sitio */
     if (ESCENA && (!enIntro || !v)) { try { ESCENA.style.marginTop = ''; } catch (e) {} ESCENA = null; }   /* (20-oct-2026, 21:15) y el cartel */
     var lv = $('lme-video'), avo = (!enMarco && !enIntro) ? (D.querySelector('.apxf-vid') || ((lv && lv.classList.contains('lme-did')) ? lv : null)) : null;   /* (20-oct-2026) y el del ▶ de la tarjeta */
-    var vCaja = avo ? avo.querySelector('.apxf-vid-caja, .lme-vcaja') : null, enVid = !!vCaja;   /* (20-oct-2026) un vídeo de Teoría */
+    var vCaja = avo ? avo.querySelector('.apxf-vid-caja, .lme-vcaja') : null, enVid = !!vCaja;
+    /* (21-oct-2026) y el visor de vídeos de las tarjetas de Teoría (.ivg-caja, fija en la pantalla): la línea en la página */
+    var ivg = (!enMarco && !enIntro && !enVid) ? D.querySelector('.ivg-caja') : null;
+    if (ivg) { avo = D.body; vCaja = ivg; enVid = true; }   /* (20-oct-2026) un vídeo de Teoría */
     var enLibro = !enMarco && !enIntro && !enVid && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enIntro && !enVid && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
     var dTop = (!enMarco && !enIntro && !enVid && !enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
     if (!v || !(enMarco || enIntro || enVid || enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
@@ -2014,6 +2039,7 @@
     el.classList.toggle('lme-marco', enMarco);
     el.classList.toggle('lme-intro', enIntro);
     el.classList.toggle('lme-vid', enVid);
+    el.classList.toggle('lme-ivg', !!ivg);   /* (21-oct-2026) */
     el.classList.toggle('lme-dic', enDic);
     var B = v.B, a = v.a, b = B[a.i], extra = a.resto < 0 && a.mg > 0;
     var m = extra ? 'extra ' + minutos(Math.max(0, a.mg - Math.min(a.mg, -a.resto))) : 'quedan ' + minutos(Math.max(0, a.resto));
@@ -2031,7 +2057,7 @@
       } catch (e) {}
     } else if (enVid) {   /* (20-oct-2026) centrada en el margen negro de arriba, sin tocar el vídeo */
       try {
-        var rA = avo.getBoundingClientRect(), rC = vCaja.getBoundingClientRect(), banda = rC.top - rA.top;
+        var rA = ivg ? { top: 0 } : avo.getBoundingClientRect(), rC = vCaja.getBoundingClientRect(), banda = rC.top - rA.top;   /* (21-oct-2026) ivg: desde arriba de la pantalla */
         el.style.left = '50%'; el.style.top = Math.max(2, Math.round((banda - 36) / 2)) + 'px'; el.style.maxWidth = 'min(560px, 60vw)';
       } catch (e) {}
     } else if (el.style.left) { el.style.left = ''; el.style.top = ''; el.style.maxWidth = ''; }
