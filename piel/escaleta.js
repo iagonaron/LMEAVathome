@@ -676,7 +676,11 @@
   function pintaAusentes() {
     if (!UI || !UI.fA) return;
     var ls = AUS.ls; if (!ls) { ver(UI.fA, false); return; }
-    var h = ls.length ? '<b>' + (ls.length === 1 ? 'No vino' : 'No vinieron') + ':</b> ' + esc(ls.join(', ')) + ', …' : 'Nadie marcado como «no vino»…';
+    /* (22-oct-2026, Iago: «Esos puntos suspensivos… me generan dudas… Pon los alumnos que no haya evaluado y ya está») sin «…»
+       al final: la lista ya es la de todos los que marcó como «No vino» (y, en GP, los del dictado sin enviar ni corregir).
+       Cada nombre, entero en su línea («Xoán R.», no «Xoán» / «R.») si hay tantos que no caben en una. */
+    var h = ls.length ? '<b>' + (ls.length === 1 ? 'No vino' : 'No vinieron') + ':</b> ' +
+      ls.map(function (n) { return '<span style="white-space:nowrap">' + esc(n) + '</span>'; }).join(', ') : 'Nadie marcado como «no vino»';
     if (UI.fA.innerHTML !== h) UI.fA.innerHTML = h;
     ver(UI.fA, true);
   }
