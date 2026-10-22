@@ -177,6 +177,20 @@ select{height:44px;border-radius:12px;border:1px solid var(--borde);background:v
 .rec .rec-i{font:500 26px/1.3 "Helvetica Neue",Helvetica,Arial,sans-serif;color:rgba(255,255,255,.8);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .rec .rec-i b{font-weight:700;color:#fff}
 #reRec{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);margin:0}
+/* (22-oct-2026, Iago: «me gustaría que esté todo el tiempo de la previa en pantalla, en un lugar que yo pueda verlo pero que no
+   moleste a la previa. Una esquina quizá, en plan recordatorio»; «me refiero al recordatorio de entregar fichas en papel») los
+   recordatorios, en una tarjeta abajo a la izquierda de principio a fin; los del centro (aviso y respiros) ya no salen. Ahí no
+   llega nada de la previa: por debajo de y = 868, nada a la izquierda de x = 259; más arriba, nada a la izquierda de x = 200.
+   Por eso, 226 px de ancho si cabe abajo (182 de alto) y, si no, «estrecha» (166) y hacia arriba. Para quitarlo: REC_ESQ = false. */
+#stage #recEsq{position:absolute;left:24px;bottom:30px;display:block;max-width:226px;max-height:842px;overflow:hidden;margin:0;padding:12px 16px 14px 13px;gap:0;border-radius:14px;background:rgba(8,6,20,.68);z-index:5}
+#stage #recEsq.estrecha{max-width:166px}
+#stage #recEsq svg{display:inline-block;width:18px;height:18px;margin:0 6px 0 0;vertical-align:-3px}
+#stage #recEsq .rq-r+.rq-r{margin-top:9px;padding-top:9px;border-top:1px solid rgba(167,139,250,.32)}
+#stage #recEsq .rq-t{font:700 19px/1.25 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff}
+#stage #recEsq .rq-t.rq-pap{font-size:16px;line-height:1.3;letter-spacing:.02em;color:#c4b5fd}
+#stage #recEsq .rq-n{margin-top:3px;font:700 24px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage #recEsq.estrecha .rq-n{font-size:21px}
+#stage #recEsq .rq-d{margin-top:3px;font:500 16px/1.3 "Helvetica Neue",Helvetica,Arial,sans-serif;color:rgba(255,255,255,.76)}
 #pantalla.aula{position:fixed;inset:0;overflow:hidden;background:#000;margin:0;padding:0}
 </style>
 <style>html,body{margin:0;padding:0;background:#000;overflow:hidden}</style>
@@ -198,6 +212,7 @@ select{height:44px;border-radius:12px;border:1px solid var(--borde);background:v
         <div class="capa" id="indice"><div class="ey" id="inEy"></div><div class="tit">Hoy en clase</div><ol id="inLs"></ol></div>
         <div id="miniEt">Empezamos en</div>
         <div id="mini"></div>
+        <div class="rec" id="recEsq" hidden></div>
       </div></div>
 
 <script>
@@ -3457,6 +3472,7 @@ var TEO = (function () {
     var queda = E.total - t;
     if (fase === 'aviso') UIx.avNum.innerHTML = fmt(queda);
     UIx.mini.classList.toggle('on', fase === 'ojo' || fase === 'respiro' || fase === 'consejo');
+    if (REC_ESQ) { var rq = UIx.recEsq || (UIx.recEsq = D.getElementById('recEsq')); if (rq && rq._hay) { var vq = fase !== 'indice'; if (rq._v !== vq) { rq._v = vq; rq.hidden = !vq; } } }   /* (22-oct-2026) los recordatorios, en su esquina */
     UIx.miniEt.classList.toggle('on', UIx.mini.classList.contains('on'));   /* (17-oct, Iago) «Empezamos en», encima del número */
     if (UIx.mini.classList.contains('on')) { UIx.mini.innerHTML = fmt(queda); if (!UIx.mini._ajustado) ajustaMini(); }
     PROG.it.forEach(function (it) {
@@ -3752,6 +3768,24 @@ var TEO = (function () {
     return dentro[Math.floor(s / fam.length) % dentro.length].id;
   }
   var ICO_REC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8a2 2 0 0 1-1.1 1.8l-1.8.9A2 2 0 0 0 5 15.2v.8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.8a2 2 0 0 0-1.1-1.8l-1.8-.9A2 2 0 0 1 15 10.8V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>';
+  /* (22-oct-2026, Iago: «que esté todo el tiempo de la previa en pantalla… Una esquina quizá, en plan recordatorio») los
+     recordatorios, en la tarjeta de abajo a la izquierda (#recEsq) toda la previa, en lugar de en el centro del aviso y de los
+     respiros. false: como antes. ESQ_ALTO: lo más alta que puede ser con su ancho grande (hasta y = 868, ver el CSS). */
+  var REC_ESQ = true, ESQ_ALTO = 182;
+  function pintaEsq(ls) {
+    var R = D.getElementById('recEsq'); if (!R) return;
+    R.innerHTML = ''; R.className = 'rec'; R._hay = false; R._v = undefined;
+    if (!REC_ESQ || !ls.length) { R.hidden = true; return; }
+    ls.forEach(function (r, i) {
+      var B = el('div', 'rq-r', R), t = String(r.t || '').trim(), d = String(r.d || '').trim(), pap = /^fichas en papel\b/i.test(t);
+      var T = el('div', 'rq-t' + (pap ? ' rq-pap' : ''), B);
+      if (i === 0) T.innerHTML = ICO_REC;   /* la chincheta, una vez */
+      if (t) T.appendChild(D.createTextNode(pap ? t.replace(/\s+cop(?:ia|ias)\s*$/i, '') : t));   /* «Fichas en papel · 2» */
+      d.split(pap ? /\s*[,·]\s*/ : /\s+·\s+/).forEach(function (x) { if (x) el('div', pap ? 'rq-n' : 'rq-d', B, x); });   /* un nombre por línea */
+    });
+    R.hidden = false; R._hay = true;
+    if (R.offsetHeight > ESQ_ALTO) R.className = 'rec estrecha';   /* no cabe en la franja de abajo: más estrecha, hacia arriba */
+  }
   function pintaRecs(recs) {
     var ls = (Array.isArray(recs) ? recs : []).filter(function (r) { return r && (r.t || r.d); }).slice(0, 4);
     ['avRec', 'reRec'].forEach(function (id) {
@@ -3764,8 +3798,9 @@ var TEO = (function () {
         if (r.t && r.d) it.appendChild(D.createTextNode(' · '));
         if (r.d) it.appendChild(D.createTextNode(String(r.d).slice(0, 200)));
       });
-      R.hidden = false;
+      R.hidden = REC_ESQ;   /* (22-oct-2026) con la tarjeta de la esquina, estos no */
     });
+    pintaEsq(ls);
   }
   function archivoDe(n) { return n === 'musica' ? 'previa-ge48.mp3' : n === 'lapiz' || n === 'teclas' ? n + '.mp3' : 'sfx-' + n + '.mp3'; }
   function montaAula(cfg) {
