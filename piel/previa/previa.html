@@ -179,17 +179,19 @@ select{height:44px;border-radius:12px;border:1px solid var(--borde);background:v
 #reRec{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);margin:0}
 /* (22-oct-2026, Iago: «me gustaría que esté todo el tiempo de la previa en pantalla, en un lugar que yo pueda verlo pero que no
    moleste a la previa. Una esquina quizá, en plan recordatorio»; «me refiero al recordatorio de entregar fichas en papel») los
-   recordatorios, en una tarjeta abajo a la izquierda de principio a fin; los del centro (aviso y respiros) ya no salen. Ahí no
-   llega nada de la previa: por debajo de y = 868, nada a la izquierda de x = 259; más arriba, nada a la izquierda de x = 200.
-   Por eso, 226 px de ancho si cabe abajo (182 de alto) y, si no, «estrecha» (166) y hacia arriba. Para quitarlo: REC_ESQ = false. */
-#stage #recEsq{position:absolute;left:24px;bottom:30px;display:block;max-width:226px;max-height:842px;overflow:hidden;margin:0;padding:12px 16px 14px 13px;gap:0;border-radius:14px;background:rgba(8,6,20,.68);z-index:5}
-#stage #recEsq.estrecha{max-width:166px}
+   recordatorios, en una tarjeta abajo a la DERECHA («Yo lo pondría en el lado derecho mejor») de principio a fin; los del
+   centro (aviso y respiros) ya no salen. Ahí no llega nada de la previa: por debajo de y = 868, nada a la derecha de x = 1702;
+   más arriba, nada a la derecha de x = 1720 (y la cuenta de arriba, por encima de y = 200). Va 84 px por encima del borde para no
+   quedar debajo del «Saltar ›» de la escaleta. Por eso, 180 px de ancho si cabe abajo (128 de alto) y, si no, «estrecha» (168) y
+   hacia arriba. Para quitarlo: REC_ESQ = false. */
+#stage #recEsq{position:absolute;right:24px;bottom:84px;display:block;max-width:180px;max-height:788px;overflow:hidden;margin:0;padding:12px 14px 14px 13px;gap:0;border-radius:14px;background:rgba(8,6,20,.68);z-index:5}
+#stage #recEsq.estrecha{max-width:168px}
 #stage #recEsq svg{display:inline-block;width:18px;height:18px;margin:0 6px 0 0;vertical-align:-3px}
 #stage #recEsq .rq-r+.rq-r{margin-top:9px;padding-top:9px;border-top:1px solid rgba(167,139,250,.32)}
 #stage #recEsq .rq-t{font:700 19px/1.25 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff}
-#stage #recEsq .rq-t.rq-pap{font-size:16px;line-height:1.3;letter-spacing:.02em;color:#c4b5fd}
-#stage #recEsq .rq-n{margin-top:3px;font:700 24px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#stage #recEsq.estrecha .rq-n{font-size:21px}
+#stage #recEsq .rq-t.rq-pap{font-size:14px;line-height:1.3;letter-spacing:.02em;color:#c4b5fd}
+#stage #recEsq .rq-n{margin-top:3px;font:700 22px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage #recEsq.estrecha .rq-n{font-size:20px}
 #stage #recEsq .rq-d{margin-top:3px;font:500 16px/1.3 "Helvetica Neue",Helvetica,Arial,sans-serif;color:rgba(255,255,255,.76)}
 #pantalla.aula{position:fixed;inset:0;overflow:hidden;background:#000;margin:0;padding:0}
 </style>
@@ -3769,9 +3771,9 @@ var TEO = (function () {
   }
   var ICO_REC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8a2 2 0 0 1-1.1 1.8l-1.8.9A2 2 0 0 0 5 15.2v.8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.8a2 2 0 0 0-1.1-1.8l-1.8-.9A2 2 0 0 1 15 10.8V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>';
   /* (22-oct-2026, Iago: «que esté todo el tiempo de la previa en pantalla… Una esquina quizá, en plan recordatorio») los
-     recordatorios, en la tarjeta de abajo a la izquierda (#recEsq) toda la previa, en lugar de en el centro del aviso y de los
-     respiros. false: como antes. ESQ_ALTO: lo más alta que puede ser con su ancho grande (hasta y = 868, ver el CSS). */
-  var REC_ESQ = true, ESQ_ALTO = 182;
+     recordatorios, en la tarjeta de abajo a la derecha (#recEsq) toda la previa, en lugar de en el centro del aviso y de los
+     respiros. false: como antes. ESQ_ALTO: lo más alta que puede ser con su ancho grande (de y = 868 a y = 996, ver el CSS). */
+  var REC_ESQ = true, ESQ_ALTO = 128;
   function pintaEsq(ls) {
     var R = D.getElementById('recEsq'); if (!R) return;
     R.innerHTML = ''; R.className = 'rec'; R._hay = false; R._v = undefined;
@@ -3780,7 +3782,7 @@ var TEO = (function () {
       var B = el('div', 'rq-r', R), t = String(r.t || '').trim(), d = String(r.d || '').trim(), pap = /^fichas en papel\b/i.test(t);
       var T = el('div', 'rq-t' + (pap ? ' rq-pap' : ''), B);
       if (i === 0) T.innerHTML = ICO_REC;   /* la chincheta, una vez */
-      if (t) T.appendChild(D.createTextNode(pap ? t.replace(/\s+cop(?:ia|ias)\s*$/i, '') : t));   /* «Fichas en papel · 2» */
+      if (t) T.appendChild(D.createTextNode(pap ? t.replace(/\s*·\s*\d+\s*cop(?:ia|ias)\s*$/i, '') : t));   /* «Fichas en papel»: los nombres ya dicen cuántas (22-oct, a la derecha no cabe el número) */
       d.split(pap ? /\s*[,·]\s*/ : /\s+·\s+/).forEach(function (x) { if (x) el('div', pap ? 'rq-n' : 'rq-d', B, x); });   /* un nombre por línea */
     });
     R.hidden = false; R._hay = true;
