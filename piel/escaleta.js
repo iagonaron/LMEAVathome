@@ -537,6 +537,12 @@
      dar la pausa») Tras un ■, también en plena clase, el ▶ empieza la clase DE NUEVO; para seguir donde estaba, ⏸. Para volver
      al ▶ de antes (directo a la primera actividad, y tras ■ seguir donde estaba): false. */
   var PLAY_CON_PREVIA = true;
+  /* (22-oct-2026, Iago: «al final de las clases de grado elemental… la escaleta ahí no hace su aparición al final… se me olvida
+     repasar las tareas y poner las faltas… que el fin de la clase aparezca invadiendo esa pantalla») «FIN DE LA CLASE» A SU HORA:
+     a la hora en que acaba la clase (el minuto 0 + DURA), si aún no se ha visto, sale aunque la escaleta vaya con retraso, esté
+     en pausa o parada (■; el 20-oct, en 4B, se paró a las 17:26 y ya no salió). Encima de todo, también de los Resultados del
+     portal. Cerrado (con las faltas marcadas), no vuelve. Antes: solo al acabar el plan. Para quitarlo: FIN_A_SU_HORA = false. */
+  var FIN_A_SU_HORA = true;
   function vista(t) {
     var c = claseAhora(t); if (!c) return { fase: 'nada' };
     var pub = escaleta(c), e = estado(c), B = bloquesDe(pub, c.grupo), desde = (t - c.t0) / 1000;
@@ -570,6 +576,12 @@
         v.fin = a.finEn; v.i = a.i;
         v.fase = (e.finVisto || t - a.finEn > 15 * 60000) ? 'acabada' : 'fin';
       } else { v.a = a; v.i = a.i; if (a.parada) v.fase = 'parada'; }
+      /* (22-oct-2026) ya es la hora de acabar y la escaleta aún no ha llegado a su fin (retraso, pausa o ■): el fin, ya */
+      var tFinHora = c.t0 + DURA * 60000;
+      if (FIN_A_SU_HORA && (v.fase === 'clase' || v.fase === 'parada') && t >= tFinHora) {
+        v.a = undefined; v.fin = tFinHora; v.finHora = true;
+        v.fase = e.finVisto ? 'acabada' : 'fin';
+      }
     }
     return v;
   }
