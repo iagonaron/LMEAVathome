@@ -2324,11 +2324,24 @@
      de empezar, el ▶); → (o ↓, Av Pág) = siguiente; ← (o ↑, Re Pág) = anterior. Lo que manda el mando al mantener un botón (F5, B,
      Esc) ya no hace nada (F5, en clase, tampoco recarga) y en la previa el mando no hace nada. */
   var MANDO = true;
-  function algoAbierto() {
-    var lb = $('lb-ov'), dc = $('dcOverlay');
-    return !!((lb && lb.classList.contains('open')) || H.classList.contains('pz-abierto') || (dc && visible(dc)) || $('lme-video') || TODO.abierto ||
-      D.querySelector('.lm-vl-bar, .lm-ic-menu, [id$="-modal"].open, [id$="-ov"].open, [id$="-overlay"].open'));   /* la lista de morosos no: no usa estas teclas */
+  /* (23-oct-2026, Iago: «en el mandito… cuando estamos en el dictado y a veces en otras cosas, como… FaActos… cuando está abierta
+     otra pestaña, si le quiero dar para adelante no me hace caso… solo estando en el portal me avanza. Aunque yo esté viendo la
+     escaleta… me gustaría poder darle a avanzar») EL MANDO, DONDE SE VEA LA ESCALETA: con la clase en marcha y la escaleta a la
+     vista (su tarjeta o su línea), el mando manda también con el dictado animado abierto (no usa esas teclas), con un libro
+     (FaActos, Intervalia…: ↑ ↓ y Tab, que el libro no usa; ← → Re Pág y Av Pág siguen pasando página), con los Resultados o la
+     intro de la carta, y en las otras webs que la enseñan (Teoría, RITMO, los carruseles, Intervalia…), donde ↓ y ↑ (las del
+     mando) valen como Av Pág y Re Pág. Siguen siendo de la página: escribiendo en un campo, la previa, el foco en un control,
+     un vídeo, la escaleta entera o un menú abiertos, y las flechas en los editores de notas de los alumnos (Dictados y
+     Entonación: mueven la nota). Antes: solo con la tarjeta a la vista y, fuera del portal, sin flechas. Para quitarlo:
+     MANDO_SIEMPRE = false. */
+  var MANDO_SIEMPRE = true;
+  function algoAbierto(k) {
+    var lb = $('lb-ov'), dc = $('dcOverlay'), libro = !!(lb && lb.classList.contains('open'));
+    if (libro && MANDO_SIEMPRE && (k === 'Tab' || k === 'ArrowUp' || k === 'ArrowDown')) libro = false;   /* (23-oct-2026) las del mando: el libro no las usa */
+    return !!(libro || H.classList.contains('pz-abierto') || (!MANDO_SIEMPRE && dc && visible(dc)) || $('lme-video') || TODO.abierto ||
+      D.querySelector('.lm-vl-bar, .lm-ic-menu, [id$="-modal"].open, [id$="-ov"].open:not(#lb-ov), [id$="-overlay"].open'));   /* la lista de morosos no: no usa estas teclas */
   }
+  function lineaALaVista() { var m = $('lme-mini'); return !!(m && !m.hidden && visible(m)); }   /* (23-oct-2026) la escaleta en una línea (dictado, libro, Resultados…) */
   /* (20-oct-2026, Iago, en clase: «si estoy en la parte de escribir partituras… si le doy para adelante me cambia el tipo de
      puntero… o me cambia la tonalidad de arriba… yo quiero que me permita ir a lo siguiente… hay que discriminarlo») CON LA
      PIZARRA, EL VISOR DE LAS LECCIONES DE RITMO (#ts-visor) O EL DE ENTONACIÓN (#lm-ento) ABIERTOS y la clase en marcha, las teclas
@@ -2365,9 +2378,10 @@
     if (PV.caja && PV.caja.classList.contains('lme-on')) return;   /* en la previa, el mando no hace nada */
     if (e.defaultPrevented) return;
     var tg = e.target; if (tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName || ''))) return;
-    if (/^Arrow/.test(k) && (!PORTAL || (tg && tg !== D.body && tg !== H && !/^(BUTTON|A)$/.test(tg.tagName || '')))) return;
-    if (algoAbierto()) return;
-    if (v.fase === 'clase' && v.a && UI && !UI.isla.hidden) { e.preventDefault(); audio(); despierto(true); accion(q); return; }
+    var flechaFuera = MANDO_SIEMPRE && (k === 'ArrowUp' || k === 'ArrowDown') && !/^(dictado|entonacion)-/.test(APP);   /* (23-oct-2026) fuera del portal, ↑ ↓ (las del mando) */
+    if (/^Arrow/.test(k) && ((!PORTAL && !flechaFuera) || (tg && tg !== D.body && tg !== H && !/^(BUTTON|A)$/.test(tg.tagName || '')))) return;
+    if (algoAbierto(k)) return;
+    if (v.fase === 'clase' && v.a && UI && (!UI.isla.hidden || (MANDO_SIEMPRE && lineaALaVista()))) { e.preventDefault(); audio(); despierto(true); accion(q); return; }
     if ((v.fase === 'antes' || v.fase === 'entrada' || v.fase === 'parada') && UI && !UI.play.hidden && q === 'pausa') { e.preventDefault(); audio(); despierto(true); accion('empezar'); }   /* (18-oct-2026) antes de empezar, solo el de arriba: el ▶ */
   });
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', function () { pintar(true); }); else pintar(true);
