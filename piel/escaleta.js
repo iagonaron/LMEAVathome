@@ -502,6 +502,11 @@
     });
   }
   function noHayClase(pub) { return !!(pub && Array.isArray(pub.bloques) && pub.bloques.some(function (b) { return b && b.slot === '__no_clase'; })); }
+  /* (28-oct-2026, Iago: «en la clase 1 el descanso era como de 5 minutos o 6, no 8, que es lo que me he encontrado hoy») EL
+     DESCANSO DURA LO SUYO: la cuenta atrás del descanso ya no le suma el margen guardado (lo que se ganó pasando antes de
+     tiempo); al acabar sus minutos salta, y el margen pasa entero a la actividad siguiente (sigue viéndose el «+m:ss» gris).
+     Para volver a lo de antes (el margen se gastaba en el descanso): DESCANSO_SIN_MARGEN = false. */
+  var DESCANSO_SIN_MARGEN = true;
   /* con el estado y la hora: la actividad de ahora (encadenando las que se acabaron, como el iPad) */
   function avanza(e, B, t) {
     if (!e || !B.length) return null;
@@ -509,10 +514,11 @@
     var quieto = e.parada ? +e.parada : (e.pausa ? +e.pausa : 0);   /* parada o pausa: el reloj de la actividad no corre */
     for (var vueltas = 0; vueltas < 60; vueltas++) {
       var dur = B[i].m * 60, hasta = quieto || t, usado = (hasta - ini - pac) / 1000, resto = dur - usado;
-      if (resto > -mg || quieto) return { i: i, resto: resto, dur: dur, mg: mg, ini: ini, pausa: !!e.pausa && !e.parada, parada: !!e.parada };
-      var finEf = ini + pac + (dur + mg) * 1000;   /* se acabó (con su margen): la siguiente empezó justo ahí */
+      var dsc = DESCANSO_SIN_MARGEN && esDescanso(B[i]), mgE = dsc ? 0 : mg;   /* (28-oct-2026) el descanso no gasta el margen */
+      if (resto > -mgE || quieto) return { i: i, resto: resto, dur: dur, mg: mg, ini: ini, pausa: !!e.pausa && !e.parada, parada: !!e.parada, desc: dsc };
+      var finEf = ini + pac + (dur + mgE) * 1000;   /* se acabó (con su margen): la siguiente empezó justo ahí */
       if (i >= B.length - 1) return { fin: true, finEn: finEf, i: i };
-      i++; ini = finEf; pac = 0; mg = 0;
+      i++; ini = finEf; pac = 0; mg = dsc ? mg : 0;   /* tras el descanso, el margen pasa entero a la siguiente */
     }
     return null;
   }
@@ -1505,7 +1511,7 @@
       DESC.k = k;
     }
     txt(UI.kEy, 'Ahora · ' + (a.i + 1) + ' de ' + v.B.length + (a.pausa ? ' · en pausa' : ''));
-    var q = Math.ceil(Math.max(0, a.resto + a.mg)), r = Math.floor(q / 60) + '<span class="lme-dp">:</span>' + ('0' + (q % 60)).slice(-2);
+    var q = Math.ceil(Math.max(0, a.resto + (a.desc ? 0 : a.mg))), r = Math.floor(q / 60) + '<span class="lme-dp">:</span>' + ('0' + (q % 60)).slice(-2);
     if (UI.kR.innerHTML !== r) UI.kR.innerHTML = r;
     CART.hasta = Date.now() + 60000;   /* no se va solo */
   }
