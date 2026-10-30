@@ -1460,12 +1460,24 @@
     var w = el.scrollWidth, lim = W.innerWidth * 0.9;
     if (w > lim) el.style.fontSize = Math.max(48, Math.floor(max * lim / w)) + 'px';
   }
+  /* (30-oct-2026, Iago: «cuando en la pantalla pone dictado en el grupo cuarto B, que Siro y Álex se sienten separados para hacer
+     el dictado. Para que no se me olvide y lo vean ellos») NOTAS FIJAS EN EL CARTEL: por grupo y tipo de actividad, en la línea de
+     la nota del cartel (junto a la nota del apartado, si la hay). Para quitar una: borrarla de esta lista. */
+  var NOTAS_FIJAS = [
+    { g: '4B', tema: 'dictado', tit: /^dictado$/i, t: 'Siro y Álex: sentaos separados' }   /* solo donde pone «Dictado» (no en Predict) */
+  ];
+  function notaFija(v, b) {
+    try { var g = String((v && v.c && v.c.grupo) || '').toUpperCase();
+      return NOTAS_FIJAS.filter(function (x) { return x.g === g && b && b.tema === x.tema && (!x.tit || x.tit.test(String(b.t || ''))); }).map(function (x) { return x.t; }).join(' · ');
+    } catch (e) { return ''; }
+  }
   function mostrarCartel(v, quedan) {
     var B = v.B, b = B[v.i], n = B[v.i + 1]; if (!b || !montar()) return;
     UI.cartel.classList.remove('lme-descanso'); DESC.k = '';   /* (16-oct-2026, 19:00) el normal (si es un descanso, descanso() lo convierte) */
     txt(UI.kEy, 'Ahora · ' + (v.i + 1) + ' de ' + B.length);
     txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
-    txt(UI.kN, b.nota || ''); ver(UI.kN, !!b.nota);   /* (19-oct-2026) la nota del apartado */
+    var notaK = [b.nota, notaFija(v, b)].filter(Boolean).join(' · ');   /* (30-oct-2026) + las notas fijas */
+    txt(UI.kN, notaK); ver(UI.kN, !!notaK);   /* (19-oct-2026) la nota del apartado */
     UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
     var ir = null; try { ir = irA(b); } catch (e) {} CART.ir = ir; ver(UI.kIr, !!ir); if (ir) UI.kIr.title = ir.t;   /* (16-oct-2026) siempre el mismo botón, «Abrir ›» */
     alFrente(UI.cartel); UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);   /* (16-oct-2026) alFrente */
