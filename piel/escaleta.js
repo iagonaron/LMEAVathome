@@ -1079,6 +1079,7 @@
     'html.pz-abierto #lme-play,html.pz-abierto #lme-isla{display:none!important}' +   /* (16-oct-2026) la pizarra: la línea, en su barra */
     /* (16-oct-2026, 18:00, Iago: «lo veo todo un poco blanco. Lo pondría negro para que sea la misma estética») en la pizarra,
        la línea en negro con el amarillo de la tarjeta. Antes: fondo blanco y texto oscuro. */
+    '#ts-visor .lm-vl-esp{display:flex;align-items:center;justify-content:center;min-width:0}#lme-mini.lme-vis{max-width:100%;margin:0 8px}' +   /* (30-oct-2026) el visor de lecciones */
     '#lme-mini.lme-piz{height:34px;max-width:100%;background:#0b1320;color:#fff;border-color:#facc15;border-radius:8px}' +
     '#lme-mini.lme-piz .lme-mt{color:#fff}#lme-mini.lme-piz .lme-mm{color:#facc15}#lme-mini.lme-piz .lme-mb{background:rgba(255,255,255,.14)}#lme-mini.lme-piz .lme-mb b{background:#facc15}' +
     '#lme-mini.lme-piz.lme-extra .lme-mm{color:#fb923c}#lme-mini.lme-piz.lme-extra .lme-mb b{background:#fb923c}' +
@@ -2017,7 +2018,9 @@
      libro del aula abierto (#lb-ov, a pantalla completa), la escaleta en una línea DENTRO de su barra: qué toca, cuánto queda
      y qué viene, con su barrita; con «Ampliar» (sin barra), flotando arriba en el centro. No se pulsa ni tapa la partitura. */
   var PUNTOS = null;   /* (20-oct-2026, 20:45) los puntitos de la intro, apartados a la derecha de la línea */
+  var VISMINI = false;   /* (30-oct-2026) la línea va en la barra del visor de lecciones (#ts-visor): sin tarjeta flotante */
   var ESCENA = null;   /* (20-oct-2026, 21:15) el cartel de la intro, un poco más abajo (solo en un móvil: la línea va bajo la barra) */
+  var VISOR_LECCIONES = true;
   function miniLibro(v) {
     /* (16-oct-2026, tarde, Iago: «cuando estamos con la pizarra… que no ocupe, no me invada ni tape botones… en el medio, solo con
        una línea») y con la pizarra «Pentagrama» abierta, la misma línea en el centro de su barra (#pz-esc, entre colores y grosores) */
@@ -2035,8 +2038,15 @@
     var ivg = (!enMarco && !enIntro && !enVid) ? D.querySelector('.ivg-caja') : null;
     if (ivg) { avo = D.body; vCaja = ivg; enVid = true; }   /* (20-oct-2026) un vídeo de Teoría */
     var enLibro = !enMarco && !enIntro && !enVid && !!(lb && lb.classList.contains('open')), enPiz = !enMarco && !enIntro && !enVid && !enLibro && !!(pz && H.classList.contains('pz-abierto'));
-    var dTop = (!enMarco && !enIntro && !enVid && !enLibro && !enPiz && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
-    if (!v || !(enMarco || enIntro || enVid || enLibro || enPiz || enDic)) { if (el) el.hidden = true; return false; }
+    /* (30-oct-2026, Iago: «no me sale el temporizador de la escaleta cuando estamos en una lección de ritmo abierta en notificaciones…
+       escribiendo anotaciones. Necesito saber el tiempo que me queda») el visor de las lecciones de la semana con sus anotaciones
+       (#ts-visor, se abre desde la campana): la tarjeta quedaba DEBAJO (con la campana abierta la escaleta baja a z-index 80 y el
+       visor está encima). Ahora, la línea en el hueco libre de su barra (.lm-vl-esp, entre las herramientas y ⛶/✕), sin tapar
+       botones, como en la pizarra. Para quitarlo: VISOR_LECCIONES = false. */
+    var tsv = $('ts-visor'), tsEsp = (VISOR_LECCIONES && !enMarco && !enIntro && !enVid && !enLibro && !enPiz && tsv) ? tsv.querySelector('.lm-vl-bar .lm-vl-esp') : null, enVis = !!tsEsp;
+    VISMINI = !!v && enVis;
+    var dTop = (!enMarco && !enIntro && !enVid && !enLibro && !enPiz && !enVis && dc && visible(dc)) ? dc.querySelector('.dc-top') : null, enDic = !!dTop;
+    if (!v || !(enMarco || enIntro || enVid || enLibro || enPiz || enVis || enDic)) { if (el) el.hidden = true; return false; }
     if (!el) {
       el = D.createElement('div'); el.id = 'lme-mini';
       el.innerHTML = '<span class="lme-mt"></span><span class="lme-mm"></span><i class="lme-mb"><b></b></i>' +   /* (Iago) solo la actividad actual */
@@ -2050,6 +2060,7 @@
     else if (enIntro) { if (el.parentNode !== ino) ino.appendChild(el); }
     else if (enVid) { if (el.parentNode !== avo) avo.appendChild(el); }   /* (20-oct-2026) en el margen negro de arriba del vídeo de Teoría */   /* (20-oct-2026) en la intro, encima de su barra (no dentro: en el repaso la barra va en gris) */
     else if (enPiz) { if (el.parentNode !== pz) pz.appendChild(el); }
+    else if (enVis) { if (el.parentNode !== tsEsp) tsEsp.appendChild(el); }   /* (30-oct-2026) */
     else if (enDic) { var der = dTop.querySelector('.dc-top-derecha'); if (el.parentNode !== dTop || (der && el.nextSibling !== der)) dTop.insertBefore(el, der || null); }
     else {
       var amp = lb.classList.contains('lb-amp'), top = lb.querySelector('.lb-top'), prev = $('lb-prev');
@@ -2057,7 +2068,8 @@
       else if (el.parentNode !== lb) lb.appendChild(el);
     }
     el.classList.toggle('lme-flota', enLibro && el.parentNode === lb);
-    el.classList.toggle('lme-piz', enPiz);
+    el.classList.toggle('lme-piz', enPiz || enVis);
+    el.classList.toggle('lme-vis', enVis);
     el.classList.toggle('lme-marco', enMarco);
     el.classList.toggle('lme-intro', enIntro);
     el.classList.toggle('lme-vid', enVid);
@@ -2188,7 +2200,7 @@
     /* la tarjeta */
     /* (16-oct-2026, tarde) con un libro abierto, la línea dentro de él (y con la pizarra; y desde las 18:50, en el dictado animado) */
     var hayMini = false; try { hayMini = !!miniLibro(v.fase === 'clase' && !!v.a ? v : null); } catch (e) {}
-    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && inm !== 'marco' && inm !== 'intro' && inm !== 'vidteoria' && !(inm === 'dictado' && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
+    var conIsla = v.fase === 'clase' && !!v.a && inm !== 'pantalla' && inm !== 'marco' && inm !== 'intro' && inm !== 'vidteoria' && !(inm === 'dictado' && hayMini) && !(VISMINI && hayMini);   /* (16-oct-2026, 18:50) en el dictado, solo la línea */
     ver(UI.isla, conIsla);
     H.classList.toggle('lm-esc-on', conIsla);
     if (PORTAL) apartar();   /* (16-oct-2026) la fila de botones, apartada o en su sitio */
