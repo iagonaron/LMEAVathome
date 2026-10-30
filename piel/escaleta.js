@@ -1179,6 +1179,8 @@
        Intervalia y FaActos; Iago: «aprovecharía ese diseño que ya tenemos») */
     '#lme-cartel .lme-nota{font:500 36px/1.2 ' + F + ';color:#fff;max-width:88vw;text-shadow:0 2px 16px rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.6)}' +
     '#lme-cartel .lme-nota[hidden],#lme-cartel.lme-descanso .lme-nota{display:none}' +
+    '#lme-cartel .lme-nfija{display:inline-block;margin-top:14px;font:900 64px/1.1 ' + F + ';color:#facc15;letter-spacing:.01em;text-shadow:0 0 22px rgba(250,204,21,.55),0 2px 16px rgba(0,0,0,.85);animation:lmeNfija 1s steps(1,end) infinite}' +   /* (30-oct-2026) la nota fija: amarilla, grande y parpadeando */
+    '@keyframes lmeNfija{0%{opacity:1}50%{opacity:.15}}' +
     '#lme-cartel .lme-mi{font:700 24px/1 ' + F + ';color:#9aa6bb;margin-top:4px}' +
     '#lme-cartel .lme-mi b{color:#fff;font-weight:700}' +
     /* (16-oct-2026, Iago) «que no se oscurezca del todo… que se pueda intuir lo que hay detrás»: el cartel y el fin, velados (sin la foto) */
@@ -1464,7 +1466,7 @@
      el dictado. Para que no se me olvide y lo vean ellos») NOTAS FIJAS EN EL CARTEL: por grupo y tipo de actividad, en la línea de
      la nota del cartel (junto a la nota del apartado, si la hay). Para quitar una: borrarla de esta lista. */
   var NOTAS_FIJAS = [
-    { g: '4B', tema: 'dictado', tit: /^dictado$/i, t: 'Siro y Álex: sentaos separados' }   /* solo donde pone «Dictado» (no en Predict) */
+    { g: '4B', tema: 'dictado', tit: /^dictado$/i, t: 'Siro y Álex separados' }   /* solo donde pone «Dictado» (no en Predict) */
   ];
   function notaFija(v, b) {
     try { var g = String((v && v.c && v.c.grupo) || '').toUpperCase();
@@ -1476,8 +1478,10 @@
     UI.cartel.classList.remove('lme-descanso'); DESC.k = '';   /* (16-oct-2026, 19:00) el normal (si es un descanso, descanso() lo convierte) */
     txt(UI.kEy, 'Ahora · ' + (v.i + 1) + ' de ' + B.length);
     txt(UI.kT, b.t); txt(UI.kS, b.s); ver(UI.kS, !!b.s);
-    var notaK = [b.nota, notaFija(v, b)].filter(Boolean).join(' · ');   /* (30-oct-2026) + las notas fijas */
-    txt(UI.kN, notaK); ver(UI.kN, !!notaK);   /* (19-oct-2026) la nota del apartado */
+    /* (30-oct-2026, Iago: «que se vea ese aviso parpadeando en amarillo y grande») la nota fija va debajo de la del apartado, en su
+       propia línea, grande, amarilla y parpadeando (.lme-nfija) */
+    var nFija = notaFija(v, b), notaK = (b.nota ? esc(b.nota) : '') + (nFija ? (b.nota ? '<br>' : '') + '<span class="lme-nfija">' + esc(nFija) + '</span>' : '');
+    if (UI.kN.innerHTML !== notaK) UI.kN.innerHTML = notaK; ver(UI.kN, !!notaK);   /* (19-oct-2026) la nota del apartado */
     UI.kM.innerHTML = '<b>' + esc(b.m + ' min') + '</b>' + esc(n ? ' · luego, ' + (/[A-Z]/.test(n.t.split(' ')[0].slice(1)) ? n.t : minus(n.t)) : ' · y fin de la clase')   /* «luego, FaActos» (no «faactos») */;
     var ir = null; try { ir = irA(b); } catch (e) {} CART.ir = ir; ver(UI.kIr, !!ir); if (ir) UI.kIr.title = ir.t;   /* (16-oct-2026) siempre el mismo botón, «Abrir ›» */
     alFrente(UI.cartel); UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);   /* (16-oct-2026) alFrente */
