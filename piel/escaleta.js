@@ -1179,7 +1179,7 @@
        Intervalia y FaActos; Iago: «aprovecharía ese diseño que ya tenemos») */
     '#lme-cartel .lme-nota{font:500 36px/1.2 ' + F + ';color:#fff;max-width:88vw;text-shadow:0 2px 16px rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.6)}' +
     '#lme-cartel .lme-nota[hidden],#lme-cartel.lme-descanso .lme-nota{display:none}' +
-    '#lme-cartel .lme-nfija{display:inline-block;margin-top:14px;font:900 64px/1.1 ' + F + ';color:#facc15;letter-spacing:.01em;text-shadow:none;animation:lmeNfija 1s steps(1,end) infinite}' +   /* (30-oct-2026) la nota fija: amarilla, grande y parpadeando */
+    '#lme-cartel .lme-nfija{display:inline-block;margin-top:18px;font:900 84px/1.05 ' + F + ';color:#facc15;letter-spacing:.01em;text-shadow:none;animation:lmeNfija 1s steps(1,end) infinite}' +   /* (30-oct-2026) la nota fija: amarilla, grande y parpadeando */
     '@keyframes lmeNfija{0%{opacity:1}50%{opacity:.15}}' +
     '#lme-cartel .lme-mi{font:700 24px/1 ' + F + ';color:#9aa6bb;margin-top:4px}' +
     '#lme-cartel .lme-mi b{color:#fff;font-weight:700}' +
