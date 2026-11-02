@@ -182,7 +182,33 @@
         if (d && d.ok && ESC.k === k) { ESC.d = { hay: !!d.hay, bloques: d.bloques || [], tareas: d.tareas || [], act: d.actualizado_en || '' }; lsPon('lm_esc_pub:' + k, ESC.d); pintar(true); }
       }).catch(function () {}).then(function () { ESC.pidiendo = false; });
     }
-    return ESC.d;
+    return conExtras(ESC.d, c);   /* (2-nov-2026) las actividades fijas del consejo escolar */
+  }
+  /* (2-nov-2026, Iago) ELECCIONES AL CONSEJO ESCOLAR (la votación es en Lenguaje Musical de 1.º y 2.º GP, del 9 al 13-nov).
+     «En la escaleta de esta semana… explicar elecciones consejo escolar… y que esta imagen… aparezca justo después de la
+     escaleta, antes de la primera actividad, para que leamos en clase. Y el 10 de noviembre… una actividad extraordinaria al
+     principio de la clase… votación consejo escolar». Se añaden AL PRINCIPIO de la escaleta publicada de ese día (en los dos
+     grupos de 2.º GP) sin tocar el Diario: la primera abre sola la circular (ge.lmathome.es/piel/avisos/) a los 4 s de salir
+     su cartel; ✕ (o Esc) la cierra y «Abrir ›» la vuelve a abrir. Pasada la fecha no hacen nada. Para quitarlas: vaciar la lista. */
+  var EXTRAS_FIJOS = [
+    { curso: '2Gp', fecha: '2026-11-03', b: { m: 4, tit: 'Explicar elecciones consejo escolar', slot: 'consejo-escolar',
+      video: { t: 'Elecciones al Consello Escolar', u: 'https://ge.lmathome.es/piel/avisos/consejo-escolar-2026.html', tema: 1, abre: 1 } } },
+    { curso: '2Gp', fecha: '2026-11-10', b: { m: 5, tit: 'Votación consejo escolar', slot: 'votacion-consejo-escolar' } }
+  ];
+  var EXF = { src: null, k: '', out: null };
+  function conExtras(pub, c) {
+    try {
+      if (!pub || !c) return pub;
+      var ex = EXTRAS_FIJOS.filter(function (x) { return x.curso === c.curso && x.fecha === c.fecha; });
+      if (!ex.length) return pub;
+      var k = c.curso + '|' + c.fecha;
+      if (EXF.src === pub && EXF.k === k) return EXF.out;
+      var slots = ex.map(function (x) { return x.b.slot; });
+      var resto = (Array.isArray(pub.bloques) ? pub.bloques : []).filter(function (b) { return !(b && slots.indexOf(b.slot) >= 0); });
+      var nuevo = {}; for (var q in pub) if (Object.prototype.hasOwnProperty.call(pub, q)) nuevo[q] = pub[q];
+      nuevo.hay = true; nuevo.bloques = ex.map(function (x) { return JSON.parse(JSON.stringify(x.b)); }).concat(resto);
+      EXF.src = pub; EXF.k = k; EXF.out = nuevo; return nuevo;
+    } catch (e) { return pub; }
   }
 
   /* ---------- el estado (saltos, pausa, margen), por grupo y día, compartido ----------
@@ -382,7 +408,7 @@
   function bloquesDe(pub, grupo) {
     if (MEMO.pub === pub && MEMO.g === grupo) return MEMO.B;
     var l = (pub && Array.isArray(pub.bloques)) ? pub.bloques.filter(function (b) { return b && +b.m > 0 && b.slot !== '__no_clase'; }) : [];
-    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f), vid: videoDe(b), det: (notaTxt(b) ? ['🗒 ' + notaTxt(b)] : []).concat(detalles(b, f)), nota: notaTxt(b) }; });   /* (16-oct-2026) vídeo */
+    MEMO.pub = pub; MEMO.g = grupo; MEMO.B = l.map(function (b) { var f = formatea(b, grupo); return { t: f.t, s: f.s, m: +b.m, tema: temaDe(b), lecs: lecsCampana(b, f), vid: videoDe(b), abre: !!(b.video && b.video.abre), det: (notaTxt(b) ? ['🗒 ' + notaTxt(b)] : []).concat(detalles(b, f)), nota: notaTxt(b) }; });   /* (16-oct-2026) vídeo */
     /* (20-oct-2026, Iago: «el consejo de entonación y la lección de entonación me la digas en preparación de entonación… ese es el
        momento… y no después») la lección y la nota 🗒 de Entonación pasan a su Preparación (la de antes); en Entonación, ya no. */
     try {
@@ -1473,6 +1499,7 @@
       return NOTAS_FIJAS.filter(function (x) { return x.g === g && b && b.tema === x.tema && (!x.tit || x.tit.test(String(b.t || ''))); }).map(function (x) { return x.t; }).join(' · ');
     } catch (e) { return ''; }
   }
+  var ABRE_HECHO = {};   /* (2-nov-2026) */
   function mostrarCartel(v, quedan) {
     var B = v.B, b = B[v.i], n = B[v.i + 1]; if (!b || !montar()) return;
     UI.cartel.classList.remove('lme-descanso'); DESC.k = '';   /* (16-oct-2026, 19:00) el normal (si es un descanso, descanso() lo convierte) */
@@ -1486,6 +1513,10 @@
     var ir = null; try { ir = irA(b); } catch (e) {} CART.ir = ir; ver(UI.kIr, !!ir); if (ir) UI.kIr.title = ir.t;   /* (16-oct-2026) siempre el mismo botón, «Abrir ›» */
     alFrente(UI.cartel); UI.cartel.classList.remove('lme-recoge'); ver(UI.cartel, true); encaja(UI.kT, 150);   /* (16-oct-2026) alFrente */
     CART.hasta = Date.now() + quedan;
+    if (b.abre && b.vid && !ABRE_HECHO[b.vid.u]) {   /* (2-nov-2026) la circular del consejo escolar se abre sola, una vez */
+      ABRE_HECHO[b.vid.u] = 1; var vA = b.vid;
+      setTimeout(function () { try { if (!$('lme-video')) abrirVideo(vA); } catch (e) {} }, 4000);
+    }
     if (!(BAT.cierre && Math.abs(ahora() - BAT.cierre) < 1500)) cambioSuena();   /* en el 5:00 ya suena el cierre de la batería */
   }
 
