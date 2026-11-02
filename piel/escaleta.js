@@ -193,8 +193,20 @@
   var EXTRAS_FIJOS = [
     { curso: '2Gp', fecha: '2026-11-03', b: { m: 4, tit: 'Explicar elecciones consejo escolar', slot: 'consejo-escolar',
       video: { t: 'Elecciones al Consello Escolar', u: 'https://ge.lmathome.es/piel/avisos/consejo-escolar-2026.html', tema: 1, abre: 1 } } },
-    { curso: '2Gp', fecha: '2026-11-10', b: { m: 5, tit: 'Votación consejo escolar', slot: 'votacion-consejo-escolar' } }
+    /* (2-nov-2026, 09:32, Iago) el 10-nov, un cartel de votación de 5 min (la votación es en papel) y, para hacerle sitio,
+       1 min menos a cada actividad salvo el bloque de teoría (y el descanso), solo esa clase: «quita» */
+    { curso: '2Gp', fecha: '2026-11-10', quita: 5, b: { m: 5, tit: 'Votación consejo escolar', slot: 'votacion-consejo-escolar',
+      video: { t: 'Votación', u: 'https://ge.lmathome.es/piel/avisos/votacion-consejo-escolar.html', tema: 1, abre: 1 } } }
   ];
+  function quitaMinutos(bl, n) {   /* 1 min menos a las actividades (no teoría, no descanso), de la más larga a la más corta, hasta n */
+    var cand = bl.map(function (b, i) { return { b: b, i: i }; }).filter(function (x) {
+      var b = x.b; if (!b || !(+b.m > 2) || /^__/.test(String(b.slot || ''))) return false;
+      return !/teor|descanso/.test(norm(String(b.tit || '') + ' ' + String(b.slot || '')));
+    }).sort(function (a, c) { return (+c.b.m - +a.b.m) || (a.i - c.i); });
+    var hecho = 0;
+    for (var k = 0; k < cand.length && hecho < n; k++) { cand[k].b.m = +cand[k].b.m - 1; hecho++; }
+    return hecho;
+  }
   var EXF = { src: null, k: '', out: null };
   function conExtras(pub, c) {
     try {
@@ -205,6 +217,8 @@
       if (EXF.src === pub && EXF.k === k) return EXF.out;
       var slots = ex.map(function (x) { return x.b.slot; });
       var resto = (Array.isArray(pub.bloques) ? pub.bloques : []).filter(function (b) { return !(b && slots.indexOf(b.slot) >= 0); });
+      var nq = ex.reduce(function (a, x) { return a + (+x.quita || 0); }, 0);
+      if (nq) { resto = resto.map(function (b) { return b ? JSON.parse(JSON.stringify(b)) : b; }); quitaMinutos(resto, nq); }   /* copia: la publicada no se toca */
       var nuevo = {}; for (var q in pub) if (Object.prototype.hasOwnProperty.call(pub, q)) nuevo[q] = pub[q];
       nuevo.hay = true; nuevo.bloques = ex.map(function (x) { return JSON.parse(JSON.stringify(x.b)); }).concat(resto);
       EXF.src = pub; EXF.k = k; EXF.out = nuevo; return nuevo;
