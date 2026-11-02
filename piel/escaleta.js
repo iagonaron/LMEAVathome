@@ -184,18 +184,18 @@
     }
     return conExtras(ESC.d, c);   /* (2-nov-2026) las actividades fijas del consejo escolar */
   }
-  /* (2-nov-2026, Iago) ELECCIONES AL CONSEJO ESCOLAR (la votación es en Lenguaje Musical de 1.º y 2.º GP, del 9 al 13-nov).
+  /* (2-nov-2026, Iago) ELECCIÓN DE DELEGADOS Y DELEGADAS DEL CURSO (15:38: «no es consejo escolar»; la votación es en Lenguaje Musical de 1.º y 2.º GP, del 9 al 13-nov).
      «En la escaleta de esta semana… explicar elecciones consejo escolar… y que esta imagen… aparezca justo después de la
      escaleta, antes de la primera actividad, para que leamos en clase. Y el 10 de noviembre… una actividad extraordinaria al
      principio de la clase… votación consejo escolar». Se añaden AL PRINCIPIO de la escaleta publicada de ese día (en los dos
      grupos de 2.º GP) sin tocar el Diario: la primera abre sola la circular (ge.lmathome.es/piel/avisos/) a los 4 s de salir
      su cartel; ✕ (o Esc) la cierra y «Abrir ›» la vuelve a abrir. Pasada la fecha no hacen nada. Para quitarlas: vaciar la lista. */
   var EXTRAS_FIJOS = [
-    { curso: '2Gp', fecha: '2026-11-03', b: { m: 4, tit: 'Explicar elecciones consejo escolar', slot: 'consejo-escolar',
-      video: { t: 'Elecciones al Consello Escolar', u: 'https://ge.lmathome.es/piel/avisos/consejo-escolar-2026.html', tema: 1, abre: 1 } } },
+    { curso: '2Gp', fecha: '2026-11-03', b: { m: 4, tit: 'Explicar elección de delegados y delegadas', slot: 'consejo-escolar',
+      video: { t: 'Elección de delegados y delegadas', u: 'https://ge.lmathome.es/piel/avisos/consejo-escolar-2026.html', tema: 1, abre: 1 } } },
     /* (2-nov-2026, 09:32, Iago) el 10-nov, un cartel de votación de 5 min (la votación es en papel) y, para hacerle sitio,
        1 min menos a cada actividad salvo el bloque de teoría (y el descanso), solo esa clase: «quita» */
-    { curso: '2Gp', fecha: '2026-11-10', quita: 5, b: { m: 5, tit: 'Votación consejo escolar', slot: 'votacion-consejo-escolar',
+    { curso: '2Gp', fecha: '2026-11-10', quita: 5, b: { m: 5, tit: 'Votación de delegados y delegadas', slot: 'votacion-consejo-escolar',
       video: { t: 'Votación', u: 'https://ge.lmathome.es/piel/avisos/votacion-consejo-escolar.html', tema: 1, abre: 1 } } }
   ];
   function quitaMinutos(bl, n) {   /* 1 min menos a las actividades (no teoría, no descanso), de la más larga a la más corta, hasta n */
