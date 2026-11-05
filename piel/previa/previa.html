@@ -162,6 +162,10 @@ select{height:44px;border-radius:12px;border:1px solid var(--borde);background:v
 /* consejo */
 #consejo .c-et{position:absolute;left:50%;top:300px;transform:translateX(-50%);display:none;align-items:center;gap:14px;border:3px solid currentColor;border-radius:999px;padding:16px 34px;font:800 30px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
 #consejo .c-et.on{display:flex}
+/* (5-nov-2026, Iago) TÍTULO GRANDE DEL CONSEJO: «que ponga en grande arriba… ritmo, o si es de carrusel, carrusel: que haya arriba claramente a qué se está refiriendo» */
+#consejo .c-ar{position:absolute;left:0;right:0;top:112px;text-align:center;display:none;font:900 132px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+#consejo .c-ar.on{display:block}
+#consejo .c-ar .carr{font-size:150px;letter-spacing:0;text-transform:none;display:inline-block;transform:rotate(-4deg);filter:drop-shadow(0 3px 16px rgba(91,208,255,.35))}
 #consejo .c-tx{position:absolute;left:220px;right:220px;top:410px;text-align:center;text-wrap:balance;font:700 64px/1.28 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff}
 #consejo .c-tx .dest{color:var(--dest,#facc15)}
 .k-rit{color:#34d399!important}.k-mel{color:#5bd0ff!important}.k-ton{color:#ff9a3c!important}.k-arm{color:#bd92ff!important}
@@ -210,7 +214,7 @@ select{height:44px;border-radius:12px;border:1px solid var(--borde);background:v
         </div>
         <div class="capa" id="respiro"><div class="rec" id="reRec" hidden></div><canvas id="cvR" width="840" height="88"></canvas></div>
         <div class="capa" id="ojo"></div>
-        <div class="capa" id="consejo"><div class="c-et" id="cEt"></div><div class="c-tx tecl" id="cTx"></div></div>
+        <div class="capa" id="consejo"><div class="c-ar" id="cAr"></div><div class="c-et" id="cEt"></div><div class="c-tx tecl" id="cTx"></div></div>
         <div class="capa" id="indice"><div class="ey" id="inEy"></div><div class="tit">Hoy en clase</div><ol id="inLs"></ol></div>
         <div id="miniEt">Empezamos en</div>
         <div id="mini"></div>
@@ -3423,11 +3427,19 @@ var TEO = (function () {
     if (typeof oj === 'string') OJOS[oj](ojo, o[1]); else { MOLDES[oj.m].monta(ojo, o[1], oj.p); E.calma = calma(o[1], dOjo, i0, s0); }
     /* consejo */
     var cEt = D.getElementById('cEt'), cTx = D.getElementById('cTx'); cEt.innerHTML = ''; cTx.innerHTML = ''; cTx.className = 'c-tx';
+    var cAr = D.getElementById('cAr'); if (cAr) { cAr.innerHTML = ''; cAr.className = 'c-ar'; }   /* (5-nov-2026, Iago) TÍTULO GRANDE DEL CONSEJO */
     var cid = OVR[E.id] !== undefined ? OVR[E.id] : E.consejo, c = cid ? consejo(cid) : null, tc = tramo('consejo');
     if (c && tc) {
       var col = colorDe(c, E.clase), area = c.area === 'general' ? '' : (c.area === 'intervalia' ? AREA.intervalia.n : (AREA[c.area] || {}).n || '');
       cEt.style.color = col;
-      if (c.area === 'carrusel') cEt.innerHTML = esc(c.etiqueta) + ' · <span class="carr">Carrusel</span>';
+      /* (5-nov-2026, Iago) TÍTULO GRANDE DEL CONSEJO: el apartado, en grande arriba («Ritmo», «Dictado», «Carrusel»…); la píldora se queda con «Consejo», «Truco»… */
+      if (cAr) {
+        cAr.style.color = col;
+        if (c.area === 'carrusel') cAr.innerHTML = '<span class="carr">Carrusel</span>';
+        else cAr.textContent = c.area === 'intervalia' ? AREA.intervalia.n : (AREA[c.area] || AREA.general).n;
+        clase(cAr, 'on', tc[1], tc[2]);
+        cEt.textContent = c.etiqueta;
+      } else if (c.area === 'carrusel') cEt.innerHTML = esc(c.etiqueta) + ' · <span class="carr">Carrusel</span>';
       else cEt.textContent = c.etiqueta + (area && c.area !== 'aviso' ? ' · ' + area : '');
       clase(cEt, 'on', tc[1], tc[2]);
       /* (17-oct, Iago: «va un poquito rápido») 10 s de consejo y el tecleo según lo largo que sea: termina unos 3 s antes del final */
