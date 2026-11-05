@@ -59,7 +59,11 @@
   }
 
   /* ---------- en los subportales: el latido ---------- */
-  if (/^(ritmo|entonacion|dictado|carrusel|portal)$/.test(familia)) return;          /* deberes de la semana y clase */
+  /* (5-nov-2026, Iago) «si están en Entonación at home, quiero que me llegue como notificación que ese alumno ha practicado…
+     tanto elemental como profesional»: RITMO, Entonación y Dictados también cuentan cuando se practica por libre (las tareas
+     siguen fuera por los ?quizCarta, ?introCarta, ?envio… de abajo). Fuera solo los portales y el Carrusel, que es de clase
+     (los móviles entran por el QR). Para volver a como estaba: (ritmo|entonacion|dictado|carrusel|portal). */
+  if (/^(carrusel|portal)$/.test(familia)) return;
   if (q.fichaId || q.ficha || q.quizCarta || q.introCarta || q.quiz || q.carta || q.envio || q.revision || q.panel) return;
   if (visor() || window.__SUITE_ALUMNO) return;
   try {
