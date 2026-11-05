@@ -116,7 +116,9 @@
      at home / RITMO PRO (otra web), donde no hay sesión del profe, y la escaleta no cargaba. El portal, con la sesión de Tester /
      Protester, deja su cuenta en una cookie de *.lmathome.es (lm_cta_ge / lm_cta_gp, 12 h; con otra sesión o sin ella, la borra);
      en RITMO, sin sesión propia, vale para la escaleta SOLO si es la de Tester / Protester. Para quitarlo: CTA_COOKIE = false. */
-  var CTA_COOKIE = true, CTA_RE = new RegExp('(?:^|;\\s*)lm_cta_' + grado + '=([^;]*)');
+  /* (5-nov-2026, Iago) la cookie de la escaleta tiene NOMBRE PROPIO (lm_esc_ge / lm_esc_gp): usaba lm_cta_*, que es la del latido (piel/latido.js), y al no ser Tester la BORRABA en cada clic: desde el
+     20-oct no llegaba a la campana del Diario ningún rato por libre de los alumnos (Atonalidad, Acústica, Teoría…). */
+  var CTA_COOKIE = true, CTA_RE = new RegExp('(?:^|;\\s*)lm_esc_' + grado + '=([^;]*)');
   function cuentaCookie() { try { var m = CTA_RE.exec(document.cookie || ''), c = m ? decodeURIComponent(m[1]) : ''; return (c && TESTER_ID[c]) ? c : ''; } catch (e) { return ''; } }
   function cuentaApp() { return (CTA_COOKIE && !ES_PORTAL && familia === 'ritmo' && !esTester(sesion())) ? cuentaCookie() : ''; }
   var CTA_T = 0;
@@ -125,8 +127,8 @@
     try {
       var se = sesion(), id = (esTester(se) && TESTER_ID[idSesion(se)]) ? idSesion(se) : '', m = CTA_RE.exec(document.cookie || ''), ya = m ? decodeURIComponent(m[1]) : '';
       var fin = '; path=/; SameSite=Lax' + DOMINIO + (location.protocol === 'https:' ? '; Secure' : '');
-      if (id) document.cookie = 'lm_cta_' + grado + '=' + encodeURIComponent(id) + '; max-age=43200' + fin;
-      else if (ya) document.cookie = 'lm_cta_' + grado + '=; max-age=0' + fin;
+      if (id) document.cookie = 'lm_esc_' + grado + '=' + encodeURIComponent(id) + '; max-age=43200' + fin;
+      else if (ya) document.cookie = 'lm_esc_' + grado + '=; max-age=0' + fin;
     } catch (e) {}
   }
   /* tarjetas de apartado (27-sep-2026, Iago): B = cristal negro con SOLO el contorno del color del apartado y,
