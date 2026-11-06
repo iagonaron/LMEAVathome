@@ -3473,7 +3473,7 @@
      · Cuándo: TODA la semana de exámenes, de lunes a domingo (la semana del calendario, no la docente: «desde el lunes,
        porque a lo mejor me paso por el aula»), si el Diario tiene en ella una clase marcada como «Exámenes»
        (semanas.excepciones.cN.tipo = 'examenes'); el trimestre, el que pone esa clase (1T…).
-     · Qué: GE · clave de sol → «Lección de examen» (la versión de pantalla, solo la voz, con la cuenta atrás de 5:05);
+     · Qué: GE · clave de sol → «Lección de examen» (la versión de pantalla: voz o voz y piano, con la cuenta atrás de 5:15);
        GE y GP · diapasón → «Dictado de examen» (el reproductor de siempre). (Ritmo / ritmo entonado: en papel, sin nada en
        la pantalla del aula.)
      · Grupo: el de la clase que hay ahora (o la que empieza en 15 min) va primero; el otro, debajo.
@@ -3538,7 +3538,7 @@
   function exmOpsEnto() {
     var d = EXM.datos; if (!exmOn() || GP) return [];
     var f = EXM_MAT[d.trim].ento[d.curso]; if (!f) return [];
-    return [{ t: 'Lección de examen · ' + d.trim, s: 'Pantalla · solo la voz · con contraseña', fn: function () { exmPin('Lección de examen · ' + d.trim, f, exmVerEnto); } }];
+    return [{ t: 'Lección de examen · ' + d.trim, s: 'Pantalla · voz o voz y piano · con contraseña', fn: function () { exmPin('Lección de examen · ' + d.trim, f, exmVerEnto); } }];
   }
   function exmOpsDict() {
     var d = EXM.datos; if (!exmOn()) return [];
@@ -3582,17 +3582,15 @@
     if (document.getElementById('lm-exm-css')) return;
     var st = document.createElement('style'); st.id = 'lm-exm-css';
     st.textContent =
-      '#lm-exm-pin{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(4,10,20,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}' +
-      '#lm-exm-pin .lm-exm-c{width:min(340px,92vw);box-sizing:border-box;padding:22px 22px 18px;border-radius:16px;background:rgba(11,19,32,.95);border:1.5px solid #4a9eff;color:#fff;font:500 14px/1.35 "Helvetica Neue",Helvetica,Arial,sans-serif;text-align:center;position:relative}' +
-      '#lm-exm-pin .lm-exm-ic{width:42px;height:42px;margin:0 auto 8px;display:block;color:#4a9eff}' +
-      '#lm-exm-pin .lm-exm-t{font-weight:800;font-size:16px;margin:0 0 2px}' +
-      '#lm-exm-pin .lm-exm-s{color:rgba(255,255,255,.66);font-size:12.5px;margin:0 0 14px}' +
-      '#lm-exm-pin input{width:100%;box-sizing:border-box;height:46px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:#111a2a;color:#fff;font:800 22px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.38em;text-align:center;outline:none}' +
+      '#lm-exm-pin{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px;box-sizing:border-box;background:transparent}' +
+      '#lm-exm-pin .lm-exm-c{width:150px;box-sizing:border-box;padding:6px;border-radius:8px;background:rgba(11,19,32,.92);border:1px solid rgba(255,255,255,.16);color:#fff;font:500 11px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif;display:flex;flex-wrap:wrap;gap:5px;align-items:center;position:relative}' +
+      '#lm-exm-pin .lm-exm-ic,#lm-exm-pin .lm-exm-t,#lm-exm-pin .lm-exm-s,#lm-exm-pin .lm-exm-x{display:none}' +
+      '#lm-exm-pin input{width:92px;box-sizing:border-box;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:#111a2a;color:#fff;font:700 12px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.12em;text-align:center;outline:none}' +
       '#lm-exm-pin input:focus{border-color:#4a9eff}' +
-      '#lm-exm-pin .lm-exm-ok{margin-top:12px;width:100%;height:42px;border:0;border-radius:10px;background:#2563eb;color:#fff;font:800 14px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer}' +
+      '#lm-exm-pin .lm-exm-ok{margin:0;width:41px;height:26px;border:0;border-radius:6px;background:#2563eb;color:#fff;font:800 10.5px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer;padding:0}' +
       '#lm-exm-pin .lm-exm-ok:disabled{background:#1c2636;color:rgba(255,255,255,.5);cursor:default}' +
-      '#lm-exm-pin .lm-exm-err{min-height:18px;margin-top:8px;color:#f87171;font-size:12.5px;font-weight:700}' +
-      '#lm-exm-pin .lm-exm-x{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;font-size:16px;line-height:1;cursor:pointer}' +
+      '#lm-exm-pin .lm-exm-err{width:100%;min-height:0;margin:0;color:#f87171;font-size:10px;font-weight:700}' +
+      '#lm-exm-pin .lm-exm-err:empty{display:none}' +
       '#lm-exm-pin .lm-exm-c.mal{animation:lmExmMal .35s}' +
       '@keyframes lmExmMal{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
       '#lm-exm-ver{position:fixed;inset:0;z-index:2147482990;background:#fff;display:flex;align-items:center;justify-content:center}' +
@@ -3638,16 +3636,42 @@
     setTimeout(function () { try { inp.focus(); } catch (e) {} }, 30);
   }
 
-  /* ---- entonación: la partitura de pantalla, a todo el ancho, con la cuenta atrás de 5:05 ---- */
+  /* ---- entonación: la partitura de pantalla (pestañas Voz / Voz y piano), con la cuenta atrás de 5:15 ---- */
   function exmVerEnto(bytes) {
     exmCss();
-    var url = URL.createObjectURL(new Blob([bytes], { type: 'image/png' }));
+    /* el fichero trae las dos vistas (solo la voz, apaisada · voz y piano, vertical); los antiguos, solo una imagen */
+    var vistas = [], u8 = new Uint8Array(bytes);
+    if (u8[0] === 0x89 && u8[1] === 0x50) vistas.push({ n: 'Voz', url: URL.createObjectURL(new Blob([bytes], { type: 'image/png' })) });
+    else {
+      try {
+        var j = JSON.parse(new TextDecoder().decode(u8));
+        (j.vistas || []).forEach(function (v) {
+          var bin = atob(v.png), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+          vistas.push({ n: v.n, url: URL.createObjectURL(new Blob([a], { type: 'image/png' })) });
+        });
+      } catch (e) {}
+    }
+    if (!vistas.length) return;
+    if (!document.getElementById('lm-exm-css2')) {
+      var st = document.createElement('style'); st.id = 'lm-exm-css2';
+      st.textContent = '#lm-exm-ver .lm-exm-vistas{position:absolute;bottom:14px;left:14px;display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(11,19,32,.88)}' +
+        '#lm-exm-ver .lm-exm-vistas button{height:34px;padding:0 12px;border:0;border-radius:8px;background:transparent;color:rgba(255,255,255,.75);font:700 13px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer}' +
+        '#lm-exm-ver .lm-exm-vistas button.on{background:#2563eb;color:#fff}';
+      document.head.appendChild(st);
+    }
     var ov = document.createElement('div'); ov.id = 'lm-exm-ver'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Lección de examen');
-    ov.innerHTML = '<img alt="Lección de examen" draggable="false"><div class="lm-exm-reloj" role="timer" aria-live="off">5:05</div>' +
+    ov.innerHTML = '<img alt="Lección de examen" draggable="false"><div class="lm-exm-reloj" role="timer" aria-live="off">5:15</div>' +
+      (vistas.length > 1 ? '<div class="lm-exm-vistas" role="tablist">' + vistas.map(function (v, i) { return '<button type="button" role="tab" data-i="' + i + '">' + esc(v.n) + '</button>'; }).join('') + '</div>' : '') +
       '<button type="button" class="lm-exm-cerrar" aria-label="Cerrar" title="Cerrar (Esc)">✕</button>';
-    ov.querySelector('img').src = url;
+    var img = ov.querySelector('img');
+    function muestra(i) {
+      img.src = vistas[i].url;
+      Array.prototype.forEach.call(ov.querySelectorAll('.lm-exm-vistas button'), function (b) { var on = +b.getAttribute('data-i') === i; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    }
+    Array.prototype.forEach.call(ov.querySelectorAll('.lm-exm-vistas button'), function (b) { b.addEventListener('click', function () { muestra(+b.getAttribute('data-i')); }); });
+    muestra(0);
     document.body.appendChild(ov);
-    var reloj = ov.querySelector('.lm-exm-reloj'), fin = Date.now() + 305e3, tic = 0;
+    var reloj = ov.querySelector('.lm-exm-reloj'), fin = Date.now() + 315e3, tic = 0;
     function pinta() {
       var s = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
       reloj.textContent = Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
@@ -3657,7 +3681,7 @@
     tic = setInterval(pinta, 250); pinta();
     function cerrar() {
       if (tic) clearInterval(tic); document.removeEventListener('keydown', tecla, true);
-      if (ov.parentNode) ov.parentNode.removeChild(ov); try { URL.revokeObjectURL(url); } catch (e) {}
+      if (ov.parentNode) ov.parentNode.removeChild(ov); vistas.forEach(function (v) { try { URL.revokeObjectURL(v.url); } catch (e) {} });
     }
     function tecla(e) { if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); e.stopPropagation(); cerrar(); } }
     document.addEventListener('keydown', tecla, true);
