@@ -3470,8 +3470,9 @@
      «Intégrala ya en el primer trimestre cuando marque examen. Al igual que tenemos ya el dictado, que aparezca la lección
      de entonación… en el icono de clave de sol, con contraseña, donde actualmente me sale la lección activa. Y el dictado
      igual, en el de dictado.» · «Y la de ritmo entonado también en GP, en el icono de ritmo (metrónomo).»
-     · Cuándo: la semana docente (cambia el viernes a las 19:00) en la que el Diario tiene una clase marcada como
-       «Exámenes» (semanas.excepciones.cN.tipo = 'examenes'); el trimestre, el que pone esa clase (1T…).
+     · Cuándo: TODA la semana de exámenes, de lunes a domingo (la semana del calendario, no la docente: «desde el lunes,
+       porque a lo mejor me paso por el aula»), si el Diario tiene en ella una clase marcada como «Exámenes»
+       (semanas.excepciones.cN.tipo = 'examenes'); el trimestre, el que pone esa clase (1T…).
      · Qué: GE · clave de sol → «Lección de examen» (la versión de pantalla, solo la voz, con la cuenta atrás de 5:05);
        GE y GP · diapasón → «Dictado de examen» (el reproductor de siempre); GP · metrónomo → «Examen de ritmo entonado»
        (Ritmo PRO, donde están los modelos A y B).
@@ -3495,12 +3496,18 @@
     return fetch(MOR_SB + '/rest/v1/' + qq, { cache: 'no-store', headers: { apikey: MOR_ANON, Authorization: 'Bearer ' + MOR_ANON } })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
   }
+  function exmSemana() {   /* la semana del calendario (lunes a domingo), sin el corte del viernes a las 19:00 */
+    var n = new Date(), u = new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())), dia = u.getUTCDay() || 7;
+    u.setUTCDate(u.getUTCDate() + 4 - dia);
+    var y0 = new Date(Date.UTC(u.getUTCFullYear(), 0, 1));
+    return { anio: u.getUTCFullYear(), semana: Math.ceil((((u - y0) / 864e5) + 1) / 7) };
+  }
   function exmMin(t) { if (!t) return null; var p = String(t).split(':'); var h = +p[0], m = +(p[1] || 0); return (isNaN(h) || isNaN(m)) ? null : h * 60 + m; }
   function exmCargar(forzar) {
     if (!esProfe()) return Promise.resolve(null);
     if (!forzar && EXM.datos && Date.now() - EXM.t < 5 * 60e3) return Promise.resolve(EXM.datos);
     if (EXM.cargando) return EXM.cargando;
-    var w = enSemana(), d = { on: false, trim: '', curso: GP ? '2Gp' : '4Ge', grupos: [], ahora: '' };
+    var w = exmSemana(), d = { on: false, trim: '', curso: GP ? '2Gp' : '4Ge', grupos: [], ahora: '' };
     var prueba = /[?&]lmexamen=([123]T)\b/i.exec(location.search);
     EXM.cargando = Promise.all([
       prueba ? Promise.resolve([]) : exmRest('semanas?select=excepciones&curso=eq.' + encodeURIComponent(d.curso) + '&anio=eq.' + w.anio + '&semana_iso=eq.' + w.semana),
@@ -3685,7 +3692,7 @@
     if (!window.DictadoClase || typeof window.DictadoClase.open !== 'function') { alert('El reproductor de dictados no está en esta página. Recarga el portal.'); return; }
     exmGuardaTempo();
     exmLibs().then(function () {
-      var w = enSemana();
+      var w = exmSemana();
       window.__dictadoAnimado = { curso: 'Examen ' + EXM.datos.trim + ' · ' + grupo, anio: w.anio, semana_iso: w.semana, numero: null,
         dictado: D, solucion_path: null, solucion_filename: null, __examen: true };
       window.DictadoClase.open();
