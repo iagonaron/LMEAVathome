@@ -242,19 +242,21 @@
         resR = q('#rs-mini .rs-btn.verde') || q('#rs-mini .rs-btn.violeta'), resE = q('#rs-mini .rs-btn.azul'),
         dicts = qa('#da-mini .da-btn');
     var barra = document.getElementById('lm-iconos');
-    if (!penta && !libros && !intros.length && !resR && !resE && !dicts.length) { if (barra) { cerrarMenu(); barra.parentNode.removeChild(barra); } return; }
+    try { exmCargar(); } catch (e) {}   /* (6-nov-2026) sección 21: ¿semana de exámenes? */
+    if (!penta && !libros && !intros.length && !resR && !resE && !dicts.length && !exmOn()) { if (barra) { cerrarMenu(); barra.parentNode.removeChild(barra); } return; }
     if (!barra) { barra = document.createElement('div'); barra.id = 'lm-iconos'; barra.setAttribute('role', 'toolbar'); barra.setAttribute('aria-label', 'Herramientas del profesor'); }
     if (barra.parentNode !== host) host.insertBefore(barra, host.firstChild);
     var firma = JSON.stringify([!!penta, !!libros, intros.map(function (b) { return b.getAttribute('data-carta') + '|' + b.title; }), !!resR, !!resE,
-      dicts.map(function (b) { return b.getAttribute('data-curso') + '|' + b.textContent; })]);
+      dicts.map(function (b) { return b.getAttribute('data-curso') + '|' + b.textContent; }),
+      exmOn() ? [EXM.datos.trim, EXM.datos.grupos.join(',')] : 0]);
     if (barra.getAttribute('data-firma') === firma) return;
     cerrarMenu(); barra.setAttribute('data-firma', firma); barra.innerHTML = '';
     if (penta) barra.appendChild(cuadro('lm-ic-penta', 'pentagrama', 'Pentagrama · pizarra para el aula', function () { pulsa(q('#pz-mini .da-btn')); }));
     if (libros) barra.appendChild(cuadro('lm-ic-libros', 'book', 'Libros del aula', function (b) {
       abrirMenu(b, LIBROS.map(function (l) { return { t: l[1], fn: function () { abrirLibro(l[0]); } }; }));
     }, true));
-    if (intros.length || resR) barra.appendChild(cuadro('lm-ic-ritmo', 'metronomo', GP ? 'Ritmo entonado · intro activa y resultados' : 'Ritmo · intro activa y resultados', function (b) {
-      var ops = [];
+    if (intros.length || resR || exmOpsRitmo().length) barra.appendChild(cuadro('lm-ic-ritmo', 'metronomo', GP ? 'Ritmo entonado · intro activa y resultados' : 'Ritmo · intro activa y resultados', function (b) {
+      var ops = exmOpsRitmo();   /* (6-nov-2026) semana de exámenes: «Examen de ritmo entonado» arriba */
       var ins = qa('#ri-mini .da-btn');
       if (ins.length) ins.forEach(function (x) {
         var carta = x.getAttribute('data-carta') || '', tit = x.getAttribute('title') || '';
@@ -275,14 +277,16 @@
       }, !GP));
       if (!GP) { try { enCargar(); } catch (e) {} }   /* así el número ya está al abrir el menú */
     }
-    if (dicts.length) {
+    if (dicts.length || exmOpsDict().length) {
       var nums = dicts.map(function (b) { var m = /nº\s*(\d+)/i.exec(b.textContent); return m ? m[1] : ''; });
       var badge = dicts.length === 1 ? (nums[0] ? 'Nº' + nums[0] : '') : (nums.every(function (x) { return x && x === nums[0]; }) ? 'Nº' + nums[0] : String(dicts.length));
-      barra.appendChild(cuadro('lm-ic-dict', 'diapason', 'Dictado activo' + (dicts.length === 1 && nums[0] ? ' nº ' + nums[0] : ''), function (b) {
-        var ds = qa('#da-mini .da-btn');
-        if (ds.length === 1) { pulsa(ds[0]); return; }
-        abrirMenu(b, ds.map(function (x) { var m = /nº\s*(\d+)/i.exec(x.textContent); return { t: 'Dictado' + (m ? ' nº ' + m[1] : ''), s: x.getAttribute('data-curso') || '', fn: function () { pulsa(x); } }; }));
-      }, dicts.length > 1, badge));
+      var exD = exmOpsDict().length > 0;   /* (6-nov-2026) semana de exámenes: «Dictado de examen · grupo» arriba */
+      if (exD) badge = 'EX';
+      barra.appendChild(cuadro('lm-ic-dict', 'diapason', exD ? 'Dictado de examen y dictado activo' : 'Dictado activo' + (dicts.length === 1 && nums[0] ? ' nº ' + nums[0] : ''), function (b) {
+        var ds = qa('#da-mini .da-btn'), ex = exmOpsDict();
+        if (ds.length === 1 && !ex.length) { pulsa(ds[0]); return; }
+        abrirMenu(b, ex.concat(ds.map(function (x) { var m = /nº\s*(\d+)/i.exec(x.textContent); return { t: 'Dictado' + (m ? ' nº ' + m[1] : ''), s: x.getAttribute('data-curso') || '', fn: function () { pulsa(x); } }; })));
+      }, dicts.length > 1 || exD, badge));
     }
     /* (28-sep, Iago) el Sorteo NO va en la portada: su botón sigue en la hilera oculta */
   }
@@ -1616,13 +1620,14 @@
   /* ---- el menú del cuadro de Entonación (sección 9): «Lección activa · N» y «Resultados» ---- */
   function menuEntonacion(b) {
     var res = { t: 'Resultados', s: 'Pantalla de corrección de entonación', fn: function () { pulsa(q('#rs-mini .rs-btn.azul')); } };
+    var exE = exmOpsEnto();   /* (6-nov-2026) sección 21: semana de exámenes → «Lección de examen» arriba */
     if (EN.datos && !EN.cargando) {
-      abrirMenu(b, [opLeccion(EN.datos), res]);
+      abrirMenu(b, exE.concat([opLeccion(EN.datos), res]));
       if (Date.now() - EN.t > 5 * 60e3) enCargar(true);
       return;
     }
-    abrirMenu(b, [{ t: 'Lección activa', s: 'Buscando la de esta semana…', fn: function () { enCargar().then(function (x) { if (x && x.leccion && enPaginas(x.leccion) && x.pdf) abrirEnto(x); }); } }, res]);
-    enCargar().then(function (x) { if (_menu && _menu._de === b) { cerrarMenu(); abrirMenu(b, [opLeccion(x), res]); } });
+    abrirMenu(b, exE.concat([{ t: 'Lección activa', s: 'Buscando la de esta semana…', fn: function () { enCargar().then(function (x) { if (x && x.leccion && enPaginas(x.leccion) && x.pdf) abrirEnto(x); }); } }, res]));
+    enCargar().then(function (x) { if (_menu && _menu._de === b) { cerrarMenu(); abrirMenu(b, exE.concat([opLeccion(x), res])); } });
   }
   function opLeccion(d) {
     if (!d || d.error) return { t: 'Lección activa', s: 'No se ha podido leer la semana · tocar para reintentar', fn: function () {
@@ -3459,6 +3464,232 @@
         document.head.appendChild(st);
       }
     } catch (e) {}
+  }
+
+  /* ---------- 21 (6-nov-2026, Iago): SEMANA DE EXÁMENES · SOLO Tester/Protester ----------
+     «Intégrala ya en el primer trimestre cuando marque examen. Al igual que tenemos ya el dictado, que aparezca la lección
+     de entonación… en el icono de clave de sol, con contraseña, donde actualmente me sale la lección activa. Y el dictado
+     igual, en el de dictado.» · «Y la de ritmo entonado también en GP, en el icono de ritmo (metrónomo).»
+     · Cuándo: la semana docente (cambia el viernes a las 19:00) en la que el Diario tiene una clase marcada como
+       «Exámenes» (semanas.excepciones.cN.tipo = 'examenes'); el trimestre, el que pone esa clase (1T…).
+     · Qué: GE · clave de sol → «Lección de examen» (la versión de pantalla, solo la voz, con la cuenta atrás de 5:05);
+       GE y GP · diapasón → «Dictado de examen» (el reproductor de siempre); GP · metrónomo → «Examen de ritmo entonado»
+       (Ritmo PRO, donde están los modelos A y B).
+     · Grupo: el de la clase que hay ahora (o la que empieza en 15 min) va primero; el otro, debajo.
+     · Contraseña: solo para ABRIR. El material va CIFRADO en piel/examenes/<trimestre>/ (AES-GCM con una clave sacada de la
+       contraseña, PBKDF2): sin ella no se puede ver ni descargando el fichero. La contraseña no está escrita en ningún sitio.
+     · Para probarlo antes (solo Tester/Protester): ?lmexamen=1T en la dirección del portal.
+     · Para quitarlo: borrar esta sección y sus cuatro llamadas (EXM) en la sección 9. */
+  var EXM_MAT = {
+    '1T': { ento: { '4Ge': 'ento-4GE.lmx' },
+            dict: { '4A': 'dict-4A.lmx', '4B': 'dict-4B.lmx', '2GpC': 'dict-2GpC.lmx', '2GpF': 'dict-2GpF.lmx' },
+            carpeta: '1T-2026' }
+  };
+  var EXM_GRUPOS = { '4Ge': ['4A', '4B'], '2Gp': ['2GpC', '2GpF'] };
+  var EXM = { datos: null, t: 0, cargando: null };
+  function exmBase() {
+    var s = document.querySelector('script[src*="/piel/apps/portal.js"]');
+    return (s && s.src) ? s.src.replace(/[?#].*$/, '').replace(/apps\/portal\.js$/, '') : 'https://ge.lmathome.es/piel/';
+  }
+  function exmRest(qq) {
+    return fetch(MOR_SB + '/rest/v1/' + qq, { cache: 'no-store', headers: { apikey: MOR_ANON, Authorization: 'Bearer ' + MOR_ANON } })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  }
+  function exmMin(t) { if (!t) return null; var p = String(t).split(':'); var h = +p[0], m = +(p[1] || 0); return (isNaN(h) || isNaN(m)) ? null : h * 60 + m; }
+  function exmCargar(forzar) {
+    if (!esProfe()) return Promise.resolve(null);
+    if (!forzar && EXM.datos && Date.now() - EXM.t < 5 * 60e3) return Promise.resolve(EXM.datos);
+    if (EXM.cargando) return EXM.cargando;
+    var w = enSemana(), d = { on: false, trim: '', curso: GP ? '2Gp' : '4Ge', grupos: [], ahora: '' };
+    var prueba = /[?&]lmexamen=([123]T)\b/i.exec(location.search);
+    EXM.cargando = Promise.all([
+      prueba ? Promise.resolve([]) : exmRest('semanas?select=excepciones&curso=eq.' + encodeURIComponent(d.curso) + '&anio=eq.' + w.anio + '&semana_iso=eq.' + w.semana),
+      exmRest('horario_clases?select=grupo,dia_iso,hora_ini,hora_fin').catch(function () { return []; })
+    ]).then(function (r) {
+      if (prueba) { d.on = true; d.trim = prueba[1].toUpperCase(); }
+      else {
+        var ex = (r[0] && r[0][0] && r[0][0].excepciones) || {};
+        Object.keys(ex).forEach(function (c) { var x = ex[c]; if (x && x.tipo === 'examenes' && !d.on) { d.on = true; d.trim = String(x.trim || '1T').toUpperCase(); } });
+      }
+      if (d.on && !EXM_MAT[d.trim]) d.on = false;   /* ese trimestre aún no tiene material */
+      var gs = (EXM_GRUPOS[d.curso] || []).slice(), now = new Date(), iso = now.getDay() || 7, m = now.getHours() * 60 + now.getMinutes();
+      (r[1] || []).forEach(function (f) {
+        if (gs.indexOf(f.grupo) < 0 || +f.dia_iso !== iso) return;
+        var a = exmMin(f.hora_ini), b = exmMin(f.hora_fin); if (a === null || b === null) return;
+        if (m >= a - 15 && m < b && !d.ahora) d.ahora = f.grupo;
+      });
+      if (d.ahora) gs.sort(function (x, y) { return (x === d.ahora ? 0 : 1) - (y === d.ahora ? 0 : 1); });
+      d.grupos = gs;
+      EXM.datos = d; EXM.t = Date.now(); return d;
+    }).catch(function () { EXM.datos = d; EXM.t = Date.now() - 4 * 60e3; return d; })   /* sin red: se reintenta al minuto */
+      .then(function (x) { EXM.cargando = null; try { hileraIconos(); } catch (e) {} return x; });
+    return EXM.cargando;
+  }
+  function exmOn() { return !!(EXM.datos && EXM.datos.on && esProfe()); }
+
+  /* opciones de menú de cada cuadro (las pide la sección 9) */
+  function exmOpsEnto() {
+    var d = EXM.datos; if (!exmOn() || GP) return [];
+    var f = EXM_MAT[d.trim].ento[d.curso]; if (!f) return [];
+    return [{ t: 'Lección de examen · ' + d.trim, s: 'Pantalla · solo la voz · con contraseña', fn: function () { exmPin('Lección de examen · ' + d.trim, f, exmVerEnto); } }];
+  }
+  function exmOpsDict() {
+    var d = EXM.datos; if (!exmOn()) return [];
+    return d.grupos.filter(function (g) { return EXM_MAT[d.trim].dict[g]; }).map(function (g) {
+      return { t: 'Dictado de examen · ' + g, s: (g === d.ahora ? 'Clase de ahora · ' : '') + d.trim + ' · con contraseña',
+        fn: function () { exmPin('Dictado de examen · ' + g, EXM_MAT[d.trim].dict[g], function (bytes) { exmVerDict(g, bytes); }); } };
+    });
+  }
+  function exmOpsRitmo() {
+    if (!exmOn() || !GP) return [];
+    return [{ t: 'Examen de ritmo entonado · ' + EXM.datos.trim, s: 'Ritmo PRO · modelos A y B', fn: function () {
+      var u = 'https://iagonaron.github.io/ritmopro/';
+      try { var ss = JSON.parse(localStorage.getItem('lmpro_session') || 'null'); if (ss && ss.id) u += '?cuenta=' + encodeURIComponent(ss.id); } catch (e) {}
+      window.open(u, '_blank', 'noopener');
+    } }];
+  }
+
+  /* ---- descifrar: PBKDF2-SHA256 (200 000) + AES-GCM; fichero = «LMX1» + sal(16) + iv(12) + cifrado ---- */
+  var EXM_CACHE = {};
+  function exmFichero(nombre) {
+    var url = exmBase() + 'examenes/' + EXM_MAT[EXM.datos.trim].carpeta + '/' + nombre;
+    if (EXM_CACHE[url]) return Promise.resolve(EXM_CACHE[url]);
+    return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
+      .then(function (b) { EXM_CACHE[url] = b; return b; });
+  }
+  function exmDescifra(buf, pin) {
+    var u = new Uint8Array(buf);
+    if (u.length < 33 || String.fromCharCode(u[0], u[1], u[2], u[3]) !== 'LMX1') return Promise.reject(new Error('formato'));
+    var sal = u.slice(4, 20), iv = u.slice(20, 32), ct = u.slice(32), S = window.crypto && window.crypto.subtle;
+    if (!S) return Promise.reject(new Error('sin cifrado'));
+    return S.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey'])
+      .then(function (k) { return S.deriveKey({ name: 'PBKDF2', salt: sal, iterations: 200000, hash: 'SHA-256' }, k, { name: 'AES-GCM', length: 256 }, false, ['decrypt']); })
+      .then(function (k) { return S.decrypt({ name: 'AES-GCM', iv: iv }, k, ct); });
+  }
+
+  /* ---- la ventana de la contraseña ---- */
+  function exmCss() {
+    if (document.getElementById('lm-exm-css')) return;
+    var st = document.createElement('style'); st.id = 'lm-exm-css';
+    st.textContent =
+      '#lm-exm-pin{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(4,10,20,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}' +
+      '#lm-exm-pin .lm-exm-c{width:min(340px,92vw);box-sizing:border-box;padding:22px 22px 18px;border-radius:16px;background:rgba(11,19,32,.95);border:1.5px solid #4a9eff;color:#fff;font:500 14px/1.35 "Helvetica Neue",Helvetica,Arial,sans-serif;text-align:center;position:relative}' +
+      '#lm-exm-pin .lm-exm-ic{width:42px;height:42px;margin:0 auto 8px;display:block;color:#4a9eff}' +
+      '#lm-exm-pin .lm-exm-t{font-weight:800;font-size:16px;margin:0 0 2px}' +
+      '#lm-exm-pin .lm-exm-s{color:rgba(255,255,255,.66);font-size:12.5px;margin:0 0 14px}' +
+      '#lm-exm-pin input{width:100%;box-sizing:border-box;height:46px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:#111a2a;color:#fff;font:800 22px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.38em;text-align:center;outline:none}' +
+      '#lm-exm-pin input:focus{border-color:#4a9eff}' +
+      '#lm-exm-pin .lm-exm-ok{margin-top:12px;width:100%;height:42px;border:0;border-radius:10px;background:#2563eb;color:#fff;font:800 14px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer}' +
+      '#lm-exm-pin .lm-exm-ok:disabled{background:#1c2636;color:rgba(255,255,255,.5);cursor:default}' +
+      '#lm-exm-pin .lm-exm-err{min-height:18px;margin-top:8px;color:#f87171;font-size:12.5px;font-weight:700}' +
+      '#lm-exm-pin .lm-exm-x{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;font-size:16px;line-height:1;cursor:pointer}' +
+      '#lm-exm-pin .lm-exm-c.mal{animation:lmExmMal .35s}' +
+      '@keyframes lmExmMal{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}' +
+      '#lm-exm-ver{position:fixed;inset:0;z-index:2147482990;background:#fff;display:flex;align-items:center;justify-content:center}' +
+      '#lm-exm-ver img{max-width:100vw;max-height:100vh;width:100%;height:100%;object-fit:contain;display:block;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}' +
+      '#lm-exm-ver .lm-exm-reloj{position:absolute;top:14px;right:64px;min-width:96px;padding:8px 14px;border-radius:12px;background:rgba(11,19,32,.88);color:#fff;font:800 26px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.04em;text-align:center;font-variant-numeric:tabular-nums}' +
+      '#lm-exm-ver .lm-exm-reloj.ambar{background:#f5a623;color:#0b1320}' +
+      '#lm-exm-ver .lm-exm-reloj.rojo{background:#dc2626}' +
+      '#lm-exm-ver .lm-exm-cerrar{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:12px;border:1px solid rgba(11,19,32,.25);background:rgba(255,255,255,.9);color:#0b1320;font-size:20px;line-height:1;cursor:pointer}';
+    document.head.appendChild(st);
+  }
+  var EXM_ICO_CANDADO = '<svg class="lm-exm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/><path d="M12 14.6v2.4"/></svg>';
+  function exmPin(titulo, fichero, alAbrir) {
+    exmCss();
+    var vieja = document.getElementById('lm-exm-pin'); if (vieja) vieja.parentNode.removeChild(vieja);
+    var ov = document.createElement('div'); ov.id = 'lm-exm-pin'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', titulo);
+    ov.innerHTML = '<form class="lm-exm-c" autocomplete="off">' + EXM_ICO_CANDADO +
+      '<p class="lm-exm-t">' + esc(titulo) + '</p><p class="lm-exm-s">Escribe la contraseña del examen</p>' +
+      '<input type="password" inputmode="numeric" autocomplete="off" maxlength="12" aria-label="Contraseña">' +
+      '<button type="submit" class="lm-exm-ok">Abrir</button><div class="lm-exm-err" role="status"></div>' +
+      '<button type="button" class="lm-exm-x" aria-label="Cerrar">✕</button></form>';
+    document.body.appendChild(ov);
+    var fm = ov.querySelector('form'), inp = ov.querySelector('input'), ok = ov.querySelector('.lm-exm-ok'), err = ov.querySelector('.lm-exm-err');
+    function cerrar() { document.removeEventListener('keydown', tecla, true); if (ov.parentNode) ov.parentNode.removeChild(ov); }
+    function tecla(e) { if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); e.stopPropagation(); cerrar(); } }
+    document.addEventListener('keydown', tecla, true);
+    ov.querySelector('.lm-exm-x').addEventListener('click', cerrar);
+    ov.addEventListener('click', function (e) { if (e.target === ov) cerrar(); });
+    var datos = exmFichero(fichero);   /* se baja mientras se escribe */
+    fm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var pin = String(inp.value || '').replace(/\s+/g, ''); if (!pin) { inp.focus(); return; }
+      ok.disabled = true; ok.textContent = 'Abriendo…'; err.textContent = '';
+      datos.then(function (b) { return exmDescifra(b, pin); }).then(function (claro) {
+        inp.value = ''; cerrar(); alAbrir(claro);
+      }).catch(function (x) {
+        ok.disabled = false; ok.textContent = 'Abrir';
+        var red = x && /HTTP|Failed|fetch|network/i.test(String(x.message || x));
+        err.textContent = red ? 'No se ha podido descargar. ¿Hay conexión?' : 'Contraseña incorrecta';
+        if (red) datos = exmFichero(fichero);
+        inp.value = ''; fm.classList.remove('mal'); void fm.offsetWidth; fm.classList.add('mal'); inp.focus();
+      });
+    });
+    setTimeout(function () { try { inp.focus(); } catch (e) {} }, 30);
+  }
+
+  /* ---- entonación: la partitura de pantalla, a todo el ancho, con la cuenta atrás de 5:05 ---- */
+  function exmVerEnto(bytes) {
+    exmCss();
+    var url = URL.createObjectURL(new Blob([bytes], { type: 'image/png' }));
+    var ov = document.createElement('div'); ov.id = 'lm-exm-ver'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Lección de examen');
+    ov.innerHTML = '<img alt="Lección de examen" draggable="false"><div class="lm-exm-reloj" role="timer" aria-live="off">5:05</div>' +
+      '<button type="button" class="lm-exm-cerrar" aria-label="Cerrar" title="Cerrar (Esc)">✕</button>';
+    ov.querySelector('img').src = url;
+    document.body.appendChild(ov);
+    var reloj = ov.querySelector('.lm-exm-reloj'), fin = Date.now() + 305e3, tic = 0;
+    function pinta() {
+      var s = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+      reloj.textContent = Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+      reloj.classList.toggle('ambar', s > 0 && s <= 60); reloj.classList.toggle('rojo', s === 0);
+      if (s === 0) { clearInterval(tic); tic = 0; }
+    }
+    tic = setInterval(pinta, 250); pinta();
+    function cerrar() {
+      if (tic) clearInterval(tic); document.removeEventListener('keydown', tecla, true);
+      if (ov.parentNode) ov.parentNode.removeChild(ov); try { URL.revokeObjectURL(url); } catch (e) {}
+    }
+    function tecla(e) { if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); e.stopPropagation(); cerrar(); } }
+    document.addEventListener('keydown', tecla, true);
+    ov.querySelector('.lm-exm-cerrar').addEventListener('click', cerrar);
+  }
+
+  /* ---- dictado: el mismo reproductor de clase (DictadoClase), con el dictado del examen ---- */
+  var _exmLibs = null;
+  function exmScript(src) { return new Promise(function (ok, ko) { var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); }); }
+  function exmLibs() {
+    if (_exmLibs) return _exmLibs;
+    var ps = [];
+    if (!(window.Vex && window.Vex.Flow)) ps.push(exmScript('https://cdn.jsdelivr.net/npm/vexflow@4.2.3/build/cjs/vexflow.js'));
+    if (!window.Soundfont) ps.push(exmScript('https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js'));
+    _exmLibs = Promise.all(ps).catch(function (e) { _exmLibs = null; throw e; });
+    return _exmLibs;
+  }
+  /* el reproductor guarda el tempo en la tabla de los dictados de la semana: con el de examen, eso NO se guarda (pisaría
+     el dictado de esa semana y dejaría el examen sin cifrar en la base de datos) */
+  var _exmFetch = null;
+  function exmGuardaTempo() {
+    if (_exmFetch) return;
+    _exmFetch = window.fetch;
+    window.fetch = function (u, o) {
+      try {
+        var a = window.__dictadoAnimado, m = String((o && o.method) || 'GET').toUpperCase();
+        if (a && a.__examen && m !== 'GET' && /suite_dictados_clase/.test(String(u && u.url ? u.url : u)))
+          return Promise.reject(new Error('El tempo del dictado de examen no se guarda'));
+      } catch (e) {}
+      return _exmFetch.apply(this, arguments);
+    };
+  }
+  function exmVerDict(grupo, bytes) {
+    var D; try { D = JSON.parse(new TextDecoder().decode(bytes)); } catch (e) { alert('El dictado de examen no se ha podido leer.'); return; }
+    if (!window.DictadoClase || typeof window.DictadoClase.open !== 'function') { alert('El reproductor de dictados no está en esta página. Recarga el portal.'); return; }
+    exmGuardaTempo();
+    exmLibs().then(function () {
+      var w = enSemana();
+      window.__dictadoAnimado = { curso: 'Examen ' + EXM.datos.trim + ' · ' + grupo, anio: w.anio, semana_iso: w.semana, numero: null,
+        dictado: D, solucion_path: null, solucion_filename: null, __examen: true };
+      window.DictadoClase.open();
+    }).catch(function () { alert('No se ha podido cargar el reproductor (¿conexión?).'); });
   }
 
   function todo() {
