@@ -1,0 +1,2 @@
+Registro de despliegues forzados de GitHub Pages (no lo usa ninguna página).
+6-nov-2026 15:05 · se fuerza la publicación de 244bedf (escaleta sin «Poner faltas»): el deploy de Pages falló.
