@@ -3474,8 +3474,8 @@
        porque a lo mejor me paso por el aula»), si el Diario tiene en ella una clase marcada como «Exámenes»
        (semanas.excepciones.cN.tipo = 'examenes'); el trimestre, el que pone esa clase (1T…).
      · Qué: GE · clave de sol → «Lección de examen» (la versión de pantalla, solo la voz, con la cuenta atrás de 5:05);
-       GE y GP · diapasón → «Dictado de examen» (el reproductor de siempre); GP · metrónomo → «Examen de ritmo entonado»
-       (Ritmo PRO, donde están los modelos A y B).
+       GE y GP · diapasón → «Dictado de examen» (el reproductor de siempre). (Ritmo / ritmo entonado: en papel, sin nada en
+       la pantalla del aula.)
      · Grupo: el de la clase que hay ahora (o la que empieza en 15 min) va primero; el otro, debajo.
      · Contraseña: solo para ABRIR. El material va CIFRADO en piel/examenes/<trimestre>/ (AES-GCM con una clave sacada de la
        contraseña, PBKDF2): sin ella no se puede ver ni descargando el fichero. La contraseña no está escrita en ningún sitio.
@@ -3548,6 +3548,9 @@
     });
   }
   function exmOpsRitmo() {
+    /* (6-nov-2026, 11:39, Iago) «no tiene sentido poner lo de ritmo en la pantalla del aula (metrónomo) ni en GP ni en GE,
+       porque lo van a estudiar en papel»: apagado. Para volver a encenderlo, borrar la línea de abajo. */
+    return [];
     if (!exmOn() || !GP) return [];
     return [{ t: 'Examen de ritmo entonado · ' + EXM.datos.trim, s: 'Ritmo PRO · modelos A y B', fn: function () {
       var u = 'https://iagonaron.github.io/ritmopro/';
