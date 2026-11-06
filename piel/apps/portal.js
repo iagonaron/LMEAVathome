@@ -3647,7 +3647,8 @@
         var j = JSON.parse(new TextDecoder().decode(u8));
         (j.vistas || []).forEach(function (v) {
           var bin = atob(v.png), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
-          vistas.push({ n: v.n, url: URL.createObjectURL(new Blob([a], { type: 'image/png' })) });
+          var full = null; if (v.full) { var bf = atob(v.full), af = new Uint8Array(bf.length); for (var k = 0; k < bf.length; k++) af[k] = bf.charCodeAt(k); full = URL.createObjectURL(new Blob([af], { type: 'image/png' })); }
+          vistas.push({ n: v.n, url: URL.createObjectURL(new Blob([a], { type: 'image/png' })), full: full });
         });
       } catch (e) {}
     }
@@ -3656,16 +3657,26 @@
       var st = document.createElement('style'); st.id = 'lm-exm-css2';
       st.textContent = '#lm-exm-ver .lm-exm-vistas{position:absolute;bottom:14px;left:14px;display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(11,19,32,.88)}' +
         '#lm-exm-ver .lm-exm-vistas button{height:34px;padding:0 12px;border:0;border-radius:8px;background:transparent;color:rgba(255,255,255,.75);font:700 13px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer}' +
-        '#lm-exm-ver .lm-exm-vistas button.on{background:#2563eb;color:#fff}';
+        '#lm-exm-ver .lm-exm-vistas button.on{background:#2563eb;color:#fff}' +
+        '#lm-exm-ver .lm-exm-pc{position:absolute;top:14px;right:64px;width:42px;height:42px;border-radius:12px;border:1px solid rgba(11,19,32,.25);background:rgba(255,255,255,.9);color:#0b1320;font-size:20px;line-height:1;cursor:pointer}' +
+        '#lm-exm-ver .lm-exm-reloj{right:114px}';
       document.head.appendChild(st);
     }
     var ov = document.createElement('div'); ov.id = 'lm-exm-ver'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Lección de examen');
     ov.innerHTML = '<img alt="Lección de examen" draggable="false"><div class="lm-exm-reloj" role="timer" aria-live="off">5:15</div>' +
       (vistas.length > 1 ? '<div class="lm-exm-vistas" role="tablist">' + vistas.map(function (v, i) { return '<button type="button" role="tab" data-i="' + i + '">' + esc(v.n) + '</button>'; }).join('') + '</div>' : '') +
+      '<button type="button" class="lm-exm-pc" aria-label="Pantalla completa" title="Pantalla completa">⛶</button>' +
       '<button type="button" class="lm-exm-cerrar" aria-label="Cerrar" title="Cerrar (Esc)">✕</button>';
-    var img = ov.querySelector('img');
+    var img = ov.querySelector('img'), cur = 0;
+    function enPC() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+    function alPC() { muestra(cur); }
+    document.addEventListener('fullscreenchange', alPC); document.addEventListener('webkitfullscreenchange', alPC);
+    ov.querySelector('.lm-exm-pc').addEventListener('click', function () {
+      if (enPC()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+      var rq = ov.requestFullscreen || ov.webkitRequestFullscreen; if (rq) try { var pr = rq.call(ov); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+    });
     function muestra(i) {
-      img.src = vistas[i].url;
+      cur = i; img.src = (enPC() && vistas[i].full) ? vistas[i].full : vistas[i].url;
       Array.prototype.forEach.call(ov.querySelectorAll('.lm-exm-vistas button'), function (b) { var on = +b.getAttribute('data-i') === i; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
     }
     Array.prototype.forEach.call(ov.querySelectorAll('.lm-exm-vistas button'), function (b) { b.addEventListener('click', function () { muestra(+b.getAttribute('data-i')); }); });
@@ -3681,7 +3692,9 @@
     tic = setInterval(pinta, 250); pinta();
     function cerrar() {
       if (tic) clearInterval(tic); document.removeEventListener('keydown', tecla, true);
-      if (ov.parentNode) ov.parentNode.removeChild(ov); vistas.forEach(function (v) { try { URL.revokeObjectURL(v.url); } catch (e) {} });
+      document.removeEventListener('fullscreenchange', alPC); document.removeEventListener('webkitfullscreenchange', alPC);
+      if (enPC()) try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {}
+      if (ov.parentNode) ov.parentNode.removeChild(ov); vistas.forEach(function (v) { try { URL.revokeObjectURL(v.url); if (v.full) URL.revokeObjectURL(v.full); } catch (e) {} });
     }
     function tecla(e) { if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); e.stopPropagation(); cerrar(); } }
     document.addEventListener('keydown', tecla, true);
