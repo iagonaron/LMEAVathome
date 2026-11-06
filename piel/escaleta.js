@@ -1507,7 +1507,8 @@
      el dictado. Para que no se me olvide y lo vean ellos») NOTAS FIJAS EN EL CARTEL: por grupo y tipo de actividad, en la línea de
      la nota del cartel (junto a la nota del apartado, si la hay). Para quitar una: borrarla de esta lista. */
   var NOTAS_FIJAS = [
-    { g: '4B', tema: 'dictado', tit: /^dictado$/i, t: 'Siro y Álex separados' }   /* solo donde pone «Dictado» (no en Predict) */
+    { g: '4B', tema: 'dictado', tit: /^dictado$/i, t: 'Siro y Álex separados' },   /* solo donde pone «Dictado» (no en Predict) */
+    { g: '4A', tema: 'dictado', tit: /^dictado$/i, t: 'Martín y Mauro separados' }   /* (6-nov-2026, Iago) lo mismo en 4.º A */
   ];
   function notaFija(v, b) {
     try { var g = String((v && v.c && v.c.grupo) || '').toUpperCase();
