@@ -700,7 +700,7 @@
      de C2 (debajo de las tareas): hasta marcarlo, tocar la pantalla o Escape no la cierran (el check se sacude); marcado,
      «toca para cerrar», como siempre. Si la pantalla se va sola (empieza otra clase), se va igual. No se guarda nada.
      Para quitarlo: FALTAS_PIDE = false. */
-  var FALTAS_PIDE = true, FALTAS = false;
+  var FALTAS_PIDE = false, FALTAS = false;   /* (6-nov-2026, Iago) fuera: las faltas le llegan al Diario como aviso de la campana (diario_faltas_pendientes) */
   function pintaFaltas() {
     if (!UI || !UI.fF) return;
     if (!FALTAS_PIDE) FALTAS = true;
@@ -718,6 +718,7 @@
      Para quitarlo: que ausentes() no haga nada. */
   var AUS = { k: '', t: 0, pidiendo: false, ls: null };
   function ausentes(c) {
+    return;   /* (6-nov-2026, Iago) «que lo de las faltas no aparezca» en la escaleta: ahora llegan al Diario */
     var id = cuenta(); if (!id || !c) return;
     var k = c.clave;
     if (AUS.k !== k) { AUS.k = k; AUS.ls = null; AUS.t = 0; }
