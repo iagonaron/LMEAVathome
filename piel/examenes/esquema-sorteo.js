@@ -149,7 +149,7 @@
     return PIANO_P;
   }
   function nota(midi, dur, vol) {
-    if (PIANO && AC) { try { if (AC.resume) AC.resume(); PIANO.play(midi, AC.currentTime, { duration: Math.max(0.2, dur), release: 0.08, gain: (vol || 0.3) / 0.3 }); return; } catch (e) {} }
+    if (PIANO && AC) { try { if (AC.resume) AC.resume(); PIANO.play(midi, AC.currentTime + 0.03, { duration: Math.max(0.2, dur), release: 0.08, gain: (vol || 0.3) / 0.3 }); return; } catch (e) {} }
     tono(midi, dur, vol);
   }
   /* (7-nov, 11:11, Iago) «incluso con soniditos»: ruido filtrado para las cartas (mezcla y reparto) */
@@ -372,6 +372,10 @@
       }
       async function suena(notas, t, boton) {
         if (boton) boton.classList.add('son');
+        /* (19:06, Iago) «el primero de los acordes suena como sin ataque… deja unos milisegundos antes»: se despierta el audio y
+           se espera un poco antes de la primera nota, para que el altavoz no se coma el ataque */
+        try { if (AC && AC.state !== 'running') await AC.resume(); } catch (e) {}
+        await espera(280); if (t !== tok || !vivo()) { if (boton) boton.classList.remove('son'); return; }
         for (var r = 0; r < notas.length; r++) {
           if (t !== tok || !vivo()) break;
           var n = notas[r]; marca(n, true);
@@ -656,5 +660,5 @@
     }
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, clase: clase, version: 16 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, clase: clase, version: 17 };
 })();
