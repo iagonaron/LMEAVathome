@@ -145,9 +145,28 @@
       src.connect(f); f.connect(g); g.connect(AC.destination); src.start(t, Math.random() * 0.5); src.stop(t + dur + 0.02);
     } catch (e) {}
   }
-  function sonMezcla() { for (var i = 0; i < 26; i++) ruido(i * 0.013 + Math.random() * 0.004, 0.025, 2500 + Math.random() * 2500, 0.22, 2); }   /* trrrr de las cartas */
-  function sonCorte() { ruido(0, 0.12, 1200, 0.18, 0.8); }
-  function sonReparto() { ruido(0, 0.09, 3500, 0.16, 0.7); }   /* fsst de una carta al caer */
+  /* (7-nov-2026, 16:33, Iago) «los soniditos… cógelos de Splice»: sonidos de su librería de Splice (piel/examenes/sonidos/);
+     si alguno no carga, el sonido sintetizado de antes. */
+  var BASE_SFX = (function () { try { var c = document.currentScript && document.currentScript.src; if (c) return c.replace(/[^\/]*(\?.*)?$/, '') + 'sonidos/'; } catch (e) {} return 'https://ge.lmathome.es/piel/examenes/sonidos/'; })();
+  var SFX = {}, SFX_P = null;
+  function cargaSfx() {
+    if (SFX_P) return SFX_P;
+    try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return Promise.resolve(); }
+    SFX_P = Promise.all(['mezcla', 'corte', 'reparto', 'tic', 'inicio', 'fin'].map(function (n) {
+      return fetch(BASE_SFX + n + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); })
+        .then(function (b) { return new Promise(function (ok) { AC.decodeAudioData(b, function (buf) { SFX[n] = buf; ok(); }, function () { ok(); }); }); })
+        .catch(function () {});
+    }));
+    return SFX_P;
+  }
+  function sfx(n, vol, rate) {
+    var b = SFX[n]; if (!b || !AC) return false;
+    try { if (AC.resume) AC.resume(); var src = AC.createBufferSource(), g = AC.createGain(); src.buffer = b; if (rate) src.playbackRate.value = rate;
+      g.gain.value = vol == null ? 0.8 : vol; src.connect(g); g.connect(AC.destination); src.start(); return true; } catch (e) { return false; }
+  }
+  function sonMezcla() { if (sfx('mezcla', 0.9)) return; for (var i = 0; i < 26; i++) ruido(i * 0.013 + Math.random() * 0.004, 0.025, 2500 + Math.random() * 2500, 0.22, 2); }   /* trrrr de las cartas */
+  function sonCorte() { if (sfx('corte', 0.7)) return; ruido(0, 0.12, 1200, 0.18, 0.8); }
+  function sonReparto() { if (sfx('reparto', 0.45, 0.95 + Math.random() * 0.15)) return; ruido(0, 0.09, 3500, 0.16, 0.7); }   /* fsst de una carta al caer */
   function espera(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
   /* ---------- Supabase ---------- */
@@ -165,7 +184,7 @@
 
   /* ---------- pantalla ---------- */
   function abrir(o) {
-    cerrar(); css();
+    cerrar(); css(); cargaSfx();
     S = { ensayo: !!o.ensayo, d: o.datos, grupos: o.grupos || [o.grupo], grupo: (o.grupos || [o.grupo])[0], trim: o.trim || '1T', sb: o.sb, anon: o.anon, cuenta: o.cuenta, prop: 0, alumnos: [], orden: null, fase: 'sorteo', id: 0, llamando: -1 };
     var d = S.d, gp = d.grado === 'GP';
     var sinAB = d.materia === 'entonacion'; S.sinAB = sinAB;   /* la entonación de GE es una sola lección: solo orden */
@@ -345,7 +364,7 @@
       }
       async function cuenta(t) {
         var c = el('div', 'c321'); velo.appendChild(c);
-        for (var k = 3; k > 0; k--) { if (t !== tok || !vivo()) { c.remove(); return false; } c.innerHTML = '<b>' + k + '</b><span>preparados para cantar</span>'; tono(k === 1 ? 84 : 79, 0.14, 0.25); await espera(PULSO * 1000); }
+        for (var k = 3; k > 0; k--) { if (t !== tok || !vivo()) { c.remove(); return false; } c.innerHTML = '<b>' + k + '</b><span>preparados para cantar</span>'; if (!sfx('tic', k === 1 ? 0.9 : 0.7, k === 1 ? 1.12 : 1)) tono(k === 1 ? 84 : 79, 0.14, 0.25); await espera(PULSO * 1000); }
         c.remove(); return t === tok && vivo();
       }
       /* ▶ / ❚❚: si está sonando, para; si no, empieza */
@@ -400,7 +419,7 @@
           var ci = COL_INT[semi] || ['#1d4ed8', ''];
           try { var A = a.getBBox(), B = b.getBBox(); var x1 = A.x + A.width + 3, y1 = A.y + A.height / 2, x2 = B.x - 3, y2 = B.y + B.height / 2;
             var l = document.createElementNS(NS, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2);
-            l.setAttribute('stroke', ci[0]); l.setAttribute('stroke-width', '3.2'); l.setAttribute('stroke-linecap', 'butt'); svg.appendChild(l);
+            l.setAttribute('stroke', ci[0]); l.setAttribute('stroke-width', '6'); l.setAttribute('stroke-linecap', 'butt'); svg.appendChild(l);
             if (ci[1]) { var ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI, mx = (x1 + x2) / 2, my = (y1 + y2) / 2, d = 9;
               var tx = mx + Math.sin(ang * Math.PI / 180) * d, ty = my - Math.cos(ang * Math.PI / 180) * d;
               var tt = document.createElementNS(NS, 'text'); tt.setAttribute('x', tx); tt.setAttribute('y', ty); tt.setAttribute('text-anchor', 'middle');
@@ -498,7 +517,7 @@
         for (var s = VUELTA; s > 0; s--) {
           if (!vivo()) return;
           velo.innerHTML = '<h2>Ya puedes dar la vuelta a la hoja</h2><div class="grande">' + s + '</div><p>Empieza el estudio</p>';
-          tono(s === 1 ? 84 : 79, 0.12); await espera(1000);
+          if (!sfx('tic', s === 1 ? 0.9 : 0.7, s === 1 ? 1.12 : 1)) tono(s === 1 ? 84 : 79, 0.12); await espera(1000);
         }
       }
       velo.classList.remove('on'); velo.innerHTML = '';
@@ -510,13 +529,13 @@
       while (vivo()) {
         var q = Math.max(0, Math.ceil((fin - Date.now()) / 1000)); if (S.finYa) q = 0;
         /* (16:26, Iago) los segundos de cortesía no se ven (el reloj marca 5:00) y, al acabar, «un sonidito de aviso… titi» */
-        if (cortesia > 0) { if (q > 300) q = 300; else if (!avisado) { avisado = true; tono(88, 0.12, 0.28); setTimeout(function () { tono(88, 0.14, 0.28); }, 170); } }
+        if (cortesia > 0) { if (q > 300) q = 300; else if (!avisado) { avisado = true; if (!sfx('inicio', 0.9)) { tono(88, 0.12, 0.28); setTimeout(function () { tono(88, 0.14, 0.28); }, 170); } } }
         var txt = Math.floor(q / 60) + ':' + ('0' + (q % 60)).slice(-2), cl = q === 0 ? ' rojo' : q <= 60 ? ' ambar' : '';
         b.textContent = txt; reloj.className = 'reloj' + cl; mini.textContent = txt; mini.className = 'rmini' + cl;
         if (q === 0) break; await espera(250);
       }
       if (!vivo()) return;
-      tono(72, 0.3); setTimeout(function () { tono(67, 0.5); }, 250);
+      if (!sfx('fin', 0.8)) { tono(72, 0.3); setTimeout(function () { tono(67, 0.5); }, 250); }
       if (par) { par.style.opacity = '0'; await espera(1800); if (!vivo()) return; S.raiz.classList.remove('conpartitura'); }
       else await espera(1500);
       if (!vivo()) return;
@@ -533,5 +552,5 @@
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 9 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 10 };
 })();
