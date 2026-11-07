@@ -89,6 +89,8 @@
       '#lm-exr .velo{background:rgba(10,16,40,.97);border:1px solid #1e2a52}#lm-exr .velo p{color:#8b97c4;opacity:1}' +
       '#lm-exr .velo .pbts .p-sig{background:transparent!important;border:1px solid #1e2a52!important;color:#e9edff!important;border-radius:10px!important}' +
       '#lm-exr .velo .pbts .p-sig:hover{border-color:var(--acc)!important}' +
+      '#lm-exr .velo .pbts .p-sig.fin{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important;font-weight:800!important;letter-spacing:.06em}' +
+      '#lm-exr .b-est{text-transform:uppercase;letter-spacing:.06em;font-weight:800}#lm-exr .b-est:not(:disabled){background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}' +
       '#lm-exr .velo .gbts button.son{box-shadow:0 0 0 3px rgba(255,255,255,.55)!important}' +
       '#lm-exr .velo .pasos i{background:#1e2a52}#lm-exr .velo .pasos i.on{background:var(--acc)}' +
 
@@ -126,12 +128,19 @@
   }
   /* (7-nov-2026, 16:07, Iago) «Quiero que la previa sea con sonido de piano, de calidad»: el mismo piano de los dictados
      (soundfont-player · acoustic_grand_piano). Se carga al entrar en la previa (sin sonar); si no llega, el tono de siempre. */
-  var PIANO = null, PIANO_P = null;
+  var PIANO = null, PIANO_P = null, COMP = null;
+  /* (17:26, Iago) «el piano igual para todas las fases… muy bajo»: más ganancia y un compresor suave delante para que no sature */
+  function salidaPiano() {
+    if (COMP) return COMP;
+    try { COMP = AC.createDynamicsCompressor(); COMP.threshold.value = -14; COMP.knee.value = 10; COMP.ratio.value = 4; COMP.attack.value = 0.004; COMP.release.value = 0.25;
+      var g = AC.createGain(); g.gain.value = 1.25; COMP.connect(g); g.connect(AC.destination); } catch (e) { COMP = AC.destination; }
+    return COMP;
+  }
   function piano() {
     if (PIANO_P) return PIANO_P;
     PIANO_P = new Promise(function (ok) {
       try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return ok(null); }
-      var va = function () { try { window.Soundfont.instrument(AC, 'acoustic_grand_piano', { gain: 3.6 }).then(function (i) { PIANO = i; ok(i); }, function () { ok(null); }); } catch (e) { ok(null); } };
+      var va = function () { try { window.Soundfont.instrument(AC, 'acoustic_grand_piano', { gain: 7, destination: salidaPiano() }).then(function (i) { PIANO = i; ok(i); }, function () { ok(null); }); } catch (e) { ok(null); } };
       if (window.Soundfont) return va();
       var sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js';
       sc.onload = va; sc.onerror = function () { ok(null); }; document.head.appendChild(sc);
@@ -174,9 +183,9 @@
     try { if (AC.resume) AC.resume(); var src = AC.createBufferSource(), g = AC.createGain(); src.buffer = b; if (rate) src.playbackRate.value = rate;
       g.gain.value = vol == null ? 0.8 : vol; src.connect(g); g.connect(AC.destination); src.start(); return true; } catch (e) { return false; }
   }
-  function sonMezcla() { if (sfx('mezcla', 0.45, 0.94 + Math.random() * 0.12)) return; for (var i = 0; i < 26; i++) ruido(i * 0.013 + Math.random() * 0.004, 0.025, 2500 + Math.random() * 2500, 0.22, 2); }   /* trrrr de las cartas */
-  function sonCorte() { if (sfx('corte', 0.35)) return; ruido(0, 0.12, 1200, 0.18, 0.8); }
-  function sonReparto() { if (sfx('reparto', 0.3, 0.95 + Math.random() * 0.15)) return; ruido(0, 0.09, 3500, 0.16, 0.7); }   /* fsst de una carta al caer */
+  function sonMezcla() { if (sfx('mezcla', 0.14, 0.94 + Math.random() * 0.12)) return; for (var i = 0; i < 26; i++) ruido(i * 0.013 + Math.random() * 0.004, 0.025, 2500 + Math.random() * 2500, 0.22, 2); }   /* trrrr de las cartas */
+  function sonCorte() { if (sfx('corte', 0.14)) return; ruido(0, 0.12, 1200, 0.18, 0.8); }
+  function sonReparto() { if (sfx('reparto', 0.12, 0.95 + Math.random() * 0.15)) return; ruido(0, 0.09, 3500, 0.16, 0.7); }   /* fsst de una carta al caer */
   function espera(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
   /* ---------- Supabase ---------- */
@@ -388,7 +397,10 @@
         if (btn) btn.classList.add('son');
         if (esTonica(et) && et._vid) { var vd = et._vid; try { vd.pause(); vd.currentTime = 0; } catch (e) {}
           if (et.cuenta && !(await cuenta(t))) { if (btn && t === tok) btn.classList.remove('son'); return; }
-          try { await vd.play(); } catch (e) {}
+          vd.muted = true; try { await vd.play(); } catch (e) {}
+          var tn = tonicaNotas(et), t0 = performance.now() - (vd.currentTime || 0) * 1000, acu = 0;
+          (async function () { for (var r = 0; r < tn.length; r++) { var falta = t0 + acu * 1000 - performance.now(); if (falta > 0) await espera(falta);
+            if (t !== tok || !vivo() || !vd.isConnected) return; nota(tn[r].midi, tn[r].dur * 0.95, 0.3); acu += tn[r].dur; } })();
           await new Promise(function (ok) { var iv = setInterval(function () { if (t !== tok || !vivo() || vd.ended || !vd.isConnected) { clearInterval(iv); ok(); } }, 80); });
           if (t !== tok) { try { vd.pause(); vd.currentTime = 0; } catch (e) {} }
           if (btn && t === tok) btn.classList.remove('son'); return; }
@@ -408,7 +420,7 @@
         velo.innerHTML = '<h2>' + esc(et.titulo) + '</h2>' + (et.sub ? '<p>' + et.sub + '</p>' : '') +
           (et.svg ? '<div class="pv">' + et.svg + (et._ambito ? '' : gb) + '</div>' : '') +
           '<div class="pbts">' + ((et.notas || []).length ? '<button class="p-play" title="' + (et.porGrupo ? 'Todos' : 'Escuchar') + ' (espacio)" aria-label="Escuchar"></button>' : '') +
-          '<button class="p-sig">' + (ult ? 'Iniciar estudio · ' + Math.round((S.d.estudio || ESTUDIO) / 60) + ' minutos' : 'Siguiente →') + '</button></div>' +
+          '<button class="p-sig' + (ult ? ' fin' : '') + '">' + (ult ? 'INICIAR ESTUDIO · ' + Math.round((S.d.estudio || ESTUDIO) / 60) + ' MIN' : 'Siguiente →') + '</button></div>' +
           '<div class="pasos">' + ET.map(function (x, k) { return '<i class="' + (k <= i ? 'on' : '') + '"></i>'; }).join('') + '</div>';
         velo.classList.add('on');
         var bp = velo.querySelector('.p-play'); if (bp) bp.onclick = alterna;
@@ -478,7 +490,7 @@
         videoTonica(notas[0].midi).then(function (src) {
           if (ET[i] !== et) return;
           if (!src) return cintaViva(et);
-          var v = document.createElement('video'); v.className = 'cinta-vid'; v.src = src; v.preload = 'auto'; v.playsInline = true; v.setAttribute('playsinline', '');
+          var v = document.createElement('video'); v.className = 'cinta-vid'; v.src = src; v.preload = 'auto'; v.muted = true; v.playsInline = true; v.setAttribute('playsinline', '');
           pv.innerHTML = ''; pv.appendChild(v); et._vid = v;
         });
       }
@@ -594,5 +606,5 @@
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 12 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 13 };
 })();
