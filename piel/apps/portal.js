@@ -3514,8 +3514,13 @@
     var prueba = /[?&]lmexamen=([123]T)\b/i.exec(location.search);
     EXM.cargando = Promise.all([
       prueba ? Promise.resolve([]) : exmRest('semanas?select=excepciones&curso=eq.' + encodeURIComponent(d.curso) + '&anio=eq.' + w.anio + '&semana_iso=eq.' + w.semana),
-      exmRest('horario_clases?select=grupo,dia_iso,hora_ini,hora_fin').catch(function () { return []; })
+      exmRest('horario_clases?select=grupo,dia_iso,hora_ini,hora_fin').catch(function () { return []; }),
+      /* (7-nov-2026, Iago) SIMULACRO por franja horaria: piel/examenes/simulacro.json {desde, hasta, trim}. Dentro de la
+         franja, el portal (solo Tester/Protester) se comporta como en la semana de exámenes; no toca el Diario. */
+      fetch(exmBase() + 'examenes/simulacro.json?x=' + Date.now(), { cache: 'no-store' }).then(function (x) { return x.ok ? x.json() : null; }).catch(function () { return null; })
     ]).then(function (r) {
+      var sim = r[2], ahoraMs = Date.now();
+      if (!prueba && sim && sim.desde && sim.hasta && ahoraMs >= Date.parse(sim.desde) && ahoraMs < Date.parse(sim.hasta)) prueba = [null, String(sim.trim || '1T')];
       if (prueba) { d.on = true; d.trim = prueba[1].toUpperCase(); }
       else {
         var ex = (r[0] && r[0][0] && r[0][0].excepciones) || {};
