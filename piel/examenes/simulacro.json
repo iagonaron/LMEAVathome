@@ -1,0 +1,6 @@
+{
+  "nota": "SIMULACRO de semana de exámenes (7-nov-2026, Iago). Entre desde y hasta, el portal (solo Tester/Protester) y las apps de corrección se comportan como en la semana de exámenes del trimestre trim. Apagado: desde y hasta a null.",
+  "desde": null,
+  "hasta": null,
+  "trim": "1T"
+}
