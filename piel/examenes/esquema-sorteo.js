@@ -51,6 +51,15 @@
       '#lm-exr .velo.on{display:flex}#lm-exr .velo h2{margin:0;font-size:30px;font-weight:900}#lm-exr .velo p{margin:0;font-size:18px;opacity:.85}' +
       '#lm-exr .velo .pv{width:100%;background:#fff;border-radius:12px;padding:8px}#lm-exr .velo .pv svg{width:100%;height:auto;display:block}' +
       '#lm-exr .velo .grande{font-size:120px;font-weight:900;line-height:1}' +
+      /* (7-nov, 14:57) previa interactiva: ▶ y «Siguiente» en cada etapa, ▶ por salto, 3-2-1 en azul */
+      '#lm-exr .velo .pv{position:relative}#lm-exr .velo .gbts{position:relative;height:58px}#lm-exr .velo .gbts button{position:absolute;top:6px;transform:translateX(-50%);font:800 18px/1 "Helvetica Neue",Arial,sans-serif;padding:10px 16px;border-radius:10px;border:2px solid var(--acc);background:#fff;color:var(--acc);cursor:pointer}' +
+      '#lm-exr .velo .gbts button.son,#lm-exr .velo .pbts .p-play.son{background:var(--acc);color:#fff}' +
+      '#lm-exr .velo .pbts{display:flex;gap:16px;align-items:center}#lm-exr .velo .pbts button{font:800 22px/1 "Helvetica Neue",Arial,sans-serif;padding:14px 28px;border-radius:12px;border:0;cursor:pointer;background:#fff;color:#0b1320}' +
+      '#lm-exr .velo .pbts .p-play{background:var(--acc);color:#fff}#lm-exr .velo .pbts .p-sig.fin{background:#16a34a;color:#fff}' +
+      '#lm-exr .velo .pasos{display:flex;gap:8px}#lm-exr .velo .pasos i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28)}#lm-exr .velo .pasos i.on{background:#fff}' +
+      '#lm-exr .c321{position:absolute;top:0;left:0;right:0;bottom:0;z-index:6;border-radius:14px;background:var(--acc);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}' +
+      '#lm-exr .c321 b{font:900 260px/1 "Helvetica Neue",Arial,sans-serif;animation:lmx321 .9s ease-out both}#lm-exr .c321 span{font:800 28px/1 "Helvetica Neue",Arial,sans-serif;opacity:.9}' +
+      '@keyframes lmx321{from{transform:scale(1.35);opacity:0}25%{opacity:1}to{transform:scale(1);opacity:1}}' +
       '#lm-exr .grp{display:flex;gap:6px;margin-bottom:10px}#lm-exr .grp button{flex:1}' +
       '#lm-exr .pila{position:relative;width:100%;height:100%}#lm-exr .pila img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;transition:opacity 1.6s ease}' +
       '#lm-exr .rmini{display:none;position:absolute;top:6px;right:6px;padding:8px 14px;border-radius:12px;background:rgba(11,19,32,.88);color:#fff;font:800 28px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;z-index:3}' +
@@ -61,12 +70,12 @@
 
   /* ---------- sonido (la previa) ---------- */
   var AC = null;
-  function tono(midi, dur) {
+  function tono(midi, dur, vol) {
     try {
       AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.resume) AC.resume();
       var t = AC.currentTime, o = AC.createOscillator(), o2 = AC.createOscillator(), g = AC.createGain();
       o.type = 'triangle'; o2.type = 'sine'; o.frequency.value = o2.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.95);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.3, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.95);
       o.connect(g); o2.connect(g); g.connect(AC.destination); o.start(t); o2.start(t); o.stop(t + dur); o2.stop(t + dur);
     } catch (e) {}
   }
@@ -154,7 +163,14 @@
     if (!S) return; S.id++; document.removeEventListener('keydown', teclas, true);
     if (S.raiz && S.raiz.parentNode) S.raiz.parentNode.removeChild(S.raiz); S = null;
   }
-  function teclas(e) { if (e.key === 'Escape' && S) { e.preventDefault(); e.stopPropagation(); cerrar(); } }
+  function teclas(e) {
+    if (e.key === 'Escape' && S) { e.preventDefault(); e.stopPropagation(); cerrar(); return; }
+    if (S && S.pv) {   /* previa interactiva: espacio = ▶ · → / AvPág = siguiente · ← / RePág = anterior (el mando del aula) */
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); S.pv.play(); }
+      else if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); e.stopPropagation(); S.pv.sig(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); e.stopPropagation(); S.pv.ant(); }
+    }
+  }
   function res(t) { if (S) S.raiz.querySelector('.res').textContent = t; }
   function pintaProps() {
     var c = S.raiz.querySelector('.props'), ps = S.d.propuestas;
@@ -242,11 +258,66 @@
      y después ya se revela la partitura y aparece la cuenta atrás… después de esos 5 minutos se desvanece la melodía, vuelve a
      quedar la estructura vacía y de nuevo aparece el orden del sorteo». */
   function etapas() { var d = S.d; return d.previas || (d.previa ? [{ titulo: d.previa.titulo, sub: 'Escala y arpegio · canta con el piano', svg: d.previa.svg, notas: d.previa.notas }] : []); }
+  /* (7-nov-2026, 14:57, Iago) «Que esta secuencia no sea un vídeo, sino interactiva: yo en pantalla le voy a dar a play a cada una
+     de las cosas… y un botón siguiente.» Al entrar suenan los acordes; antes de la escala, el arpegio y los intervalos, un 3-2-1
+     en azul «para que los alumnos canten»; cada salto, en su compás con doble barra y con su ▶. La última etapa lleva
+     «Iniciar estudio» (5:05: los 5 primeros segundos son para que se revele todo). */
+  function previaInteractiva(vivo) {
+    var velo = S.raiz.querySelector('.velo'), ET = etapas(), i = 0, tok = 0;
+    return new Promise(function (fin) {
+      function marca(n, on) {
+        var g = velo.querySelector('#vf-' + n.id); if (!g) return;
+        var c = on ? getComputedStyle(S.raiz).getPropertyValue('--acc') : '#0b1320';
+        g.querySelectorAll('path,rect').forEach(function (x) { x.style.fill = on ? c : ''; x.style.stroke = on ? c : ''; });
+      }
+      async function suena(notas, t, boton) {
+        if (boton) boton.classList.add('son');
+        for (var r = 0; r < notas.length; r++) {
+          if (t !== tok || !vivo()) break;
+          var n = notas[r]; marca(n, true);
+          if (n.midis) n.midis.forEach(function (m) { tono(m, Math.min(2.2, n.dur + 0.4), 0.12); }); else tono(n.midi, Math.min(1.4, n.dur), 0.3);
+          await espera(n.dur * 1000); marca(n, false);
+        }
+        if (boton) boton.classList.remove('son');
+      }
+      async function cuenta(t) {
+        var c = el('div', 'c321'); velo.appendChild(c);
+        for (var k = 3; k > 0; k--) { if (t !== tok || !vivo()) { c.remove(); return false; } c.innerHTML = '<b>' + k + '</b><span>preparados para cantar</span>'; tono(k === 1 ? 84 : 79, 0.14, 0.25); await espera(1000); }
+        c.remove(); return t === tok && vivo();
+      }
+      async function play(grupo) {
+        var et = ET[i], t = ++tok, notas = et.notas || []; if (!notas.length) return;
+        var btn = grupo == null ? velo.querySelector('.p-play') : velo.querySelector('.gbts [data-g="' + grupo + '"]');
+        if (grupo != null) notas = notas.filter(function (n) { return n.g === grupo; }).map(function (n, k, a) { return { id: n.id, midi: n.midi, midis: n.midis, g: n.g, dur: k === a.length - 1 ? Math.max(n.dur, et.durG || 0.7) : (et.durG || n.dur) }; });
+        if (et.cuenta && !(await cuenta(t))) return;
+        await suena(notas, t, btn);
+      }
+      function pinta() {
+        tok++; var et = ET[i], ult = i === ET.length - 1, gb = '';
+        if (et.porGrupo && et.cajas) gb = '<div class="gbts">' + et.cajas.map(function (c, g) { return '<button data-g="' + g + '" style="left:' + ((c.x0 + c.x1) / 2 * 100).toFixed(2) + '%">▶</button>'; }).join('') + '</div>';
+        velo.innerHTML = '<h2>' + esc(et.titulo) + '</h2>' + (et.sub ? '<p>' + et.sub + '</p>' : '') +
+          (et.svg ? '<div class="pv">' + et.svg + gb + '</div>' : '') +
+          '<div class="pbts">' + ((et.notas || []).length ? '<button class="p-play">▶ ' + (et.porGrupo ? 'Todos' : 'Escuchar') + '</button>' : '') +
+          '<button class="p-sig' + (ult ? ' fin' : '') + '">' + (ult ? 'Iniciar estudio · ' + Math.floor((S.d.estudio || ESTUDIO) / 60) + ':' + ('0' + (S.d.estudio || ESTUDIO) % 60).slice(-2) : 'Siguiente →') + '</button></div>' +
+          '<div class="pasos">' + ET.map(function (x, k) { return '<i class="' + (k <= i ? 'on' : '') + '"></i>'; }).join('') + '</div>';
+        velo.classList.add('on');
+        var bp = velo.querySelector('.p-play'); if (bp) bp.onclick = function () { play(null); };
+        velo.querySelector('.p-sig').onclick = sig;
+        velo.querySelectorAll('.gbts button').forEach(function (b) { b.onclick = function () { play(+b.getAttribute('data-g')); }; });
+        if (et.auto) setTimeout(function () { if (S && S.pv && ET[i] === et) play(null); }, 600);
+      }
+      function sig() { if (!vivo()) return; if (i < ET.length - 1) { i++; pinta(); } else { tok++; S.pv = null; velo.classList.remove('on'); velo.innerHTML = ''; fin(true); } }
+      function ant() { if (i > 0) { i--; pinta(); } }
+      S.pv = { play: function () { play(null); }, sig: sig, ant: ant };
+      pinta();
+    });
+  }
   function estudio() {
     var id = ++S.id, velo = S.raiz.querySelector('.velo'), d = S.d, ET = etapas();
     var vivo = function () { return S && id === S.id; };
     S.raiz.querySelector('.b-sor').disabled = true; S.raiz.querySelector('.b-est').disabled = true; S.raiz.classList.remove('llamando'); S.llamando = -1; pintaLista();
     (async function () {
+      if (d.interactiva) { var okPv = await previaInteractiva(vivo); if (!okPv || !vivo()) return; ET = []; }
       for (var e = 0; e < ET.length; e++) {
         var et = ET[e];
         velo.innerHTML = '<h2>' + esc(et.titulo) + '</h2>' + (et.sub ? '<p>' + et.sub + '</p>' : '') + (et.svg ? '<div class="pv">' + et.svg + '</div>' : '');
@@ -272,7 +343,7 @@
       var par = S.raiz.querySelector('.i-par'), mini = S.raiz.querySelector('.rmini');
       if (par) { S.raiz.classList.add('conpartitura'); par.style.opacity = '1'; } else S.raiz.classList.add('estudiando');
       S.finYa = false;
-      var reloj = S.raiz.querySelector('.reloj'), b = reloj.querySelector('b'), fin = Date.now() + ESTUDIO * 1000;
+      var reloj = S.raiz.querySelector('.reloj'), b = reloj.querySelector('b'), fin = Date.now() + (d.estudio || ESTUDIO) * 1000;
       while (vivo()) {
         var q = Math.max(0, Math.ceil((fin - Date.now()) / 1000)); if (S.finYa) q = 0;
         var txt = Math.floor(q / 60) + ':' + ('0' + (q % 60)).slice(-2), cl = q === 0 ? ' rojo' : q <= 60 ? ' ambar' : '';
@@ -297,5 +368,5 @@
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 3 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 4 };
 })();
