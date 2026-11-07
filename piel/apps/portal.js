@@ -3486,6 +3486,7 @@
     '1T': { ento: { '4Ge': 'ento-4GE.lmx' },
             dict: { '4A': 'dict-4A.lmx', '4B': 'dict-4B.lmx', '2GpC': 'dict-2GpC.lmx', '2GpF': 'dict-2GpF.lmx' },
             ritmo: { '4Ge': 'ritmo-4Ge.lmx', '2Gp': 'ritmo-2Gp.lmx' },   /* (7-nov-2026) esquema + sorteo A/B + 5 min */
+            entoEx: { '4Ge': 'ento-ex-4Ge.lmx' },   /* (7-nov-2026) entonación GE: sorteo (solo orden) + calentamiento + 5 min */
             carpeta: '1T-2026' }
   };
   var EXM_GRUPOS = { '4Ge': ['4A', '4B'], '2Gp': ['2GpC', '2GpF'] };
@@ -3540,7 +3541,13 @@
   function exmOpsEnto() {
     var d = EXM.datos; if (!exmOn() || GP) return [];
     var f = EXM_MAT[d.trim].ento[d.curso]; if (!f) return [];
-    return [{ t: 'Lección de examen · ' + d.trim, s: 'Pantalla · voz o voz y piano · con contraseña', fn: function () { exmPin('Lección de examen · ' + d.trim, f, exmVerEnto); } }];
+    var ops = [];
+    /* (7-nov-2026, Iago) «sorteo de entonación… que no se vean las notas… al darle a iniciar estudio, la escala, el arpegio, los
+       intervalos, la más aguda y la más grave, recuerda los matices, y luego la partitura con la cuenta atrás de 5 minutos» */
+    var f2 = EXM_MAT[d.trim].entoEx && EXM_MAT[d.trim].entoEx[d.curso];
+    if (f2) ops.push({ t: 'Examen de entonación · ' + d.trim, s: 'Sorteo, calentamiento y 5 min de estudio · con contraseña', fn: function () { exmPin('Examen de entonación · ' + d.trim, f2, exmVerRitmo); } });
+    ops.push({ t: (f2 ? 'Solo la lección · ' : 'Lección de examen · ') + d.trim, s: 'Pantalla · voz o voz y piano · con contraseña', fn: function () { exmPin('Lección de examen · ' + d.trim, f, exmVerEnto); } });
+    return ops;
   }
   function exmOpsDict() {
     var d = EXM.datos; if (!exmOn()) return [];
@@ -3579,11 +3586,11 @@
   function exmVerRitmo(bytes) {
     var datos; try { datos = JSON.parse(new TextDecoder().decode(bytes)); } catch (e) { alert('El examen de ritmo no se ha podido leer.'); return; }
     var abre = function () {
-      try { window.LMExamenRitmo.abrir({ datos: datos, grupos: EXM.datos.grupos.slice(), trim: EXM.datos.trim, sb: MOR_SB, anon: MOR_ANON, cuenta: cuentaProfe() }); }
+      try { window.LMExamenRitmo.abrir({ datos: datos, grupos: EXM.datos.grupos.slice(), trim: EXM.datos.trim, sb: MOR_SB, anon: MOR_ANON, cuenta: cuentaProfe(), ensayo: /[?&]lmensayo\b/.test(location.search) }); }
       catch (e) { alert('No se ha podido abrir el examen de ritmo.'); }
     };
     if (window.LMExamenRitmo) return abre();
-    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=1';
+    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=3';
     sc.onload = abre; sc.onerror = function () { alert('No se ha podido cargar la pantalla del examen de ritmo.'); };
     document.head.appendChild(sc);
   }
