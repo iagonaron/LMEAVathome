@@ -1637,7 +1637,22 @@
     if (!d.leccion) return { t: 'Sin lección de entonación esta semana', off: true };
     var pp = enPaginas(d.leccion);
     if (d.curso !== '4Ge' || !pp || !d.pdf) return { t: 'Lección activa · ' + d.leccion, s: 'Este libro aún no está en el portal', off: true };
-    return { t: 'Lección activa · ' + d.leccion, s: 'Entonación 4 · páginas ' + pp[0] + ' y ' + pp[1], fn: function () { abrirEnto(d); } };
+    /* (7-nov-2026, 17:15, Iago) «quiero que ponga lección de entonación activa, pero que no revele cuál es para que los alumnos no
+       la busquen en el libro»: primero la previa (sin número), luego 30 s para buscarla y 5:00 de estudio con la lección delante. */
+    return { t: 'Lección de entonación activa', s: 'Previa · busca la lección · 5:00 de estudio', fn: function () { abrirClase(d); } };
+  }
+  function abrirClase(d) {
+    var N = ('0' + d.leccion).slice(-2);
+    fetch(exmBase() + 'examenes/clase/L' + N + '.json?x=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (pv) {
+      if (!pv || !pv.previas) { abrirEnto(d); return; }   /* sin previa para esa lección: la lección, como siempre */
+      var go = function () {
+        try { window.LMExamenRitmo.clase({ datos: { grado: 'GE', materia: 'entonacion', previas: pv.previas, interactiva: true, estudio: 300, etiqueta: 'INICIAR ESTUDIO · 5:30' },
+          leccion: d.leccion, estudio: 300, abrirLeccion: function () { abrirEnto(d); } }); } catch (e) { abrirEnto(d); }
+      };
+      if (window.LMExamenRitmo && window.LMExamenRitmo.clase) return go();
+      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=15';
+      sc.onload = go; sc.onerror = function () { abrirEnto(d); }; document.head.appendChild(sc);
+    });
   }
 
   /* ---- pdf.js (el mismo que usa Libros) y el libro ---- */
@@ -3596,7 +3611,7 @@
       catch (e) { alert('No se ha podido abrir el examen de ritmo.'); }
     };
     if (window.LMExamenRitmo) return abre();
-    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=14';
+    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=15';
     sc.onload = abre; sc.onerror = function () { alert('No se ha podido cargar la pantalla del examen de ritmo.'); };
     document.head.appendChild(sc);
   }
