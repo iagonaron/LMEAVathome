@@ -69,7 +69,7 @@
       '#lm-exr .velo .mtz .cre::before{transform-origin:left center;transform:rotate(-8deg)}#lm-exr .velo .mtz .cre::after{transform-origin:left center;transform:rotate(8deg)}' +
       '#lm-exr .velo .mtz .dim::before{transform-origin:right center;transform:rotate(8deg)}#lm-exr .velo .mtz .dim::after{transform-origin:right center;transform:rotate(-8deg)}' +
       '#lm-exr .velo .pbts .p-sig{font-size:18px!important;padding:12px 22px!important}' +
-      '#lm-exr .velo .cinta .barra{position:absolute;width:3px;background:var(--acc);border-radius:2px;z-index:2;pointer-events:none}' +
+      '#lm-exr .velo .cinta-vid{display:block;width:100%;border-radius:12px;background:#fff}#lm-exr .velo .cinta .barra{position:absolute;width:3px;background:var(--acc);border-radius:2px;z-index:2;pointer-events:none}' +
       '#lm-exr .velo .pbts{display:flex;gap:16px;align-items:center}#lm-exr .velo .pbts button{font:800 22px/1 "Helvetica Neue",Arial,sans-serif;padding:14px 28px;border-radius:12px;border:0;cursor:pointer;background:#fff;color:#0b1320}' +
       '#lm-exr .velo .pbts .p-sig.fin{background:#16a34a;color:#fff}' +
       '#lm-exr .velo .pasos{display:flex;gap:8px}#lm-exr .velo .pasos i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28)}#lm-exr .velo .pasos i.on{background:#fff}' +
@@ -386,6 +386,12 @@
         var btn = grupo == null ? velo.querySelector('.p-play') : velo.querySelector('.gbts [data-g="' + grupo + '"]');
         if (grupo != null) notas = notas.filter(function (n) { return n.g === grupo; }).map(function (n, k, a) { return { id: n.id, midi: n.midi, midis: n.midis, g: n.g, dur: k === a.length - 1 ? Math.max(n.dur, et.durG || 0.7) : (et.durG || n.dur) }; });
         if (btn) btn.classList.add('son');
+        if (esTonica(et) && et._vid) { var vd = et._vid; try { vd.pause(); vd.currentTime = 0; } catch (e) {}
+          if (et.cuenta && !(await cuenta(t))) { if (btn && t === tok) btn.classList.remove('son'); return; }
+          try { await vd.play(); } catch (e) {}
+          await new Promise(function (ok) { var iv = setInterval(function () { if (t !== tok || !vivo() || vd.ended || !vd.isConnected) { clearInterval(iv); ok(); } }, 80); });
+          if (t !== tok) { try { vd.pause(); vd.currentTime = 0; } catch (e) {} }
+          if (btn && t === tok) btn.classList.remove('son'); return; }
         if (esTonica(et) && et._cinta && et._cinta.dentro) { mueve(et, 0); if (et.cuenta && !(await cuenta(t))) { if (btn && t === tok) btn.classList.remove('son'); return; } await suenaCinta(et, t, btn); return; }
         notas = aPulso(et, notas);
         if (et.cuenta && !(await cuenta(t))) { if (btn && t === tok) btn.classList.remove('son'); return; }
@@ -457,7 +463,26 @@
       }
       /* (16:24, Iago) «la música sea sin compás y que se vayan acercando, como en la fase 4 del quiz: una barra azul que esté quieta y
          las notas van sucediéndose… y que el tamaño sea el mismo del resto de apartados» */
+      /* (7-nov 17:01, Iago) «lo de los intervalos… un vídeo que se carga… en la pantalla del aula no va a ir fluido»: la cinta
+         se graba como vídeo (con el piano dentro) en piel/examenes/videos/tonica-<midi>.webm|mp4, se descarga ENTERO al entrar en la
+         previa y se reproduce con el mismo ▶ tras el 3-2-1. Si no hay vídeo para esa tónica, la cinta animada de siempre. */
+      function videoTonica(ton) {
+        if (S.vidT && S.vidT.ton === ton) return S.vidT.p;
+        var v = document.createElement('video'), ext = v.canPlayType && v.canPlayType('video/webm; codecs="vp9, opus"') ? 'webm' : 'mp4';
+        var url = BASE_SFX.replace(/sonidos\/$/, 'videos/') + 'tonica-' + ton + '.' + ext;
+        var pr = fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) { return URL.createObjectURL(b); }).catch(function () { return null; });
+        S.vidT = { ton: ton, p: pr }; return pr;
+      }
       function cinta(et) {
+        var pv = velo.querySelector('.pv'); if (!pv) return; var notas = tonicaNotas(et); if (!notas.length) return;
+        videoTonica(notas[0].midi).then(function (src) {
+          if (ET[i] !== et) return;
+          if (!src) return cintaViva(et);
+          var v = document.createElement('video'); v.className = 'cinta-vid'; v.src = src; v.preload = 'auto'; v.playsInline = true; v.setAttribute('playsinline', '');
+          pv.innerHTML = ''; pv.appendChild(v); et._vid = v;
+        });
+      }
+      function cintaViva(et) {
         var pv = velo.querySelector('.pv'); if (!pv) return; var notas = tonicaNotas(et); if (!notas.length) return;
         var ton = notas[0].midi, U = 95, INI = 420, BARRA = 150;   /* (16:27, Iago) la barra azul justo tras la armadura, sin hueco blanco */ et._cinta = { notas: notas };
         cargaVex().then(function (ok) {
@@ -499,6 +524,7 @@
       function ant() { if (i > 0) { i--; pinta(); } }
       S.pv = { play: alterna, sig: sig, ant: ant };
       piano();   /* se carga ya, en silencio */
+      ET.forEach(function (e) { if (esTonica(e)) { var tn = tonicaNotas(e); if (tn.length) videoTonica(tn[0].midi); } });
       pinta();
     });
   }
@@ -568,5 +594,5 @@
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 11 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 12 };
 })();
