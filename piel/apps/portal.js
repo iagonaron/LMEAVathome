@@ -281,7 +281,7 @@
       var nums = dicts.map(function (b) { var m = /nº\s*(\d+)/i.exec(b.textContent); return m ? m[1] : ''; });
       var badge = dicts.length === 1 ? (nums[0] ? 'Nº' + nums[0] : '') : (nums.every(function (x) { return x && x === nums[0]; }) ? 'Nº' + nums[0] : String(dicts.length));
       var exD = exmOpsDict().length > 0;   /* (6-nov-2026) semana de exámenes: «Dictado de examen · grupo» arriba */
-      if (exD) badge = 'EX';
+      /* (7-nov-2026) el examen se marca con la estrellita de la esquina (exmEstrellas), no con «EX» */
       barra.appendChild(cuadro('lm-ic-dict', 'diapason', exD ? 'Dictado de examen y dictado activo' : 'Dictado activo' + (dicts.length === 1 && nums[0] ? ' nº ' + nums[0] : ''), function (b) {
         var ds = qa('#da-mini .da-btn'), ex = exmOpsDict();
         if (ds.length === 1 && !ex.length) { pulsa(ds[0]); return; }
@@ -289,6 +289,7 @@
       }, dicts.length > 1 || exD, badge));
     }
     /* (28-sep, Iago) el Sorteo NO va en la portada: su botón sigue en la hilera oculta */
+    try { exmEstrellas(barra); } catch (e) {}   /* (7-nov-2026) semana de exámenes: ★ en los iconos con examen */
   }
 
   /* ---------- 10 (28-sep-2026, noche, Iago): LIBROS · «AMPLIAR» ----------
@@ -3484,6 +3485,7 @@
   var EXM_MAT = {
     '1T': { ento: { '4Ge': 'ento-4GE.lmx' },
             dict: { '4A': 'dict-4A.lmx', '4B': 'dict-4B.lmx', '2GpC': 'dict-2GpC.lmx', '2GpF': 'dict-2GpF.lmx' },
+            ritmo: { '4Ge': 'ritmo-4Ge.lmx', '2Gp': 'ritmo-2Gp.lmx' },   /* (7-nov-2026) esquema + sorteo A/B + 5 min */
             carpeta: '1T-2026' }
   };
   var EXM_GRUPOS = { '4Ge': ['4A', '4B'], '2Gp': ['2GpC', '2GpF'] };
@@ -3548,15 +3550,42 @@
     });
   }
   function exmOpsRitmo() {
-    /* (6-nov-2026, 11:39, Iago) «no tiene sentido poner lo de ritmo en la pantalla del aula (metrónomo) ni en GP ni en GE,
-       porque lo van a estudiar en papel»: apagado. Para volver a encenderlo, borrar la línea de abajo. */
-    return [];
-    if (!exmOn() || !GP) return [];
-    return [{ t: 'Examen de ritmo entonado · ' + EXM.datos.trim, s: 'Ritmo PRO · modelos A y B', fn: function () {
-      var u = 'https://iagonaron.github.io/ritmopro/';
-      try { var ss = JSON.parse(localStorage.getItem('lmpro_session') || 'null'); if (ss && ss.id) u += '?cuenta=' + encodeURIComponent(ss.id); } catch (e) {}
-      window.open(u, '_blank', 'noopener');
+    /* (7-nov-2026, Iago) «Pulso metrónomo y en grado elemental que ponga examen ritmo y en grado profesional examen ritmo
+       entonado. Al pulsar me abre la ventana con la estructura y con el sorteo… con el grupo activo, pero con un selector
+       por si quisiera ver el otro.» (Sustituye al apagado del 6-nov 11:39: la lección sigue sin salir en pantalla, solo su
+       ESQUEMA sin figuras.) El sorteo va a suite_sorteo_examen y lo leen las apps de corrección. Pantalla: examenes/esquema-sorteo.js */
+    if (!exmOn()) return [];
+    var d = EXM.datos, f = EXM_MAT[d.trim].ritmo && EXM_MAT[d.trim].ritmo[d.curso]; if (!f) return [];
+    var t = GP ? 'Examen de ritmo entonado' : 'Examen de ritmo';
+    return [{ t: t + ' · ' + d.trim, s: 'Esquema, sorteo A/B y 5 min de estudio · con contraseña', fn: function () {
+      exmPin(t + ' · ' + d.trim, f, exmVerRitmo);
     } }];
+  }
+  /* (7-nov-2026, Iago) «En la semana de exámenes, esos iconos de Tester y Protester de arriba a la derecha, que tengan una
+     estrellita en la esquina derecha de cada icono que tenga dentro un examen. Y que para abrirlo me pida la contraseña…
+     con un teclado numérico pequeñito, para abrirlo discretamente.» */
+  function exmEstrellas(barra) {
+    if (!document.getElementById('lm-exm-css-est')) {
+      var st = document.createElement('style'); st.id = 'lm-exm-css-est';
+      st.textContent = 'html.lm-fam-portal #lm-iconos .lm-ic-ex{position:absolute;right:-7px;bottom:-7px;width:17px;height:17px;box-sizing:border-box;border-radius:5px;' +
+        'background:#fff;color:#0b1320;font:900 11px/17px Arial,sans-serif;text-align:center;box-shadow:0 0 0 2px #0b1320;pointer-events:none}';
+      document.head.appendChild(st);
+    }
+    [['lm-ic-ritmo', exmOpsRitmo], ['lm-ic-dict', exmOpsDict], ['lm-ic-ento', exmOpsEnto]].forEach(function (p) {
+      var b = barra.querySelector('.' + p[0]); if (!b || b.querySelector('.lm-ic-ex') || !p[1]().length) return;
+      var e = document.createElement('span'); e.className = 'lm-ic-ex'; e.setAttribute('aria-hidden', 'true'); e.textContent = '\u2605'; b.appendChild(e);
+    });
+  }
+  function exmVerRitmo(bytes) {
+    var datos; try { datos = JSON.parse(new TextDecoder().decode(bytes)); } catch (e) { alert('El examen de ritmo no se ha podido leer.'); return; }
+    var abre = function () {
+      try { window.LMExamenRitmo.abrir({ datos: datos, grupos: EXM.datos.grupos.slice(), trim: EXM.datos.trim, sb: MOR_SB, anon: MOR_ANON, cuenta: cuentaProfe() }); }
+      catch (e) { alert('No se ha podido abrir el examen de ritmo.'); }
+    };
+    if (window.LMExamenRitmo) return abre();
+    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=1';
+    sc.onload = abre; sc.onerror = function () { alert('No se ha podido cargar la pantalla del examen de ritmo.'); };
+    document.head.appendChild(sc);
   }
 
   /* ---- descifrar: PBKDF2-SHA256 (200 000) + AES-GCM; fichero = «LMX1» + sal(16) + iv(12) + cifrado ---- */
@@ -3585,7 +3614,10 @@
       '#lm-exm-pin{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px;box-sizing:border-box;background:transparent}' +
       '#lm-exm-pin .lm-exm-c{width:150px;box-sizing:border-box;padding:6px;border-radius:8px;background:rgba(11,19,32,.92);border:1px solid rgba(255,255,255,.16);color:#fff;font:500 11px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif;display:flex;flex-wrap:wrap;gap:5px;align-items:center;position:relative}' +
       '#lm-exm-pin .lm-exm-ic,#lm-exm-pin .lm-exm-t,#lm-exm-pin .lm-exm-s,#lm-exm-pin .lm-exm-x{display:none}' +
-      '#lm-exm-pin input{width:92px;box-sizing:border-box;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:#111a2a;color:#fff;font:700 12px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.12em;text-align:center;outline:none}' +
+      '#lm-exm-pin .lm-exm-tec{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}' +
+      '#lm-exm-pin .lm-exm-tec button{margin:0;height:30px;border:0;border-radius:6px;background:#1c2636;color:#fff;font:800 13px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer;padding:0;width:auto}' +
+      '#lm-exm-pin .lm-exm-tec button:active{background:#2b3a52}#lm-exm-pin .lm-exm-tec .lm-exm-ok{background:#2563eb}' +
+      '#lm-exm-pin input{width:100%;box-sizing:border-box;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:#111a2a;color:#fff;font:700 12px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.12em;text-align:center;outline:none}' +
       '#lm-exm-pin input:focus{border-color:#4a9eff}' +
       '#lm-exm-pin .lm-exm-ok{margin:0;width:41px;height:26px;border:0;border-radius:6px;background:#2563eb;color:#fff;font:800 10.5px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer;padding:0}' +
       '#lm-exm-pin .lm-exm-ok:disabled{background:#1c2636;color:rgba(255,255,255,.5);cursor:default}' +
@@ -3608,25 +3640,36 @@
     var ov = document.createElement('div'); ov.id = 'lm-exm-pin'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', titulo);
     ov.innerHTML = '<form class="lm-exm-c" autocomplete="off">' + EXM_ICO_CANDADO +
       '<p class="lm-exm-t">' + esc(titulo) + '</p><p class="lm-exm-s">Escribe la contraseña del examen</p>' +
-      '<input type="password" inputmode="numeric" autocomplete="off" maxlength="12" aria-label="Contraseña">' +
-      '<button type="submit" class="lm-exm-ok">Abrir</button><div class="lm-exm-err" role="status"></div>' +
+      '<input type="password" inputmode="none" readonly autocomplete="off" maxlength="12" aria-label="Contraseña">' +
+      '<div class="lm-exm-tec">' + ['1', '2', '3', '4', '5', '6', '7', '8', '9', '\u232B', '0', '\u2713'].map(function (k) {
+        return '<button type="' + (k === '\u2713' ? 'submit' : 'button') + '" class="' + (k === '\u2713' ? 'lm-exm-ok' : k === '\u232B' ? 'lm-exm-bo' : 'lm-exm-k') + '" data-k="' + k + '">' + k + '</button>'; }).join('') + '</div>' +
+      '<div class="lm-exm-err" role="status"></div>' +
       '<button type="button" class="lm-exm-x" aria-label="Cerrar">✕</button></form>';
     document.body.appendChild(ov);
     var fm = ov.querySelector('form'), inp = ov.querySelector('input'), ok = ov.querySelector('.lm-exm-ok'), err = ov.querySelector('.lm-exm-err');
     function cerrar() { document.removeEventListener('keydown', tecla, true); if (ov.parentNode) ov.parentNode.removeChild(ov); }
-    function tecla(e) { if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); e.stopPropagation(); cerrar(); } }
+    function tecla(e) {
+      if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); e.stopPropagation(); cerrar(); return; }
+      if (/^[0-9]$/.test(e.key)) { e.preventDefault(); if (inp.value.length < 12) inp.value += e.key; }
+      else if (e.key === 'Backspace') { e.preventDefault(); inp.value = inp.value.slice(0, -1); }
+      else if (e.key === 'Enter') { e.preventDefault(); fm.dispatchEvent(new Event('submit', { cancelable: true })); }
+    }
     document.addEventListener('keydown', tecla, true);
     ov.querySelector('.lm-exm-x').addEventListener('click', cerrar);
+    ov.querySelector('.lm-exm-tec').addEventListener('click', function (e) {   /* (7-nov-2026) teclado numérico pequeñito */
+      var k = e.target && e.target.getAttribute && e.target.getAttribute('data-k'); if (!k || k === '\u2713') return;
+      if (k === '\u232B') inp.value = inp.value.slice(0, -1); else if (inp.value.length < 12) inp.value += k;
+    });
     ov.addEventListener('click', function (e) { if (e.target === ov) cerrar(); });
     var datos = exmFichero(fichero);   /* se baja mientras se escribe */
     fm.addEventListener('submit', function (e) {
       e.preventDefault();
       var pin = String(inp.value || '').replace(/\s+/g, ''); if (!pin) { inp.focus(); return; }
-      ok.disabled = true; ok.textContent = 'Abriendo…'; err.textContent = '';
+      ok.disabled = true; ok.textContent = '…'; err.textContent = '';
       datos.then(function (b) { return exmDescifra(b, pin); }).then(function (claro) {
         inp.value = ''; cerrar(); alAbrir(claro);
       }).catch(function (x) {
-        ok.disabled = false; ok.textContent = 'Abrir';
+        ok.disabled = false; ok.textContent = '\u2713';
         var red = x && /HTTP|Failed|fetch|network/i.test(String(x.message || x));
         err.textContent = red ? 'No se ha podido descargar. ¿Hay conexión?' : 'Contraseña incorrecta';
         if (red) datos = exmFichero(fichero);
