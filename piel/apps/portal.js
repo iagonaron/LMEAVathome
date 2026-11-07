@@ -281,7 +281,7 @@
       var nums = dicts.map(function (b) { var m = /nº\s*(\d+)/i.exec(b.textContent); return m ? m[1] : ''; });
       var badge = dicts.length === 1 ? (nums[0] ? 'Nº' + nums[0] : '') : (nums.every(function (x) { return x && x === nums[0]; }) ? 'Nº' + nums[0] : String(dicts.length));
       var exD = exmOpsDict().length > 0;   /* (6-nov-2026) semana de exámenes: «Dictado de examen · grupo» arriba */
-      /* (7-nov-2026) el examen se marca con la estrellita de la esquina (exmEstrellas), no con «EX» */
+      if (!dicts.length) badge = '';   /* (7-nov-2026) el examen se marca con la estrellita de la esquina (exmEstrellas), no con «EX» */
       barra.appendChild(cuadro('lm-ic-dict', 'diapason', exD ? 'Dictado de examen y dictado activo' : 'Dictado activo' + (dicts.length === 1 && nums[0] ? ' nº ' + nums[0] : ''), function (b) {
         var ds = qa('#da-mini .da-btn'), ex = exmOpsDict();
         if (ds.length === 1 && !ex.length) { pulsa(ds[0]); return; }
