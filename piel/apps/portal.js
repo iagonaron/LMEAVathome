@@ -3550,8 +3550,9 @@
     /* (7-nov-2026, Iago) «sorteo de entonación… que no se vean las notas… al darle a iniciar estudio, la escala, el arpegio, los
        intervalos, la más aguda y la más grave, recuerda los matices, y luego la partitura con la cuenta atrás de 5 minutos» */
     var f2 = EXM_MAT[d.trim].entoEx && EXM_MAT[d.trim].entoEx[d.curso];
-    if (f2) ops.push({ t: 'Examen de entonación · ' + d.trim, s: 'Sorteo, calentamiento y 5 min de estudio · con contraseña', fn: function () { exmPin('Examen de entonación · ' + d.trim, f2, exmVerRitmo); } });
-    ops.push({ t: (f2 ? 'Solo la lección · ' : 'Lección de examen · ') + d.trim, s: 'Pantalla · voz o voz y piano · con contraseña', fn: function () { exmPin('Lección de examen · ' + d.trim, f, exmVerEnto); } });
+    if (f2) ops.push({ t: 'Examen de entonación · ' + d.trim, s: 'Sorteo, previa con ▶ y «Siguiente» y 5:05 de estudio · con contraseña', fn: function () { exmPin('Examen de entonación · ' + d.trim, f2, exmVerRitmo); } });
+    /* (7-nov-2026, 14:57, Iago) «quiero que solo aparezca la opción examen de entonación primer trimestre, no solo la lección» */
+    if (!f2) ops.push({ t: 'Lección de examen · ' + d.trim, s: 'Pantalla · voz o voz y piano · con contraseña', fn: function () { exmPin('Lección de examen · ' + d.trim, f, exmVerEnto); } });
     return ops;
   }
   function exmOpsDict() {
@@ -3595,7 +3596,7 @@
       catch (e) { alert('No se ha podido abrir el examen de ritmo.'); }
     };
     if (window.LMExamenRitmo) return abre();
-    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=3';
+    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=4';
     sc.onload = abre; sc.onerror = function () { alert('No se ha podido cargar la pantalla del examen de ritmo.'); };
     document.head.appendChild(sc);
   }
