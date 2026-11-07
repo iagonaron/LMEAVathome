@@ -99,7 +99,7 @@
       '#lm-exr .pila{position:relative;width:100%;height:100%}#lm-exr .pila img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;transition:opacity 1.6s ease}' +
       '#lm-exr .rmini{display:none;position:absolute;top:6px;right:6px;padding:8px 14px;border-radius:12px;background:rgba(11,19,32,.88);color:#fff;font:800 28px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;z-index:3}' +
       '#lm-exr .rmini.ambar{background:#d97706}#lm-exr .rmini.rojo{background:#dc2626}#lm-exr.conpartitura .pan{display:none}#lm-exr.conpartitura .rmini{display:block}#lm-exr.conpartitura .props{visibility:hidden}' +
-      '#lm-exr .sig{display:none}#lm-exr.llamando .sig{display:flex}';
+      '#lm-exr .reloj.pausa b,#lm-exr .rmini.pausa{opacity:.45}#lm-exr .reloj b,#lm-exr .rmini{cursor:pointer}#lm-exr .sig{display:none}#lm-exr.llamando .sig{display:flex}';
     document.head.appendChild(st);
   }
 
@@ -114,6 +114,16 @@
       o.connect(g); o2.connect(g); g.connect(AC.destination); o.start(t); o2.start(t); o.stop(t + dur); o2.stop(t + dur);
     } catch (e) {}
   }
+  /* (7-nov 17:00, Iago) el 3-2-1 «más sonido digital neutro, sin más», ni percutido ni fuerte: un bip de onda pura, suave. */
+  function bip(alto) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.resume) AC.resume();
+      var t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'sine'; o.frequency.value = alto ? 1046.5 : 880;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.09, t + 0.012); g.gain.setValueAtTime(0.09, t + 0.07); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+      o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + 0.18);
+    } catch (e) {}
+  }
   /* (7-nov-2026, 16:07, Iago) «Quiero que la previa sea con sonido de piano, de calidad»: el mismo piano de los dictados
      (soundfont-player · acoustic_grand_piano). Se carga al entrar en la previa (sin sonar); si no llega, el tono de siempre. */
   var PIANO = null, PIANO_P = null;
@@ -121,7 +131,7 @@
     if (PIANO_P) return PIANO_P;
     PIANO_P = new Promise(function (ok) {
       try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return ok(null); }
-      var va = function () { try { window.Soundfont.instrument(AC, 'acoustic_grand_piano', { gain: 2.2 }).then(function (i) { PIANO = i; ok(i); }, function () { ok(null); }); } catch (e) { ok(null); } };
+      var va = function () { try { window.Soundfont.instrument(AC, 'acoustic_grand_piano', { gain: 3.6 }).then(function (i) { PIANO = i; ok(i); }, function () { ok(null); }); } catch (e) { ok(null); } };
       if (window.Soundfont) return va();
       var sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js';
       sc.onload = va; sc.onerror = function () { ok(null); }; document.head.appendChild(sc);
@@ -164,9 +174,9 @@
     try { if (AC.resume) AC.resume(); var src = AC.createBufferSource(), g = AC.createGain(); src.buffer = b; if (rate) src.playbackRate.value = rate;
       g.gain.value = vol == null ? 0.8 : vol; src.connect(g); g.connect(AC.destination); src.start(); return true; } catch (e) { return false; }
   }
-  function sonMezcla() { if (sfx('mezcla', 0.9)) return; for (var i = 0; i < 26; i++) ruido(i * 0.013 + Math.random() * 0.004, 0.025, 2500 + Math.random() * 2500, 0.22, 2); }   /* trrrr de las cartas */
-  function sonCorte() { if (sfx('corte', 0.7)) return; ruido(0, 0.12, 1200, 0.18, 0.8); }
-  function sonReparto() { if (sfx('reparto', 0.45, 0.95 + Math.random() * 0.15)) return; ruido(0, 0.09, 3500, 0.16, 0.7); }   /* fsst de una carta al caer */
+  function sonMezcla() { if (sfx('mezcla', 0.45, 0.94 + Math.random() * 0.12)) return; for (var i = 0; i < 26; i++) ruido(i * 0.013 + Math.random() * 0.004, 0.025, 2500 + Math.random() * 2500, 0.22, 2); }   /* trrrr de las cartas */
+  function sonCorte() { if (sfx('corte', 0.35)) return; ruido(0, 0.12, 1200, 0.18, 0.8); }
+  function sonReparto() { if (sfx('reparto', 0.3, 0.95 + Math.random() * 0.15)) return; ruido(0, 0.09, 3500, 0.16, 0.7); }   /* fsst de una carta al caer */
   function espera(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
   /* ---------- Supabase ---------- */
@@ -364,7 +374,7 @@
       }
       async function cuenta(t) {
         var c = el('div', 'c321'); velo.appendChild(c);
-        for (var k = 3; k > 0; k--) { if (t !== tok || !vivo()) { c.remove(); return false; } c.innerHTML = '<b>' + k + '</b><span>preparados para cantar</span>'; if (!sfx('tic', k === 1 ? 0.9 : 0.7, k === 1 ? 1.12 : 1)) tono(k === 1 ? 84 : 79, 0.14, 0.25); await espera(PULSO * 1000); }
+        for (var k = 3; k > 0; k--) { if (t !== tok || !vivo()) { c.remove(); return false; } c.innerHTML = '<b>' + k + '</b><span>preparados para cantar</span>'; bip(k === 1); await espera(PULSO * 1000); }
         c.remove(); return t === tok && vivo();
       }
       /* ▶ / ❚❚: si está sonando, para; si no, empieza */
@@ -419,7 +429,7 @@
           var ci = COL_INT[semi] || ['#1d4ed8', ''];
           try { var A = a.getBBox(), B = b.getBBox(); var x1 = A.x + A.width + 3, y1 = A.y + A.height / 2, x2 = B.x - 3, y2 = B.y + B.height / 2;
             var l = document.createElementNS(NS, 'line'); l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2);
-            l.setAttribute('stroke', ci[0]); l.setAttribute('stroke-width', '6'); l.setAttribute('stroke-linecap', 'butt'); svg.appendChild(l);
+            l.setAttribute('stroke', ci[0]); l.setAttribute('stroke-width', '4.4'); l.setAttribute('stroke-opacity', '0.75'); l.setAttribute('stroke-linecap', 'butt'); svg.appendChild(l);
             if (ci[1]) { var ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI, mx = (x1 + x2) / 2, my = (y1 + y2) / 2, d = 9;
               var tx = mx + Math.sin(ang * Math.PI / 180) * d, ty = my - Math.cos(ang * Math.PI / 180) * d;
               var tt = document.createElementNS(NS, 'text'); tt.setAttribute('x', tx); tt.setAttribute('y', ty); tt.setAttribute('text-anchor', 'middle');
@@ -517,7 +527,7 @@
         for (var s = VUELTA; s > 0; s--) {
           if (!vivo()) return;
           velo.innerHTML = '<h2>Ya puedes dar la vuelta a la hoja</h2><div class="grande">' + s + '</div><p>Empieza el estudio</p>';
-          if (!sfx('tic', s === 1 ? 0.9 : 0.7, s === 1 ? 1.12 : 1)) tono(s === 1 ? 84 : 79, 0.12); await espera(1000);
+          bip(s === 1); await espera(1000);
         }
       }
       velo.classList.remove('on'); velo.innerHTML = '';
@@ -525,11 +535,14 @@
       if (par) { S.raiz.classList.add('conpartitura'); par.style.opacity = '1'; } else S.raiz.classList.add('estudiando');
       S.finYa = false;
       var reloj = S.raiz.querySelector('.reloj'), b = reloj.querySelector('b'), fin = Date.now() + (d.estudio || ESTUDIO) * 1000;
-      var cortesia = Math.max(0, (d.estudio || ESTUDIO) - 300), avisado = false;
+      var cortesia = Math.max(0, (d.estudio || ESTUDIO) - 300), avisado = false, pausaDesde = 0; S.pausa = false;
       while (vivo()) {
+        /* (17:02, Iago) pulsar el reloj lo PAUSA (y otra vez, sigue); ya no lo pone a cero */
+        if (S.pausa) { if (!pausaDesde) { pausaDesde = Date.now(); reloj.classList.add('pausa'); mini.classList.add('pausa'); } await espera(200); continue; }
+        if (pausaDesde) { fin += Date.now() - pausaDesde; pausaDesde = 0; }
         var q = Math.max(0, Math.ceil((fin - Date.now()) / 1000)); if (S.finYa) q = 0;
-        /* (16:26, Iago) los segundos de cortesía no se ven (el reloj marca 5:00) y, al acabar, «un sonidito de aviso… titi» */
-        if (cortesia > 0) { if (q > 300) q = 300; else if (!avisado) { avisado = true; if (!sfx('inicio', 0.9)) { tono(88, 0.12, 0.28); setTimeout(function () { tono(88, 0.14, 0.28); }, 170); } } }
+        /* (17:02, Iago) el reloj empieza en 5:05 y se ven correr los 5 s de cortesía; al llegar a 5:00, «titi» */
+        if (cortesia > 0) { if (q > 300) {} else if (!avisado) { avisado = true; if (!sfx('inicio', 0.9)) { tono(88, 0.12, 0.28); setTimeout(function () { tono(88, 0.14, 0.28); }, 170); } } }
         var txt = Math.floor(q / 60) + ':' + ('0' + (q % 60)).slice(-2), cl = q === 0 ? ' rojo' : q <= 60 ? ' ambar' : '';
         b.textContent = txt; reloj.className = 'reloj' + cl; mini.textContent = txt; mini.className = 'rmini' + cl;
         if (q === 0) break; await espera(250);
@@ -545,12 +558,15 @@
     })();
   }
   /* «Terminar ya» también con la partitura delante (pulsando el reloj pequeño) */
-  document.addEventListener('click', function (e) { if (S && e.target && e.target.classList && e.target.classList.contains('rmini')) S.finYa = true; }, true);
+  document.addEventListener('click', function (e) {
+    var t = e.target; if (!S || !t || !t.closest) return;
+    if (t.closest('#lm-exr .rmini') || t.closest('#lm-exr .reloj b')) S.pausa = !S.pausa;
+  }, true);
   function siguiente() {
     if (!S || S.llamando < 0) return;
     S.llamando = Math.min(S.orden.length, S.llamando + 1); pintaLista();
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 10 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 11 };
 })();
