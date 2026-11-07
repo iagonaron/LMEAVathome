@@ -5,7 +5,7 @@
    Lo abre piel/apps/portal.js (sección 21, icono del metrónomo, solo Tester/Protester) con el material ya descifrado:
      window.LMExamenRitmo.abrir({ datos, grupos:['4A','4B'], trim, sb, anon, cuenta })   (el primero, el de la clase de ahora)
    datos = { grado:'GE'|'GP', materia:'ritmo'|'ritmo_entonado', titulo, propuestas:[{id,nombre,svg}], previa:{svg,titulo,notas:[{id,midi}]}|null }
-   Pantalla del aula (Chrome 94, pocos fotogramas): nada de movimientos suaves; los cambios, de golpe. */
+   (7-nov, 11:10) El sorteo, con movimiento fluido (barajeo de cartas) a petición de Iago, aunque el aula vaya justa de fotogramas. */
 (function () {
   'use strict';
   var ESTUDIO = 300, VUELTA = 5;
@@ -34,12 +34,12 @@
       '#lm-exr .lienzo svg{max-width:100%;max-height:100%;width:auto;height:100%}' +
       '#lm-exr .pan{width:360px;display:flex;flex-direction:column;background:#f4f7f5;border-radius:16px;padding:14px}' +
       '#lm-exr .pan h3{margin:0 0 8px;font-size:11px;letter-spacing:.2em;color:#6b7280;font-weight:800}' +
-      '#lm-exr ol{list-style:none;margin:0;padding:0;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}' +
+      '#lm-exr ol{position:relative;list-style:none;margin:0;padding:0;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}' +
       '#lm-exr li{display:flex;align-items:center;justify-content:space-between;flex:1 1 0;min-height:22px;max-height:38px;margin-bottom:4px;padding:0 10px;background:#fff;border-radius:9px;border:1px solid #e5e7eb;font-size:16px;font-weight:500}' +
       '#lm-exr li .n{display:inline-block;width:24px;color:#6b7280;font-size:12px}' +
       '#lm-exr li .ab{width:34px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;visibility:hidden}' +
       '#lm-exr li .ab.A{visibility:visible;background:#15803d;color:#fff}#lm-exr li .ab.B{visibility:visible;background:#fff;color:#15803d;box-shadow:inset 0 0 0 2px #15803d}' +
-      '#lm-exr li.flash{background:#dcfce7}#lm-exr li.ya{border-color:#15803d;box-shadow:0 0 0 2px #15803d;font-weight:800}#lm-exr li.hecho{opacity:.45}' +
+      '#lm-exr li{will-change:transform;box-shadow:0 1px 2px rgba(11,19,32,.08)}#lm-exr li.flash{background:#dcfce7}#lm-exr li.ya{border-color:#15803d;box-shadow:0 0 0 2px #15803d;font-weight:800}#lm-exr li.hecho{opacity:.45}' +
       '#lm-exr .bts{display:flex;gap:8px;margin-top:10px}#lm-exr .bts button{flex:1;padding:12px 8px;font-size:14px}' +
       '#lm-exr .go{background:#15803d;border-color:#15803d;color:#fff;font-weight:800;letter-spacing:.06em}' +
       '#lm-exr .res{font-size:12px;color:#6b7280;margin-top:8px;text-align:center;min-height:16px}' +
@@ -67,6 +67,21 @@
       o.connect(g); o2.connect(g); g.connect(AC.destination); o.start(t); o2.start(t); o.stop(t + dur); o2.stop(t + dur);
     } catch (e) {}
   }
+  /* (7-nov, 11:11, Iago) «incluso con soniditos»: ruido filtrado para las cartas (mezcla y reparto) */
+  var RUIDO = null;
+  function ruido(cuando, dur, frec, vol, q) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.resume) AC.resume();
+      if (!RUIDO) { RUIDO = AC.createBuffer(1, AC.sampleRate, AC.sampleRate); var d = RUIDO.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+      var t = AC.currentTime + (cuando || 0), src = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+      src.buffer = RUIDO; f.type = 'bandpass'; f.frequency.value = frec; f.Q.value = q || 1.2;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(f); f.connect(g); g.connect(AC.destination); src.start(t, Math.random() * 0.5); src.stop(t + dur + 0.02);
+    } catch (e) {}
+  }
+  function sonMezcla() { for (var i = 0; i < 26; i++) ruido(i * 0.013 + Math.random() * 0.004, 0.025, 2500 + Math.random() * 2500, 0.22, 2); }   /* trrrr de las cartas */
+  function sonCorte() { ruido(0, 0.12, 1200, 0.18, 0.8); }
+  function sonReparto() { ruido(0, 0.09, 3500, 0.16, 0.7); }   /* fsst de una carta al caer */
   function espera(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
   /* ---------- Supabase ---------- */
@@ -165,18 +180,39 @@
     res('Barajando…');
     var lista = S.alumnos.map(function (a) { return { a: a, ab: null }; });
     (async function () {
-      for (var k = 0; k < 12; k++) {                     /* barajado a saltos (sin deslizar: pantalla del aula) */
-        if (id !== S.id) return;
-        lista = baraja(lista); S.orden = lista;
-        var fl = lista.map(function () { return Math.random() < 0.35; }); pintaLista(fl);
-        await espera(170 + k * 22);
+      /* (7-nov-2026, 11:10, Iago) «Prefiero que sea movimiento fluido… como un barajeo de nombres, como cuando las cartas se
+         juntan… que se barajen y entremezclen.» 1) los nombres se juntan en un mazo, 2) se cortan y se entremezclan varias
+         veces, 3) se reparten uno a uno a su sitio en el orden nuevo y les cae su letra. */
+      var ol = S.raiz.querySelector('ol'), lis = [].slice.call(ol.children);
+      var mazo = Math.max(0, ol.clientHeight / 2 - (lis[0] ? lis[0].offsetHeight / 2 : 0));
+      var pon = function (li, x, y, r, t) { li.style.transition = t ? 'transform ' + t + 's cubic-bezier(.45,.05,.25,1)' : 'none'; li.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + r + 'deg)'; };
+      var rnd = function (a) { return (Math.random() * 2 - 1) * a; };
+      lis.forEach(function (li, k) { li.style.position = 'relative'; li.style.zIndex = String(k + 1); pon(li, 0, mazo - li.offsetTop, rnd(3), 0.55 + k * 0.02); });
+      for (var z = 0; z < lis.length; z++) ruido(0.25 + z * 0.03, 0.06, 1800, 0.08, 1);   /* se juntan */
+      await espera(750); if (id !== S.id) return;
+      res('Barajando…');
+      for (var v = 0; v < 4; v++) {                       /* corte y mezcla, como unas cartas */
+        lis.forEach(function (li, k) { var izq = Math.random() < 0.5; pon(li, (izq ? -1 : 1) * (70 + Math.random() * 40), mazo - li.offsetTop + rnd(10), (izq ? -1 : 1) * (4 + Math.random() * 5), 0.32); });
+        sonCorte(); await espera(360); if (id !== S.id) return;
+        baraja(lis).forEach(function (li, k) { li.style.zIndex = String(k + 1); pon(li, rnd(6), mazo - li.offsetTop + rnd(3), rnd(3), 0.3); });
+        sonMezcla();
+        await espera(380); if (id !== S.id) return;
       }
-      pintaLista(); res('Repartiendo A / B…'); await espera(400);
-      for (var i = 0; i < lista.length; i++) {           /* A, B, A, B… uno a uno */
+      lista = baraja(lista); S.orden = lista;
+      pintaLista();                                        /* el orden nuevo, pero aún todos en el mazo */
+      lis = [].slice.call(ol.children);
+      lis.forEach(function (li, k) { li.style.position = 'relative'; li.style.zIndex = String(100 - k); pon(li, rnd(6), mazo - li.offsetTop, rnd(3), 0); });
+      void ol.offsetHeight; await espera(120);
+      res('Repartiendo A / B…');
+      for (var i = 0; i < lista.length; i++) {           /* se reparten uno a uno a su sitio y les cae la letra */
         if (id !== S.id) return;
-        lista[i].ab = i % 2 ? 'B' : 'A'; pintaLista(lista.map(function (_, j) { return j === i; })); tono(i % 2 ? 76 : 72, 0.18);
-        await espera(260);
+        pon(lis[i], 0, 0, 0, 0.42); sonReparto();
+        (function (li, x, k) { setTimeout(function () {
+          x.ab = k % 2 ? 'B' : 'A'; tono(k % 2 ? 76 : 72, 0.16); var ab = li.querySelector('.ab'); if (ab) { ab.className = 'ab ' + x.ab; ab.textContent = x.ab; }
+        }, 380); })(lis[i], lista[i], i);
+        await espera(300);
       }
+      await espera(500); if (id !== S.id) return;
       pintaLista(); res('Guardando…');
       try {
         var r = await rpc('suite_sorteo_examen_guardar', { p_cuenta_id: S.cuenta, p_trimestre: S.trim, p_materia: S.d.materia, p_grupo: S.grupo, p_orden: lista.map(function (x) { return x.a.id; }) });
@@ -238,5 +274,5 @@
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 1 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 2 };
 })();
