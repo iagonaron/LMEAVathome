@@ -101,7 +101,7 @@
       '#lm-exr .pila{position:relative;width:100%;height:100%}#lm-exr .pila img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;transition:opacity 1.6s ease}' +
       '#lm-exr .rmini{display:none;position:absolute;top:6px;right:6px;padding:8px 14px;border-radius:12px;background:rgba(11,19,32,.88);color:#fff;font:800 28px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;z-index:3}' +
       '#lm-exr .rmini.ambar{background:#d97706}#lm-exr .rmini.rojo{background:#dc2626}#lm-exr.conpartitura .pan{display:none}#lm-exr.conpartitura .rmini{display:block}#lm-exr.conpartitura .props{visibility:hidden}' +
-      '#lm-exr .reloj.pausa b,#lm-exr .rmini.pausa{opacity:.45}#lm-exr .reloj b,#lm-exr .rmini{cursor:pointer}#lm-exr .sig{display:none}#lm-exr.llamando .sig{display:flex}';
+      '#lm-exr .reloj.pausa b,#lm-exr .rmini.pausa{opacity:.45}#lm-exr .reloj b,#lm-exr .rmini{cursor:pointer}#lm-exr.clase .velo{position:absolute;inset:0}#lm-exr.clase .esq{flex:1}#lm-exr-reloj{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:2147483600;padding:10px 18px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#fff;font:800 40px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.35)}#lm-exr-reloj.ambar{background:#d97706}#lm-exr-reloj.rojo{background:#dc2626}#lm-exr-reloj.pausa{opacity:.45}#lm-exr .sig{display:none}#lm-exr.llamando .sig{display:flex}';
     document.head.appendChild(st);
   }
 
@@ -415,12 +415,12 @@
            matices: «sigue la misma estética»; botón final «5 minutos» (los 5 s de cortesía no se anuncian) y no verde */
         var ambito = /extremos/i.test(et.titulo || ''), matices = /matices/i.test(et.titulo || '');
         if (ambito) et = { titulo: 'Ámbito de la lección', sub: '', svg: et.svg, notas: [], _ambito: true };
-        if (matices) et = { titulo: 'Recuerda los matices', sub: '', notas: [], svg: '<div class="mtz"><i>p</i><i>mp</i><i>mf</i><i>f</i><span class="cre"></span><span class="dim"></span></div>' };
+        if (matices) et = { titulo: 'Recuerda los matices', sub: '', notas: [], svg: '<div class="mtz">' + ((et.matices && et.matices.length) ? ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff'].filter(function (m) { return et.matices.indexOf(m) >= 0; }) : ['p', 'mp', 'mf', 'f']).map(function (m) { return '<i>' + m + '</i>'; }).join('') + '<span class="cre"></span><span class="dim"></span></div>' };
         if (et.porGrupo && et.cajas) gb = '<div class="gbts">' + et.cajas.map(function (c, g) { return '<button data-g="' + g + '" title="Escuchar" aria-label="Escuchar" style="left:' + ((c.x0 + c.x1) / 2 * 100).toFixed(2) + '%"></button>'; }).join('') + '</div>';
         velo.innerHTML = '<h2>' + esc(et.titulo) + '</h2>' + (et.sub ? '<p>' + et.sub + '</p>' : '') +
           (et.svg ? '<div class="pv">' + et.svg + (et._ambito ? '' : gb) + '</div>' : '') +
           '<div class="pbts">' + ((et.notas || []).length ? '<button class="p-play" title="' + (et.porGrupo ? 'Todos' : 'Escuchar') + ' (espacio)" aria-label="Escuchar"></button>' : '') +
-          '<button class="p-sig' + (ult ? ' fin' : '') + '">' + (ult ? 'INICIAR ESTUDIO · ' + Math.round((S.d.estudio || ESTUDIO) / 60) + ' MIN' : 'Siguiente →') + '</button></div>' +
+          '<button class="p-sig' + (ult ? ' fin' : '') + '">' + (ult ? (S.d.etiqueta || 'INICIAR ESTUDIO · ' + Math.round((S.d.estudio || ESTUDIO) / 60) + ' MIN') : 'Siguiente →') + '</button></div>' +
           '<div class="pasos">' + ET.map(function (x, k) { return '<i class="' + (k <= i ? 'on' : '') + '"></i>'; }).join('') + '</div>';
         velo.classList.add('on');
         var bp = velo.querySelector('.p-play'); if (bp) bp.onclick = alterna;
@@ -434,7 +434,7 @@
       /* (16:15, Iago) «lo de quinta justa y cuarta justa… simplemente con una línea, como interválica: una línea que une el re con el la» */
       /* (16:25, Iago) «que cada intervalo tenga el numerito… y respeta los colores de Intervalia: azul oscuro las cuartas, azul clarito
          las quintas»; todos los saltos de la lección son ascendentes. Rótulo paralelo a la línea, como en el libro de Intervalia. */
-      var COL_INT = { 5: ['#2355ce', '4J'], 7: ['#5ac4f7', '5J'] };
+      var COL_INT = { 5: ['#2355ce', '4J'], 6: ['#e0c93a', '4A'], 7: ['#5ac4f7', '5J'], 8: ['#8c33b6', '6m'], 9: ['#d796f8', '6M'], 10: ['#5a2d05', '7m'], 11: ['#c98a1e', '7M'], 12: ['#000000', '8J'] };   /* (7-nov tarde) la paleta entera de Intervalia, para las previas de clase */
       function lineasSaltos(v) {
         var svg = v.querySelector('.pv svg'); if (!svg) return; var et = ET[i];
         svg.querySelectorAll('text').forEach(function (t) { t.parentNode.removeChild(t); });
@@ -470,7 +470,7 @@
       function tonicaNotas(et) {
         var gr = {}; (et.notas || []).forEach(function (n) { (gr[n.g] = gr[n.g] || []).push(n); });
         var out = []; Object.keys(gr).map(Number).sort(function (a, b) { return a - b; }).forEach(function (g) { var a = gr[g];
-          out.push({ id: 'tn' + g + '_0', g: g, midi: a[0].midi, dur: PULSO, f: 'q' }, { id: 'tn' + g + '_1', g: g, midi: a[a.length - 1].midi, dur: PULSO, f: 'q' }, { id: 'tn' + g + '_2', g: g, midi: a[0].midi, dur: 2 * PULSO, f: 'h' }); });
+          out.push({ id: 'tn' + g + '_0', g: g, midi: a[0].midi, k: a[0].k, dur: PULSO, f: 'q' }, { id: 'tn' + g + '_1', g: g, midi: a[a.length - 1].midi, k: a[a.length - 1].k, dur: PULSO, f: 'q' }, { id: 'tn' + g + '_2', g: g, midi: a[0].midi, k: a[0].k, dur: 2 * PULSO, f: 'h' }); });
         return out;
       }
       /* (16:24, Iago) «la música sea sin compás y que se vayan acercando, como en la fase 4 del quiz: una barra azul que esté quieta y
@@ -478,16 +478,16 @@
       /* (7-nov 17:01, Iago) «lo de los intervalos… un vídeo que se carga… en la pantalla del aula no va a ir fluido»: la cinta
          se graba como vídeo (con el piano dentro) en piel/examenes/videos/tonica-<midi>.webm|mp4, se descarga ENTERO al entrar en la
          previa y se reproduce con el mismo ▶ tras el 3-2-1. Si no hay vídeo para esa tónica, la cinta animada de siempre. */
-      function videoTonica(ton) {
-        if (S.vidT && S.vidT.ton === ton) return S.vidT.p;
+      function videoTonica(ton, nom) {
+        if (S.vidT && S.vidT.ton === (nom || ton)) return S.vidT.p;
         var v = document.createElement('video'), ext = v.canPlayType && v.canPlayType('video/webm; codecs="vp9, opus"') ? 'webm' : 'mp4';
-        var url = BASE_SFX.replace(/sonidos\/$/, 'videos/') + 'tonica-' + ton + '.' + ext;
+        var url = BASE_SFX.replace(/sonidos\/$/, 'videos/') + (nom || 'tonica-' + ton) + '.' + ext;
         var pr = fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) { return URL.createObjectURL(b); }).catch(function () { return null; });
-        S.vidT = { ton: ton, p: pr }; return pr;
+        S.vidT = { ton: nom || ton, p: pr }; return pr;
       }
       function cinta(et) {
         var pv = velo.querySelector('.pv'); if (!pv) return; var notas = tonicaNotas(et); if (!notas.length) return;
-        videoTonica(notas[0].midi).then(function (src) {
+        videoTonica(notas[0].midi, et.video).then(function (src) {
           if (ET[i] !== et) return;
           if (!src) return cintaViva(et);
           var v = document.createElement('video'); v.className = 'cinta-vid'; v.src = src; v.preload = 'auto'; v.muted = true; v.playsInline = true; v.setAttribute('playsinline', '');
@@ -503,8 +503,8 @@
           var caja = el('div', 'cinta'), dentro = el('div', 'cinta-in'); caja.appendChild(dentro);
           var r = new VF.Renderer(dentro, VF.Renderer.Backends.SVG); r.resize(W, 150); var ctx = r.getContext();
           var st = new VF.Stave(0, 20, W); st.setBegBarType(VF.Barline.type.NONE); st.setEndBarType(VF.Barline.type.NONE); st.setContext(ctx).draw();
-          var tcs = [], xs = [], tt = 0, x = INI;
-          var sns = notas.map(function (q) { var sn = new VF.StaveNote({ keys: [nombre(q.midi, ton)], duration: q.f, auto_stem: true }); sn.setAttribute('id', q.id); sn.setStave(st); sn.setContext(ctx);
+          var KS = et.ks || KEYN[((ton % 12) + 12) % 12] || 'C', KM = new VF.KeyManager(KS); var tcs = [], xs = [], tt = 0, x = INI;
+          var sns = notas.map(function (q) { var kq = q.k || nombre(q.midi, ton), sn = new VF.StaveNote({ keys: [kq], clef: et.clef || 'treble', duration: q.f, auto_stem: true }); if (q.k) { try { var nm = kq.split('/')[0], rk = KM.selectNote(nm); if (rk.change) sn.addModifier(new VF.Accidental(nm.slice(1) || 'n'), 0); } catch (e) {} } sn.setAttribute('id', q.id); sn.setStave(st); sn.setContext(ctx);
             var tc = new VF.TickContext(); tc.addTickable(sn).preFormat().setX(x - st.getNoteStartX()); xs.push({ t: tt, x: x }); var b = (q.f === 'h' ? 2 : 1); tt += b; x += b * U + (q.f === 'h' ? 40 : 0); return sn; });
           xs.push({ t: tt, x: x });
           sns.forEach(function (sn) { try { sn.draw(); } catch (e) {} });
@@ -513,7 +513,7 @@
           /* clave y armadura fijas a la izquierda */
           var fija = el('div', 'cinta-clave'); caja.appendChild(fija);
           var r2 = new VF.Renderer(fija, VF.Renderer.Backends.SVG); r2.resize(128, 150); var c2 = r2.getContext();
-          var s2 = new VF.Stave(10, 20, 118); s2.addClef('treble').addKeySignature(KEYN[((ton % 12) + 12) % 12] || 'C'); s2.setEndBarType(VF.Barline.type.NONE); s2.setContext(c2).draw();
+          var s2 = new VF.Stave(10, 20, 118); s2.addClef(et.clef || 'treble').addKeySignature(et.ks || KEYN[((ton % 12) + 12) % 12] || 'C'); s2.setEndBarType(VF.Barline.type.NONE); s2.setContext(c2).draw();
           fija.style.width = (128 * esc).toFixed(1) + 'px'; fija.style.overflow = 'hidden'; var sv2 = fija.querySelector('svg'); sv2.setAttribute('viewBox', '0 0 128 150'); sv2.setAttribute('width', (128 * esc).toFixed(1)); sv2.setAttribute('height', (150 * esc).toFixed(1)); sv2.style.width = (128 * esc) + 'px'; sv2.style.height = (150 * esc) + 'px';
           var barra = el('div', 'barra'); barra.style.left = (BARRA * esc) + 'px'; barra.style.top = (8 + (st.getYForLine(0) - 14) * esc) + 'px'; barra.style.height = ((st.getYForLine(4) - st.getYForLine(0) + 28) * esc) + 'px'; caja.appendChild(barra);
           et._cinta.esc = esc; et._cinta.dentro = dentro; et._cinta.xs = xs; et._cinta.barra = BARRA; mueve(et, 0);
@@ -536,7 +536,7 @@
       function ant() { if (i > 0) { i--; pinta(); } }
       S.pv = { play: alterna, sig: sig, ant: ant };
       piano();   /* se carga ya, en silencio */
-      ET.forEach(function (e) { if (esTonica(e)) { var tn = tonicaNotas(e); if (tn.length) videoTonica(tn[0].midi); } });
+      ET.forEach(function (e) { if (esTonica(e)) { var tn = tonicaNotas(e); if (tn.length) videoTonica(tn[0].midi, e.video); } });
       pinta();
     });
   }
@@ -606,5 +606,52 @@
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 13 };
+  /* ---------- (7-nov-2026, 17:15, Iago) PREVIA DE CLASE ----------
+     «Me mola esto de la previa para incluirlo también en mis clases regulares… sin hacer spoiler de qué lección del libro es…
+      no hay que hacer sorteo… cuando le doy a iniciar estudio, sean 5 minutos y 30 segundos: los 30 primeros, “busca la lección
+      número no sé qué”, y luego, durante 5 minutos, la cuenta atrás… y que aparezca ya en pantalla el editor viéndose la lección
+      correspondiente como teníamos hasta ahora.» El portal llama a LMExamenRitmo.clase({ datos, leccion, abrirLeccion }). */
+  function clase(o) {
+    cerrar(); css(); cargaSfx();
+    S = { d: o.datos, id: 0, clase: true, llamando: -1, alumnos: [], orden: [] };
+    var raiz = el('div'); raiz.id = 'lm-exr'; raiz.className = 'clase'; raiz.style.setProperty('--acc', '#5b9dff'); raiz.setAttribute('role', 'dialog'); raiz.setAttribute('aria-modal', 'true');
+    raiz.innerHTML = '<div class="cab"><div class="lm">LM<i>at home</i><small>GRADO ELEMENTAL</small></div>' +
+      '<div class="tit"><b>ENTON<span>ACIÓN</span></b><div>LECCIÓN DE ENTONACIÓN ACTIVA</div></div>' +
+      '<div class="der"><button class="x" title="Cerrar (Esc)">✕</button></div></div><div class="cuerpo"><div class="esq"><div class="velo"></div></div></div>';
+    document.body.appendChild(raiz); S.raiz = raiz; raiz.querySelector('.x').onclick = cerrar;
+    document.addEventListener('keydown', teclas, true);
+    var id = ++S.id, vivo = function () { return S && id === S.id; };
+    previaInteractiva(vivo).then(async function (ok) {
+      if (!ok || !vivo()) return;
+      var velo = raiz.querySelector('.velo'); velo.classList.add('on');
+      for (var s = 30; s > 0; s--) {
+        if (!vivo()) return;
+        velo.innerHTML = '<h2>Busca la lección ' + o.leccion + '</h2><div class="grande">' + s + '</div><p>' + esc(o.libro || 'Entonación 4') + '</p>';
+        await espera(1000);
+      }
+      if (!vivo()) return;
+      cerrar();
+      try { if (o.abrirLeccion) o.abrirLeccion(); } catch (e) {}
+      relojFlotante(o.estudio || 300);
+    });
+  }
+  /* el reloj del estudio, flotando encima del editor de la lección: pulsar = pausa / sigue; al acabar, pulsar = quitar */
+  async function relojFlotante(seg) {
+    var r = document.getElementById('lm-exr-reloj'); if (r) r.remove();
+    r = el('div'); r.id = 'lm-exr-reloj'; document.body.appendChild(r);
+    var fin = Date.now() + seg * 1000, pausa = false, pd = 0, acabado = false;
+    r.onclick = function () { if (acabado) { r.remove(); return; } pausa = !pausa; r.classList.toggle('pausa', pausa); };
+    if (!sfx('inicio', 0.9)) { tono(88, 0.12, 0.28); setTimeout(function () { tono(88, 0.14, 0.28); }, 170); }
+    while (r.isConnected) {
+      if (!document.getElementById('lm-ento') && Date.now() > fin - seg * 1000 + 3000) { r.remove(); return; }   /* se cerró la lección */
+      if (pausa) { if (!pd) pd = Date.now(); await espera(200); continue; }
+      if (pd) { fin += Date.now() - pd; pd = 0; }
+      var q = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
+      r.textContent = Math.floor(q / 60) + ':' + ('0' + (q % 60)).slice(-2); r.className = q === 0 ? 'rojo' : q <= 60 ? 'ambar' : '';
+      if (q === 0) { acabado = true; if (!sfx('fin', 0.8)) { tono(72, 0.3); setTimeout(function () { tono(67, 0.5); }, 250); } return; }
+      await espera(250);
+    }
+  }
+
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, clase: clase, version: 14 };
 })();
