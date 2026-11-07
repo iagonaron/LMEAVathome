@@ -541,7 +541,10 @@
     });
   }
   function estudio() {
-    var id = ++S.id, velo = S.raiz.querySelector('.velo'), d = S.d, ET = etapas();
+    /* (7-nov-2026, 19:00, Iago) «en grado profesional simplemente estructura, sorteo y temporizador… puedes darle la vuelta a la
+       hoja… Y ritmo elemental también»: el ritmo y el ritmo entonado, sin previa (la escala y el arpegio se quedan en el material,
+       pero no se tocan). La previa es solo de entonación. */
+    var id = ++S.id, velo = S.raiz.querySelector('.velo'), d = S.d, ET = d.materia === 'entonacion' ? etapas() : [];
     var vivo = function () { return S && id === S.id; };
     S.raiz.querySelector('.b-sor').disabled = true; S.raiz.querySelector('.b-est').disabled = true; S.raiz.classList.remove('llamando'); S.llamando = -1; pintaLista();
     (async function () {
@@ -653,5 +656,5 @@
     }
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, clase: clase, version: 15 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, clase: clase, version: 16 };
 })();
