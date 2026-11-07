@@ -17,7 +17,7 @@
     if (document.getElementById('lm-exr-css')) return;
     var st = el('style'); st.id = 'lm-exr-css';
     st.textContent =
-      '#lm-exr{--acc:#15803d;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147482995;background:#fff;color:#0b1320;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;display:flex;flex-direction:column}' +
+      '#lm-exr{--acc:#22c98a;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147482995;background:#fff;color:#0b1320;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;display:flex;flex-direction:column}' +
       '#lm-exr .cab{display:flex;align-items:center;justify-content:space-between;padding:12px 22px 8px;border-bottom:1.5px solid var(--acc)}' +
       '#lm-exr .lm{font-weight:900;font-size:22px;line-height:1;min-width:180px}#lm-exr .lm i{font-family:Georgia,serif;font-weight:400;color:#8a93b3;font-size:16px;margin-left:5px}' +
       '#lm-exr .lm small{display:block;font-size:8.5px;letter-spacing:.22em;color:var(--acc);font-weight:800;margin-top:4px}' +
@@ -73,6 +73,25 @@
       '#lm-exr .velo .pbts{display:flex;gap:16px;align-items:center}#lm-exr .velo .pbts button{font:800 22px/1 "Helvetica Neue",Arial,sans-serif;padding:14px 28px;border-radius:12px;border:0;cursor:pointer;background:#fff;color:#0b1320}' +
       '#lm-exr .velo .pbts .p-sig.fin{background:#16a34a;color:#fff}' +
       '#lm-exr .velo .pasos{display:flex;gap:8px}#lm-exr .velo .pasos i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28)}#lm-exr .velo .pasos i.on{background:#fff}' +
+      /* (7-nov-2026, 16:33, Iago) «estética minimalista y estilo el portal… el tono azul del apartado de entonación… full coherente»:
+         la piel del portal at home (azul noche, tarjetas con filo fino, Helvetica) y el color de cada apartado
+         (entonación #5b9dff, ritmo #22c98a, como en el portal). Las partituras, sobre papel blanco. */
+      '#lm-exr{background:linear-gradient(180deg,#0b1f4d 0%,#0a1430 32%,#060a18 70%,#02030a 100%);color:#e9edff}' +
+      '#lm-exr .cab{border-bottom:1px solid #1e2a52}#lm-exr .lm{color:#fff}#lm-exr .lm i{color:#aeb6d6}#lm-exr .tit b{color:#fff}' +
+      '#lm-exr button{background:transparent;border:1px solid #1e2a52;color:#e9edff;border-radius:10px}#lm-exr button:hover:not(:disabled){border-color:var(--acc)}' +
+      '#lm-exr button.on,#lm-exr .go{background:var(--acc);border-color:var(--acc);color:#0a1028}' +
+      '#lm-exr .pan{background:#0d142e;border:1px solid #1e2a52}#lm-exr .pan h3,#lm-exr .res,#lm-exr .reloj span{color:#8b97c4}' +
+      '#lm-exr li{background:#111b3d;border:1px solid #1e2a52;color:#e9edff;box-shadow:none}#lm-exr li .n{color:#8b97c4}' +
+      '#lm-exr li.ya{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}#lm-exr li.flash{background:#16234a}' +
+      '#lm-exr li .ab.A{color:#0a1028}#lm-exr li .ab.B{background:transparent}' +
+      '#lm-exr .reloj b{color:#fff}' +
+      '#lm-exr .lienzo{background:#fff;border-radius:12px;padding:10px}' +
+      '#lm-exr .velo{background:rgba(10,16,40,.97);border:1px solid #1e2a52}#lm-exr .velo p{color:#8b97c4;opacity:1}' +
+      '#lm-exr .velo .pbts .p-sig{background:transparent!important;border:1px solid #1e2a52!important;color:#e9edff!important;border-radius:10px!important}' +
+      '#lm-exr .velo .pbts .p-sig:hover{border-color:var(--acc)!important}' +
+      '#lm-exr .velo .gbts button.son{box-shadow:0 0 0 3px rgba(255,255,255,.55)!important}' +
+      '#lm-exr .velo .pasos i{background:#1e2a52}#lm-exr .velo .pasos i.on{background:var(--acc)}' +
+
       '#lm-exr .c321{position:absolute;top:14px;right:14px;width:190px;height:190px;z-index:6;border-radius:24px;background:var(--acc);opacity:.9;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 10px 40px rgba(0,0,0,.35)}' +
       '#lm-exr .c321 b{font:900 130px/1 "Helvetica Neue",Arial,sans-serif;animation:lmx321 .7s ease-out both}#lm-exr .c321 span{font:800 15px/1 "Helvetica Neue",Arial,sans-serif;opacity:.9}' +
       '@keyframes lmx321{from{transform:scale(1.35);opacity:0}25%{opacity:1}to{transform:scale(1);opacity:1}}' +
@@ -150,7 +169,7 @@
     S = { ensayo: !!o.ensayo, d: o.datos, grupos: o.grupos || [o.grupo], grupo: (o.grupos || [o.grupo])[0], trim: o.trim || '1T', sb: o.sb, anon: o.anon, cuenta: o.cuenta, prop: 0, alumnos: [], orden: null, fase: 'sorteo', id: 0, llamando: -1 };
     var d = S.d, gp = d.grado === 'GP';
     var sinAB = d.materia === 'entonacion'; S.sinAB = sinAB;   /* la entonación de GE es una sola lección: solo orden */
-    var raiz = el('div'); raiz.id = 'lm-exr'; if (sinAB) raiz.style.setProperty('--acc', '#1d4ed8'); raiz.setAttribute('role', 'dialog'); raiz.setAttribute('aria-modal', 'true');
+    var raiz = el('div'); raiz.id = 'lm-exr'; if (sinAB) raiz.style.setProperty('--acc', '#5b9dff'); raiz.setAttribute('role', 'dialog'); raiz.setAttribute('aria-modal', 'true');
     raiz.innerHTML =
       '<div class="cab"><div class="lm">LM<i>at home</i><small>' + (gp ? 'GRADO PROFESIONAL' : 'GRADO ELEMENTAL') + '</small></div>' +
       '<div class="tit"><b>' + (d.materia === 'entonacion' ? 'ENTON<span>ACIÓN</span>' : gp ? 'RITMO <span>ENTONADO</span>' : 'RITMO') + '</b><div>EXAMEN · ' + ({ '1T': '1.ER', '2T': '2.º', '3T': '3.ER' }[S.trim] || S.trim) + ' TRIMESTRE · <span class="g"></span></div></div>' +
@@ -514,5 +533,5 @@
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 8 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 9 };
 })();
