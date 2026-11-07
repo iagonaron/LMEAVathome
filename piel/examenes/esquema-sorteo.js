@@ -95,7 +95,7 @@
     return PIANO_P;
   }
   function nota(midi, dur, vol) {
-    if (PIANO && AC) { try { if (AC.resume) AC.resume(); PIANO.play(midi, AC.currentTime, { duration: Math.max(0.3, dur), gain: (vol || 0.3) / 0.3 }); return; } catch (e) {} }
+    if (PIANO && AC) { try { if (AC.resume) AC.resume(); PIANO.play(midi, AC.currentTime, { duration: Math.max(0.2, dur), release: 0.08, gain: (vol || 0.3) / 0.3 }); return; } catch (e) {} }
     tono(midi, dur, vol);
   }
   /* (7-nov, 11:11, Iago) «incluso con soniditos»: ruido filtrado para las cartas (mezcla y reparto) */
@@ -294,7 +294,8 @@
         for (var r = 0; r < notas.length; r++) {
           if (t !== tok || !vivo()) break;
           var n = notas[r]; marca(n, true);
-          if (n.midis) n.midis.forEach(function (m) { nota(m, Math.min(2.4, n.dur + 0.6), 0.22); }); else nota(n.midi, Math.min(1.6, n.dur + 0.15), 0.3);
+          /* (16:12, Iago) «los acordes se solapan… no suenan blancas como tal»: cada figura dura lo suyo y se apaga antes de la siguiente */
+          if (n.midis) n.midis.forEach(function (m) { nota(m, n.dur * 0.92, 0.22); }); else nota(n.midi, n.dur * 0.95, 0.3);
           await espera(n.dur * 1000); marca(n, false);
         }
         if (boton) boton.classList.remove('son');
