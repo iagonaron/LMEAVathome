@@ -1650,7 +1650,7 @@
           leccion: d.leccion, estudio: 300, abrirLeccion: function () { abrirEnto(d); } }); } catch (e) { abrirEnto(d); }
       };
       if (window.LMExamenRitmo && window.LMExamenRitmo.clase) return go();
-      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=15';
+      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=16';
       sc.onload = go; sc.onerror = function () { abrirEnto(d); }; document.head.appendChild(sc);
     });
   }
@@ -3611,7 +3611,7 @@
       catch (e) { alert('No se ha podido abrir el examen de ritmo.'); }
     };
     if (window.LMExamenRitmo) return abre();
-    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=15';
+    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=16';
     sc.onload = abre; sc.onerror = function () { alert('No se ha podido cargar la pantalla del examen de ritmo.'); };
     document.head.appendChild(sc);
   }
@@ -3807,7 +3807,29 @@
       window.__dictadoAnimado = { curso: 'Examen ' + EXM.datos.trim + ' · ' + grupo, anio: w.anio, semana_iso: w.semana, numero: null,
         dictado: D, solucion_path: null, solucion_filename: null, __examen: true };
       window.DictadoClase.open();
+      exmBotonSolucion(grupo);
     }).catch(function () { alert('No se ha podido cargar el reproductor (¿conexión?).'); });
+  }
+  /* (7-nov-2026, 18:34, Iago) «en los dictados del examen… un botón que ponga ver solución, que tenga contraseña, para yo
+     poner al final de la clase, una vez que ya lo hayan entregado». Pide otra vez la contraseña del examen (se comprueba
+     descifrando de nuevo el dictado) y enseña el dictado escrito en el pentagrama, como el «revelar» del reproductor. */
+  function exmBotonSolucion(grupo) {
+    var b = document.getElementById('lm-exm-sol'); if (b) b.parentNode.removeChild(b);
+    b = document.createElement('button'); b.id = 'lm-exm-sol'; b.type = 'button'; b.textContent = 'VER SOLUCIÓN';
+    b.style.cssText = 'position:fixed;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99995;' +
+      'padding:10px 16px;border-radius:10px;border:1px solid #e08537;background:rgba(13,20,46,.92);color:#f5b27a;font:800 13px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.06em;cursor:pointer';
+    b.onclick = function () {
+      exmPin('Ver solución · ' + grupo, EXM_MAT[EXM.datos.trim].dict[grupo], function () {
+        try { window.DictadoClase.revelar(); } catch (e) {}
+        b.textContent = 'SOLUCIÓN A LA VISTA'; b.disabled = true; b.style.opacity = '.6';
+      });
+    };
+    document.body.appendChild(b);
+    var visto = false, vueltas = 0, vigila = setInterval(function () {   /* se va con el reproductor (cuando se cierra, pierde «abierto») */
+      var o = document.getElementById('dcOverlay'), abierto = !!(o && o.classList.contains('abierto'));
+      if (abierto) visto = true;
+      if ((visto && !abierto) || (!visto && ++vueltas > 40)) { clearInterval(vigila); if (b.parentNode) b.parentNode.removeChild(b); }
+    }, 500);
   }
 
   function todo() {
