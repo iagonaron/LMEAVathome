@@ -52,13 +52,19 @@
       '#lm-exr .velo .pv{width:100%;background:#fff;border-radius:12px;padding:8px}#lm-exr .velo .pv svg{width:100%;height:auto;display:block}' +
       '#lm-exr .velo .grande{font-size:120px;font-weight:900;line-height:1}' +
       /* (7-nov, 14:57) previa interactiva: ▶ y «Siguiente» en cada etapa, ▶ por salto, 3-2-1 en azul */
-      '#lm-exr .velo .pv{position:relative}#lm-exr .velo .gbts{position:relative;height:58px}#lm-exr .velo .gbts button{position:absolute;top:6px;transform:translateX(-50%);font:800 18px/1 "Helvetica Neue",Arial,sans-serif;padding:10px 16px;border-radius:10px;border:2px solid var(--acc);background:#fff;color:var(--acc);cursor:pointer}' +
-      '#lm-exr .velo .gbts button.son,#lm-exr .velo .pbts .p-play.son{background:var(--acc);color:#fff}' +
+      '#lm-exr .velo .pv{position:relative}#lm-exr .velo .gbts{position:relative;height:46px}' +
+      /* (16:15, Iago) «botón de play circular, discreto, azul, con el play en blanco, debajo de cada compás. Minimalista» */
+      '#lm-exr .velo .gbts button{position:absolute;top:8px;left:0;transform:translateX(-50%);width:32px!important;height:32px!important;min-width:0!important;min-height:0!important;max-width:32px;padding:0!important;margin:0!important;border:0!important;border-radius:50%!important;background:var(--acc)!important;font-size:0!important;line-height:0!important;cursor:pointer;box-shadow:none!important;opacity:.9}' +
+      '#lm-exr .velo .gbts button::after{content:"";position:absolute;left:12px;top:9px;width:0;height:0;border-style:solid;border-width:7px 0 7px 11px;border-color:transparent transparent transparent #fff}' +
+      '#lm-exr .velo .gbts button.son{opacity:1;box-shadow:0 0 0 4px rgba(29,78,216,.25)!important}' +
+      '#lm-exr .velo{overflow-y:auto}#lm-exr .velo .pv svg{max-height:34vh}' +
+      '#lm-exr .velo .cinta{width:100%;overflow:hidden;background:#fff;border-radius:12px;padding:8px 0;position:relative}#lm-exr .velo .cinta-in{will-change:transform}#lm-exr .velo .cinta-clave{position:absolute;left:0;top:8px;background:linear-gradient(90deg,#fff 88%,rgba(255,255,255,0));padding-right:14px;pointer-events:none}#lm-exr .velo .cinta svg{display:block;max-height:none}' +
+      '#lm-exr .velo .pbts .p-play.son{background:var(--acc);color:#fff}' +
       '#lm-exr .velo .pbts{display:flex;gap:16px;align-items:center}#lm-exr .velo .pbts button{font:800 22px/1 "Helvetica Neue",Arial,sans-serif;padding:14px 28px;border-radius:12px;border:0;cursor:pointer;background:#fff;color:#0b1320}' +
       '#lm-exr .velo .pbts .p-play{background:var(--acc);color:#fff}#lm-exr .velo .pbts .p-sig.fin{background:#16a34a;color:#fff}' +
       '#lm-exr .velo .pasos{display:flex;gap:8px}#lm-exr .velo .pasos i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28)}#lm-exr .velo .pasos i.on{background:#fff}' +
-      '#lm-exr .c321{position:absolute;top:0;left:0;right:0;bottom:0;z-index:6;border-radius:14px;background:var(--acc);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}' +
-      '#lm-exr .c321 b{font:900 260px/1 "Helvetica Neue",Arial,sans-serif;animation:lmx321 .9s ease-out both}#lm-exr .c321 span{font:800 28px/1 "Helvetica Neue",Arial,sans-serif;opacity:.9}' +
+      '#lm-exr .c321{position:absolute;top:14px;right:14px;width:190px;height:190px;z-index:6;border-radius:24px;background:var(--acc);opacity:.9;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 10px 40px rgba(0,0,0,.35)}' +
+      '#lm-exr .c321 b{font:900 130px/1 "Helvetica Neue",Arial,sans-serif;animation:lmx321 .7s ease-out both}#lm-exr .c321 span{font:800 15px/1 "Helvetica Neue",Arial,sans-serif;opacity:.9}' +
       '@keyframes lmx321{from{transform:scale(1.35);opacity:0}25%{opacity:1}to{transform:scale(1);opacity:1}}' +
       '#lm-exr .grp{display:flex;gap:6px;margin-bottom:10px}#lm-exr .grp button{flex:1}' +
       '#lm-exr .pila{position:relative;width:100%;height:100%}#lm-exr .pila img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;transition:opacity 1.6s ease}' +
@@ -281,6 +287,14 @@
      de las cosas… y un botón siguiente.» Al entrar suenan los acordes; antes de la escala, el arpegio y los intervalos, un 3-2-1
      en azul «para que los alumnos canten»; cada salto, en su compás con doble barra y con su ▶. La última etapa lleva
      «Iniciar estudio» (5:05: los 5 primeros segundos son para que se revele todo). */
+  /* (7-nov-2026, 16:13, Iago) «súbele como 10 bpm a la velocidad del 3-2-1, pero que esa sea la velocidad de la negra»:
+     3-2-1 a 70 por minuto y la negra de la previa a ese mismo pulso (blancas = 2 pulsos; final de grupo = nota + silencio de negra). */
+  var PULSO = 60 / 70;
+  function aPulso(et, notas) {
+    var base = Math.min.apply(null, notas.map(function (n) { return n.dur; }).concat([9]));
+    var uni = (notas.some(function (n) { return n.midis; }) || /extremos/i.test(et.titulo || '')) ? 2 : 1;
+    return notas.map(function (n) { var k = Math.max(1, Math.round(n.dur / base)); return { id: n.id, g: n.g, midi: n.midi, midis: n.midis, dur: k * uni * PULSO }; });
+  }
   function previaInteractiva(vivo) {
     var velo = S.raiz.querySelector('.velo'), ET = etapas(), i = 0, tok = 0;
     return new Promise(function (fin) {
@@ -302,7 +316,7 @@
       }
       async function cuenta(t) {
         var c = el('div', 'c321'); velo.appendChild(c);
-        for (var k = 3; k > 0; k--) { if (t !== tok || !vivo()) { c.remove(); return false; } c.innerHTML = '<b>' + k + '</b><span>preparados para cantar</span>'; tono(k === 1 ? 84 : 79, 0.14, 0.25); await espera(1000); }
+        for (var k = 3; k > 0; k--) { if (t !== tok || !vivo()) { c.remove(); return false; } c.innerHTML = '<b>' + k + '</b><span>preparados para cantar</span>'; tono(k === 1 ? 84 : 79, 0.14, 0.25); await espera(PULSO * 1000); }
         c.remove(); return t === tok && vivo();
       }
       async function play(grupo) {
@@ -310,12 +324,14 @@
         if (!PIANO) { var bpl = velo.querySelector('.p-play'); if (bpl) bpl.textContent = 'Cargando piano…'; await piano(); if (bpl) bpl.textContent = '▶ ' + (et.porGrupo ? 'Todos' : 'Escuchar'); if (t !== tok || !vivo()) return; }
         var btn = grupo == null ? velo.querySelector('.p-play') : velo.querySelector('.gbts [data-g="' + grupo + '"]');
         if (grupo != null) notas = notas.filter(function (n) { return n.g === grupo; }).map(function (n, k, a) { return { id: n.id, midi: n.midi, midis: n.midis, g: n.g, dur: k === a.length - 1 ? Math.max(n.dur, et.durG || 0.7) : (et.durG || n.dur) }; });
+        if (esTonica(et) && et._cinta && et._cinta.dentro) { mueve(et, 0); if (et.cuenta && !(await cuenta(t))) return; await suenaCinta(et, t, btn); return; }
+        notas = aPulso(et, notas);
         if (et.cuenta && !(await cuenta(t))) return;
         await suena(notas, t, btn);
       }
       function pinta() {
         tok++; var et = ET[i], ult = i === ET.length - 1, gb = '';
-        if (et.porGrupo && et.cajas) gb = '<div class="gbts">' + et.cajas.map(function (c, g) { return '<button data-g="' + g + '" style="left:' + ((c.x0 + c.x1) / 2 * 100).toFixed(2) + '%">▶</button>'; }).join('') + '</div>';
+        if (et.porGrupo && et.cajas) gb = '<div class="gbts">' + et.cajas.map(function (c, g) { return '<button data-g="' + g + '" title="Escuchar" aria-label="Escuchar" style="left:' + ((c.x0 + c.x1) / 2 * 100).toFixed(2) + '%"></button>'; }).join('') + '</div>';
         velo.innerHTML = '<h2>' + esc(et.titulo) + '</h2>' + (et.sub ? '<p>' + et.sub + '</p>' : '') +
           (et.svg ? '<div class="pv">' + et.svg + gb + '</div>' : '') +
           '<div class="pbts">' + ((et.notas || []).length ? '<button class="p-play">▶ ' + (et.porGrupo ? 'Todos' : 'Escuchar') + '</button>' : '') +
@@ -326,6 +342,76 @@
         velo.querySelector('.p-sig').onclick = sig;
         velo.querySelectorAll('.gbts button').forEach(function (b) { b.onclick = function () { play(+b.getAttribute('data-g')); }; });
         /* (16:07, Iago) «no quiero que se reproduzca nada hasta que yo le dé al botón escuchar»: sin arranque automático */
+        if (/saltos/i.test(et.titulo || '')) lineasSaltos(velo);
+        if (esTonica(et)) cinta(et);
+      }
+      /* (16:15, Iago) «lo de quinta justa y cuarta justa… simplemente con una línea, como interválica: una línea que une el re con el la» */
+      function lineasSaltos(v) {
+        var svg = v.querySelector('.pv svg'); if (!svg) return;
+        svg.querySelectorAll('text').forEach(function (t) { t.parentNode.removeChild(t); });
+        var acc = getComputedStyle(S.raiz).getPropertyValue('--acc') || '#1d4ed8';
+        for (var g = 0; g < 12; g++) {
+          var a = svg.querySelector('[id="vf-sal' + g + '_0"] .vf-notehead') || svg.querySelector('[id="vf-sal' + g + '_0"]');
+          var b = svg.querySelector('[id="vf-sal' + g + '_1"] .vf-notehead') || svg.querySelector('[id="vf-sal' + g + '_1"]');
+          if (!a || !b) continue;
+          try { var A = a.getBBox(), B = b.getBBox(); var l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            l.setAttribute('x1', A.x + A.width + 3); l.setAttribute('y1', A.y + A.height / 2); l.setAttribute('x2', B.x - 3); l.setAttribute('y2', B.y + B.height / 2);
+            l.setAttribute('stroke', acc); l.setAttribute('stroke-width', '3'); l.setAttribute('stroke-linecap', 'round'); svg.appendChild(l); } catch (e) {}
+        }
+      }
+      /* (16:14, Iago) DESDE LA TÓNICA: «re negra, nota objetivo negra y re blanca… en pantalla solo un compás… que vaya deslizándose,
+         para que puedas ir viendo el siguiente compás antes de que acabe el primero». Se dibuja aquí (no viene en el material cifrado). */
+      function esTonica(et) { return /t[oó]nica/i.test(et.titulo || ''); }
+      var KEYN = { 0: 'C', 7: 'G', 2: 'D', 9: 'A', 4: 'E', 11: 'B', 5: 'F', 10: 'Bb', 3: 'Eb', 8: 'Ab', 1: 'Db', 6: 'F#' };
+      function nombre(midi, ton) {   /* grado de la escala mayor de la tónica → letra y alteración */
+        var L = 'cdefgab', NAT = [0, 2, 4, 5, 7, 9, 11], k = KEYN[((ton % 12) + 12) % 12] || 'C';
+        var li = L.indexOf(k[0].toLowerCase()), off = (((midi - ton) % 12) + 12) % 12, deg = [0, 2, 4, 5, 7, 9, 11].indexOf(off); if (deg < 0) deg = 0;
+        var le = L[(li + deg) % 7], nat = NAT[L.indexOf(le)], pc = ((midi % 12) + 12) % 12, d = ((pc - nat + 18) % 12) - 6;
+        var oct = Math.floor((midi - d) / 12) - 1; return le + (d > 0 ? '#'.repeat(d) : d < 0 ? 'b'.repeat(-d) : '') + '/' + oct;
+      }
+      function cargaVex() { return new Promise(function (ok) { if (window.Vex && window.Vex.Flow) return ok(true); var sc = document.createElement('script');
+        sc.src = 'https://cdn.jsdelivr.net/npm/vexflow@4.2.3/build/cjs/vexflow.js'; sc.onload = function () { ok(!!(window.Vex && window.Vex.Flow)); }; sc.onerror = function () { ok(false); }; document.head.appendChild(sc); }); }
+      function tonicaNotas(et) {
+        var gr = {}; (et.notas || []).forEach(function (n) { (gr[n.g] = gr[n.g] || []).push(n); });
+        var out = []; Object.keys(gr).map(Number).sort(function (a, b) { return a - b; }).forEach(function (g) { var a = gr[g];
+          out.push({ id: 'tn' + g + '_0', g: g, midi: a[0].midi, dur: PULSO, f: 'q' }, { id: 'tn' + g + '_1', g: g, midi: a[a.length - 1].midi, dur: PULSO, f: 'q' }, { id: 'tn' + g + '_2', g: g, midi: a[0].midi, dur: 2 * PULSO, f: 'h' }); });
+        return out;
+      }
+      function cinta(et) {
+        var pv = velo.querySelector('.pv'); if (!pv) return; var MW = 300, notas = tonicaNotas(et); if (!notas.length) return;
+        var ton = notas[0].midi; et._cinta = { notas: notas };
+        cargaVex().then(function (ok) {
+          if (!ok || ET[i] !== et) return; var VF = Vex.Flow, n = notas.length / 3, W = 100 + n * MW + 20;
+          var caja = el('div', 'cinta'), dentro = el('div', 'cinta-in'); caja.appendChild(dentro);
+          var r = new VF.Renderer(dentro, VF.Renderer.Backends.SVG); r.resize(W, 130); var ctx = r.getContext(); var x = 10;
+          for (var g = 0; g < n; g++) {
+            var w = MW + (g === 0 ? 90 : 0), st = new VF.Stave(x, 15, w); if (g === 0) st.addClef('treble').addKeySignature(KEYN[((ton % 12) + 12) % 12] || 'C');
+            if (g === n - 1) st.setEndBarType(VF.Barline.type.END); st.setContext(ctx).draw();
+            var ns = notas.slice(g * 3, g * 3 + 3).map(function (q) { var sn = new VF.StaveNote({ keys: [nombre(q.midi, ton)], duration: q.f, auto_stem: true }); sn.setAttribute('id', q.id); return sn; });
+            var vo = new VF.Voice({ num_beats: 4, beat_value: 4 }).setMode(VF.Voice.Mode.SOFT); vo.addTickables(ns);
+            new VF.Formatter().joinVoices([vo]).format([vo], st.getNoteEndX() - st.getNoteStartX() - 20); vo.draw(ctx, st);
+            if (g === 0) et._cinta.x0 = st.getNoteStartX(); x += w;
+          }
+          var svg = dentro.querySelector('svg'); pv.innerHTML = ''; pv.appendChild(caja);
+          var vpW = caja.clientWidth || 900, esc = vpW / (1.8 * MW); svg.style.width = (W * esc) + 'px'; svg.style.height = (130 * esc) + 'px';
+          /* clave y armadura fijas a la izquierda mientras la cinta se desliza */
+          var fija = el('div', 'cinta-clave'); caja.appendChild(fija);
+          var r2 = new VF.Renderer(fija, VF.Renderer.Backends.SVG); r2.resize(102, 130); var c2 = r2.getContext();
+          var s2 = new VF.Stave(10, 15, 92); s2.addClef('treble').addKeySignature(KEYN[((ton % 12) + 12) % 12] || 'C'); s2.setEndBarType(VF.Barline.type.NONE); s2.setContext(c2).draw();
+          var sv2 = fija.querySelector('svg'); sv2.style.width = (102 * esc) + 'px'; sv2.style.height = (130 * esc) + 'px';
+          et._cinta.esc = esc; et._cinta.MW = MW; et._cinta.dentro = dentro; et._cinta.vpW = vpW; et._cinta.fija = 100 * esc; mueve(et, 0);
+        });
+      }
+      function mueve(et, beats) { var c = et._cinta; if (!c || !c.dentro) return;
+        var x = ((c.x0 || 100) + (beats / 4) * c.MW) * c.esc - 0.27 * c.vpW; c.dentro.style.transform = 'translateX(' + (-Math.max(0, x)).toFixed(1) + 'px)'; }
+      async function suenaCinta(et, t, boton) {
+        var c = et._cinta; if (!c) return; if (boton) boton.classList.add('son'); var t0 = performance.now(), sigue = true;
+        (function anima() { if (!sigue) return; mueve(et, (performance.now() - t0) / 1000 / PULSO); requestAnimationFrame(anima); })();
+        var acum = 0;
+        for (var r = 0; r < c.notas.length; r++) { if (t !== tok || !vivo()) break; var q = c.notas[r];
+          var esperaHasta = t0 + acum * 1000; var falta = esperaHasta - performance.now(); if (falta > 0) await espera(falta);
+          marca(q, true); nota(q.midi, q.dur * 0.95, 0.3); (function (qq) { setTimeout(function () { marca(qq, false); }, qq.dur * 1000); })(q); acum += q.dur; }
+        await espera(Math.max(0, t0 + acum * 1000 - performance.now())); sigue = false; if (boton) boton.classList.remove('son');
       }
       function sig() { if (!vivo()) return; if (i < ET.length - 1) { i++; pinta(); } else { tok++; S.pv = null; velo.classList.remove('on'); velo.innerHTML = ''; fin(true); } }
       function ant() { if (i > 0) { i--; pinta(); } }
@@ -391,5 +477,5 @@
     var x = S.orden[S.llamando]; res(x ? 'Ahora: ' + (x.a.ver || x.a.nombre) + (x.ab ? ' · modelo ' + x.ab : '') : 'Ya han pasado todos ✓');
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 5 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, version: 6 };
 })();
