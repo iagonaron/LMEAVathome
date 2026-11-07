@@ -1650,7 +1650,7 @@
           leccion: d.leccion, estudio: 300, abrirLeccion: function () { abrirEnto(d); } }); } catch (e) { abrirEnto(d); }
       };
       if (window.LMExamenRitmo && window.LMExamenRitmo.clase) return go();
-      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=18';
+      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=19';
       sc.onload = go; sc.onerror = function () { abrirEnto(d); }; document.head.appendChild(sc);
     });
   }
@@ -3611,7 +3611,7 @@
       catch (e) { alert('No se ha podido abrir el examen de ritmo.'); }
     };
     if (window.LMExamenRitmo) return abre();
-    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=18';
+    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=19';
     sc.onload = abre; sc.onerror = function () { alert('No se ha podido cargar la pantalla del examen de ritmo.'); };
     document.head.appendChild(sc);
   }
