@@ -437,6 +437,15 @@
         }
       }
     } catch (e) {}
+    /* (8-nov-2026, Iago) «importante que la escaleta no revele el número de la lección: no se revela hasta que termina la previa y
+       empieza la cuenta atrás»: la Preparación de entonación no dice qué lección es (ni en el cartel ni en los detalles) */
+    try {
+      MEMO.B.forEach(function (x) {
+        if (x.t !== 'Preparación entonación') return;
+        if (/^Lecci/.test(x.s || '')) x.s = '';
+        x.det = (x.det || []).filter(function (d) { return !/lecci[oó]n\s*(n[ºo.]*\s*)?\d+/i.test(d) || /^🗒/.test(d); });
+      });
+    } catch (e) {}
     return MEMO.B;
   }
   /* (15-oct-2026, Iago) «HOY EN CLASE»: el índice que ven los alumnos. Lo que eligió (por la tarde): «Ritmo: carta 1.3»,
