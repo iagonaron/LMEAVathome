@@ -101,7 +101,7 @@
       '#lm-exr .pila{position:relative;width:100%;height:100%}#lm-exr .pila img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;transition:opacity 1.6s ease}' +
       '#lm-exr .rmini{display:none;position:absolute;top:6px;right:6px;padding:8px 14px;border-radius:12px;background:rgba(11,19,32,.88);color:#fff;font:800 28px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;z-index:3}' +
       '#lm-exr .rmini.ambar{background:#d97706}#lm-exr .rmini.rojo{background:#dc2626}#lm-exr.conpartitura .pan{display:none}#lm-exr.conpartitura .rmini{display:block}#lm-exr.conpartitura .props{visibility:hidden}' +
-      '#lm-exr .reloj.pausa b,#lm-exr .rmini.pausa{opacity:.45}#lm-exr .reloj b,#lm-exr .rmini{cursor:pointer}#lm-exr.clase .velo{position:absolute;inset:0}#lm-exr.clase .esq{flex:1}#lm-exr-reloj{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:2147483600;padding:10px 18px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#fff;font:800 40px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.35)}#lm-exr .velo .lecc{display:flex;flex-direction:column;align-items:center;gap:6px}#lm-exr .velo .lecc small{font-size:16px;letter-spacing:.2em;text-transform:uppercase;color:#8b97c4}#lm-exr .velo .lecc b{font-size:clamp(64px,11vw,150px);font-weight:900;line-height:1;color:#fff}#lm-exr .velo .lecc span{font-size:28px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums}#lm-exr-res{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:2147483600;width:250px;box-sizing:border-box;padding:12px 14px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#e9edff;font:14px/1.35 "Helvetica Neue",Arial,sans-serif;display:flex;flex-direction:column;gap:6px;pointer-events:none}#lm-exr-res b{font-size:16px;color:#5b9dff}#lm-exr-res p{margin:0}#lm-exr-res i{display:block;font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8b97c4}#lm-exr-res em{font-family:Georgia,serif;font-style:italic;font-size:16px}#lm-exr-reloj.ambar{background:#d97706}#lm-exr-reloj.rojo{background:#dc2626}#lm-exr-reloj.pausa{opacity:.45}#lm-exr .sig{display:none}#lm-exr.llamando .sig{display:flex}';
+      '#lm-exr .reloj.pausa b,#lm-exr .rmini.pausa{opacity:.45}#lm-exr .reloj b,#lm-exr .rmini{cursor:pointer}#lm-exr.clase .velo{position:absolute;inset:0}#lm-exr.clase .esq{flex:1}#lm-exr .pan-clase{width:240px;justify-content:center}#lm-exr .pan-clase .bts{flex-direction:column;gap:12px}#lm-exr .pan-clase .bts button{padding:20px 8px;font-size:18px;font-weight:800;letter-spacing:.08em}#lm-exr-reloj{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:2147483600;padding:10px 18px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#fff;font:800 40px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.35)}#lm-exr .velo .lecc{display:flex;flex-direction:column;align-items:center;gap:6px}#lm-exr .velo .lecc small{font-size:16px;letter-spacing:.2em;text-transform:uppercase;color:#8b97c4}#lm-exr .velo .lecc b{font-size:clamp(64px,11vw,150px);font-weight:900;line-height:1;color:#fff}#lm-exr .velo .lecc span{font-size:28px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums}#lm-exr-res{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:2147483600;width:250px;box-sizing:border-box;padding:12px 14px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#e9edff;font:14px/1.35 "Helvetica Neue",Arial,sans-serif;display:flex;flex-direction:column;gap:6px;pointer-events:none}#lm-exr-res b{font-size:16px;color:#5b9dff}#lm-exr-res p{margin:0}#lm-exr-res i{display:block;font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8b97c4}#lm-exr-res em{font-family:Georgia,serif;font-style:italic;font-size:16px}#lm-exr-reloj.ambar{background:#d97706}#lm-exr-reloj.rojo{background:#dc2626}#lm-exr-reloj.pausa{opacity:.45}#lm-exr .sig{display:none}#lm-exr.llamando .sig{display:flex}';
     document.head.appendChild(st);
   }
 
@@ -666,15 +666,22 @@
   function clase(o) {
     cerrar(); css(); cargaSfx();
     S = { d: o.datos, id: 0, clase: true, llamando: -1, alumnos: [], orden: [] };
+    /* (8-nov-2026, Iago) «en un día normal de clase quiero que la interfaz tenga los botones PREVIA y ESTUDIO (lo que en el examen
+       es sorteo y previa)»: nada arranca solo; PREVIA pone la previa y ESTUDIO va directo a «Lección N» (30 s) + 5:00. La lección
+       no se dice hasta que empieza esa cuenta atrás. */
+    o.datos.etiqueta = 'ESTUDIO · 5:30';
     var raiz = el('div'); raiz.id = 'lm-exr'; raiz.className = 'clase'; raiz.style.setProperty('--acc', '#5b9dff'); raiz.setAttribute('role', 'dialog'); raiz.setAttribute('aria-modal', 'true');
     raiz.innerHTML = '<div class="cab"><div class="lm">LM<i>at home</i><small>GRADO ELEMENTAL</small></div>' +
       '<div class="tit"><b>ENTON<span>ACIÓN</span></b><div>LECCIÓN DE ENTONACIÓN ACTIVA</div></div>' +
-      '<div class="der"><button class="x" title="Cerrar (Esc)">✕</button></div></div><div class="cuerpo"><div class="esq"><div class="velo"></div></div></div>';
+      '<div class="der"><button class="x" title="Cerrar (Esc)">✕</button></div></div>' +
+      '<div class="cuerpo"><div class="esq"><div class="velo on"><h2>Lección de entonación</h2><p>Primero la previa; luego, el estudio con la lección delante.</p></div></div>' +
+      '<div class="pan pan-clase"><h3>CLASE</h3><div class="bts"><button class="go b-pre">PREVIA</button><button class="b-est">ESTUDIO</button></div><div class="res"></div></div></div>';
     document.body.appendChild(raiz); S.raiz = raiz; raiz.querySelector('.x').onclick = cerrar;
     document.addEventListener('keydown', teclas, true);
-    var id = ++S.id, vivo = function () { return S && id === S.id; };
-    previaInteractiva(vivo).then(async function (ok) {
-      if (!ok || !vivo()) return;
+    var bPre = raiz.querySelector('.b-pre'), bEst = raiz.querySelector('.b-est');
+    async function estudioClase() {
+      var id = ++S.id, vivo = function () { return S && id === S.id; };
+      bPre.disabled = true; bEst.disabled = true;
       var velo = raiz.querySelector('.velo'); velo.classList.add('on');
       for (var s = 30; s > 0; s--) {
         if (!vivo()) return;
@@ -685,7 +692,13 @@
       cerrar(); sfx('revela', 0.12);
       try { if (o.abrirLeccion) o.abrirLeccion(); } catch (e) {}
       relojFlotante(o.estudio || 300, resumenClase(o.datos.previas || []));
-    });
+    }
+    bPre.onclick = function () {
+      var id = ++S.id, vivo = function () { return S && id === S.id; };
+      bPre.textContent = 'REPETIR PREVIA';
+      previaInteractiva(vivo).then(function (ok) { if (ok && vivo()) estudioClase(); });
+    };
+    bEst.onclick = estudioClase;
   }
   /* el reloj del estudio, flotando encima del editor de la lección: pulsar = pausa / sigue; al acabar, pulsar = quitar */
   /* (19:09, Iago) «que quede en la pantalla información que puede ser interesante, como los matices que hay en esa lección, como
@@ -728,5 +741,5 @@
     }
   }
 
-  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, clase: clase, version: 18 };
+  window.LMExamenRitmo = { abrir: abrir, cerrar: cerrar, clase: clase, version: 19 };
 })();
