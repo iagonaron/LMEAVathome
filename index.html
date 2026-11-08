@@ -2146,6 +2146,13 @@ function showEnig(kind){
       /* (17-oct-2026, noche) en tablet (iPad en vertical, 768–900 px) los cuatro chips no cabían en una fila y el de teoría se
          quedaba fuera de la tarjeta (ya pasaba antes): chips más compactos para que quepan */
       '#alu-body .alu-item.cv2.rsm>.cv2-mid{height:auto;min-height:64px;overflow:visible}',   /* y si aun así no caben, la tarjeta crece */
+      /* (8-nov-2026, Iago) recordatorio de QUIZ PENDIENTES: la tarjeta crece para que se vean el mensaje y los botones de cada quiz */
+      '#alu-body .alu-item.cv2.alu-quizpend>.cv2-mid{height:auto;min-height:64px;overflow:visible}',
+      '#alu-body .alu-quizpend .alu-item-cuerpo{display:block!important;-webkit-line-clamp:unset!important;max-height:none!important;overflow:visible!important;white-space:normal!important}',
+      '#alu-body .qp-quizzes{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 2px}',
+      '#alu-body .qp-quiz{box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;margin:0;border-radius:8px;border:1.5px solid #22c55e;background:transparent;color:#bbf7d0;font:700 13px \'Helvetica Neue\',Arial,sans-serif;cursor:pointer;white-space:nowrap}',
+      '#alu-body .qp-quiz:hover{background:rgba(34,197,94,.16);color:#fff}',
+      '#alu-body .qp-quiz svg{width:14px;height:14px}',
 
       C+'.rsm-noent-c{font-size:13px;font-weight:600;color:#f9a8d4}',
       '@media (max-width:640px){'+C+'.rsm-grid{grid-template-columns:minmax(0,1fr)}'+C+'.rsm-barra{grid-template-columns:minmax(0,1fr) 70px 40px}'+C+'.rsm-barra span:first-child{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}'+C+'.rsm-ver{justify-content:flex-start}}',
@@ -3705,6 +3712,17 @@ function showEnig(kind){
       // ---------- FICHA EN PAPEL CORREGIDA, suelta (3-oct-2026): va antes que las reclamaciones (viaja con la misma marca)
       // ---------- (7-nov-2026, Iago) «ME GUSTA» de Iago desde su Diario: azul, con el pulgar. FUGAZ: se da por visto solo al
       // verlo (autoLeer, abajo) y, ya visto, a los 2 días deja de salir: no se acumula
+      // ---------- (8-nov-2026, Iago) QUIZ PENDIENTES · recordatorio que manda Iago desde su Diario (días 1 y 15): su mensaje y,
+      // debajo, SUS quiz sin hacer como botones directos a RITMO at home. Los que ya haya hecho desaparecen; con todos hechos, ✓
+      if(o.payload_json && o.payload_json.quiz_pendientes){
+        var qpL=(o.payload_json.quizzes||[]).filter(function(q){ return q && q.envio_id; });
+        var qpP=qpL.filter(function(q){ return !_quizHechos[q.envio_id]; }), qpOk=!qpP.length;
+        return cv2Tarjeta({cls:'alu-quizpend'+((o.leido||qpOk)?'':' no-leido')+(qpOk?' hecha':''), id:o.id, col:'verde', ic:'corchea',
+          tit:'Tienes quiz de ritmo pendientes', chip:qpOk?'':'<span class="cv2-chip pend">'+qpP.length+(qpP.length===1?' pendiente':' pendientes')+'</span>',
+          cuerpo:'<div class="alu-item-cuerpo">'+esc(qpOk?'Ya los has hecho todos. ¡Buen trabajo!':(o.cuerpo||''))+'</div>'
+            +(qpOk?'':'<div class="qp-quizzes">'+qpP.map(function(q){ return '<button type="button" class="alu-quiz-go qp-quiz" data-envio="'+esc(q.envio_id)+'" data-carta="'+esc(q.carta||'')+'">'+cv2Svg('play')+'Quiz carta '+esc(q.carta||'?')+'</button>'; }).join('')+'</div>'),
+          btn:qpOk?cv2Hecho():'', fecha:_f});
+      }
       if(o.payload_json && o.payload_json.me_gusta){
         return cv2Tarjeta({cls:'alu-megusta cv2-info'+(o.leido?'':' no-leido'), id:o.id, col:'azul', ic:'pulgar',
           tit:'A Iago le ha gustado', cuerpo:o.cuerpo?'<div class="alu-item-cuerpo">'+esc(o.cuerpo)+'</div>':'', fecha:_f});
