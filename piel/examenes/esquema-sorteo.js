@@ -102,6 +102,18 @@
       '#lm-exr .rmini{display:none;position:absolute;top:6px;right:6px;padding:8px 14px;border-radius:12px;background:rgba(11,19,32,.88);color:#fff;font:800 28px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;z-index:3}' +
       '#lm-exr .rmini.ambar{background:#d97706}#lm-exr .rmini.rojo{background:#dc2626}#lm-exr.conpartitura .pan{display:none}#lm-exr.conpartitura .rmini{display:block}#lm-exr.conpartitura .props{visibility:hidden}' +
       '#lm-exr .reloj.pausa b,#lm-exr .rmini.pausa{opacity:.45}#lm-exr .reloj b,#lm-exr .rmini{cursor:pointer}#lm-exr.clase .velo{position:absolute;inset:0}#lm-exr.clase .esq{flex:1}#lm-exr .pan-clase{width:240px;justify-content:center}#lm-exr .pan-clase .bts{flex-direction:column;gap:12px}#lm-exr .pan-clase .bts button{padding:20px 8px;font-size:18px;font-weight:800;letter-spacing:.08em}#lm-exr-reloj{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:2147483600;padding:10px 18px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#fff;font:800 40px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.35)}#lm-exr .velo .lecc{display:flex;flex-direction:column;align-items:center;gap:6px}#lm-exr .velo .lecc small{font-size:16px;letter-spacing:.2em;text-transform:uppercase;color:#8b97c4}#lm-exr .velo .lecc b{font-size:clamp(64px,11vw,150px);font-weight:900;line-height:1;color:#fff}#lm-exr .velo .lecc span{font-size:28px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums}#lm-exr-res{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:2147483600;width:250px;box-sizing:border-box;padding:12px 14px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#e9edff;font:14px/1.35 "Helvetica Neue",Arial,sans-serif;display:flex;flex-direction:column;gap:6px;pointer-events:none}#lm-exr-res b{font-size:16px;color:#5b9dff}#lm-exr-res p{margin:0}#lm-exr-res i{display:block;font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8b97c4}#lm-exr-res em{font-family:Georgia,serif;font-style:italic;font-size:16px}#lm-exr-reloj.ambar{background:#d97706}#lm-exr-reloj.rojo{background:#dc2626}#lm-exr-reloj.pausa{opacity:.45}#lm-exr .sig{display:none}#lm-exr.llamando .sig{display:flex}';
+    /* (8-nov-2026) Intervalia PRO de examen: tras EMPEZAR, fuera cabecera y panel; arriba una barra discreta y el ejercicio enmarcado a todo lo que da la pantalla */
+    st.textContent += '#lm-exr.iv .reloj,#lm-exr.iv .iv-barra{display:none}#lm-exr.iv .lienzo{align-items:center}' +
+      '#lm-exr.iv.llamando .cab,#lm-exr.iv.llamando .pan,#lm-exr.iv.llamando .props{display:none}#lm-exr.iv.llamando .cuerpo{padding:8px 10px 10px;gap:0}' +
+      '#lm-exr.iv.llamando .iv-barra{display:flex;align-items:center;gap:10px;height:32px;margin:0 0 6px;padding:0 4px;color:#c9d6ff;font:600 13px/1 "Helvetica Neue",Arial,sans-serif}' +
+      '#lm-exr .iv-n{opacity:.6;min-width:34px}#lm-exr .iv-ab{min-width:26px;height:26px;border-radius:6px;background:var(--acc);color:#fff;font:900 15px/26px "Helvetica Neue",Arial,sans-serif;text-align:center}' +
+      '#lm-exr .iv-quien{font:800 17px/1 "Helvetica Neue",Arial,sans-serif;color:#fff}#lm-exr .iv-sig2{flex:1;opacity:.55;font-size:12px;margin-left:4px}' +
+      '#lm-exr .iv-barra button{margin:0;height:28px;padding:0 14px;width:auto;border-radius:7px;border:1px solid var(--acc);background:transparent;color:#fff;font:700 13px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer}' +
+      '#lm-exr .iv-barra .iv-lista{width:28px;padding:0;border-color:#2a3a6a;color:#c9d6ff}' +
+      '#lm-exr.iv.llamando .lienzo{padding:0;background:transparent}#lm-exr .iv-ej{width:100%;height:100%;box-sizing:border-box;border:4px solid var(--acc);border-radius:12px;background:#fff;padding:1.2vh 1.2vw;display:flex}' +
+      '#lm-exr .iv-ej img{width:100%;height:100%;object-fit:contain;display:block;-webkit-user-select:none;user-select:none}' +
+      '#lm-exr .iv-ini{margin:auto;text-align:center;color:#0b1320}#lm-exr .iv-ini b{display:block;font:900 54px/1.1 "Helvetica Neue",Arial,sans-serif}#lm-exr .iv-ini b span{color:var(--acc)}' +
+      '#lm-exr .iv-ini small{display:block;margin-top:10px;font:800 13px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.2em;color:#6b7280}';
     document.head.appendChild(st);
   }
 
@@ -207,21 +219,23 @@
     S = { ensayo: !!o.ensayo, d: o.datos, grupos: o.grupos || [o.grupo], grupo: (o.grupos || [o.grupo])[0], trim: o.trim || '1T', sb: o.sb, anon: o.anon, cuenta: o.cuenta, prop: 0, alumnos: [], orden: null, fase: 'sorteo', id: 0, llamando: -1 };
     var d = S.d, gp = d.grado === 'GP';
     var sinAB = d.materia === 'entonacion'; S.sinAB = sinAB;   /* la entonación de GE es una sola lección: solo orden */
-    var raiz = el('div'); raiz.id = 'lm-exr'; if (sinAB) raiz.style.setProperty('--acc', '#5b9dff'); raiz.setAttribute('role', 'dialog'); raiz.setAttribute('aria-modal', 'true');
+    var iv = d.materia === 'intervalia'; S.iv = iv;   /* (8-nov-2026) Intervalia PRO de examen (GP): sorteo A/B en azul y el ejercicio a pantalla completa */
+    var raiz = el('div'); raiz.id = 'lm-exr'; if (sinAB || iv) raiz.style.setProperty('--acc', '#5b9dff'); if (iv) raiz.className = 'iv'; raiz.setAttribute('role', 'dialog'); raiz.setAttribute('aria-modal', 'true');
     raiz.innerHTML =
       '<div class="cab"><div class="lm">LM<i>at home</i><small>' + (gp ? 'GRADO PROFESIONAL' : 'GRADO ELEMENTAL') + '</small></div>' +
-      '<div class="tit"><b>' + (d.materia === 'entonacion' ? 'ENTON<span>ACIÓN</span>' : gp ? 'RITMO <span>ENTONADO</span>' : 'RITMO') + '</b><div>EXAMEN · ' + ({ '1T': '1.ER', '2T': '2.º', '3T': '3.ER' }[S.trim] || S.trim) + ' TRIMESTRE · <span class="g"></span></div></div>' +
+      '<div class="tit"><b>' + (d.materia === 'entonacion' ? 'ENTON<span>ACIÓN</span>' : iv ? 'INTERVALIA <span>PRO</span>' : gp ? 'RITMO <span>ENTONADO</span>' : 'RITMO') + '</b><div>EXAMEN · ' + ({ '1T': '1.ER', '2T': '2.º', '3T': '3.ER' }[S.trim] || S.trim) + ' TRIMESTRE · <span class="g"></span></div></div>' +
       '<div class="der"><button class="x" title="Cerrar (Esc)">✕</button></div></div>' +
-      '<div class="cuerpo"><div class="esq"><div class="props"></div><div class="lienzo"></div>' +
+      '<div class="cuerpo"><div class="esq">' + (iv ? '<div class="iv-barra"><span class="iv-n"></span><span class="iv-ab"></span><b class="iv-quien"></b><span class="iv-sig2"></span><button class="iv-sig">Siguiente →</button><button class="iv-lista" title="Volver al sorteo">☰</button></div>' : '') + '<div class="props"></div><div class="lienzo"></div>' +
       '<div class="velo"></div><div class="rmini"></div></div>' +
       '<div class="pan"><div class="lista"><div class="grp"></div><h3>' + (sinAB ? 'ORDEN · SORTEO' : 'SORTEO A / B') + '</h3><ol></ol>' +
-      '<div class="bts"><button class="go b-sor">SORTEAR</button><button class="b-est">Iniciar estudio</button></div>' +
+      '<div class="bts"><button class="go b-sor">SORTEAR</button><button class="b-est">' + (iv ? 'EMPEZAR' : 'Iniciar estudio') + '</button></div>' +
       '<div class="bts sig"><button class="b-sig">Siguiente alumno →</button></div><div class="res"></div></div>' +
       '<div class="reloj"><span>ESTUDIO</span><b>5:00</b><button class="b-fin">Terminar ya</button></div></div></div>';
     document.body.appendChild(raiz); S.raiz = raiz;
     raiz.querySelector('.x').onclick = cerrar;
     raiz.querySelector('.b-sor').onclick = sortear;
-    raiz.querySelector('.b-est').onclick = estudio;
+    raiz.querySelector('.b-est').onclick = iv ? empezarIv : estudio;
+    if (iv) { raiz.querySelector('.iv-sig').onclick = siguiente; raiz.querySelector('.iv-lista').onclick = function () { S.raiz.classList.remove('llamando'); S.llamando = -1; pintaLista(); res('Pulsa EMPEZAR para seguir desde el primero'); }; }
     raiz.querySelector('.b-sig').onclick = siguiente;
     raiz.querySelector('.b-fin').onclick = function () { S.finYa = true; };
     document.addEventListener('keydown', teclas, true);
@@ -257,6 +271,8 @@
   }
   function teclas(e) {
     if (e.key === 'Escape' && S) { e.preventDefault(); e.stopPropagation(); cerrar(); return; }
+    if (S && S.iv && S.llamando >= 0 && (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ')) { e.preventDefault(); e.stopPropagation(); siguiente(); return; }
+    if (S && S.iv && S.llamando > 0 && (e.key === 'ArrowLeft' || e.key === 'PageUp')) { e.preventDefault(); e.stopPropagation(); S.llamando--; pintaLista(); return; }
     if (S && S.pv) {   /* previa interactiva: espacio = ▶ · → / AvPág = siguiente · ← / RePág = anterior (el mando del aula) */
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); S.pv.play(); }
       else if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); e.stopPropagation(); S.pv.sig(); }
@@ -270,11 +286,13 @@
     c.innerHTML = ''; ps.forEach(function (p, i) { var b = el('button', i === S.prop ? 'on' : '', esc(p.nombre)); b.onclick = function () { S.prop = i; pintaProps(); pintaEsquema(); }; c.appendChild(b); });
   }
   function pintaEsquema() {
+    if (S.iv) { pintaIv(); return; }
     var p = S.d.propuestas[S.prop], c = S.raiz.querySelector('.lienzo');
     if (p.img) c.innerHTML = '<div class="pila"><img class="i-esq" alt="" draggable="false" src="' + p.img + '">' + (p.partitura ? '<img class="i-par" alt="" draggable="false" style="opacity:0" src="' + p.partitura + '">' : '') + '</div>';
     else c.innerHTML = p.svg;
   }
   function pintaLista(flash) {
+    if (S.iv) pintaIv();
     var ol = S.raiz.querySelector('ol'); ol.innerHTML = '';
     S.orden.forEach(function (x, i) {
       var li = el('li', (flash && flash[i] ? 'flash' : '') + (i === S.llamando ? ' ya' : '') + (S.llamando > i ? ' hecho' : ''),
@@ -652,6 +670,32 @@
     var t = e.target; if (!S || !t || !t.closest) return;
     if (t.closest('#lm-exr .rmini') || t.closest('#lm-exr .reloj b')) S.pausa = !S.pausa;
   }, true);
+  /* ---------- (8-nov-2026, Iago) INTERVALIA PRO DE EXAMEN (GP, sesión 1) ----------
+     «Intervalia PRO con su propio sorteo A/B en azul: al principio se ve el sorteo entero… luego… queda el alumno que empieza con
+      su ejercicio (A) enmarcado en azul; pulso para pasar al siguiente y cambia a B». (16:34) «aunque el sorteo ocupe un lateral,
+      luego el cambio de un alumno a otro que aparezca discretamente arriba, con el marco de la lección que le toque, para que se
+      vea toda aprovechando el máximo tamaño posible de la pantalla». Sin estudio ni reloj: EMPEZAR → ejercicio a pantalla completa. */
+  function pintaIv() {
+    var c = S.raiz.querySelector('.lienzo'), x = S.llamando >= 0 ? S.orden[S.llamando] : null;
+    var k = S.llamando < 0 ? 'ini' : x ? x.a.id + (x.ab || 'A') : 'fin'; if (S._ivk === k) return; S._ivk = k;
+    var b = S.raiz.querySelector('.iv-barra');
+    if (S.llamando < 0) { c.innerHTML = '<div class="iv-ini"><b>INTERVALIA <span>PRO</span></b><small>Examen · sorteo A / B</small></div>'; return; }
+    if (!x) { c.innerHTML = '<div class="iv-ini"><b>Ya han pasado todos ✓</b></div>'; if (b) { b.querySelector('.iv-quien').textContent = 'Fin'; b.querySelector('.iv-ab').textContent = ''; b.querySelector('.iv-n').textContent = ''; b.querySelector('.iv-sig2').textContent = ''; } return; }
+    var m = x.ab || 'A', sig = S.orden[S.llamando + 1];
+    c.innerHTML = '<div class="iv-ej"><img alt="Modelo ' + m + '" draggable="false" src="' + S.d.modelos[m] + '"></div>';
+    if (b) {
+      b.querySelector('.iv-n').textContent = (S.llamando + 1) + '/' + S.orden.length;
+      b.querySelector('.iv-ab').textContent = m;
+      b.querySelector('.iv-quien').textContent = x.a.ver || x.a.nombre;
+      b.querySelector('.iv-sig2').textContent = sig ? 'después: ' + (sig.a.ver || sig.a.nombre) : '';
+    }
+  }
+  function empezarIv() {
+    if (!S.orden.length) return;
+    if (!S.orden.some(function (x) { return x.ab; })) { res('Primero haz el sorteo'); return; }
+    S.llamando = 0; S.raiz.classList.add('llamando'); sfx('revela', 0.12); pintaLista();
+    var x = S.orden[0]; res('Ahora: ' + (x.a.ver || x.a.nombre) + ' · modelo ' + (x.ab || 'A'));
+  }
   function siguiente() {
     if (!S || S.llamando < 0) return;
     S.llamando = Math.min(S.orden.length, S.llamando + 1); pintaLista();
