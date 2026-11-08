@@ -2153,6 +2153,7 @@ function showEnig(kind){
       '#alu-body .qp-quiz{box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;margin:0;border-radius:8px;border:1.5px solid #22c55e;background:transparent;color:#bbf7d0;font:700 13px \'Helvetica Neue\',Arial,sans-serif;cursor:pointer;white-space:nowrap}',
       '#alu-body .qp-quiz:hover{background:rgba(34,197,94,.16);color:#fff}',
       '#alu-body .qp-quiz svg{width:14px;height:14px}',
+      '#alu-body .qp-quiz.qp-hecho,#alu-body .qp-quiz.qp-hecho:hover{border-color:rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.45);cursor:default}',
 
       C+'.rsm-noent-c{font-size:13px;font-weight:600;color:#f9a8d4}',
       '@media (max-width:640px){'+C+'.rsm-grid{grid-template-columns:minmax(0,1fr)}'+C+'.rsm-barra{grid-template-columns:minmax(0,1fr) 70px 40px}'+C+'.rsm-barra span:first-child{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}'+C+'.rsm-ver{justify-content:flex-start}}',
@@ -3426,6 +3427,11 @@ function showEnig(kind){
     list=list.filter(function(o){ return !esNotifValidacion(o); });
     /* (7-nov-2026) el «Me gusta» de Iago, ya visto, a los 2 días deja de salir */
     list=list.filter(function(o){ var pj=(o&&o.payload_json)||{}; return !pj.me_gusta || !o.leido || (Date.now()-new Date(o.creado_en).getTime())<2*864e5; });
+    /* (8-nov-2026, Iago) RECORDATORIO DE QUIZ PENDIENTES: sin «marcar como visto». Al abrir la campana se da por leído solo
+       (autoLeer, abajo): el número de la campana solo lo cuenta la primera vez, pero la tarjeta se queda a la vista y en color.
+       Solo se ve el más reciente: cuando llega el siguiente (cada 15 días), el anterior se retira. */
+    var _qpUlt=0; list.forEach(function(o){ var pj=(o&&o.payload_json)||{}; if(pj.quiz_pendientes){ var t=Date.parse((o&&o.creado_en)||'')||0; if(t>_qpUlt) _qpUlt=t; } });
+    list=list.filter(function(o){ var pj=(o&&o.payload_json)||{}; return !pj.quiz_pendientes || (Date.parse((o&&o.creado_en)||'')||0)>=_qpUlt; });
     /* (17-oct-2026, noche, Iago) el resumen de la semana, solo una semana: luego desaparece solo, sin marcarlo */
     list=list.filter(function(o){ var pj=(o&&o.payload_json)||{}; return !pj.resumen_semana || semanaDespues(o.creado_en)>Date.now(); });
     // @FORMATO · al de PAPEL no le llegan fichas digitales y solo ve el ciclo en curso
@@ -3716,11 +3722,13 @@ function showEnig(kind){
       // debajo, SUS quiz sin hacer como botones directos a RITMO at home. Los que ya haya hecho desaparecen; con todos hechos, ✓
       if(o.payload_json && o.payload_json.quiz_pendientes){
         var qpL=(o.payload_json.quizzes||[]).filter(function(q){ return q && q.envio_id; });
-        var qpP=qpL.filter(function(q){ return !_quizHechos[q.envio_id]; }), qpOk=!qpP.length;
+        var qpP=qpL.filter(function(q){ return !_quizHechos[q.envio_id]; }), qpOk=!qpP.length;   /* (8-nov-2026, Iago) los ya hechos, en gris */
         return cv2Tarjeta({cls:'alu-quizpend'+((o.leido||qpOk)?'':' no-leido')+(qpOk?' hecha':''), id:o.id, col:'verde', ic:'corchea',
           tit:'Tienes quiz de ritmo pendientes', chip:qpOk?'':'<span class="cv2-chip pend">'+qpP.length+(qpP.length===1?' pendiente':' pendientes')+'</span>',
           cuerpo:'<div class="alu-item-cuerpo">'+esc(qpOk?'Ya los has hecho todos. ¡Buen trabajo!':(o.cuerpo||''))+'</div>'
-            +(qpOk?'':'<div class="qp-quizzes">'+qpP.map(function(q){ return '<button type="button" class="alu-quiz-go qp-quiz" data-envio="'+esc(q.envio_id)+'" data-carta="'+esc(q.carta||'')+'">'+cv2Svg('play')+'Quiz carta '+esc(q.carta||'?')+'</button>'; }).join('')+'</div>'),
+            +'<div class="qp-quizzes">'+qpL.map(function(q){ return _quizHechos[q.envio_id]
+              ? '<span class="qp-quiz qp-hecho" title="Ya lo hiciste">✓ Quiz carta '+esc(q.carta||'?')+'</span>'
+              : '<button type="button" class="alu-quiz-go qp-quiz" data-envio="'+esc(q.envio_id)+'" data-carta="'+esc(q.carta||'')+'">'+cv2Svg('play')+'Quiz carta '+esc(q.carta||'?')+'</button>'; }).join('')+'</div>',
           btn:qpOk?cv2Hecho():'', fecha:_f});
       }
       if(o.payload_json && o.payload_json.me_gusta){
@@ -3804,7 +3812,7 @@ function showEnig(kind){
        enseñan (los quita el filtro de formato) y aquí se dan por leídos, para que no sumen en la campana. */
     var _pcUlt={}; try{ if(window.__LM_FMT__ && window.__LM_FMT__.papelCorregidas) _pcUlt=window.__LM_FMT__.papelCorregidas(listTodas); }catch(e){}
     var papelSuperada=function(o){ var pj=(o&&o.payload_json)||{}; if(!pj.papel_corregida || pj.numero==null) return false; var u=_pcUlt[String(pj.numero)]; return !!(u && u!==o); };
-    var autoLeer=listTodas.filter(function(o){ return (esHecha(o)||esNotifValidacion(o)||fichaCaducada(o)||papelSuperada(o)||(o&&o.payload_json&&o.payload_json.me_gusta)) && !o.leido; });
+    var autoLeer=listTodas.filter(function(o){ return (esHecha(o)||esNotifValidacion(o)||fichaCaducada(o)||papelSuperada(o)||(o&&o.payload_json&&(o.payload_json.me_gusta||o.payload_json.quiz_pendientes))) && !o.leido; });
     if(autoLeer.length){
       Promise.all(autoLeer.map(function(o){ return rpc('suite_alumno_marcar_leido',{p_cuenta_id:id,p_notif_id:o.id}); }))
         .then(function(){ refrescar(); }).catch(function(){});
