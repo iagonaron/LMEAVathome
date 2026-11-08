@@ -270,11 +270,17 @@
       abrirMenu(b, ops);
     }, true));
     /* (29-sep-2026, tarde) GE: «Lección activa · N» (el libro de entonación, sección 17) y «Resultados» */
-    if (resE) {
-      barra.appendChild(cuadro('lm-ic-ento', 'clavesol', GP ? 'Entonación · resultados' : 'Entonación · lección activa y resultados', function (b) {
-        if (GP) { pulsa(q('#rs-mini .rs-btn.azul')); return; }
+    var exI = GP ? exmOpsEnto() : [];   /* (8-nov-2026) GP en semana de exámenes: la clave de sol sale aunque no haya resultados de entonación */
+    if (resE || exI.length) {
+      barra.appendChild(cuadro('lm-ic-ento', 'clavesol', GP ? (exI.length ? 'Examen de Intervalia PRO y resultados' : 'Entonación · resultados') : 'Entonación · lección activa y resultados', function (b) {
+        if (GP) {
+          var ops = exmOpsEnto(), rz = q('#rs-mini .rs-btn.azul');
+          if (!ops.length) { pulsa(rz); return; }
+          if (rz) ops.push({ t: 'Resultados', s: 'Pantalla de corrección de entonación', fn: function () { pulsa(q('#rs-mini .rs-btn.azul')); } });
+          abrirMenu(b, ops); return;
+        }
         menuEntonacion(b);
-      }, !GP));
+      }, !GP || exI.length > 0));
       if (!GP) { try { enCargar(); } catch (e) {} }   /* así el número ya está al abrir el menú */
     }
     if (dicts.length || exmOpsDict().length) {
@@ -1650,7 +1656,7 @@
           leccion: d.leccion, estudio: 300, abrirLeccion: function () { abrirEnto(d); } }); } catch (e) { abrirEnto(d); }
       };
       if (window.LMExamenRitmo && window.LMExamenRitmo.clase) return go();
-      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=20';
+      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=21';
       sc.onload = go; sc.onerror = function () { abrirEnto(d); }; document.head.appendChild(sc);
     });
   }
@@ -3502,6 +3508,7 @@
             dict: { '4A': 'dict-4A.lmx', '4B': 'dict-4B.lmx', '2GpC': 'dict-2GpC.lmx', '2GpF': 'dict-2GpF.lmx' },
             ritmo: { '4Ge': 'ritmo-4Ge.lmx', '2Gp': 'ritmo-2Gp.lmx' },   /* (7-nov-2026) esquema + sorteo A/B + 5 min */
             entoEx: { '4Ge': 'ento-ex-4Ge.lmx' },   /* (7-nov-2026) entonación GE: sorteo (solo orden) + calentamiento + 5 min */
+            interv: { '2Gp': 'interv-2Gp.lmx' },   /* (8-nov-2026) Intervalia PRO de examen (GP): sorteo A/B en azul + ejercicio a pantalla completa */
             carpeta: '1T-2026' }
   };
   var EXM_GRUPOS = { '4Ge': ['4A', '4B'], '2Gp': ['2GpC', '2GpF'] };
@@ -3559,7 +3566,11 @@
 
   /* opciones de menú de cada cuadro (las pide la sección 9) */
   function exmOpsEnto() {
-    var d = EXM.datos; if (!exmOn() || GP) return [];
+    var d = EXM.datos; if (!exmOn()) return [];
+    /* (8-nov-2026, Iago) «lo importante es que me aparezca la clave de sol en GP para esa semana, para tener ahí alojado Intervalia
+       Pro examen con su contraseña»: en GP la clave de sol lleva «Examen de Intervalia PRO» (pantalla: examenes/esquema-sorteo.js) */
+    if (GP) { var fi = EXM_MAT[d.trim].interv && EXM_MAT[d.trim].interv[d.curso]; if (!fi) return [];
+      return [{ t: 'Examen de Intervalia PRO · ' + d.trim, s: 'Sorteo A/B, ejercicio a pantalla completa y «Siguiente» · con contraseña', fn: function () { exmPin('Examen de Intervalia PRO · ' + d.trim, fi, exmVerRitmo); } }]; }
     var f = EXM_MAT[d.trim].ento[d.curso]; if (!f) return [];
     var ops = [];
     /* (7-nov-2026, Iago) «sorteo de entonación… que no se vean las notas… al darle a iniciar estudio, la escala, el arpegio, los
@@ -3611,7 +3622,7 @@
       catch (e) { alert('No se ha podido abrir el examen de ritmo.'); }
     };
     if (window.LMExamenRitmo) return abre();
-    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=20';
+    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=21';
     sc.onload = abre; sc.onerror = function () { alert('No se ha podido cargar la pantalla del examen de ritmo.'); };
     document.head.appendChild(sc);
   }
