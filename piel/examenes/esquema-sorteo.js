@@ -104,6 +104,9 @@
       '#lm-exr .reloj.pausa b,#lm-exr .rmini.pausa{opacity:.45}#lm-exr .reloj b,#lm-exr .rmini{cursor:pointer}#lm-exr.clase .velo{position:absolute;inset:0}#lm-exr.clase .esq{flex:1}#lm-exr .pan-clase{width:240px;justify-content:center}#lm-exr .pan-clase .bts{flex-direction:column;gap:12px}#lm-exr .pan-clase .bts button{padding:20px 8px;font-size:18px;font-weight:800;letter-spacing:.08em}#lm-exr-reloj{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:2147483600;padding:10px 18px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#fff;font:800 40px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.35)}#lm-exr .velo .lecc{display:flex;flex-direction:column;align-items:center;gap:6px}#lm-exr .velo .lecc small{font-size:16px;letter-spacing:.2em;text-transform:uppercase;color:#8b97c4}#lm-exr .velo .lecc b{font-size:clamp(64px,11vw,150px);font-weight:900;line-height:1;color:#fff}#lm-exr .velo .lecc span{font-size:28px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums}#lm-exr-res{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:2147483600;width:250px;box-sizing:border-box;padding:12px 14px;border-radius:12px;background:rgba(13,20,46,.92);border:1px solid #1e2a52;color:#e9edff;font:14px/1.35 "Helvetica Neue",Arial,sans-serif;display:flex;flex-direction:column;gap:6px;pointer-events:none}#lm-exr-res b{font-size:16px;color:#5b9dff}#lm-exr-res p{margin:0}#lm-exr-res i{display:block;font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8b97c4}#lm-exr-res em{font-family:Georgia,serif;font-style:italic;font-size:16px}#lm-exr-reloj.ambar{background:#d97706}#lm-exr-reloj.rojo{background:#dc2626}#lm-exr-reloj.pausa{opacity:.45}#lm-exr .sig{display:none}#lm-exr.llamando .sig{display:flex}';
     /* (8-nov-2026) Intervalia PRO de examen: tras EMPEZAR, fuera cabecera y panel; arriba una barra discreta y el ejercicio enmarcado a todo lo que da la pantalla */
     st.textContent += '#lm-exr.iv .reloj,#lm-exr.iv .iv-barra{display:none}#lm-exr.iv .lienzo{align-items:center}' +
+      '#lm-exr .iv-dos{width:100%;height:100%;display:flex;flex-direction:column;gap:1.2vh}#lm-exr .iv-uno{flex:1;min-height:0;display:flex;align-items:center;gap:10px}' +
+      '#lm-exr .iv-uno img{flex:1;min-width:0;height:100%;object-fit:contain;display:block}#lm-exr .iv-uno .iv-ab{flex:none}' +
+      '#lm-exr .iv-quien{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}#lm-exr .iv-sig2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
       '#lm-exr.iv.llamando .cab,#lm-exr.iv.llamando .pan,#lm-exr.iv.llamando .props{display:none}#lm-exr.iv.llamando .cuerpo{padding:8px 10px 10px;gap:0}' +
       '#lm-exr.iv.llamando .iv-barra{display:flex;align-items:center;gap:10px;height:32px;margin:0 0 6px;padding:0 4px;color:#c9d6ff;font:600 13px/1 "Helvetica Neue",Arial,sans-serif}' +
       '#lm-exr .iv-n{opacity:.6;min-width:34px}#lm-exr .iv-ab{min-width:26px;height:26px;border-radius:6px;background:var(--acc);color:#fff;font:900 15px/26px "Helvetica Neue",Arial,sans-serif;text-align:center}' +
@@ -540,7 +543,12 @@
           var barra = el('div', 'barra'); barra.style.left = (BARRA * esc) + 'px'; barra.style.top = (8 + (st.getYForLine(0) - 14) * esc) + 'px'; barra.style.height = ((st.getYForLine(4) - st.getYForLine(0) + 28) * esc) + 'px'; caja.appendChild(barra);
           /* (19:09, Iago) «algún cartelito que vaya diciendo el intervalo que estamos a punto de cantar… segunda mayor, tercera
              mayor…»: encima del pentagrama, junto a la barra azul, desde que suena el primer re del grupo */
-          var cart = el('div', 'cinta-int'); cart.style.left = ((BARRA + 18) * esc) + 'px'; cart.style.fontSize = Math.round(24 * esc) + 'px'; caja.appendChild(cart);
+          /* (9-nov-2026, Iago en el aula) «en vez de letrerito, una línea tipo Intervalia entre los intervalos: el ancho, la opacidad y el
+             color exactos de Intervalia; y encima de la línea, en letra negra, el número y la letra»: líneas como drawIntervalLines de
+             Intervalia (grosor 4, opacas, punta redonda, 18 de margen a cada cabeza, inclinación mínima 5) de la tónica a la nota y de
+             vuelta, y «3M»… encima de la primera, paralelo a ella. Sin cartel. */
+          try { lineasIntervalia(svg, sns, notas, ton); } catch (e) {}
+          var cart = null;
           et._cinta.cart = cart; et._cinta.ints = []; for (var gq = 0; gq + 1 < notas.length; gq += 3) et._cinta.ints.push(nomIntervalo({ k: notas[gq].k || nombre(notas[gq].midi, ton), midi: notas[gq].midi }, { k: notas[gq + 1].k || nombre(notas[gq + 1].midi, ton), midi: notas[gq + 1].midi }));
           et._cinta.esc = esc; et._cinta.dentro = dentro; et._cinta.xs = xs; et._cinta.barra = BARRA; mueve(et, 0);
           window.__cintaFrame = function (b) {   /* para grabar el vídeo: posición y nota encendida en el pulso b */
@@ -574,6 +582,36 @@
             svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.removeAttribute('width'); svg.removeAttribute('height'); svg.style.width = '100%'; svg.style.height = 'auto';
           });
         });
+      }
+      var IV_COLOR = { '2m': '#a62c17', '2M': '#ed732e', '3m': '#2f6b1e', '3M': '#9ed649', '4J': '#2355ce', '4A': '#f3ec4e', '5D': '#f3ec4e', '5J': '#5ac4f7',
+        '6m': '#8c33b6', '6M': '#d796f8', '7m': '#5a2d05', '7M': '#c98a1e', '8J': '#000000' };   /* los de Intervalia (INTERVAL_COLOR); 4A/5D = su TT */
+      function codIntervalo(a, b) {
+        var L = 'cdefgab', ka = (a.k || '').split('/'), kb = (b.k || '').split('/'); if (ka.length < 2 || kb.length < 2) return '';
+        var num = Math.abs((+kb[1] * 7 + L.indexOf(kb[0][0])) - (+ka[1] * 7 + L.indexOf(ka[0][0]))) + 1, se = Math.abs(b.midi - a.midi);
+        var BASE = { 2: 2, 3: 4, 4: 5, 5: 7, 6: 9, 7: 11, 8: 12 }, J = { 4: 1, 5: 1, 8: 1 }; if (!BASE[num]) return ''; var d = se - BASE[num];
+        var q = J[num] ? ({ 0: 'J', 1: 'A', '-1': 'D' })[d] : ({ 0: 'M', '-1': 'm', 1: 'A', '-2': 'D' })[d]; return q ? num + q : '';
+      }
+      function lineasIntervalia(svg, sns, notas, ton) {
+        var NS = 'http://www.w3.org/2000/svg', MARGIN = 18, MIN_TILT = 5;
+        var pos = sns.map(function (sn) { var x; try { x = (sn.getNoteHeadBeginX() + sn.getNoteHeadEndX()) / 2; } catch (e) { x = sn.getAbsoluteX() + 6; } return { x: x, y: sn.getYs()[0] }; });
+        function linea(i, j, txt, cod) {
+          var A = { x: pos[i].x, y: pos[i].y }, B = { x: pos[j].x, y: pos[j].y }, color = IV_COLOR[cod] || '#999';
+          if (Math.abs(B.y - A.y) < MIN_TILT) { var dir = notas[j].midi > notas[i].midi ? -1 : 1; A.y += dir * MIN_TILT / 2; B.y -= dir * MIN_TILT / 2; }
+          var dx = B.x - A.x, dy = B.y - A.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+          var l = document.createElementNS(NS, 'line');
+          l.setAttribute('x1', A.x + ux * MARGIN); l.setAttribute('y1', A.y + uy * MARGIN); l.setAttribute('x2', B.x - ux * MARGIN); l.setAttribute('y2', B.y - uy * MARGIN);
+          l.setAttribute('stroke', color); l.setAttribute('stroke-width', '4'); l.setAttribute('stroke-linecap', 'round'); l.setAttribute('class', 'ivline'); svg.appendChild(l);
+          if (txt) {   /* el nombre, en negro, encima de la línea y paralelo a ella */
+            var ang = Math.atan2(dy, dx) * 180 / Math.PI, mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, nx = uy, ny = -ux; if (ny > 0) { nx = -nx; ny = -ny; }
+            var t = document.createElementNS(NS, 'text'); t.setAttribute('x', mx + nx * 9); t.setAttribute('y', my + ny * 9);
+            t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-family', 'Helvetica Neue, Arial, sans-serif'); t.setAttribute('font-size', '15'); t.setAttribute('font-weight', '800');
+            t.setAttribute('fill', '#0b1320'); t.setAttribute('stroke', 'none'); t.setAttribute('transform', 'rotate(' + ang.toFixed(1) + ' ' + (mx + nx * 9).toFixed(1) + ' ' + (my + ny * 9).toFixed(1) + ')'); t.textContent = txt; svg.appendChild(t);
+          }
+        }
+        for (var g = 0; g + 1 < notas.length; g += 3) {
+          var k1 = { k: notas[g].k || nombre(notas[g].midi, ton), midi: notas[g].midi }, k2 = { k: notas[g + 1].k || nombre(notas[g + 1].midi, ton), midi: notas[g + 1].midi };
+          var cod = codIntervalo(k1, k2); linea(g, g + 1, cod, cod); if (g + 2 < notas.length) linea(g + 1, g + 2, '', cod);
+        }
       }
       function nomIntervalo(a, b) {
         var L = 'cdefgab', ka = (a.k || '').split('/'), kb = (b.k || '').split('/');
@@ -656,7 +694,7 @@
         if (q === 0) break; await espera(250);
       }
       if (!vivo()) return;
-      if (!sfx('fin', 0.8)) { tono(72, 0.3); setTimeout(function () { tono(67, 0.5); }, 250); }
+      if (!sfx('fin', 0.35)) { tono(72, 0.3, 0.12); setTimeout(function () { tono(67, 0.5, 0.12); }, 250); }   /* (9-nov-2026, Iago en el aula) «el sonido de cuando se acaba el tiempo de estudio es un poquito fuerte»: 0.8 → 0.35 */
       if (par) { par.style.opacity = '0'; await espera(1800); if (!vivo()) return; S.raiz.classList.remove('conpartitura'); }
       else await espera(1500);
       if (!vivo()) return;
@@ -679,17 +717,21 @@
     var c = S.raiz.querySelector('.lienzo'), x = S.llamando >= 0 ? S.orden[S.llamando] : null;
     var k = S.llamando < 0 ? 'ini' : x ? x.a.id + (x.ab || 'A') : 'fin'; if (S._ivk === k) return; S._ivk = k;
     var b = S.raiz.querySelector('.iv-barra');
-    if (S.llamando < 0) { c.innerHTML = '<div class="iv-ini"><b>INTERVALIA <span>PRO</span></b><small>Examen · sorteo A / B</small></div>'; return; }
+    /* (9-nov-2026, Iago en el aula) «al principio, cuando es el sorteo, que aparezca en pantalla tanto A como B, para que lo vean;
+       luego ya solo el que le toca a cada uno» */
+    if (S.llamando < 0) { c.innerHTML = '<div class="iv-dos">' + ['A', 'B'].map(function (m) { return '<div class="iv-uno"><span class="iv-ab">' + m + '</span><img alt="Modelo ' + m + '" draggable="false" src="' + S.d.modelos[m] + '"></div>'; }).join('') + '</div>'; return; }
     if (!x) { c.innerHTML = '<div class="iv-ini"><b>Ya han pasado todos ✓</b></div>'; if (b) { b.querySelector('.iv-quien').textContent = 'Fin'; b.querySelector('.iv-ab').textContent = ''; b.querySelector('.iv-n').textContent = ''; b.querySelector('.iv-sig2').textContent = ''; } return; }
     var m = x.ab || 'A', sig = S.orden[S.llamando + 1];
     c.innerHTML = '<div class="iv-ej"><img alt="Modelo ' + m + '" draggable="false" src="' + S.d.modelos[m] + '"></div>';
     if (b) {
       b.querySelector('.iv-n').textContent = (S.llamando + 1) + '/' + S.orden.length;
       b.querySelector('.iv-ab').textContent = m;
-      b.querySelector('.iv-quien').textContent = x.a.ver || x.a.nombre;
-      b.querySelector('.iv-sig2').textContent = sig ? 'después: ' + (sig.a.ver || sig.a.nombre) : '';
+      /* (9-nov-2026, Iago) «cuando ya están viendo un alumno… que aparezca el nombre completo, y después el siguiente nombre» */
+      b.querySelector('.iv-quien').textContent = completo(x.a);
+      b.querySelector('.iv-sig2').textContent = sig ? 'después: ' + completo(sig.a) : '';
     }
   }
+  function completo(a) { return ((a.nombre || '') + ' ' + (a.apellidos || '')).replace(/\s+/g, ' ').trim() || a.ver || ''; }
   function empezarIv() {
     if (!S.orden.length) return;
     if (!S.orden.some(function (x) { return x.ab; })) { res('Primero haz el sorteo'); return; }
@@ -780,7 +822,7 @@
       if (pd) { fin += Date.now() - pd; pd = 0; }
       var q = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
       r.textContent = Math.floor(q / 60) + ':' + ('0' + (q % 60)).slice(-2); r.className = q === 0 ? 'rojo' : q <= 60 ? 'ambar' : '';
-      if (q === 0) { acabado = true; if (!sfx('fin', 0.8)) { tono(72, 0.3); setTimeout(function () { tono(67, 0.5); }, 250); } return; }
+      if (q === 0) { acabado = true; if (!sfx('fin', 0.35)) { tono(72, 0.3, 0.12); setTimeout(function () { tono(67, 0.5, 0.12); }, 250); }   /* (9-nov-2026, Iago en el aula) «el sonido de cuando se acaba el tiempo de estudio es un poquito fuerte»: 0.8 → 0.35 */ return; }
       await espera(250);
     }
   }
