@@ -1656,7 +1656,7 @@
           leccion: d.leccion, estudio: 300, abrirLeccion: function () { abrirEnto(d); } }); } catch (e) { abrirEnto(d); }
       };
       if (window.LMExamenRitmo && window.LMExamenRitmo.clase) return go();
-      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=21';
+      var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=22';
       sc.onload = go; sc.onerror = function () { abrirEnto(d); }; document.head.appendChild(sc);
     });
   }
@@ -3583,10 +3583,12 @@
   }
   function exmOpsDict() {
     var d = EXM.datos; if (!exmOn()) return [];
-    return d.grupos.filter(function (g) { return EXM_MAT[d.trim].dict[g]; }).map(function (g) {
-      return { t: 'Dictado de examen · ' + g, s: (g === d.ahora ? 'Clase de ahora · ' : '') + d.trim + ' · con contraseña',
-        fn: function () { exmPin('Dictado de examen · ' + g, EXM_MAT[d.trim].dict[g], function (bytes) { exmVerDict(g, bytes); }); } };
-    });
+    /* (9-nov-2026, Iago en el aula) «solo uno, y que al entrar me obligue a decir qué grupo es, premarcado el de la hora para confirmar» */
+    var gs = d.grupos.filter(function (g) { return EXM_MAT[d.trim].dict[g]; }); if (!gs.length) return [];
+    var pre = gs.indexOf(d.ahora) >= 0 ? d.ahora : gs[0];
+    return [{ t: 'Dictado de examen · ' + d.trim, s: 'Eliges el grupo · con contraseña',
+      fn: function () { exmPin('Dictado de examen', null, function (bytes, g) { exmVerDict(g, bytes); },
+        { grupos: gs, pre: (gs.indexOf(d.ahora) >= 0 ? d.ahora : null), fichero: function (g) { return EXM_MAT[d.trim].dict[g]; } }); } }];
   }
   function exmOpsRitmo() {
     /* (7-nov-2026, Iago) «Pulso metrónomo y en grado elemental que ponga examen ritmo y en grado profesional examen ritmo
@@ -3622,7 +3624,7 @@
       catch (e) { alert('No se ha podido abrir el examen de ritmo.'); }
     };
     if (window.LMExamenRitmo) return abre();
-    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=21';
+    var sc = document.createElement('script'); sc.src = exmBase() + 'examenes/esquema-sorteo.js?v=22';
     sc.onload = abre; sc.onerror = function () { alert('No se ha podido cargar la pantalla del examen de ritmo.'); };
     document.head.appendChild(sc);
   }
@@ -3650,10 +3652,14 @@
     if (document.getElementById('lm-exm-css')) return;
     var st = document.createElement('style'); st.id = 'lm-exm-css';
     st.textContent =
-      '#lm-exm-pin{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px;box-sizing:border-box;background:transparent}' +
+      /* (9-nov-2026, Iago en el aula: «no había visto lo de la contraseña… que ponga discretamente introduce la contraseña») arriba a la derecha, justo debajo de los iconos, con su rótulo */
+      '#lm-exm-pin{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-start;justify-content:flex-end;padding:64px 12px 10px;box-sizing:border-box;background:transparent}' +
       '#lm-exm-pin .lm-exm-c{width:150px;box-sizing:border-box;padding:6px;border-radius:8px;background:rgba(11,19,32,.92);border:1px solid rgba(255,255,255,.16);color:#fff;font:500 11px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif;display:flex;flex-wrap:wrap;gap:5px;align-items:center;position:relative}' +
-      '#lm-exm-pin .lm-exm-ic,#lm-exm-pin .lm-exm-t,#lm-exm-pin .lm-exm-s,#lm-exm-pin .lm-exm-x{display:none}' +
+      '#lm-exm-pin .lm-exm-ic,#lm-exm-pin .lm-exm-t,#lm-exm-pin .lm-exm-x{display:none}' +
+      '#lm-exm-pin .lm-exm-s{width:100%;margin:0 0 5px;color:rgba(255,255,255,.78);font:600 10.5px/1.2 "Helvetica Neue",Arial,sans-serif;text-align:center}' +
       '#lm-exm-pin .lm-exm-tec{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}' +
+      '#lm-exm-pin .lm-exm-gr{width:100%;display:flex;gap:4px;margin:0 0 4px}#lm-exm-pin .lm-exm-gr button{flex:1;margin:0;height:28px;padding:0;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:#111a2a;color:#cfd8ea;font:800 11px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer}' +
+      '#lm-exm-pin .lm-exm-gr button.on{background:#f97316;border-color:#f97316;color:#fff}' +
       '#lm-exm-pin .lm-exm-tec button{margin:0;height:30px;border:0;border-radius:6px;background:#1c2636;color:#fff;font:800 13px/1 "Helvetica Neue",Arial,sans-serif;cursor:pointer;padding:0;width:auto}' +
       '#lm-exm-pin .lm-exm-tec button:active{background:#2b3a52}#lm-exm-pin .lm-exm-tec .lm-exm-ok{background:#2563eb}' +
       '#lm-exm-pin input{width:100%;box-sizing:border-box;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:#111a2a;color:#fff;font:700 12px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.12em;text-align:center;outline:none}' +
@@ -3673,12 +3679,14 @@
     document.head.appendChild(st);
   }
   var EXM_ICO_CANDADO = '<svg class="lm-exm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/><path d="M12 14.6v2.4"/></svg>';
-  function exmPin(titulo, fichero, alAbrir) {
+  function exmPin(titulo, fichero, alAbrir, opc) {
+    opc = opc || null; var grupo = opc ? opc.pre : null;   /* (9-nov-2026) con opc.grupos: primero se elige el grupo (premarcado el de la hora) */
     exmCss();
     var vieja = document.getElementById('lm-exm-pin'); if (vieja) vieja.parentNode.removeChild(vieja);
     var ov = document.createElement('div'); ov.id = 'lm-exm-pin'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', titulo);
     ov.innerHTML = '<form class="lm-exm-c" autocomplete="off">' + EXM_ICO_CANDADO +
-      '<p class="lm-exm-t">' + esc(titulo) + '</p><p class="lm-exm-s">Escribe la contraseña del examen</p>' +
+      '<p class="lm-exm-t">' + esc(titulo) + '</p><p class="lm-exm-s">Introduce la contraseña</p>' +
+      (opc ? '<div class="lm-exm-gr">' + opc.grupos.map(function (g) { return '<button type="button" data-g="' + esc(g) + '"' + (g === grupo ? ' class="on"' : '') + '>' + esc(g.replace(/^(\d)Gp/, '$1.º GP ').replace(/^(\d)([AB])$/, '$1.º $2')) + '</button>'; }).join('') + '</div>' : '') +
       '<input type="password" inputmode="none" readonly autocomplete="off" maxlength="12" aria-label="Contraseña">' +
       '<div class="lm-exm-tec">' + ['1', '2', '3', '4', '5', '6', '7', '8', '9', '\u232B', '0', '\u2713'].map(function (k) {
         return '<button type="' + (k === '\u2713' ? 'submit' : 'button') + '" class="' + (k === '\u2713' ? 'lm-exm-ok' : k === '\u232B' ? 'lm-exm-bo' : 'lm-exm-k') + '" data-k="' + k + '">' + k + '</button>'; }).join('') + '</div>' +
@@ -3700,18 +3708,25 @@
       if (k === '\u232B') inp.value = inp.value.slice(0, -1); else if (inp.value.length < 12) inp.value += k;
     });
     ov.addEventListener('click', function (e) { if (e.target === ov) cerrar(); });
-    var datos = exmFichero(fichero);   /* se baja mientras se escribe */
+    var datos = fichero ? exmFichero(fichero) : (grupo ? exmFichero(opc.fichero(grupo)) : null);   /* se baja mientras se escribe */
+    var sub = ov.querySelector('.lm-exm-s'); if (opc && !grupo) sub.textContent = 'Elige el grupo';
+    if (opc) ov.querySelector('.lm-exm-gr').addEventListener('click', function (e) {
+      var g = e.target && e.target.getAttribute && e.target.getAttribute('data-g'); if (!g) return;
+      grupo = g; [].forEach.call(ov.querySelectorAll('.lm-exm-gr button'), function (x) { x.classList.toggle('on', x.getAttribute('data-g') === g); });
+      datos = exmFichero(opc.fichero(g)); sub.textContent = 'Introduce la contraseña'; err.textContent = ''; inp.focus();
+    });
     fm.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (opc && !grupo) { err.textContent = 'Elige el grupo'; return; }
       var pin = String(inp.value || '').replace(/\s+/g, ''); if (!pin) { inp.focus(); return; }
       ok.disabled = true; ok.textContent = '…'; err.textContent = '';
       datos.then(function (b) { return exmDescifra(b, pin); }).then(function (claro) {
-        inp.value = ''; cerrar(); alAbrir(claro);
+        inp.value = ''; cerrar(); alAbrir(claro, grupo);
       }).catch(function (x) {
         ok.disabled = false; ok.textContent = '\u2713';
         var red = x && /HTTP|Failed|fetch|network/i.test(String(x.message || x));
         err.textContent = red ? 'No se ha podido descargar. ¿Hay conexión?' : 'Contraseña incorrecta';
-        if (red) datos = exmFichero(fichero);
+        if (red) datos = exmFichero(fichero || opc.fichero(grupo));
         inp.value = ''; fm.classList.remove('mal'); void fm.offsetWidth; fm.classList.add('mal'); inp.focus();
       });
     });
@@ -3832,14 +3847,22 @@
     b.onclick = function () {
       exmPin('Ver solución · ' + grupo, EXM_MAT[EXM.datos.trim].dict[grupo], function () {
         try { window.DictadoClase.revelar(); } catch (e) {}
-        b.textContent = 'SOLUCIÓN A LA VISTA'; b.disabled = true; b.style.opacity = '.6';
+        b.textContent = vr ? '✔ Solución a la vista' : 'SOLUCIÓN A LA VISTA'; b.disabled = true; b.classList.remove('fin'); b.style.opacity = '.6';
       });
     };
-    document.body.appendChild(b);
+    /* (9-nov-2026, Iago en el aula) «el botón ver solución… a la derecha, donde pone ir al final, corregir: que en el del examen, en vez
+       de corregir, ponga ver solución, que se sustituya» (ese día no se enseñan sus notas en la pantalla). Ocupa el sitio y el aspecto
+       de «✔ Corregir» (#dcVerRes), que se esconde solo mientras está abierto el dictado de examen; si no lo encuentra, abajo a la izquierda. */
+    var vr = document.getElementById('dcVerRes'), obs = null;
+    if (vr && vr.parentNode) {
+      b.className = String(vr.className || '').replace(/\bfin\b/g, '').trim(); b.style.cssText = ''; b.textContent = '✔ Ver solución';
+      vr.style.display = 'none'; vr.parentNode.insertBefore(b, vr.nextSibling);
+      try { obs = new MutationObserver(function () { b.classList.toggle('fin', vr.classList.contains('fin') && !b.disabled); }); obs.observe(vr, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+    } else document.body.appendChild(b);
     var visto = false, vueltas = 0, vigila = setInterval(function () {   /* se va con el reproductor (cuando se cierra, pierde «abierto») */
       var o = document.getElementById('dcOverlay'), abierto = !!(o && o.classList.contains('abierto'));
       if (abierto) visto = true;
-      if ((visto && !abierto) || (!visto && ++vueltas > 40)) { clearInterval(vigila); if (b.parentNode) b.parentNode.removeChild(b); }
+      if ((visto && !abierto) || (!visto && ++vueltas > 40)) { clearInterval(vigila); if (obs) obs.disconnect(); if (vr) vr.style.display = ''; if (b.parentNode) b.parentNode.removeChild(b); }
     }, 500);
   }
 
