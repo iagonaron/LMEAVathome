@@ -1,2 +1,3 @@
 Registro de despliegues forzados de GitHub Pages (no lo usa ninguna página).
 6-nov-2026 15:05 · se fuerza la publicación de 244bedf (escaleta sin «Poner faltas»): el deploy de Pages falló.
+9-nov-2026 14:15 · se fuerza la publicación de d71be35 (vídeos de intervalos con líneas tipo Intervalia): el deploy de Pages falló por tiempo y el reintento se quedó en cola.
