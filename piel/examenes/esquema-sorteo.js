@@ -17,6 +17,11 @@
     if (document.getElementById('lm-exr-css')) return;
     var st = el('style'); st.id = 'lm-exr-css';
     st.textContent =
+      /* (10-nov-2026, Iago en el aula) «el vídeo de los intervalos se sigue viendo a tirones»: el vídeo ya va perfecto (4 px por
+         fotograma, 60 fps), pero debajo de esta pantalla el portal seguía animando a escondidas (manchas difuminadas de las tarjetas,
+         campana, latidos…) y en el ordenador del aula eso le roba fotogramas. Mientras está abierta, lo de debajo ni se pinta ni se anima. */
+      'html.lm-exr-on body>*:not(#lm-exr):not(#lm-exr-reloj):not(#lm-exr-res){visibility:hidden!important}' +
+      'html.lm-exr-on body>*:not(#lm-exr) *,html.lm-exr-on body::before,html.lm-exr-on body::after{animation-play-state:paused!important}' +
       '#lm-exr{--acc:#22c98a;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147482995;background:#fff;color:#0b1320;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;display:flex;flex-direction:column}' +
       '#lm-exr .cab{display:flex;align-items:center;justify-content:space-between;padding:12px 22px 8px;border-bottom:1.5px solid var(--acc)}' +
       '#lm-exr .lm{font-weight:900;font-size:22px;line-height:1;min-width:180px}#lm-exr .lm i{font-family:Georgia,serif;font-weight:400;color:#8a93b3;font-size:16px;margin-left:5px}' +
@@ -234,7 +239,7 @@
       '<div class="bts"><button class="go b-sor">SORTEAR</button><button class="b-est">' + (iv ? 'EMPEZAR' : 'Iniciar estudio') + '</button></div>' +
       '<div class="bts sig"><button class="b-sig">Siguiente alumno →</button></div><div class="res"></div></div>' +
       '<div class="reloj"><span>ESTUDIO</span><b>5:00</b><button class="b-fin">Terminar ya</button></div></div></div>';
-    document.body.appendChild(raiz); S.raiz = raiz;
+    document.body.appendChild(raiz); S.raiz = raiz; document.documentElement.classList.add('lm-exr-on');
     raiz.querySelector('.x').onclick = cerrar;
     raiz.querySelector('.b-sor').onclick = sortear;
     raiz.querySelector('.b-est').onclick = iv ? empezarIv : estudio;
@@ -270,7 +275,7 @@
   }
   function cerrar() {
     if (!S) return; S.id++; document.removeEventListener('keydown', teclas, true);
-    if (S.raiz && S.raiz.parentNode) S.raiz.parentNode.removeChild(S.raiz); S = null;
+    if (S.raiz && S.raiz.parentNode) S.raiz.parentNode.removeChild(S.raiz); S = null; document.documentElement.classList.remove('lm-exr-on');
   }
   function teclas(e) {
     if (e.key === 'Escape' && S) { e.preventDefault(); e.stopPropagation(); cerrar(); return; }
@@ -427,6 +432,10 @@
           (async function () { for (var r = 0; r < tn.length; r++) { var falta = t0 + acu * 1000 - performance.now(); if (falta > 0) await espera(falta);
             if (t !== tok || !vivo() || !vd.isConnected) return; nota(tn[r].midi, tn[r].dur * 0.95, 0.3); acu += tn[r].dur; } })();
           await new Promise(function (ok) { var iv = setInterval(function () { if (t !== tok || !vivo() || vd.ended || !vd.isConnected) { clearInterval(iv); ok(); } }, 80); });
+          /* (10-nov-2026) cuántos fotogramas se pierden al verlo (si se pierden más del 3 %, aviso a Sentry para saber qué pasa en el aula) */
+          try { var qv = vd.getVideoPlaybackQuality && vd.getVideoPlaybackQuality(); if (qv && qv.totalVideoFrames > 30) { var pq = qv.droppedVideoFrames / qv.totalVideoFrames;
+            console.info('[previa] vídeo: ' + qv.droppedVideoFrames + ' de ' + qv.totalVideoFrames + ' fotogramas perdidos');
+            if (pq > 0.03 && window.Sentry && Sentry.captureMessage) Sentry.captureMessage('Previa: vídeo de intervalos a tirones (' + Math.round(pq * 100) + ' % perdidos)', { level: 'warning', extra: { perdidos: qv.droppedVideoFrames, total: qv.totalVideoFrames, pantalla: screen.width + 'x' + screen.height, dpr: window.devicePixelRatio, nucleos: navigator.hardwareConcurrency, ua: navigator.userAgent } }); } } catch (e) {}
           if (t !== tok) { try { vd.pause(); vd.currentTime = 0; } catch (e) {} }
           if (btn && t === tok) btn.classList.remove('son'); return; }
         if (esTonica(et) && et._cinta && et._cinta.dentro) { mueve(et, 0); if (et.cuenta && !(await cuenta(t))) { if (btn && t === tok) btn.classList.remove('son'); return; } await suenaCinta(et, t, btn); return; }
@@ -762,7 +771,7 @@
       '<div class="der"><button class="x" title="Cerrar (Esc)">✕</button></div></div>' +
       '<div class="cuerpo"><div class="esq"><div class="velo on"><h2>Lección de entonación</h2><p>Primero la previa; luego, el estudio con la lección delante.</p></div></div>' +
       '<div class="pan pan-clase"><h3>CLASE</h3><div class="bts"><button class="go b-pre">PREVIA</button><button class="b-est">ESTUDIO</button></div><div class="res"></div></div></div>';
-    document.body.appendChild(raiz); S.raiz = raiz; raiz.querySelector('.x').onclick = cerrar;
+    document.body.appendChild(raiz); S.raiz = raiz; document.documentElement.classList.add('lm-exr-on'); raiz.querySelector('.x').onclick = cerrar;
     document.addEventListener('keydown', teclas, true);
     var bPre = raiz.querySelector('.b-pre'), bEst = raiz.querySelector('.b-est');
     async function estudioClase() {
@@ -818,12 +827,16 @@
     if (!sfx('inicio', 0.9)) { tono(88, 0.12, 0.28); setTimeout(function () { tono(88, 0.14, 0.28); }, 170); }
     while (r.isConnected) {
       if (!document.getElementById('lm-ento') && Date.now() > fin - seg * 1000 + 3000) { r.remove(); if (caja !== r) caja.remove(); return; }   /* se cerró la lección */
+      if (acabado) { await espera(400); continue; }
       if (pausa) { if (!pd) pd = Date.now(); await espera(200); continue; }
       if (pd) { fin += Date.now() - pd; pd = 0; }
       var q = Math.max(0, Math.ceil((fin - Date.now()) / 1000));
       r.textContent = Math.floor(q / 60) + ':' + ('0' + (q % 60)).slice(-2); r.className = q === 0 ? 'rojo' : q <= 60 ? 'ambar' : '';
-      if (q === 0) { acabado = true; if (!sfx('fin', 0.35)) { tono(72, 0.3, 0.12); setTimeout(function () { tono(67, 0.5, 0.12); }, 250); }   /* (9-nov-2026, Iago en el aula) «el sonido de cuando se acaba el tiempo de estudio es un poquito fuerte»: 0.8 → 0.35 */ return; }
-      await espera(250);
+      if (q === 0 && !acabado) { acabado = true; if (!sfx('fin', 0.35)) { tono(72, 0.3, 0.12); setTimeout(function () { tono(67, 0.5, 0.12); }, 250); } }   /* (9-nov-2026, Iago en el aula) «el sonido de cuando se acaba el tiempo de estudio es un poquito fuerte»: 0.8 → 0.35 */
+      /* (10-nov-2026, Iago en el aula) «si salgo de ahí, que se vaya junto a la otra»: con el tiempo ya en 0:00 el bucle seguía
+         terminando aquí y el reloj y la tarjeta de resumen se quedaban en pantalla al cerrar la lección. Ahora siguen vigilando:
+         en cuanto se cierra la ventana de la lección, se van los dos. */
+      await espera(acabado ? 400 : 250);
     }
   }
 
