@@ -38,13 +38,16 @@
     ['actitud', 'Algo de «Mi actitud»', ''],
     ['otra', 'Otra cosa', 'escribir directamente']
   ];
+  /* (12-nov-2026, Iago) «Todos con at home: RITMO ENTONADO en mayúsculas y en su color, el contorno en su color y el at home en gris» */
+  var VERDE = '#22c55e', AZUL = '#3b82f6', NARANJA = '#f97316', ROSA = '#ec4899', GRIS = '#cbd5e1';
   var APPS = GP
-    ? ['Ritmo entonado PRO', 'Entonación at home', 'Intervalia PRO', 'Dictados PRO', 'PreDict PRO', 'Teoría PRO', 'Ficha de teoría', 'Portales temáticos (Fonógrafo, Acústica, Atonalidad, Magnetófono…)']
-    : ['Ritmo at home', 'Entonación at home', 'Intervalia at home', 'Dictado at home', 'PreDict at home', 'Teoría at home', 'Ficha de teoría', 'Quiz de ritmo'];
+    ? [['RITMO ENTONADO', VERDE, 1], ['ENTONACIÓN', AZUL, 1], ['INTERVALIA', AZUL, 1], ['DICTADO', NARANJA, 1], ['PREDICT', NARANJA, 1], ['TEORÍA', ROSA, 1], ['FICHA DE TEORÍA', ROSA, 0], ['PORTALES TEMÁTICOS', GRIS, 0, 'Fonógrafo, Acústica, Atonalidad, Magnetófono…']]
+    : [['RITMO', VERDE, 1], ['ENTONACIÓN', AZUL, 1], ['INTERVALIA', AZUL, 1], ['DICTADO', NARANJA, 1], ['PREDICT', NARANJA, 1], ['TEORÍA', ROSA, 1], ['FICHA DE TEORÍA', ROSA, 0], ['QUIZ DE RITMO', VERDE, 0]];
+  function nomOp(o) { return Array.isArray(o) ? o[0].charAt(0) + o[0].slice(1).toLowerCase() + (o[2] ? ' at home' : '') : o; }
   var PASO2 = {
     falla: { t: '¿Cuál?', ops: APPS },
     no_entiendo: { t: '¿Cuál?', ops: APPS },
-    resultados: { t: '¿De qué apartado?', ops: ['Ritmo', 'Entonación', 'Dictado', 'Teoría', 'Nota del trimestre'] },
+    resultados: { t: '¿De qué apartado?', ops: [['RITMO', VERDE, 0], ['ENTONACIÓN', AZUL, 0], ['DICTADO', NARANJA, 0], ['TEORÍA', ROSA, 0], 'Nota del trimestre'] },
     actitud: { t: '¿Qué pasa?', ops: ['No estoy de acuerdo con algo', 'No entiendo cómo se calcula'] }
   };
   var DETALLE_RES = ['No sé de dónde sale', 'Creo que está mal'];
@@ -67,6 +70,8 @@
       '@media (hover:hover){#lm-incid .li-op:hover{border-color:#e2e8f0;background:rgba(226,232,240,.1)}}' +   /* (12-nov-2026, Iago) en pantallas táctiles el «hover» se quedaba pegado en la tarjeta del paso siguiente */
       '#lm-incid .li-op:focus{outline:none}' +
       '#lm-incid .li-op.li-otra{border-style:dashed;color:#cbd5e1}' +
+      '#lm-incid .li-op.li-app{border-color:var(--oc)}#lm-incid .li-app b{color:var(--oc);font-weight:900;letter-spacing:.03em}#lm-incid .li-app span{color:#94a3b8;font-style:italic}' +
+      '@media (hover:hover){#lm-incid .li-op.li-app:hover{border-color:var(--oc);background:rgba(255,255,255,.07)}}' +
       '#lm-incid .li-nota{font-size:12.5px;line-height:1.45;color:#cbd5e1;background:rgba(255,255,255,.05);border-radius:9px;padding:8px 10px;margin-top:10px}#lm-incid .li-nota b{color:#fff}' +
       '#lm-incid .li-ficha{border:1px solid rgba(236,72,153,.6);background:rgba(236,72,153,.1);margin:0 0 10px}' +
       '#lm-incid .li-mig{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}#lm-incid .li-mig i{font-style:normal;font-size:12px;padding:4px 8px;border-radius:7px;background:rgba(226,232,240,.15);border:1px solid rgba(226,232,240,.5)}' +
@@ -139,7 +144,7 @@
     el.querySelector('.li-env').addEventListener('click', cerrar);
   }
   function paso1() {
-    var el = pinta('<div class="li-paso">PASO 1 DE 3</div><h3>Incidencias · ¿Qué ha pasado?</h3>' +
+    var el = pinta('<div class="li-paso">PASO 1 DE 3</div><h3>Incidencias · ¿Sobre qué es?</h3>' +
       TEMAS.map(function (t) { return '<button class="li-op' + (t[0] === 'otra' ? ' li-otra' : '') + '" data-t="' + t[0] + '">' + esc(t[1]) + (t[2] ? '<small>' + esc(t[2]) + '</small>' : '') + '</button>'; }).join('') + NOTA_CNET);
     el.querySelectorAll('[data-t]').forEach(function (b) { b.addEventListener('click', function () {
       E = { tema: b.getAttribute('data-t') };
@@ -149,23 +154,25 @@
   function paso2() {
     var p = PASO2[E.tema];
     var el = pinta('<div class="li-paso">PASO 2 DE 3</div><h3>' + esc(p.t) + '</h3>' +
-      p.ops.map(function (o) { return '<button class="li-op" data-o="' + esc(o) + '">' + esc(o) + '</button>'; }).join('') +
+      p.ops.map(function (o) { return Array.isArray(o)
+        ? '<button class="li-op li-app" style="--oc:' + o[1] + '" data-o="' + esc(nomOp(o)) + '"><b>' + esc(o[0]) + '</b>' + (o[2] ? ' <span>at home</span>' : '') + (o[3] ? '<small>' + esc(o[3]) + '</small>' : '') + '</button>'
+        : '<button class="li-op" data-o="' + esc(o) + '">' + esc(o) + '</button>'; }).join('') +
       '<button class="li-op li-otra" data-o="">Otra → escribir directamente</button>' +
       '<div class="li-pie"><button class="li-atras">← Atrás</button><span></span></div>');
     el.querySelectorAll('[data-o]').forEach(function (b) { b.addEventListener('click', function () { E.objeto = b.getAttribute('data-o') || 'Otra'; paso3(); }); });
     el.querySelector('.li-atras').addEventListener('click', paso1);
   }
   function paso3() {
-    var esFicha = /^Ficha de teoría$/.test(E.objeto || '');
+    var esFicha = /^Ficha de teoría$/i.test(E.objeto || '');
     var mig = [nomTema(E.tema).replace(/^Una app o un portal no me funciona bien$/, 'No funciona bien').replace(/^No entiendo cómo funciona una app o un portal$/, 'No entiendo cómo funciona')];
     if (E.objeto) mig.push(E.objeto);
     var chips = E.tema === 'resultados' ? '<div class="li-chips">' + DETALLE_RES.map(function (d) { return '<button class="li-chip" data-d="' + esc(d) + '">' + esc(d) + '</button>'; }).join('') + '</div>' : '';
     var ej = esFicha ? 'Ej.: «Ficha 6, el ejercicio de los acordes: puse lo mismo que la solución»'
       : E.tema === 'resultados' ? 'Ej.: «En dictado me sale un 4 en la semana 45 y yo creía que tenía un 6»'
       : E.tema === 'actitud' ? 'Ej.: «Me sale un portal sin ver y sí lo vi»'
-      : E.tema === 'otra' ? 'Cuéntalo en pocas palabras'
+      : E.tema === 'otra' ? 'Cuéntalo aquí'
       : 'Ej.: «En la lección 4 le doy a grabar y no me detecta la voz»';
-    var el = pinta('<div class="li-paso">' + (E.tema === 'otra' ? 'PASO 2 DE 2' : 'PASO 3 DE 3') + '</div><h3>Cuéntalo en pocas palabras</h3>' +
+    var el = pinta('<div class="li-paso">' + (E.tema === 'otra' ? 'PASO 2 DE 2' : 'PASO 3 DE 3') + '</div><h3>¿Qué ha pasado?</h3>' +
       (esFicha ? '<div class="li-nota li-ficha">👀 <b>Ojo:</b> al final de cada ficha corregida tienes el botón <b>«¿Crees que algún ejercicio está mal corregido?»</b>. Es la mejor forma: Iago ve exactamente ese ejercicio.<br><br>De todas formas, si prefieres, escribe aquí <b>lo que recuerdes</b> (qué ficha, qué ejercicio) e Iago lo investiga.</div>' : '') +
       '<div class="li-mig">' + mig.map(function (m) { return '<i>' + esc(m) + '</i>'; }).join('') + '</div>' + chips +
       '<textarea maxlength="1500" placeholder="' + esc(ej) + '"></textarea>' +
