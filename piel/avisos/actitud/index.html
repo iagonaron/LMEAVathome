@@ -24,6 +24,16 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 .boton.lleno{background:var(--oro);border-color:var(--oro);color:#111}
 #play{width:116px;height:116px;border-radius:22px;border:0;background:var(--oro);color:#111;cursor:pointer;display:grid;place-items:center;margin-top:24px}
 #play svg{width:48px;height:48px;margin-left:6px}
+.grabando #play,.grabando #ctl,.grabando #barra,.grabando #tit .botones{display:none!important}
+/* (12-nov-2026, Iago: «no se ve fluido… los vídeos didácticos se cargan antes») MODO VÍDEO: el vídeo grabado (MP4) se descarga ENTERO antes de empezar */
+#vmp4{position:absolute;inset:0;width:100%;height:100%;z-index:30;background:#000;display:none}
+.mp4 #vmp4{display:block}
+.mp4 #tit{z-index:35}
+#carga{display:none;flex-direction:column;align-items:center;gap:12px;margin-top:10px}
+.mp4.cargando #carga{display:flex}.mp4.cargando #play{display:none}
+#carga i{display:block;width:460px;height:10px;border-radius:5px;background:rgba(255,255,255,.16);overflow:hidden}
+#carga b{display:block;height:100%;width:0;background:var(--oro);transition:width .25s linear}
+#carga span{font:700 22px/1 var(--f);color:#e4e4e7;letter-spacing:.04em}
 /* la escena principal */
 #cab{position:absolute;left:60px;right:60px;top:30px;display:flex;justify-content:space-between;align-items:center}
 #cab b{font:900 34px/1 var(--f)}#cab span{font:800 22px/1 var(--f);letter-spacing:.24em;color:var(--oro);text-transform:uppercase}
@@ -285,7 +295,9 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     <div class="f2" id="fin2">¿No te interesa o vas con mucho lío? Puedes no prestarle atención:<br><b>☕ esto es para los más cafeteros.</b></div>
     <div class="f3" id="fin3">Sé <span>tú mismo</span>.</div>
     <div class="f4" id="fin4">Y aquí tienes más información, por si te ayuda.</div></div>
+  <video id="vmp4" playsinline preload="none"></video>
   <div class="capa ve" id="tit"><p>Lenguaje Musical</p><h1>Cómo valoro<br>tu actitud</h1>
+    <div id="carga"><i><b id="cargaB"></b></i><span id="cargaT">Cargando el vídeo…</span></div>
     <button id="play" title="Empezar"><svg viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z" fill="currentColor"/></svg></button>
     <div class="botones"><button class="boton" id="otra">Ver otra vez</button><button class="boton lleno" id="salir">Salir</button></div></div>
   <div id="ctl"><button id="bRe" title="Desde el principio">↺</button><button id="bPa" title="Pausa / seguir">❚❚</button></div>
@@ -299,8 +311,27 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   var Q = new URLSearchParams(location.search);
   var G = (Q.get('g') || (/gp/.test(location.pathname) ? 'gp' : 'ge')) === 'gp' ? 'gp' : 'ge';
   var VER = Q.get('v') === 'curso' ? 'curso' : 'hoy';
-  var CU = window.CUES[G + '-' + VER], au = document.getElementById('au');
-  au.src = 'actitud-' + G + '-' + VER + '.mp3';
+  /* (12-nov-2026) ?grabar=1: modo para grabar el vídeo a MP4 fotograma a fotograma (el tiempo lo pone el grabador en window.__VT) */
+  var GRABAR = !!Q.get('grabar'), AU0 = document.getElementById('au');
+  var MP4 = !GRABAR && !Q.get('anim') && !Q.get('t'), VM = document.getElementById('vmp4');
+  var au = MP4 ? VM : GRABAR ? { get currentTime() { return window.__VT || 0; }, set currentTime(x) {}, paused: false, play: function () { return Promise.resolve(); }, pause: function () {}, addEventListener: function () {}, set src(x) {} } : AU0;
+  if (GRABAR) document.documentElement.classList.add('grabando');
+  var CU = window.CUES[G + '-' + VER];
+  if (!MP4) au.src = 'actitud-' + G + '-' + VER + '.mp3';
+  else { document.documentElement.classList.add('mp4', 'cargando');
+    /* se descarga entero (con su barra) y luego ya no se para; si falla, se vuelve a la animación de siempre */
+    (async function () {
+      var url = 'actitud-' + G + '-' + VER + '.mp4?v=2026-11-12a';
+      try {
+        var r = await fetch(url); if (!r.ok || !r.body) throw new Error('http ' + r.status);
+        var tot = +r.headers.get('Content-Length') || 0, rec = 0, rd = r.body.getReader(), trozos = [];
+        for (;;) { var x = await rd.read(); if (x.done) break; trozos.push(x.value); rec += x.value.length;
+          if (tot) document.getElementById('cargaB').style.width = (100 * rec / tot).toFixed(1) + '%'; }
+        VM.src = URL.createObjectURL(new Blob(trozos, { type: 'video/mp4' }));
+        document.getElementById('cargaB').style.width = '100%'; document.documentElement.classList.remove('cargando'); if (Q.get('auto')) VM.play().catch(function () {});
+        VM.addEventListener('ended', function () { var T = document.getElementById('tit'); T.classList.add('ve', 'final'); });
+      } catch (e) { location.replace(location.pathname + location.search + (location.search ? '&' : '?') + 'anim=1'); }
+    })(); }
   var $ = function (id) { return document.getElementById(id); };
   var C = {}; CU.cues.forEach(function (c) { C[c.id] = c; });
   function t0(id, off) { var c = C[id]; return c ? c.t0 + (off || 0) : null; }
@@ -607,11 +638,13 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     sty($('bi'), 'transform', 'scaleX(' + Math.min(1, t / CU.dur).toFixed(4) + ')');
   }
   /* bucle */
-  function bucle() { var t = au.currentTime || 0; pinta(t); dibuja(t); requestAnimationFrame(bucle); }
+  function bucle() { var t = au.currentTime || 0;
+    if (MP4) { sty($('bi'), 'transform', 'scaleX(' + Math.min(1, t / (VM.duration || CU.dur)).toFixed(4) + ')'); cls($('tit'), 've', VM.paused && (t < 0.2 || VM.ended)); cls($('tit'), 'final', VM.ended); requestAnimationFrame(bucle); return; }
+    pinta(t); dibuja(t); requestAnimationFrame(bucle); }
   addEventListener('resize', function () { geo = null; PC = null; });
   $('mrIfr').addEventListener('load', function () { $('mr').__foco = null; });   /* al cargar, se le vuelve a decir qué señalar */
   $('mrImg').src = 'mr-' + G + '.jpg'; $('mr').style.setProperty('--mrimg', 'url(mr-' + G + '-b.jpg)');
-  function empieza() { au.play().catch(function () {}); }
+  function empieza() { if (MP4 && document.documentElement.classList.contains('cargando')) return; au.play().catch(function () {}); }
   $('play').onclick = empieza;
   $('otra').onclick = function () { au.currentTime = 0; empieza(); };
   $('salir').onclick = function () { if (parent !== window) { try { parent.postMessage({ tipo: 'lme-cerrar' }, '*'); } catch (e) {} return; } location.href = 'https://' + G + '.lmathome.es/'; };
@@ -625,7 +658,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   addEventListener('keydown', function (e) { if (e.key === ' ') { e.preventDefault(); $('bPa').onclick(); } else if (e.key === 'ArrowRight') au.currentTime += 5; else if (e.key === 'ArrowLeft') au.currentTime -= 5; });
   if (Q.get('t')) au.addEventListener('loadedmetadata', function () { au.currentTime = +Q.get('t'); }, { once: true });
   requestAnimationFrame(bucle);
-  if (!Q.get('t')) empieza();   /* si el navegador deja, arranca solo; si no, el botón */
+  if (!Q.get('t') && !MP4) empieza();   /* si el navegador deja, arranca solo; si no, el botón (en modo vídeo, el botón tras la descarga) */
   window.__pinta = function (t) { pinta(t); dibuja(t); };
 })();
 </script>

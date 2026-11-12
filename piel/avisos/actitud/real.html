@@ -318,7 +318,7 @@ body.f-sug .sug{border-color:#facc15}
     /* ---- lo que suma: minuto a minuto, con el multiplicador de cada área ---- */
     var mp = mapaTeoria(P.mapa, gp), flojos = d.flojos || [], mult = { teoria: 1, ritmo: 1, entonacion: 1, audicion: 1 }, por = {};
     if (mp.r.length) mult.teoria = 2, por.teoria = 'en rojo en tu mapa: ' + mp.r.slice(0, 2).join(', ');
-    else if (mp.a.length) mult.teoria = 1.5, por.teoria = 'en naranja en tu mapa: ' + mp.a.slice(0, 2).join(', ');
+    else if (mp.a.length) mult.teoria = 1.5, por.teoria = 'en amarillo en tu mapa: ' + mp.a.slice(0, 2).join(', ');
     flojos.forEach(function (a) { if (mult[a] != null) { mult[a] = 2; por[a] = 'te llegó el aviso de que está flojo'; } });
     if (!Object.keys(mult).some(function (a) { return mult[a] > 1; })) {
       var md = P.medias || {}, peor = null; Object.keys(md).forEach(function (a) { if (mult[a] != null && md[a] >= 5 && (peor == null || md[a] < md[peor])) peor = a; });
@@ -344,7 +344,7 @@ body.f-sug .sug{border-color:#facc15}
       ritmo: [[gp ? 'Ritmo entonado PRO' : 'Ritmo at home', urlApp(gp, 'ritmo', cu), 'Lecciones y ejercicios de ritmo']],
       entonacion: [['Entonación at home', urlApp(gp, 'entonacion', cu), 'Lecciones de entonación'], [gp ? 'Intervalia PRO' : 'Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']],
       audicion: [[gp ? 'Dictados PRO' : 'Dictado at home', urlApp(gp, 'dictado', cu), 'Dictados'], [gp ? 'PreDict PRO' : 'PreDict at home', urlApp(gp, 'predict', cu), 'Cuenta como dictado']],
-      teoria: mp.c.map(function (c) { return [c.nom, c.u || urlApp(gp, 'teoria', cu), c.caja + (c.m === 2 ? ' · en rojo en tu mapa' : ' · en naranja en tu mapa'), c.m]; })
+      teoria: mp.c.map(function (c) { return [c.nom, c.u || urlApp(gp, 'teoria', cu), c.caja + (c.m === 2 ? ' · en rojo en tu mapa' : ' · en amarillo en tu mapa'), c.m]; })
                 .concat([[gp ? 'Teoría PRO' : 'Teoría at home', urlApp(gp, 'teoria', cu), mp.c.length ? 'Todo lo demás de teoría' : (por.teoria ? 'Teoría · ' + por.teoria : 'Apuntes, vídeos y ejercicios'), mp.c.length ? 1 : mult.teoria]]) };
     var areas = Object.keys(mult).sort(function (a, b) { return mult[b] - mult[a]; }).map(function (a) { return [AREA[a][0], '×' + String(mult[a]).replace('.', ','), AREA[a][1], por[a] || '', OPC[a], a]; });
     /* faltas: cómo justificarlas */
@@ -501,7 +501,7 @@ body.f-sug .sug{border-color:#facc15}
     if (ops.length === 1 && a[5] !== 'teoria') { try { top.location.href = ops[0][1]; } catch (e) { location.href = ops[0][1]; } return; }
     pop.style.setProperty('--pc', a[2]); document.getElementById('popT').textContent = a[0] + ' · ' + a[1];
     document.getElementById('popS').textContent = a[5] === 'teoria' ? 'Elige qué practicar: lo que peor te ha salido vale más.' : 'Elige la aplicación:';
-    document.getElementById('popL').innerHTML = ops.map(function (o) { var m = o[3] != null ? o[3] : null, oc = m === 2 ? '#ef4444' : m === 1.5 ? '#f59e0b' : a[2];
+    document.getElementById('popL').innerHTML = ops.map(function (o) { var m = o[3] != null ? o[3] : null, oc = m === 2 ? '#ef4444' : m === 1.5 ? '#eab308' : a[2];
       return '<a href="' + o[1] + '" target="_top" style="--oc:' + oc + '"><span><b>' + esc(o[0]) + '</b><small>' + esc(o[2] || '') + '</small></span>' + (m != null ? '<em>×' + String(m).replace('.', ',') + '</em>' : '<em>↗</em>') + '</a>'; }).join('');
     pop.hidden = false;
   }
