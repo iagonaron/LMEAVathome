@@ -327,7 +327,7 @@ body.f-sug .sug{border-color:#facc15}
     var tm = d.tiempo || {}, apps = tm.apps || {}, det = tm.det || {}, puntos = 0;
     Object.keys(apps).map(function (a) { return [a, apps[a]]; }).filter(function (x) { return x[1] >= 60; }).sort(function (a, b) { return b[1] - a[1]; }).forEach(function (x) {
       var ar = areaDe(x[0]), m = ar ? mult[ar] : 1, v = x[1] / 3600 * m, extra = '';
-      if (ar === 'teoria') { /* teoría: cada rato con el multiplicador de su concepto; los portales y lo demás, ×1 */
+      if (ar === 'teoria' && mp.c.length) { /* teoría: cada rato con el multiplicador de su concepto; los portales y lo demás, ×1 */
         var dd = det[x[0]] || {}, conM = 0, sumM = 0, top = {}; Object.keys(dd).forEach(function (k) { var mm = PORT[String(x[0]).replace(/-(ge|gp)$/, '')] ? 1 : multSub(k, mp); conM += dd[k]; sumM += dd[k] * mm;
           if (mm > 1) { var nk = String(k).replace(/\|.*$/, ''); top[nk] = Math.max(top[nk] || 0, mm); } });
         v = (sumM + Math.max(0, x[1] - conM)) / 3600; m = 1;
@@ -345,7 +345,7 @@ body.f-sug .sug{border-color:#facc15}
       entonacion: [['Entonación at home', urlApp(gp, 'entonacion', cu), 'Lecciones de entonación'], [gp ? 'Intervalia PRO' : 'Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']],
       audicion: [[gp ? 'Dictados PRO' : 'Dictado at home', urlApp(gp, 'dictado', cu), 'Dictados'], [gp ? 'PreDict PRO' : 'PreDict at home', urlApp(gp, 'predict', cu), 'Cuenta como dictado']],
       teoria: mp.c.map(function (c) { return [c.nom, c.u || urlApp(gp, 'teoria', cu), c.caja + (c.m === 2 ? ' · en rojo en tu mapa' : ' · en naranja en tu mapa'), c.m]; })
-                .concat([[gp ? 'Teoría PRO' : 'Teoría at home', urlApp(gp, 'teoria', cu), 'Todo lo demás de teoría', 1]]) };
+                .concat([[gp ? 'Teoría PRO' : 'Teoría at home', urlApp(gp, 'teoria', cu), mp.c.length ? 'Todo lo demás de teoría' : (por.teoria ? 'Teoría · ' + por.teoria : 'Apuntes, vídeos y ejercicios'), mp.c.length ? 1 : mult.teoria]]) };
     var areas = Object.keys(mult).sort(function (a, b) { return mult[b] - mult[a]; }).map(function (a) { return [AREA[a][0], '×' + String(mult[a]).replace('.', ','), AREA[a][1], por[a] || '', OPC[a], a]; });
     /* faltas: cómo justificarlas */
     var ult = fs.length ? fs[fs.length - 1].f : null, hoy = new Date(), ayer = new Date(hoy.getTime() - 36e5 * 30);
@@ -423,7 +423,8 @@ body.f-sug .sug{border-color:#facc15}
     clearInterval(DEMO); if (d.que === 'barra') { var p = POS, t0 = Date.now(); DEMO = setInterval(function () { var q = (Date.now() - t0) / 1000;
       if (q < 2.2) return; p = Math.min(2, POS + (q - 2.2) * 0.35); ponBarra(p); if (p >= 2) clearInterval(DEMO); }, 60); } });
   var BAL = POS - NEG, bal = $('bal');
-  bal.innerHTML = '<b style="color:' + (BAL > 0.01 ? '#4ade80' : BAL < -1.5 ? '#f87171' : BAL < -0.01 ? '#fbbf24' : '#e4e4e7') + '">' + (BAL > 0 ? '+' : BAL < 0 ? '−' : '') + fmt(Math.abs(BAL)) + '</b>' +
+  var BR = Math.round(BAL * 100) / 100;
+  bal.innerHTML = '<b style="color:' + (BR > 0 ? '#4ade80' : BR < -1.5 ? '#f87171' : BR < 0 ? '#fbbf24' : '#e4e4e7') + '">' + (BR > 0 ? '+' : BR < 0 ? '−' : '') + (REAL ? Math.abs(BR).toFixed(2).replace('.', ',') : fmt(Math.abs(BAL))) + '</b>' +
     '<span>Tu balance de fuerzas</span><div class="bb"><i class="r" id="balR"></i><i class="v" id="balV"></i><em id="balM"></em></div><small>Se aplica a la nota que pone Iago. En 0 o cerca, está bien; pasar de 0 es todo un éxito. Lo importante: que no sea muy negativo.</small>';
   /* líneas de fuerza */
   var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0, choque: 0 };
