@@ -7,7 +7,7 @@
    · No sale en las cuentas Tester / Protester (Iago no lo usa).
    · Como mucho una incidencia abierta por alumno.
    · SQL: suite_incidencia_alumno_enviar / _estado (alumno) · suite_incidencias_alumno_listar / _responder (Diario).
-   Quitarlo: borrar la línea <script … incidencias.js> de index.html (GE y GP).
+   Tamaño: copia el de la campana. Quitarlo: borrar la línea <script … incidencias.js> de index.html (GE y GP).
    ============================================================================================================ */
 (function () {
   'use strict';
@@ -55,7 +55,7 @@
     var st = document.createElement('style'); st.id = 'lm-incid-css';
     st.textContent =
       '#lm-incid-btn{order:-2;position:relative;width:var(--lm-ctl,34px);height:var(--lm-ctl,34px);min-width:var(--lm-ctl,34px);padding:0;margin:0;border:0;border-radius:10px;background:var(--lm-neutro,#243044);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;align-self:center;flex:0 0 auto}' +
-      '#lm-incid-btn:hover{background:var(--lm-neutro-h,#2d3b52)}#lm-incid-btn[hidden]{display:none!important}' +
+      '@media (hover:hover){#lm-incid-btn:hover{background:var(--lm-neutro-h,#2d3b52)}}#lm-incid-btn[hidden]{display:none!important}' +
       '#lm-incid{position:fixed;inset:0;z-index:2147481000;background:rgba(3,6,12,.62);display:flex;align-items:center;justify-content:center;padding:16px;font-family:inherit}' +
       '#lm-incid[hidden]{display:none}' +
       '#lm-incid .li-c{position:relative;width:min(470px,100%);max-height:92vh;overflow:auto;background:rgba(12,16,26,.97);border:2px solid #cbd5e1;border-radius:16px;padding:18px 18px 16px;color:#f1f5f9;box-sizing:border-box}' +
@@ -64,7 +64,8 @@
       '#lm-incid h3{margin:0 40px 12px 0;font-size:19px;line-height:1.25;font-weight:900;color:#fff}' +
       '#lm-incid .li-op{display:block;width:100%;text-align:left;border:1.5px solid rgba(255,255,255,.22);border-radius:10px;padding:10px 12px;margin:0 0 7px;background:transparent;color:#f1f5f9;font-family:inherit;font-size:14px;font-weight:500;line-height:1.3;cursor:pointer}' +
       '#lm-incid .li-op small{display:block;color:#94a3b8;font-size:12px;margin-top:2px}' +
-      '#lm-incid .li-op:hover{border-color:#e2e8f0;background:rgba(226,232,240,.1)}' +
+      '@media (hover:hover){#lm-incid .li-op:hover{border-color:#e2e8f0;background:rgba(226,232,240,.1)}}' +   /* (12-nov-2026, Iago) en pantallas táctiles el «hover» se quedaba pegado en la tarjeta del paso siguiente */
+      '#lm-incid .li-op:focus{outline:none}' +
       '#lm-incid .li-op.li-otra{border-style:dashed;color:#cbd5e1}' +
       '#lm-incid .li-nota{font-size:12.5px;line-height:1.45;color:#cbd5e1;background:rgba(255,255,255,.05);border-radius:9px;padding:8px 10px;margin-top:10px}#lm-incid .li-nota b{color:#fff}' +
       '#lm-incid .li-ficha{border:1px solid rgba(236,72,153,.6);background:rgba(236,72,153,.1);margin:0 0 10px}' +
@@ -94,6 +95,12 @@
     }
     if (b.parentNode !== mr.parentNode || b.nextSibling !== mr) mr.parentNode.insertBefore(b, mr);
     b.hidden = mr.classList.contains('lm-oculto') || mr.style.display === 'none';
+    /* (12-nov-2026, Iago: «del mismo tamaño que Mis resultados y la campana») copia el tamaño real de la campana (o de Mis resultados) */
+    var ref = document.getElementById('alu-campana-btn'); if (!ref || !ref.offsetHeight) ref = mr;
+    if (ref && ref.offsetHeight) { var h = ref.offsetHeight, w = ref.offsetWidth, cs = getComputedStyle(ref);
+      var lado = (mr.classList.contains('lm-mr-cuadro') || Math.abs(w - h) < 6) ? Math.max(w, h) : h;
+      if (b.style.width !== lado + 'px') { b.style.width = b.style.minWidth = b.style.height = lado + 'px'; }
+      if (cs.borderRadius && b.style.borderRadius !== cs.borderRadius) b.style.borderRadius = cs.borderRadius; }
   }
 
   /* ---- la ventana ---- */
@@ -111,7 +118,8 @@
     return m;
   }
   function cerrar() { var m = document.getElementById('lm-incid'); if (m) m.hidden = true; }
-  function pinta(html) { var m = caja(); m.querySelector('.li-in').innerHTML = html; m.hidden = false; return m.querySelector('.li-in'); }
+  function pinta(html) { var m = caja(); try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
+    m.querySelector('.li-in').innerHTML = html; m.hidden = false; return m.querySelector('.li-in'); }
   var NOTA_CNET = '<div class="li-nota">✉️ <b>Faltas, justificantes, tutorías y cosas de clase</b> → por <b>CentrosNET</b>. Esto es solo para el portal.</div>';
 
   async function abrir() {
