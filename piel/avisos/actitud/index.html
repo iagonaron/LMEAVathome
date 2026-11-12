@@ -143,7 +143,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     <div id="cols">
       <section class="col contra" id="colC"><h2>Resta</h2><div class="lista" id="contra"></div><div class="neuw" id="neuwC"><h2>Neutro · no resta</h2><div class="lista n" id="neuC"></div></div></section>
       <section class="esc" id="colA"><h2>Actitud</h2><div class="lad" id="lad"><div class="aguja" id="aguja"><i></i><em id="num">7</em></div><div class="base" id="base"><span>primera impresión</span></div><div id="ejemplo"></div></div></section>
-      <section class="col favor" id="colF"><h2>Suma</h2><div class="tope" id="tope">Como mucho, +1</div><div class="lista" id="favor"></div><div class="neuw" id="neuwF"><h2>Neutro · no suma</h2><div class="lista n" id="neuF"></div></div></section>
+      <section class="col favor" id="colF"><h2>Suma</h2><div class="tope" id="tope">Como mucho, un escalón (+2)</div><div class="lista" id="favor"></div><div class="neuw" id="neuwF"><h2>Neutro · no suma</h2><div class="lista n" id="neuF"></div></div></section>
     </div>
     <div id="clave"></div>
   </div>
@@ -230,13 +230,13 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     ['semanaexamen', 0, 'La semana de exámenes'], ['referencia', 3, 'En el 2.º trimestre: lo del 1.º, como referencia'], ['otrasresta', 0, 'Faltas sin justificar'],
     ['faltas', 9, 'Aviso por CentrosNET = justificada'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia1', 0, 'Ponerte al día: neutro'],
     ['quiz', 0, 'Quiz sin hacer'], ['fichas', 0, 'Fichas en periodo extra'], ['fichasregla', 15, 'Hasta 2, no restan'], ['suma', 0, 'Lo que suma'], ['like', 0, 'Trabajo a mayores'],
-    ['repaso', 0, 'Repasa y experimenta'], ['sistema', 0, 'Lo que más te cuesta, ×2'], ['regularidad', 0, 'Minutos y regularidad'], ['tope1', 0, 'Como mucho, +1'],
+    ['repaso', 0, 'Repasa y experimenta'], ['sistema', 0, 'Lo que más te cuesta, ×2'], ['regularidad', 0, 'Minutos y regularidad'], ['tope1', 0, 'Como mucho…'],
     ['compensar', 0, 'Para compensar'], ['franja', 0, 'Tu nota de actitud'], ['misresultados', 0, '']];
   CLAVES.forEach(function (k) { k.t = t0(k[0], k[1]); }); CLAVES = CLAVES.filter(function (k) { return k.t != null; }).sort(function (a, b) { return a.t - b.t; });
   /* máquina de escribir (lo que no dice la voz) */
   var MAQ = [];
   if (VER === 'curso') MAQ.push({ t: t0('fichas', 0.4), hasta: t0('fichasregla', 6), txt: 'Fichas en periodo extra: se perdonan 2 por trimestre. Desde la 3.ª, −0,5 cada una.' });
-  MAQ.push({ t: t0('tope1', -0.2), hasta: t1('compensar', 0.5), txt: 'Lo que suma te sube como mucho 1 punto, aunque eches muchas horas.' });
+  MAQ.push({ t: t1('tope2', 0.05), hasta: t1('compensar', 0.5), txt: 'Un escalón: +2 en tu nota de actitud, como mucho, aunque eches muchas horas.' });
   var teclas = new Audio('teclas.mp3'), ding = new Audio('ding.mp3'); teclas.volume = .35; ding.volume = .25; var ultTecla = 0, ultLen = 0;
   /* fuerzas: la línea roja sale de «Resta», la verde de «Suma» */
   var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0, choque: 0 }, pR = $('pR'), pV = $('pV'), fR = $('fR'), fV = $('fV'), haz = $('haz');
