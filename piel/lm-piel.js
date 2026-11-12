@@ -393,7 +393,7 @@
      práctica por libre. Para quitarlo: borrar este bloque. ---------- */
   try {
     if (!window.LMLatido && !document.querySelector('script[src*="/piel/latido.js"]')) {
-      var lat = document.createElement('script'); lat.src = BASE + 'latido.js?v=1'; lat.async = true;
+      var lat = document.createElement('script'); lat.src = BASE + 'latido.js?v=2'; lat.async = true;
       lat.setAttribute('data-app', app); lat.setAttribute('data-grado', grado);
       (document.head || H).appendChild(lat);
     }

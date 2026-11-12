@@ -14,6 +14,12 @@
      enseña los de 2 minutos o más (suite_actividad_listar).
    · Nada si viene de una tarea (ficha, quiz o intro de una carta), del Diario (clase, proyector) o del Ojeador, ni en
      las apps de los deberes de cada semana (ritmo, entonación, dictados) ni en el Carrusel de clase.
+   (12-nov-2026, Iago) «No me vale que un alumno simplemente entre en un ejercicio y deje la pantalla ahí… o que solo mueva el
+   ratón (a lo mejor está comiéndose un bocadillo y dándole al ratón)»: un segundo cuenta SOLO si en el último minuto ha
+   hecho algo de verdad Y en los últimos 2 minutos ha tocado al menos 2 cosas distintas: pulsar un botón, una tecla, un
+   control, una casilla, el pentagrama o el teclado (svg/canvas), escribir, mover un deslizador… Pulsar en el fondo vacío,
+   mover el ratón o la rueda no cuentan; un vídeo o audio sonando, sí (como antes). Y la portada y la pantalla de carga de
+   los portales (portada, lugares, …-carga) no cuentan nunca. Para volver a como estaba: latido.js de antes (v=1).
    Lo carga lm-piel.js en todas sus apps; los portales temáticos (Fonógrafo, Acústica…) lo traen con su propia línea.
    Para quitarlo: borrar la carga en lm-piel.js (y esa línea de los temáticos); sin latidos, no hay avisos. */
 (function () {
@@ -23,7 +29,7 @@
   if (!/(^|\.)lmathome\.es$/.test(host)) return;
   var yo = document.currentScript;
   var SB = 'https://woiptkyrxkbpnvioypit.supabase.co', ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
-  var T = window.__LATIDO_T || { s: 1000, minuto: 60000, quieto: 120000 };   /* (el banco de pruebas acelera el reloj) */
+  var T = window.__LATIDO_T || { s: 1000, minuto: 60000, quieto: 60000, ventana: 120000 };   /* (el banco de pruebas acelera el reloj) */
   var q = {}; try { q = Object.fromEntries(new URLSearchParams(location.search)); } catch (e) {}
   var grado = (yo && yo.getAttribute('data-grado')) || (/(^|\.)gp\.lmathome\.es$/.test(host) ? 'gp' : 'ge');
   var ES_PORTAL = host === 'ge.lmathome.es' || host === 'gp.lmathome.es';
@@ -73,9 +79,28 @@
   } catch (e) {}
   if (!leerCookie()) return;
 
-  var ultimoToque = Date.now(), acc = 0;
-  function toque() { ultimoToque = Date.now(); }
-  var EV = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'input', 'change'];
+  var ultimoToque = 0, acc = 0, toques = [];   /* toques de verdad: [instante, cosa tocada] */
+  var INTERACTIVO = 'button,a[href],input,select,textarea,label,summary,[role="button"],[role="slider"],[role="checkbox"],[role="radio"],[role="option"],[role="tab"],[onclick],[tabindex],[data-lm-ej],svg,canvas,.btn,.boton,.key,.tecla';
+  function toque(ev) {
+    var t = ev && ev.target, cosa = null;
+    if (ev && (ev.type === 'input' || ev.type === 'change' || ev.type === 'keydown')) {
+      if (ev.type === 'keydown' && (ev.repeat || /^(Shift|Control|Alt|Meta|CapsLock|Tab)$/.test(ev.key || ''))) return;   /* una tecla dejada pulsada no son varias */
+      cosa = t || document.activeElement || 'tecla';
+    } else {
+      try { cosa = t && t.closest ? t.closest(INTERACTIVO) : null; } catch (e) { cosa = null; }
+      if (!cosa) return;   /* pulsar en el fondo vacío no es practicar */
+    }
+    var ahora = Date.now(); ultimoToque = ahora;
+    toques.push([ahora, cosa]); if (toques.length > 30) toques.shift();
+  }
+  function practicando() {
+    var ahora = Date.now();
+    if (ahora - ultimoToque >= T.quieto) return false;
+    var cosas = [];
+    for (var i = toques.length - 1; i >= 0 && ahora - toques[i][0] < T.ventana; i--) { if (cosas.indexOf(toques[i][1]) === -1) cosas.push(toques[i][1]); if (cosas.length >= 2) return true; }
+    return false;
+  }
+  var EV = ['pointerdown', 'keydown', 'touchstart', 'input', 'change'];
   function enganchar(doc) {
     if (!doc || doc.__lmLatido) return;
     doc.__lmLatido = 1;
@@ -129,7 +154,8 @@
     try { var fr = document.querySelectorAll('iframe'); for (var i = 0; i < fr.length; i++) { try { enganchar(fr[i].contentDocument); } catch (e) {} } } catch (e) {}
     if (document.visibilityState !== 'visible') return;
     if (familia === 'teoria' && !ejercicio()) return;   /* en Teoría, el menú del inicio no es practicar (como el contador de siempre) */
-    if (Date.now() - ultimoToque < T.quieto || sonando()) acc += 1;   /* un segundo más de práctica */
+    var ej = ejercicio(); if (ej && /^(portada|lugares)$|-carga$/.test(ej)) return;   /* (12-nov-2026) la portada y la carga de los portales, no */
+    if (practicando() || sonando()) acc += 1;   /* un segundo más de práctica */
   }, T.s);
   setInterval(function () { if (acc >= 20) { latido(acc); acc = 0; } }, T.minuto);
   function soltar() { if (acc >= 20) { latido(acc, true); acc = 0; } }
