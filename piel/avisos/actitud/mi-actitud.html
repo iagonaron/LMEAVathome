@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi actitud</title>
+<!-- (12-nov-2026, Iago) «Mis resultados» → botón «Mi actitud»: las fuerzas que restan, suman o son neutras de este trimestre, la escalera
+     de actitud con la línea blanca y, al entrar, la línea viaja desde donde la viste la última vez hasta donde está ahora.
+     1.er trimestre: sin parámetros ni nota (aviso). Desde el 2.º: el punto de partida es lo que marcó Iago el trimestre anterior.
+     Maqueta para el vídeo: ?caso=gp1 | gp2 | ge1 | ge2 (datos de un alumno de ejemplo). -->
+<style>
+:root{--f:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--tinta:#f4f4f5;--suave:#a1a1aa;--card:rgba(13,17,28,.74);--bd:rgba(255,255,255,.14);--oro:#facc15}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;color:var(--tinta);font-family:var(--f);overflow:hidden;background:#0b1020}
+body{background:linear-gradient(rgba(6,9,18,.62),rgba(6,9,18,.62)),url(fondo.jpg) center/cover no-repeat;display:grid;grid-template-rows:auto auto 1fr auto;gap:1.6vh;padding:1.6vh 2vw 2.2vh}
+.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.btn{justify-self:start;border:0;border-radius:10px;background:var(--oro);color:#111;font:800 clamp(12px,1vw,16px)/1 var(--f);padding:.85em 1.5em;cursor:pointer}
+.tit{display:flex;align-items:center;gap:.6vw;font:900 clamp(16px,1.35vw,24px)/1 var(--f)}
+.tit i{display:grid;place-items:center;width:2.2vw;height:2.2vw;min-width:28px;min-height:28px;border-radius:8px;background:var(--oro);color:#111;font-style:normal;font-size:.9em}
+.quien{justify-self:end;text-align:right;font:600 clamp(11px,.85vw,14px)/1.35 var(--f);color:#cbd5e1}.quien b{display:block;color:#fff;font-size:1.1em}
+.aviso{background:var(--card);border:1px solid rgba(250,204,21,.45);border-left:5px solid var(--oro);border-radius:14px;padding:1.2vh 1.4vw;font:500 clamp(12px,1.05vw,18px)/1.45 var(--f);color:#e4e4e7;backdrop-filter:blur(6px)}
+.aviso b{color:#fff}
+main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
+.col{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:2vh 1.2vw;display:flex;flex-direction:column;gap:1.2vh;min-height:0;overflow:hidden;backdrop-filter:blur(6px)}
+.col h2{margin:0;font:900 clamp(11px,.95vw,16px)/1 var(--f);letter-spacing:.14em;text-transform:uppercase}
+.col.contra{border-color:rgba(239,68,68,.5)}.col.contra h2{color:#fca5a5}
+.col.favor{border-color:rgba(34,197,94,.5)}.col.favor h2{color:#86efac}
+.tope{margin-top:-.4vh;font:600 clamp(10px,.85vw,14px)/1.2 var(--f);color:var(--suave)}
+.lista{display:flex;flex-direction:column;gap:1vh}.lista.n{gap:.55vh}
+.neuw{margin-top:auto;padding-top:1.2vh;border-top:1px dashed #3f3f46;display:flex;flex-direction:column;gap:.8vh}
+.neuw h2{color:#a1a1aa!important;font-size:clamp(10px,.8vw,13px)!important}
+.fz{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.7vw;padding:1.1vh .9vw;border-radius:12px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);
+  opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s}
+.fz.ve{opacity:1;transform:none}
+.fz b{display:block;font:800 clamp(12px,1.15vw,20px)/1.15 var(--f)}
+.fz small{display:block;margin-top:.4vh;font:500 clamp(10px,.85vw,14px)/1.3 var(--f);color:var(--suave)}
+.fz .v{font:900 clamp(16px,1.8vw,32px)/1 var(--f);color:var(--c);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fz em{font-style:normal;display:inline-block;margin-left:.4em;padding:.05em .4em;border-radius:6px;border:1px solid currentColor;font:700 .7em/1.3 var(--f);color:#fde68a;vertical-align:.15em}
+.fz.neutro{--c:#71717a;padding:.65vh .8vw;border-width:1.5px;background:rgba(113,113,122,.12)}
+.fz.neutro b{display:inline;font:700 clamp(11px,.95vw,16px)/1.2 var(--f);color:#d4d4d8}
+.fz.neutro small{display:inline;margin:0 0 0 .5em;font-size:clamp(10px,.8vw,13px);color:#a1a1aa}.fz.neutro small::before{content:"· "}
+.fz.neutro .v{font-size:clamp(11px,1vw,17px);color:#a1a1aa}
+.vacio{font:500 clamp(11px,.9vw,15px)/1.4 var(--f);color:var(--suave)}
+/* la escalera */
+.esc{background:transparent;border:0;padding:0 .2vw;display:flex;flex-direction:column;min-height:0}
+.esc h2{margin:0 0 1vh;font:900 clamp(11px,.95vw,16px)/1 var(--f);letter-spacing:.14em;text-transform:uppercase;color:#d4d4d8;padding-left:1vw}
+.lad{position:relative;flex:1;min-height:0;display:grid;grid-template-rows:repeat(5,1fr);gap:.9vh}
+.pel{position:relative;border-radius:14px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 14%,rgba(10,12,20,.92));display:flex;align-items:center;padding-left:1.3vw;
+  font:900 clamp(13px,1.5vw,27px)/1 var(--f);letter-spacing:.05em;color:#fff;transition:background .7s,color .7s,box-shadow .7s;overflow:hidden}
+.pel::after{content:"";position:absolute;left:40%;right:0;top:50%;border-top:1.5px dashed color-mix(in srgb,var(--c) 45%,transparent)}
+.pel i,.pel u{position:absolute;right:1vw;font:700 clamp(10px,.85vw,15px)/1 var(--f);font-style:normal;text-decoration:none;color:var(--suave)}
+.pel i{top:22%}.pel u{bottom:22%}
+.pel s{text-decoration:none;opacity:0;transition:opacity .5s}
+.pel.on{background:var(--c);color:#0b0b0c;box-shadow:0 0 40px color-mix(in srgb,var(--c) 50%,transparent)}
+.pel.on i,.pel.on u{color:rgba(0,0,0,.55)}.pel.on.mas s{opacity:1}
+.lad.sin .pel{filter:saturate(.35) brightness(.75)}
+.aguja{position:absolute;left:-.7vw;right:-.7vw;height:0;top:0;z-index:5;transition:top 3.2s cubic-bezier(.5,0,.2,1);pointer-events:none}
+.aguja i{position:absolute;left:0;right:0;top:-2px;height:4px;border-radius:2px;background:#fff;box-shadow:0 0 8px #fff,0 0 22px rgba(255,255,255,.7);animation:respira 2.8s ease-in-out infinite}
+@keyframes respira{0%,100%{transform:translateY(-1px)}50%{transform:translateY(1.5px)}}
+.aguja em{position:absolute;left:84%;top:0;transform:translate(-50%,-50%);padding:.18em .45em;border-radius:8px;background:#fff;color:#0a0a0b;font:900 clamp(13px,1.4vw,26px)/1 var(--f);font-style:normal;font-variant-numeric:tabular-nums;box-shadow:0 0 18px rgba(255,255,255,.6)}
+.aguja.bote i,.aguja.bote em{animation:lat .55s ease-in-out infinite alternate}
+@keyframes lat{to{opacity:.2}}
+.aguja.duda i{background:repeating-linear-gradient(90deg,#fff 0 10px,transparent 10px 18px);box-shadow:none;opacity:.8}
+.aguja.duda em{background:#18181b;color:#fff;border:2px dashed rgba(255,255,255,.7);box-shadow:none}
+.base{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed rgba(255,255,255,.55);z-index:4;pointer-events:none;opacity:0;transition:opacity .4s}
+.base span{position:absolute;left:44%;bottom:3px;font:700 clamp(9px,.8vw,13px)/1 var(--f);color:rgba(255,255,255,.8);white-space:nowrap}
+.pie-esc{margin-top:1vh;text-align:left;padding-left:1vw;font:600 clamp(11px,.95vw,16px)/1.3 var(--f);color:#e4e4e7}.pie-esc b{color:var(--oro)}
+/* sugerencias */
+.sug{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:1.3vh 1.2vw;display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:1vw;align-items:stretch;backdrop-filter:blur(6px)}
+.sug h2{margin:0;align-self:center;font:900 clamp(11px,.95vw,16px)/1.2 var(--f);letter-spacing:.14em;text-transform:uppercase;color:var(--oro);writing-mode:horizontal-tb;max-width:8vw}
+.sug div{display:grid;grid-template-columns:auto 1fr;gap:.6vw;align-items:center;padding:.9vh .9vw;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  font:500 clamp(11px,.95vw,16px)/1.35 var(--f);color:#e4e4e7;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+.sug div.ve{opacity:1;transform:none}
+.sug div b{color:#fff}.sug div span:first-child{font-size:1.5em}
+#fuerzas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:8;overflow:visible}
+#fuerzas path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+#fuerzas .flujo{stroke:#fff;stroke-opacity:.55;stroke-dasharray:3 16;animation:fluye 1.1s linear infinite}
+@keyframes fluye{to{stroke-dashoffset:-19}}
+.chispa{position:fixed;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;pointer-events:none;z-index:9}
+</style></head>
+<body>
+<div class="top"><button class="btn">Volver</button><div class="tit"><i>⚖</i>Mi actitud</div><div class="quien"><b>Alumno de ejemplo</b><span id="grupo"></span></div></div>
+<div class="aviso" id="aviso"></div>
+<main>
+  <section class="col contra" id="colC"><h2>Resta</h2><div id="contra" class="lista"></div><div class="neuw"><h2>Neutro · no resta</h2><div id="neuC" class="lista n"></div></div></section>
+  <section class="esc"><h2>Actitud</h2><div class="lad" id="lad"><div class="aguja" id="aguja"><i></i><em id="num"></em></div><div class="base" id="base"><span id="baseT"></span></div></div><div class="pie-esc" id="pieEsc"></div></section>
+  <section class="col favor" id="colF"><h2>Suma</h2><div class="tope">Como mucho, +1</div><div id="favor" class="lista"></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
+</main>
+<div class="sug" id="sug"><h2>Para mejorar</h2></div>
+<svg id="fuerzas" aria-hidden="true"><defs><filter id="brillo" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<radialGradient id="gHaz"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+<path id="pR" stroke="#ef4444" filter="url(#brillo)"/><path id="fR" class="flujo"/><path id="pV" stroke="#22c55e" filter="url(#brillo)"/><path id="fV" class="flujo"/><circle id="haz" r="0" fill="url(#gHaz)"/></svg>
+<script>
+(function () {
+  'use strict';
+  var EST = [['EXCELENTE', '#3b82f6'], ['MUY BIEN', '#22c55e'], ['BIEN', '#eab308'], ['REGULAR', '#f59e0b'], ['MAL', '#ef4444']];
+  function banda(v) { return Math.min(5, Math.max(1, Math.ceil((v - 0.5) / 2))); }
+  function esMas(v) { return v >= 2 * banda(v) - 0.5; }
+  function etiqueta(v) { var e = EST[5 - banda(v)][0]; return esMas(v) ? e + '+' : e; }
+  function fmt(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
+  /* casos de ejemplo · [lado, valor, título, detalle, etiqueta] · c resta, nc no resta, f suma, nf no suma */
+  var CASOS = {
+    gp1: { grupo: '2.º GP', t: '1T', base: null, desde: null, f: [
+        ['c', -0.5, '2.ª falta sin justificar', '20/10 · la 2.ª resta medio; desde la 3.ª, una entera'],
+        ['c', -0.5, 'Portal sin ver', 'Atonalidad, capítulo 1: el de la clase del 20/10'],
+        ['nc', 0, '1.ª falta sin justificar', '01/10 · solo una: no cuenta'],
+        ['nc', 0, 'Falta justificada', '08/10'],
+        ['nc', 0, 'Te pusiste al día', 'Acústica, día 2'],
+        ['f', 1, '1 h 10 min extra', 'Por tu cuenta, en apps y portales'] ],
+      sug: [['🧭', 'Te falta ver el portal <b>Atonalidad, capítulo 1</b>: así te pones al día y deja de restar.'],
+            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b>: la falta queda justificada.'],
+            ['🎯', 'Tu punto flojo es <b>Entonación</b>: los minutos que practiques ahí valen el doble.']] },
+    gp2: { grupo: '2.º GP', t: '2T', base: 7, desde: 6.5, f: [
+        ['c', -1, 'Atención mejorable', 'La que marcó Iago en el 1.er trimestre', '1T'],
+        ['c', -0.5, '2.ª falta sin justificar', '19/01 · la 2.ª resta medio; desde la 3.ª, una entera'],
+        ['c', -0.5, 'Portal sin ver', 'Modulación, sesión 2: el de la clase del 19/01'],
+        ['nc', 0, '1.ª falta sin justificar', '12/01 · solo una: no cuenta'],
+        ['nc', 0, 'Ficha entregada en el periodo extra', 'se perdonan 2 por trimestre'],
+        ['f', 1, '1 h 10 min extra', 'Regular y en tu punto flojo'],
+        ['nf', 0, 'Buena puntualidad', 'es lo esperable', '1T'],
+        ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
+      sug: [['🎯', 'Tu punto flojo es <b>Entonación</b>: los minutos que practiques ahí valen el doble.'],
+            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b>: la falta queda justificada.'],
+            ['👂', 'La atención la vuelve a valorar Iago la <b>semana de exámenes</b>: aún puedes cambiarla.']] },
+    ge1: { grupo: '4.º GE', t: '1T', base: null, desde: null, f: [
+        ['c', -0.5, '2.ª falta sin justificar', '23/10 · la 2.ª resta medio; desde la 3.ª, una entera'],
+        ['c', -1, '2 quiz sin terminar', 'Cartas 2.1 y 2.2: medio punto cada uno'],
+        ['nc', 0, '1.ª falta sin justificar', '02/10 · solo una: no cuenta'],
+        ['nc', 0, 'Falta justificada', '07/10'],
+        ['nc', 0, 'Ficha entregada en el periodo extra', 'en el 1.er trimestre no cuenta'],
+        ['f', 1, '2 h extra, bien elegidas', 'Teoría era tu punto flojo: ahí valen doble'] ],
+      sug: [['⭐', 'Termina el <b>quiz de las cartas 2.1 y 2.2</b>: cada uno resta medio punto.'],
+            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b>: la falta queda justificada.'],
+            ['🎯', 'Tu punto flojo es <b>Ritmo</b>: los minutos en Ritmo at home valen el doble.']] },
+    ge2: { grupo: '4.º GE', t: '2T', base: 6, desde: 5, f: [
+        ['c', -1, 'Puntualidad mejorable', 'La que marcó Iago en el 1.er trimestre', '1T'],
+        ['c', -0.5, 'Quiz sin terminar', 'Carta 3.2'],
+        ['nc', 0, 'Falta justificada', '15/01'],
+        ['nc', 0, '2 fichas en el periodo extra', 'se perdonan 2 por trimestre'],
+        ['f', 1, '2 h 10 min extra', 'Regular y en tu punto flojo'],
+        ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
+      sug: [['⏰', 'Llegar a tiempo cuenta: la puntualidad la vuelve a valorar Iago la <b>semana de exámenes</b>.'],
+            ['⭐', 'Termina el <b>quiz de la carta 3.2</b>: resta medio punto.'],
+            ['🎯', 'Sigue así con <b>Teoría at home</b>: es tu punto flojo y ahí los minutos valen doble.']] }
+  };
+  var C = CASOS[new URLSearchParams(location.search).get('caso') || 'gp1'] || CASOS.gp1;
+  var $ = function (id) { return document.getElementById(id); };
+  $('grupo').textContent = C.grupo + ' · ' + (C.t === '1T' ? '1.er' : C.t === '2T' ? '2.º' : '3.er') + ' trimestre';
+  $('aviso').innerHTML = C.t === '1T'
+    ? '<b>Primer trimestre:</b> todavía hay campos sin cubrir y tu nota de actitud aún no está preparada (Iago la pone la semana de exámenes). Mientras, aquí ves lo que ya resta, suma o es neutro.'
+    : '<b>Ojo:</b> lo que está marcado con <b>1T</b> y la línea discontinua son del trimestre anterior: Iago los volverá a poner la semana de exámenes. Es tu punto de partida antes de aplicar las fuerzas: <b>puede variar</b>.';
+  var lad = $('lad'), ag = $('aguja'), num = $('num');
+  EST.forEach(function (e, i) {
+    var b = 5 - i, d = document.createElement('div');
+    d.className = 'pel'; d.style.setProperty('--c', e[1]); d.dataset.b = b;
+    d.innerHTML = e[0] + '<s>+</s><i>' + (2 * b) + '</i><u>' + (2 * b - 1) + '</u>';
+    lad.insertBefore(d, ag);
+  });
+  var PELS = Array.prototype.slice.call(lad.querySelectorAll('.pel'));
+  function yDe(v) {
+    v = Math.max(0, Math.min(10, v)); var b = banda(v), p = PELS[5 - b], r = p.getBoundingClientRect(), r0 = lad.getBoundingClientRect();
+    return r.top - r0.top + 3 + Math.max(0, Math.min(1, (2 * b - v + 0.5) / 2)) * (r.height - 6);
+  }
+  var cards = C.f.map(function (x) {
+    var d = document.createElement('div'), col = x[0] === 'c' ? '#ef4444' : x[0] === 'f' ? '#22c55e' : '#71717a';
+    d.className = 'fz' + (x[0].charAt(0) === 'n' ? ' neutro' : ''); d.style.setProperty('--c', col);
+    var v = x[0].charAt(0) === 'n' ? '0' : (x[1] > 0 ? '+' : '−') + String(Math.abs(x[1])).replace('.', ',');
+    d.innerHTML = '<div><b>' + x[2] + (x[4] ? '<em>' + x[4] + '</em>' : '') + '</b>' + (x[3] ? '<small>' + x[3] + '</small>' : '') + '</div><div class="v">' + v + '</div>';
+    $({ c: 'contra', f: 'favor', nc: 'neuC', nf: 'neuF' }[x[0]]).appendChild(d);
+    return d;
+  });
+  ['neuF', 'neuC', 'favor', 'contra'].forEach(function (id) { if (!$(id).children.length) $(id).innerHTML = '<div class="vacio">' + (id === 'neuF' ? 'Nada por ahora.' : 'Nada por ahora.') + '</div>'; });
+  var sugs = C.sug.map(function (s) { var d = document.createElement('div'); d.innerHTML = '<span>' + s[0] + '</span><span>' + s[1] + '</span>'; $('sug').appendChild(d); return d; });
+  var NEG = C.f.reduce(function (a, x) { return a + (x[1] < 0 ? -x[1] : 0); }, 0);
+  var POS = Math.min(1, C.f.reduce(function (a, x) { return a + (x[1] > 0 ? x[1] : 0); }, 0));
+  var SIN = C.base == null;
+  var FIN = SIN ? 5 : Math.max(0, Math.min(10, C.base - NEG + POS));
+  /* líneas de fuerza */
+  var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0, choque: 0 };
+  var pR = $('pR'), pV = $('pV'), fR = $('fR'), fV = $('fV'), haz = $('haz');
+  function dibuja() {
+    var vh = innerHeight / 100, L = $('colC').getBoundingClientRect(), R = $('colF').getBoundingClientRect(), Cc = lad.getBoundingClientRect(), A = ag.getBoundingClientRect(), M = document.querySelector('main').getBoundingClientRect();
+    var x = Cc.left + Cc.width * 0.72, y = A.top + A.height / 2, t = performance.now() / 1000, osc = Math.sin(t * 2.3) * 1.2;
+    var yT = M.top - .8 * vh, yB = M.bottom + .8 * vh, xL = L.left + L.width * 0.5, xR = R.left + R.width * 0.5;
+    var dR = 'M' + xL + ' ' + L.top + ' V' + yT + ' H' + x + ' V' + (y - 5 + osc), dV = 'M' + xR + ' ' + R.bottom + ' V' + yB + ' H' + x + ' V' + (y + 5 + osc);
+    F.wR += ((F.neg ? 2 + Math.min(5, F.neg * 1.1) : 0) - F.wR) * 0.08; F.wV += ((F.pos ? 2 + Math.min(5, F.pos * 1.6) : 0) - F.wV) * 0.08;
+    F.aR += ((F.neg ? 1 : 0) - F.aR) * 0.06; F.aV += ((F.pos ? 1 : 0) - F.aV) * 0.06;
+    var lat = 1 + Math.sin(t * 3.1) * 0.12 + (F.choque ? Math.sin(t * 40) * 0.35 : 0);
+    [[pR, fR, dR, F.wR, F.aR], [pV, fV, dV, F.wV, F.aV]].forEach(function (z) {
+      z[0].setAttribute('d', z[2]); z[1].setAttribute('d', z[2]);
+      z[0].setAttribute('stroke-width', Math.max(0, z[3] * lat)); z[0].setAttribute('stroke-opacity', z[4]);
+      z[1].setAttribute('stroke-width', Math.max(0, z[3] * 0.45)); z[1].style.opacity = z[4];
+    });
+    var rH = (F.neg && F.pos ? 10 : (F.neg || F.pos) ? 6 : 0) + Math.sin(t * 2.6) * 1.5 + (F.choque ? 42 + Math.sin(t * 30) * 9 : 0);
+    haz.setAttribute('cx', x); haz.setAttribute('cy', y + osc); haz.setAttribute('r', Math.max(0, rH));
+    if (F.choque && Math.random() < 0.5) chispa(x, y + osc);
+    requestAnimationFrame(dibuja);
+  }
+  function chispa(x, y) {
+    var c = document.createElement('div'), a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 90;
+    c.className = 'chispa'; c.style.left = x + 'px'; c.style.top = y + 'px'; document.body.appendChild(c);
+    c.animate([{ transform: 'translate(-50%,-50%)', opacity: 1 }, { transform: 'translate(' + (Math.cos(a) * d - 2) + 'px,' + (Math.sin(a) * d - 2) + 'px) scale(.2)', opacity: 0 }],
+      { duration: 450 + Math.random() * 400, easing: 'ease-out' }).onfinish = function () { c.remove(); };
+  }
+  function marca(v, on) {
+    var b = banda(v), mas = esMas(v);
+    PELS.forEach(function (p) { var o = on && +p.dataset.b === b; p.classList.toggle('on', o); p.classList.toggle('mas', o && mas); });
+  }
+  var CT = null;
+  function cuenta(a, b, ms) { clearInterval(CT); var t0 = Date.now(); CT = setInterval(function () { var q = Math.min(1, (Date.now() - t0) / ms), e = q < .5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+    var v = a + (b - a) * e; num.textContent = fmt(v); marca(v, true); if (q >= 1) clearInterval(CT); }, 50); }
+  function pon(v) { ag.style.transition = 'none'; ag.style.top = yDe(v) + 'px'; void ag.offsetWidth; ag.style.transition = ''; }
+  /* la entrada: la línea donde la viste la última vez → las fuerzas se cargan → el haz la lleva a su sitio nuevo */
+  function entra() {
+    var desde = SIN ? 5 : (C.desde != null ? C.desde : C.base);
+    pon(desde);
+    if (SIN) { lad.classList.add('sin'); ag.classList.add('duda'); num.textContent = '?'; $('pieEsc').innerHTML = 'Tu actitud: <b>sin marcar todavía</b>'; }
+    else { num.textContent = fmt(desde); marca(desde, true); ag.classList.add('bote');
+      $('base').style.top = yDe(C.base) + 'px'; $('baseT').textContent = 'punto de partida · ' + C.t.replace('2T', '1T').replace('3T', '2T'); $('base').style.opacity = 1; }
+    var i = 0;
+    var paso = setInterval(function () {
+      if (i < cards.length) { cards[i].classList.add('ve'); var x = C.f[i]; if (x[1] < 0) F.neg -= x[1]; else if (x[1] > 0) F.pos = Math.min(1, F.pos + x[1]); i++; return; }
+      clearInterval(paso);
+      if (!SIN) {
+        ag.classList.remove('bote'); F.choque = 1; setTimeout(function () { F.choque = 0; }, 3300);
+        ag.style.top = yDe(FIN) + 'px'; cuenta(desde, FIN, 3200);
+        setTimeout(function () { $('pieEsc').innerHTML = 'Ahora mismo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>'; }, 3300);
+      }
+      sugs.forEach(function (s, k) { setTimeout(function () { s.classList.add('ve'); }, (SIN ? 400 : 3600) + k * 450); });
+    }, 420);
+  }
+  window.addEventListener('resize', function () { pon(SIN ? 5 : (ag.dataset.v || FIN)); });
+  requestAnimationFrame(dibuja);
+  setTimeout(entra, 700);
+})();
+</script>
+</body></html>
