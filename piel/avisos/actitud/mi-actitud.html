@@ -232,11 +232,11 @@ body.f-sug .sug{border-color:#facc15}
   var FIN = SIN ? 5 : Math.max(0, Math.min(10, C.base - NEG + POS));
   /* (12-nov, Iago) el balance de fuerzas: lo que se sumará o restará a la nota que él ponga; cerca de 0 ya es un éxito */
   /* (12-nov, Iago) la barra de lo que llevas sumado: se llena con lo extra hasta el tope (+2) y avisa al llegar */
-  $('contN').textContent = '+' + fmt(POS) + ' de +2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + fmt(2 - POS) + ' para el tope del trimestre.';
+  $('contN').textContent = '+' + POS.toFixed(2).replace('.', ',') + ' de +2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + fmt(2 - POS) + ' para el tope del trimestre.';
   if (POS >= 2) $('cont').classList.add('lleno');
   setTimeout(function () { $('contI').style.width = (Math.min(2, POS) / 2 * 100) + '%'; }, 900);
   var DEMO = null;
-  function ponBarra(p) { $('contI').style.width = (Math.min(2, p) / 2 * 100) + '%'; $('contN').textContent = '+' + fmt(Math.round(p * 10) / 10) + ' de +2';
+  function ponBarra(p) { $('contI').style.width = (Math.min(2, p) / 2 * 100) + '%'; $('contN').textContent = '+' + Math.min(2, p).toFixed(2).replace('.', ',') + ' de +2';
     var lleno = p >= 2; $('cont').classList.toggle('lleno', lleno);
     $('contM').textContent = lleno ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + fmt(Math.round((2 - p) * 10) / 10) + ' para el tope del trimestre.'; }
   addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja', 'bal'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); });

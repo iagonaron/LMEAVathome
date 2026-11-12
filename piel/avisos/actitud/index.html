@@ -245,9 +245,10 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     <path id="hR" class="halo" stroke="#ef4444"/><path id="pR" stroke="#ef4444"/><path id="fR" class="flujo"/>
     <path id="hV" class="halo" stroke="#22c55e"/><path id="pV" stroke="#22c55e"/><path id="fV" class="flujo"/>
     <circle id="cR" r="0" fill="#fff" stroke="#ef4444" stroke-width="5"/><circle id="cV" r="0" fill="#fff" stroke="#22c55e" stroke-width="5"/>
-    <circle id="haz" r="0" fill="url(#gHaz)"/>
-    <text id="tR" x="0" y="0" text-anchor="middle" font-size="30" font-weight="900" fill="#fecaca" stroke="#450a0a" stroke-width="6" paint-order="stroke" font-family="Inter,system-ui,sans-serif" opacity="0"></text>
-    <text id="tV" x="0" y="0" text-anchor="middle" font-size="34" font-weight="900" fill="#bbf7d0" stroke="#052e16" stroke-width="6" paint-order="stroke" font-family="Inter,system-ui,sans-serif" opacity="0">+1</text></svg>
+    <circle id="cR2" r="0" fill="#7f1d1d" stroke="#ef4444" stroke-width="4"/><circle id="haz" r="0" fill="url(#gHaz)"/>
+    <g id="tR" opacity="0"><rect rx="7" height="38" fill="#b91c1c"/><text text-anchor="middle" font-size="28" font-weight="900" fill="#fff" font-family="Inter,system-ui,sans-serif"></text></g>
+    <g id="tR2" opacity="0"><rect rx="7" height="38" fill="#b91c1c"/><text text-anchor="middle" font-size="28" font-weight="900" fill="#fff" font-family="Inter,system-ui,sans-serif"></text></g>
+    <g id="tV" opacity="0"><rect rx="7" height="38" fill="#15803d"/><text text-anchor="middle" font-size="28" font-weight="900" fill="#fff" font-family="Inter,system-ui,sans-serif">+1</text></g></svg>
   <div id="flash"></div>
   <div id="cinco0">La actitud es el <span>5 %</span><small>de la nota del trimestre</small></div>
   <div id="maquina"></div>
@@ -260,8 +261,8 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     <ul><li id="trimL1">1.er trimestre: hasta entonces, <b>sin cubrir</b>.</li><li id="trimL2">Desde el 2.º: verás <b>las del trimestre anterior</b>, como referencia.</li></ul></div>
   <div id="horas"><h4>Lo que suma: <span>poco a poco</span></h4><p>Cuenta minuto a minuto: cada hora en el trimestre, +1. Sin saltos.</p>
     <div class="eje"><i id="horasI"></i><b id="horasN">+0</b></div>
-    <div class="mar"><span style="left:0%;transform:none;text-align:left">0 min<em>+0</em></span><span style="left:33.33%">1 h<em>+1</em></span><span style="left:50%">1 h 30 min<em>+1,5</em></span><span class="t" style="left:66.67%">2 h<em>+2</em></span><span style="right:0;left:auto;transform:none;text-align:right">3 h<em>+2</em></span></div>
-    <div class="nota" id="horasNota">Desde 2 h, ya no sube más: es el tope del trimestre.</div></div>
+    <div class="mar"><span style="left:0%;transform:none;text-align:left">0 min<em>+0</em></span><span class="t" style="right:0;left:auto;transform:none;text-align:right">2 h · tope<em>+2</em></span></div>
+    <div class="nota" id="horasNota">¡Tope! A partir de 2 h ya no sube más en el trimestre.</div></div>
   <div id="regu"><h4>Regularidad, <span>no atracones</span></h4><p>Cada semana cuentan, como mucho, 30 minutos. Lo que pase de ahí, esa semana, no suma.</p>
     <div class="gr" id="reguGr"><div class="raya" id="reguRaya"><b>30 min</b></div></div><div class="sem"><span>S1</span><span>S2</span><span>S3</span><span>S4</span><span>S5</span><span>S6</span><span>S7</span><span>S8</span></div></div>
   <div class="capa" id="mapa"><div class="caja cmapa"><h4>Mi mapa <span>de teoría</span></h4><svg id="mapaSvg" viewBox="0 -40 900 640"></svg>
@@ -402,7 +403,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   var teclas = new Audio('teclas.mp3'), ding = new Audio('ding.mp3'); teclas.volume = .35; ding.volume = .25; var ultTecla = 0, ultLen = 0;
   /* ---------- fuerzas ---------- */
   var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0 }, P = {};
-  ['hR', 'pR', 'fR', 'hV', 'pV', 'fV', 'cR', 'cV', 'haz'].forEach(function (k) { P[k] = $(k); });
+  ['hR', 'pR', 'fR', 'hV', 'pV', 'fV', 'cR', 'cR2', 'cV', 'haz'].forEach(function (k) { P[k] = $(k); });
   var BASE = 7, EJ = { neg: 3, pos: 1 }, FIN = BASE - EJ.neg + EJ.pos;
   var CH = C.choque || { t0: t0('franja', -5), t1: t0('franja', 0) }, CHL = CH.t1 - CH.t0;
   var IMP = CH.t0 + CHL * 0.36, LLEGA = IMP + 2.6;      // impacto · la línea llega a su sitio
@@ -411,12 +412,11 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   var PASOS = [[tc('ePun'), -2], [tc('eF2'), -0.5], [tc(G === 'gp' ? 'ePor' : 'eQui'), -0.5]].filter(function (q) { return q[0] != null; });
   var TVERDE = t0('chocan', 0) != null ? t0('chocan', 0) : tc('eSum'), EJ0 = t0('ejemplo', 0) || 1e9, BAJO = BASE + PASOS.reduce(function (a, q) { return a + q[1]; }, 0);
   /* (v7) en el ejemplo, cada resta viaja despacio por la línea roja (la 1.ª la dibuja, 2,6 s; las demás, un «paquete» rojo, 2 s) y al llegar baja la línea blanca (1,4 s) */
-  var LENTO1 = 2.6, LENTO = 2.0, BAJA = 1.4;
+  var LENTO1 = 2.6, LENTO = 2.0, BAJA = 1.4;   /* (v7d) velocidad de v7, que a Iago le gusta (más lento, v7c: 4.2 / 3.6 / 2.0) */
   PASOS.forEach(function (q, i) { q.A = q[0] + (i === 0 ? LENTO1 : LENTO); });
   /* cada resta es una bola roja que sale de la columna y desemboca en la línea blanca: en la explicación, 1,6 s; en el ejemplo, más lenta */
   function fmtD(d) { return '−' + String(Math.abs(d)).replace('.', ','); }
-  var PAQ = TARJ.filter(function (q, i) { return i < GEN && q[1] === 'c' && q.t != null; }).map(function (q) { var m = /−[\d,]+/.exec(q[4].replace(/<[^>]*>/g, '')); return { s: q.t, d: 1.6, l: m ? m[0] : '−' }; })
-    .concat(PASOS.filter(function (q, i) { return i > 0; }).map(function (q) { return { s: q[0], d: LENTO, l: fmtD(q[1]) }; }));
+  var PAQ = [].concat(PASOS.filter(function (q, i) { return i > 0; }).map(function (q) { return { s: q[0], d: LENTO, l: fmtD(q[1]) }; }));
   var PULSOS = PAQ.map(function (q) { return q.s + q.d; }).concat(PASOS.length ? [PASOS[0].A] : []);
   function valor(t) { var v = BASE; PASOS.forEach(function (q) { if (t >= q.A) v += q[1] * suave(Math.min(1, (t - q.A) / BAJA)); });
     if (t >= IMP) v += (FIN - BAJO) * suave(Math.min(1, (t - IMP) / (LLEGA - IMP))); return v; }
@@ -449,7 +449,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     var rev = [F.revR, F.revV], pulso = F.pulso && now - F.pulso < 0.45 ? 1 - (now - F.pulso) / 0.45 : 0;
     [[P.hR, P.pR, P.fR, P.cR, dR, F.wR, F.aR * (F.dimR ? .5 : 1), F.dimR ? '#52525b' : '#ef4444', 0], [P.hV, P.pV, P.fV, P.cV, dV, F.wV, F.aV * (F.dimV ? .5 : 1), F.dimV ? '#52525b' : '#22c55e', 1]].forEach(function (z) {
       if (z[1].__c !== z[7]) { z[1].__c = z[7]; z[1].setAttribute('stroke', z[7]); z[0].setAttribute('stroke', z[7]); }
-      var w = Math.max(0, z[5] * vib * gord * (z[8] === 0 ? 1 + 1.4 * pulso + (F.packR != null ? 0.35 : 0) : 1));
+      var w = Math.max(0, z[5] * vib * gord * (z[8] === 0 ? 1 + 1.4 * pulso + (F.packs && F.packs.length ? 0.35 : 0) : 1));
       z[0].setAttribute('d', z[4]); z[1].setAttribute('d', z[4]); z[2].setAttribute('d', z[4]);
       z[1].setAttribute('stroke-width', w.toFixed(2)); z[1].setAttribute('stroke-opacity', z[6].toFixed(3));
       z[0].setAttribute('stroke-width', (w * 2.3 + 3).toFixed(2)); z[0].setAttribute('stroke-opacity', (z[6] * (enCh ? .3 : .16)).toFixed(3));
@@ -460,14 +460,15 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
         z[1].style.strokeDasharray = len; z[1].style.strokeDashoffset = d; z[0].style.strokeDasharray = len; z[0].style.strokeDashoffset = d;
         var p = z[1].getPointAtLength(len * ee); z[3].setAttribute('cx', p.x); z[3].setAttribute('cy', p.y);
         if (z[8] === 0 && F.lentoR) cabezaRoja(z[3], now); else { cabezaNormal(z[3]); z[3].setAttribute('r', (9 + 5 * Math.sin(now * 20)).toFixed(1)); } }
-      else if (z[8] === 0 && F.packR != null) { if (z[1].style.strokeDasharray) { z[1].style.strokeDasharray = ''; z[1].style.strokeDashoffset = ''; z[0].style.strokeDasharray = ''; z[0].style.strokeDashoffset = ''; }
-        var len2 = z[1].getTotalLength(), fr = F.packR * F.packR * (3 - 2 * F.packR), p2 = z[1].getPointAtLength(len2 * fr);
-        z[3].setAttribute('cx', p2.x); z[3].setAttribute('cy', p2.y); cabezaRoja(z[3], now); }
+      else if (z[8] === 0 && F.packs.length) { if (z[1].style.strokeDasharray) { z[1].style.strokeDasharray = ''; z[1].style.strokeDashoffset = ''; z[0].style.strokeDasharray = ''; z[0].style.strokeDashoffset = ''; }
+        var len2 = z[1].getTotalLength();
+        F.packs.forEach(function (pk, k) { var c = k ? P.cR2 : z[3], fr = pk.r * pk.r * (3 - 2 * pk.r), p2 = z[1].getPointAtLength(len2 * fr);
+          c.setAttribute('cx', p2.x); c.setAttribute('cy', p2.y); cabezaRoja(c, now); }); }
       else { if (z[1].style.strokeDasharray) { z[1].style.strokeDasharray = ''; z[1].style.strokeDashoffset = ''; z[0].style.strokeDasharray = ''; z[0].style.strokeDashoffset = ''; } z[3].setAttribute('r', 0); }
     });
-    var tR = $('tR'), tV = $('tV'), cr = P.cR, cv = P.cV;
-    if (+cr.getAttribute('r') > 0 && F.labR) { if (tR.__l !== F.labR) { tR.__l = F.labR; tR.textContent = F.labR; } tR.setAttribute('x', cr.getAttribute('cx')); tR.setAttribute('y', +cr.getAttribute('cy') < 200 ? +cr.getAttribute('cy') + 48 : +cr.getAttribute('cy') - 22); tR.setAttribute('opacity', 1); } else tR.setAttribute('opacity', 0);
-    if (+cv.getAttribute('r') > 0 && t >= EJ0) { tV.setAttribute('x', cv.getAttribute('cx')); tV.setAttribute('y', +cv.getAttribute('cy') + 46); tV.setAttribute('opacity', 1); } else tV.setAttribute('opacity', 0);
+    if (!(F.packs && F.packs.length > 1)) P.cR2.setAttribute('r', 0);
+    var tR = $('tR'), tV = $('tV'), cr = P.cR, cv = P.cV, tR2 = $('tR2'), cr2 = P.cR2;
+    eti(tR2, cr2, F.labR2, -34); eti(tR, cr, F.labR, -34); eti(tV, cv, t >= EJ0 ? '+1' : '', 40);
     var rH = (F.neg && F.pos ? 11 : (F.neg || F.pos) ? 7 : 0) + Math.sin(now * 2.6) * 1.6;
     if (enCh && !carga) rH += (70 * Math.pow(1 - tras, 1.5) + 22) * (1 + Math.sin(now * 28) * .12);
     if (carga > .7) rH += 30 * (carga - .7) / .3;
@@ -482,6 +483,11 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   /* la cabeza de la resta: roja, oscura por dentro, que late de forma irregular (sutilmente nociva) */
   function cabezaRoja(c, now) { if (c.__m !== 'r') { c.__m = 'r'; c.setAttribute('fill', '#7f1d1d'); c.setAttribute('stroke', '#ef4444'); c.setAttribute('stroke-width', '4'); }
     c.setAttribute('r', (11 + 2.6 * Math.sin(now * 13) + 1.6 * Math.sin(now * 31 + 1.3) + 0.8 * Math.sin(now * 57)).toFixed(1)); }
+  /* (v7c) la cifra que lleva cada bola: pastilla de color, sin contorno en el número */
+  function eti(gr, c, l, dy) { var on = +c.getAttribute('r') > 0 && l; gr.setAttribute('opacity', on ? 1 : 0); if (!on) return;
+    var tx = gr.lastChild, rc = gr.firstChild; if (gr.__l !== l) { gr.__l = l; tx.textContent = l; gr.__w = tx.getComputedTextLength() + 20; }
+    var x = +c.getAttribute('cx'), y = +c.getAttribute('cy') + dy; tx.setAttribute('x', x); tx.setAttribute('y', y + 10);
+    rc.setAttribute('x', x - gr.__w / 2); rc.setAttribute('y', y - 19); rc.setAttribute('width', gr.__w); }
   function cabezaNormal(c) { if (c.__m === 'r') { c.__m = ''; c.setAttribute('fill', '#fff'); c.setAttribute('stroke', c.id === 'cR' ? '#ef4444' : '#22c55e'); c.setAttribute('stroke-width', '5'); } }
   function golpe(g, yA) {
       window.__golpes = (window.__golpes || 0) + 1;
@@ -541,7 +547,8 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     XS.forEach(function (s) { cls(s.el, 've', s.t != null && t >= s.t); });
     var vf = $('vFalt'); if (vf) txt(vf, t >= t0('faltas3', 0.9) ? '−2,5' : t >= t0('faltas3', 0.4) ? '−1,5' : '−0,5');
     var base2 = t >= t0('dosfuerzas', 0.6) ? 1 : 0;
-    F.lentoR = false; F.packR = null; F.labR = ''; PAQ.forEach(function (q) { if (t >= q.s && t < q.s + q.d) { F.packR = (t - q.s) / q.d; F.labR = q.l; } });
+    F.lentoR = false; F.packs = []; F.labR = ''; F.labR2 = ''; PAQ.forEach(function (q) { if (t >= q.s && t < q.s + q.d) F.packs.push({ r: (t - q.s) / q.d, l: q.l }); });
+    if (F.packs[0]) F.labR = F.packs[0].l; if (F.packs[1]) F.labR2 = F.packs[1].l;
     if (t < EJ0) { var resumen = t < t0('puntualidad', 0); F.neg = Math.max(base2, neg * 0.8); var tS = t0('suma', 0); F.pos = pos ? Math.min(2, pos * 0.6) : (resumen || t >= tS ? base2 : 0); F.revR = null; F.revV = t >= tS && t < tS + 0.7 ? (t - tS) / 0.7 : null; }
     else { var pr = PASOS.filter(function (q) { return t >= q[0]; }).length; F.neg = pr ? 1 + pr * 0.8 : 0; F.pos = TVERDE != null && t >= TVERDE ? 1.2 : 0;
       F.revR = PASOS.length && t >= PASOS[0][0] ? Math.min(1, (t - PASOS[0][0]) / LENTO1) : 0; F.lentoR = true; if (F.revR > 0 && F.revR < 1) F.labR = fmtD(PASOS[0][1]);
@@ -556,8 +563,8 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     TS.forEach(function (it, i) { cls(it, 've', enTr && t >= SE.t0 + 0.4 + i * 0.16); });
     cls($('trimL1'), 've', enTr && t >= t0('semanaexamen', 2.6)); cls($('trimL2'), 've', enTr && t >= t0('semanaexamen', 4.8));
     var TP = C.tope, enHo = TP && entre(t, TP.t0 - 0.1, TP.t1 + 1.0); cls($('horas'), 've', !!enHo);
-    if (TP) { var q = enHo ? Math.max(0, Math.min(1, (t - TP.t0 - 0.4) / (TP.t1 - TP.t0 - 0.8))) : 0, mins = q * 180, pts = Math.min(2, mins / 60);
-      sty($('horasI'), 'width', (q * 100).toFixed(2) + '%'); cls($('horasI'), 'tope', mins >= 120); txt($('horasN'), '+' + fmt(Math.round(pts * 10) / 10) + '  ·  ' + Math.round(mins) + ' min');
+    if (TP) { var q = enHo ? Math.max(0, Math.min(1, (t - TP.t0 - 0.4) / ((TP.t1 - TP.t0) * 0.72))) : 0, mins = q * 120, pts = mins / 60;   /* (v7d) tope en 2 h; cifra continua con dos decimales */
+      sty($('horasI'), 'width', (q * 100).toFixed(2) + '%'); cls($('horasI'), 'tope', mins >= 120); txt($('horasN'), '+' + pts.toFixed(2).replace('.', ','));
       cls($('horasNota'), 've', enHo && mins >= 120); }
     var RG = C.regularidad, enRg = RG && entre(t, RG.t0 - 0.1, RG.t1 + 0.9); cls($('regu'), 've', !!enRg);
     RB.forEach(function (b, i) { sty(b, 'transform', 'scaleY(' + (enRg && t >= RG.t0 + 0.4 + i * 0.22 ? 1 : 0) + ')'); });
