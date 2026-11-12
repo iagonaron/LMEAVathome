@@ -92,6 +92,26 @@
     }
     var ahora = Date.now(); ultimoToque = ahora;
     toques.push([ahora, cosa]); if (toques.length > 30) toques.shift();
+    /* (12-nov-2026, Iago) «en Teoría quiero que le den al botón corregir»: al corregir, el ejercicio queda marcado en la sesión
+       y en «Mi actitud» solo cuenta el tiempo de los ejercicios corregidos. */
+    try {
+      if (familia === 'teoria' && cosa && cosa.nodeType === 1) {
+        var tx = (cosa.textContent || '').replace(/\s+/g, ' ').trim();
+        if (tx.length < 40 && /corregir|comprobar/i.test(tx)) marcaCorregido();
+      }
+    } catch (e) {}
+  }
+  var marcados = {};
+  function marcaCorregido() {
+    var cta = leerCookie(), ej = ejercicio(); if (!cta || !ej || window.__SUITE_ALUMNO) return;
+    var ahora = Date.now(); if (marcados[ej] && ahora - marcados[ej] < 30000) return; marcados[ej] = ahora;
+    try {
+      fetch(SB + '/rest/v1/rpc/suite_actividad_marca', {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+        body: JSON.stringify({ p_cuenta_id: cta, p_app: app, p_ejercicio: ej })
+      }).catch(function () {});
+    } catch (e) {}
   }
   function practicando() {
     var ahora = Date.now();
