@@ -13,6 +13,7 @@ html,body{margin:0;height:100%;color:var(--tinta);font-family:var(--f);overflow:
 body{background:linear-gradient(rgba(6,9,18,.62),rgba(6,9,18,.62)),url(fondo.jpg) center/cover no-repeat;display:grid;grid-template-rows:auto auto 1fr auto;gap:1.6vh;padding:1.6vh 2vw 2.2vh}
 .top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
 .x.gris{--xc:#a1a1aa}
+.fz.pend{animation:pendT 1.6s ease-in-out infinite}@keyframes pendT{0%,100%{box-shadow:0 0 0 0 rgba(212,212,216,0)}50%{box-shadow:0 0 0 3px rgba(212,212,216,.55)}}
 .izq{justify-self:start;display:flex;gap:.6vw;align-items:center}
 .btn2{border:1.5px solid rgba(255,255,255,.35);border-radius:10px;background:rgba(13,17,28,.7);color:#fff;font:800 clamp(11px,.9vw,15px)/1 var(--f);padding:.8em 1.1em;cursor:pointer}.btn2:hover{background:rgba(255,255,255,.12)}.btn2.mapa{border-color:#ec4899;color:#f9a8d4}
 body:not(.real) .btn2{display:none}
@@ -289,21 +290,24 @@ body.f-sug .sug{border-color:#facc15}
     var fs = fl.filter(function (x) { return !x.j && !x.p; }), fj = fl.filter(function (x) { return x.j && !x.p; }), cuentan = fs.slice(1);
     /* (12-nov-2026, Iago) las faltas se pasan cada sábado: las de esta semana (en cola) se enseñan, pero aún no cuentan */
     var fp = fl.filter(function (x) { return x.p; }), fpD = fp.map(function (x) { return x.f; });
-    if (fp.length) f.push(['nc', 0, fp.length === 1 ? 'Falta pendiente de revisar' : 'Faltas pendientes de revisar', 'Iago las revisa el sábado; hasta entonces no cuentan' + XS.apply(null, fp.map(function (x) { return X('gris', ddmm(x.f)); }))]);
+    if (fp.length) f.push(['nc', 0, fp.length === 1 ? 'Falta por anotar' : 'Faltas por anotar', 'Iago anota las faltas los sábados; hasta entonces no cuentan' + XS.apply(null, fp.map(function (x) { return X('gris', ddmm(x.f)); })), null, { cl: 'pend' }]);
     if (cuentan.length) f.push(['c', -(0.5 + (cuentan.length - 1)), 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS.apply(null, cuentan.map(function (x) { return X('roja', ddmm(x.f)); }))]);
     if (fs.length || fj.length) f.push(['nc', 0, 'Faltas que no restan', [fs.length ? 'la 1.ª sin justificar' : '', fj.length ? 'las justificadas' : ''].filter(Boolean).join(' · ') +
       XS.apply(null, (fs.length ? [X('roja', ddmm(fs[0].f))] : []).concat(fj.map(function (x) { return X('azul', ddmm(x.f)); })))]);
     /* ---- portales de clases a las que faltó ---- */
     (d.portales || []).forEach(function (p) { var T = texDe(p.app, p.n), nom = nomPortal(p.app, p.n);
-      if (!p.visto && fpD.indexOf(p.f) >= 0) { f.push(['nc', 0, 'Portal por ver', nom + ' · el de la clase del ' + ddmm(p.f) + ': si lo ves antes del sábado, no resta', null, { T: T, cl: 'gris', u: p.u }]);
-        if (sug.length < 3) sug.push(['🧭', 'Ve el portal <b>' + esc(nom) + '</b> antes del sábado: así no llega a restar.', p.u]); }
-      else if (!p.visto) { f.push(['c', -0.5, 'Portal sin ver', nom + ' · el de la clase del ' + ddmm(p.f), null, { T: T, cl: 'rojo', u: p.u }]);
+      /* (12-nov-2026, Iago) con la falta aún sin confirmar, el portal de esa clase no es ni neutro ni suma: «pendiente de confirmar la falta» (tintinea) */
+      if (fpD.indexOf(p.f) >= 0) { f.push(['nc', 0, p.visto ? 'Portal pendiente de asignar' : 'Portal de la clase del ' + ddmm(p.f), nom + (p.visto ? ' · si faltaste el ' + ddmm(p.f) + ', es ponerte al día (neutro); si viniste, suma. Se asigna el sábado' : ' · si faltaste ese día, velo para ponerte al día'), null, { T: T, cl: 'gris pend', u: p.visto ? null : p.u }]);
+        if (!p.visto && sug.length < 3) sug.push(['🧭', 'Si faltaste el ' + ddmm(p.f) + ', ve el portal <b>' + esc(nom) + '</b> para ponerte al día.', p.u]); }
+      else if (!p.visto) { f.push(['c', -0.5, 'Portal sin ver', nom + ' · clase del ' + ddmm(p.f) + ' · si lo ves antes de la semana de exámenes, deja de restar', null, { T: T, cl: 'rojo', u: p.u }]);
         if (sug.length < 3) sug.push(['🧭', 'Te falta ver el portal <b>' + esc(nom) + '</b>: así te pones al día y deja de restar.', p.u]); }
       else f.push(['nc', 0, 'Te pusiste al día', nom + ' · lo viste en casa', null, { T: T, cl: 'gris' }]); });
+    /* lo pendiente de confirmar, lo primero de su columna (que se vea sin bajar) */
+    var pe = f.filter(function (x) { return x[5] && /pend/.test(x[5].cl || ''); }); f = pe.concat(f.filter(function (x) { return pe.indexOf(x) < 0; }));
     /* ---- quiz ---- */
     var Q = d.quiz_exento ? [] : (d.quiz || []).filter(function (q) { return q && q.carta; }), qz = Q.map(function (q) { return q.carta; });
     var uQ = function (q) { return GH + (gp ? 'ritmopro/' : 'ritmoathome/') + '?quizCarta=' + encodeURIComponent(q.carta) + '&envio=' + encodeURIComponent(q.envio_id || '') + '&cuenta=' + encodeURIComponent(P.cuenta || ''); };
-    Q.forEach(function (q) { f.push(['c', -0.5, 'Quiz sin terminar', 'Carta ' + q.carta + (q.nombre ? ' · ' + q.nombre : '') + ': medio punto', null, { u: uQ(q) }]); });
+    Q.forEach(function (q) { f.push(['c', -0.5, 'Quiz sin terminar', 'Carta ' + q.carta + (q.nombre ? ' · ' + q.nombre : '') + ' · si lo terminas, deja de restar', null, { u: uQ(q) }]); });
     if (Q.length) sug.unshift(['⭐', 'Termina ' + (Q.length === 1 ? 'el <b>quiz de la carta ' + esc(qz[0]) + '</b>: resta medio punto.' : 'los <b>quiz de las cartas ' + esc(qz.join(', ')) + '</b> (empieza por el ' + esc(qz[0]) + '): cada uno resta medio punto.'), uQ(Q[0])]);
     /* ---- fichas en el periodo extra ---- */
     var fe = d.fichas_extra || [], gratisCurso = fe.filter(function (x) { return d.curso === '2026-2027' && t === '1T' && x.fin <= '2026-11-13'; }),
@@ -372,7 +376,7 @@ body.f-sug .sug{border-color:#facc15}
   if (REAL && !C.definitiva) document.body.classList.add('provi');
   var KAV = 'mi-actitud-entendido:' + (C.cuenta || '') + ':' + C.t + ':' + (C.definitiva ? 'd' : 'p'), visto = false; try { visto = REAL && localStorage.getItem(KAV) === '1'; } catch (e) {}
   if (C.definitiva) $('aviso').innerHTML = '<span><b>Tu actitud de este trimestre ya está puesta.</b> Aquí ves las fuerzas que la llevaron hasta ahí: lo que restó, lo que sumó y lo que fue neutro.</span><button id="entendido">Entendido</button>';
-  else if (REAL) $('aviso').innerHTML = '<span><b>Todavía no es definitivo.</b> Hasta la <b>semana de exámenes</b>, cuando Iago cubre el resto (puntualidad, atención y comportamiento) y pone tu nota, <b>puedes mejorar estos datos</b>: termina lo que tengas pendiente y suma tiempo por tu cuenta.' + (C.faltasAl ? ' <br><small style="opacity:.85">🗓️ <b>Al momento:</b> tiempo por tu cuenta, quiz y fichas. <b>Cada sábado:</b> faltas y portales de esas clases (última vez: <b>sábado ' + ddmm(String(C.faltasAl).slice(0, 10)) + '</b>).</small>' : '') + (C.t !== '1T' ? ' Lo marcado con <b>' + (C.tagPrev || '1T') + '</b> es del trimestre anterior.' : '') + '</span><button id="entendido">Entendido</button>';
+  else if (REAL) $('aviso').innerHTML = '<span><b>Todavía no es definitivo.</b> Hasta la <b>semana de exámenes</b> puedes mejorarlo: los <b>portales sin ver</b> y los <b>quiz</b> dejan de restar en cuanto los haces, y el tiempo por tu cuenta <b>suma hasta 2 puntos</b>. La puntualidad, la atención y el comportamiento los pone Iago esa semana.' + (C.faltasAl ? ' <br><small style="opacity:.85">🗓️ Iago anota las <b>faltas los sábados</b> (el último, el ' + ddmm(String(C.faltasAl).slice(0, 10)) + '): hasta entonces, lo de esos días sale en gris.</small>' : '') + (C.t !== '1T' ? ' Lo marcado con <b>' + (C.tagPrev || '1T') + '</b> es del trimestre anterior.' : '') + '</span><button id="entendido">Entendido</button>';
   else $('aviso').innerHTML = '<span>' + (C.t === '1T'
     ? '<b>Primer trimestre:</b> todavía hay campos sin cubrir y tu nota de actitud aún no está preparada (Iago la pone la semana de exámenes). Mientras, aquí ves lo que ya resta, suma o es neutro.'
     : '<b>Ojo:</b> lo que está marcado con <b>1T</b> y la línea discontinua son del trimestre anterior: Iago los volverá a poner la semana de exámenes. Es tu punto de partida antes de aplicar las fuerzas: <b>puede variar</b>.') + '</span><button id="entendido">Entendido</button>';
