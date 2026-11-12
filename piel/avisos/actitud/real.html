@@ -368,7 +368,7 @@ body.f-sug .sug{border-color:#facc15}
     /* la actitud: si Iago ya la puso este trimestre, esa es la definitiva (las fuerzas explican cómo se llegó); si no, desde el 2.º, la del anterior como punto de partida */
     var base = P.base != null ? +P.base : null, prev = P.prev != null ? +P.prev : null, definitiva = base != null;
     return { grupo: P.grupoTxt || '', nombre: P.nombre || '', t: t, f: f, sug: sug.slice(0, 3), areas: areas, puntos: puntos,
-             definitiva: definitiva, base: definitiva ? base : (t !== '1T' ? prev : null), tagPrev: tagPrev || (TPREV[t] || null), hayP: hayP, cuenta: P.cuenta || '', faltasAl: d.faltas_al || null };
+             definitiva: definitiva, base: definitiva ? base : (t !== '1T' ? prev : null), tagPrev: tagPrev || (TPREV[t] || null), hayP: hayP, cuenta: P.cuenta || '', faltasAl: d.faltas_al || null, gp: gp };
   }
   function arranca(C) {
   var $ = function (id) { return document.getElementById(id); };
@@ -376,7 +376,7 @@ body.f-sug .sug{border-color:#facc15}
   if (REAL && !C.definitiva) document.body.classList.add('provi');
   var KAV = 'mi-actitud-entendido:' + (C.cuenta || '') + ':' + C.t + ':' + (C.definitiva ? 'd' : 'p'), visto = false; try { visto = REAL && localStorage.getItem(KAV) === '1'; } catch (e) {}
   if (C.definitiva) $('aviso').innerHTML = '<span><b>Tu actitud de este trimestre ya está puesta.</b> Aquí ves las fuerzas que la llevaron hasta ahí: lo que restó, lo que sumó y lo que fue neutro.</span><button id="entendido">Entendido</button>';
-  else if (REAL) $('aviso').innerHTML = '<span><b>Todavía no es definitivo.</b> Hasta la <b>semana de exámenes</b> puedes mejorarlo: los <b>portales sin ver</b> y los <b>quiz</b> dejan de restar en cuanto los haces, y el tiempo por tu cuenta <b>suma hasta 2 puntos</b>. La puntualidad, la atención y el comportamiento los pone Iago esa semana.' + (C.faltasAl ? ' <br><small style="opacity:.85">🗓️ Iago anota las <b>faltas los sábados</b> (el último, el ' + ddmm(String(C.faltasAl).slice(0, 10)) + '): hasta entonces, lo de esos días sale en gris.</small>' : '') + (C.t !== '1T' ? ' Lo marcado con <b>' + (C.tagPrev || '1T') + '</b> es del trimestre anterior.' : '') + '</span><button id="entendido">Entendido</button>';
+  else if (REAL) $('aviso').innerHTML = '<span><b>Todavía no es definitivo.</b> Hasta la <b>semana de exámenes</b> puedes mejorarlo: ' + (C.gp ? 'los <b>portales sin ver</b> dejan' : 'los <b>portales sin ver</b> y los <b>quiz</b> dejan') + ' de restar en cuanto los haces, y el tiempo por tu cuenta <b>suma hasta 2 puntos</b>. La puntualidad, la atención y el comportamiento los pone Iago esa semana.' + (C.faltasAl ? ' <br><small style="opacity:.85">🗓️ Iago anota las <b>faltas los sábados</b> (el último, el ' + ddmm(String(C.faltasAl).slice(0, 10)) + '): hasta entonces, lo de esos días sale en gris.</small>' : '') + (C.t !== '1T' ? ' Lo marcado con <b>' + (C.tagPrev || '1T') + '</b> es del trimestre anterior.' : '') + '</span><button id="entendido">Entendido</button>';
   else $('aviso').innerHTML = '<span>' + (C.t === '1T'
     ? '<b>Primer trimestre:</b> todavía hay campos sin cubrir y tu nota de actitud aún no está preparada (Iago la pone la semana de exámenes). Mientras, aquí ves lo que ya resta, suma o es neutro.'
     : '<b>Ojo:</b> lo que está marcado con <b>1T</b> y la línea discontinua son del trimestre anterior: Iago los volverá a poner la semana de exámenes. Es tu punto de partida antes de aplicar las fuerzas: <b>puede variar</b>.') + '</span><button id="entendido">Entendido</button>';
