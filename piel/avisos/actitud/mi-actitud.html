@@ -17,6 +17,10 @@ body{background:linear-gradient(rgba(6,9,18,.62),rgba(6,9,18,.62)),url(fondo.jpg
 .quien{justify-self:end;text-align:right;font:600 clamp(11px,.85vw,14px)/1.35 var(--f);color:#cbd5e1}.quien b{display:block;color:#fff;font-size:1.1em}
 .aviso{background:var(--card);border:1px solid rgba(250,204,21,.45);border-left:5px solid var(--oro);border-radius:14px;padding:1.2vh 1.4vw;font:500 clamp(12px,1.05vw,18px)/1.45 var(--f);color:#e4e4e7}
 .aviso b{color:#fff}
+.aviso{display:flex;align-items:center;gap:1.2vw}.aviso>span{flex:1}
+.aviso.tint{animation:avisoT 1.1s ease-in-out infinite}
+@keyframes avisoT{50%{background:rgba(250,204,21,.22);border-color:#facc15;box-shadow:0 0 0 2px rgba(250,204,21,.6),0 0 30px rgba(250,204,21,.35)}}
+.aviso button{flex:0 0 auto;border:0;border-radius:10px;background:var(--oro);color:#111;font:800 clamp(11px,.9vw,15px)/1 var(--f);padding:.8em 1.3em;cursor:pointer}
 main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
 .col{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:2vh 1.2vw;display:flex;flex-direction:column;gap:1.2vh;min-height:0;overflow:hidden}
 .col h2{margin:0;font:900 clamp(11px,.95vw,16px)/1 var(--f);letter-spacing:.14em;text-transform:uppercase}
@@ -70,7 +74,13 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
 .pie-esc{margin-top:1vh;text-align:left;padding-left:1vw;font:600 clamp(11px,.95vw,16px)/1.3 var(--f);color:#e4e4e7}.pie-esc b{color:var(--oro)}
 .bal{position:relative;z-index:9;background:rgba(13,17,28,.97)!important;margin-top:.8vh;display:grid;grid-template-columns:auto 1fr;gap:.2vh .9vw;align-items:center;padding:.8vh .9vw;border-radius:12px;background:var(--card);border:1.5px solid rgba(255,255,255,.22);opacity:0;transition:opacity .6s}
 .bal.ve{opacity:1}
-.bal b{grid-row:span 2;font:900 clamp(18px,2vw,34px)/1 var(--f);font-variant-numeric:tabular-nums}
+.bal b{grid-row:span 3;font:900 clamp(18px,2vw,34px)/1 var(--f);font-variant-numeric:tabular-nums}
+.bal .bb{position:relative;height:clamp(10px,.9vw,16px);border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden}
+.bal .bb::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;border-left:2px solid rgba(255,255,255,.7)}
+.bal .bb i{position:absolute;top:0;bottom:0;width:0;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.bal .bb i.r{right:50%;background:#ef4444}.bal .bb i.v{left:50%;background:#22c55e}
+.bal .bb em{position:absolute;top:50%;width:4px;height:160%;margin-left:-2px;transform:translateY(-50%);background:#fff;box-shadow:0 0 8px #fff;transition:left 1.4s cubic-bezier(.4,0,.2,1);left:50%}
+body.f-bal .bal{box-shadow:0 0 0 3px #facc15,0 0 36px rgba(250,204,21,.6)}
 .bal span{font:800 clamp(10px,.8vw,13px)/1.2 var(--f);letter-spacing:.12em;text-transform:uppercase;color:#d4d4d8}
 .bal small{font:500 clamp(10px,.78vw,13px)/1.3 var(--f);color:#a1a1aa}
 .cont{padding:.9vh .8vw;border-radius:12px;border:1.5px solid rgba(34,197,94,.5);background:rgba(34,197,94,.06);transition:box-shadow .5s}
@@ -139,7 +149,7 @@ body.f-sug .sug{border-color:#facc15}
         ['f', 0, 'Atonalidad, capítulo 2', 'a mayores, en casa · 25 min', null, { tex: 'ato', v: '+' }],
         ['f', 1, '1 h 10 min extra', 'Por tu cuenta, en apps y portales'] ],
       sug: [['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>: así te pones al día y deja de restar.'],
-            ['✉️', 'Faltaste el lunes: tu familia tiene <b>7 días</b> para justificarlo por <b>CentrosNET</b>.'],
+            ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> hasta <b>24 horas</b> después de la clase (mejor, antes).'],
             ['⏰', 'Intenta <b>llegar puntual</b> a partir de ahora.']],
       areas: [['Entonación', '×2', '#3b82f6'], ['Dictado', '×1,5', '#f97316'], ['Ritmo', '×1', '#22c55e'], ['Teoría', '×1', '#ec4899']] },
     gp2: { grupo: '2.º GP', t: '2T', base: 7, desde: 6.5, f: [
@@ -153,7 +163,7 @@ body.f-sug .sug{border-color:#facc15}
         ['nf', 0, 'Buena puntualidad', 'es lo esperable', '1T'],
         ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
       sug: [['🎯', 'La atención la vuelve a valorar Iago la <b>semana de exámenes</b>: aún puedes cambiarla.'],
-            ['✉️', 'Si faltas, tu familia tiene <b>7 días</b> para justificarlo por <b>CentrosNET</b>.'],
+            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b> antes de la clase (o, como mucho, 24 horas después).'],
             ['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>.']],
       areas: [['Entonación', '×2', '#3b82f6'], ['Teoría', '×1,5', '#ec4899'], ['Dictado', '×1', '#f97316'], ['Ritmo', '×1', '#22c55e']] },
     ge1: { grupo: '4.º GE', t: '1T', base: null, desde: null, f: [
@@ -163,7 +173,7 @@ body.f-sug .sug{border-color:#facc15}
         ['nc', 0, 'Ficha en el periodo extra', 'en el 1.er trimestre no cuenta'],
         ['f', 2, '2 h extra, bien elegidas', 'Teoría era tu punto flojo: ahí valen doble'] ],
       sug: [['⭐', 'Termina el <b>quiz de las cartas 2.1 y 2.2</b>: cada uno resta medio punto.'],
-            ['✉️', 'Faltaste el lunes: tu familia tiene <b>7 días</b> para justificarlo por <b>CentrosNET</b>.'],
+            ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> hasta <b>24 horas</b> después de la clase (mejor, antes).'],
             ['⏰', 'Intenta <b>llegar puntual</b> a partir de ahora.']],
       areas: [['Ritmo', '×2', '#22c55e'], ['Teoría', '×1,5', '#ec4899'], ['Entonación', '×1', '#3b82f6'], ['Dictado', '×1', '#f97316']] },
     ge2: { grupo: '4.º GE', t: '2T', base: 6, desde: 5, f: [
@@ -175,15 +185,17 @@ body.f-sug .sug{border-color:#facc15}
         ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
       sug: [['⏰', 'La puntualidad la vuelve a valorar Iago la <b>semana de exámenes</b>: llega a tiempo.'],
             ['⭐', 'Termina el <b>quiz de la carta 3.2</b>: resta medio punto.'],
-            ['✉️', 'Si faltas, tu familia tiene <b>7 días</b> para justificarlo por <b>CentrosNET</b>.']],
+            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b> antes de la clase (o, como mucho, 24 horas después).']],
       areas: [['Teoría', '×2', '#ec4899'], ['Ritmo', '×1,5', '#22c55e'], ['Dictado', '×1', '#f97316'], ['Entonación', '×1', '#3b82f6']] }
   };
   var C = CASOS[new URLSearchParams(location.search).get('caso') || 'gp1'] || CASOS.gp1;
   var $ = function (id) { return document.getElementById(id); };
   $('grupo').textContent = C.grupo + ' · ' + (C.t === '1T' ? '1.er' : C.t === '2T' ? '2.º' : '3.er') + ' trimestre';
-  $('aviso').innerHTML = C.t === '1T'
+  $('aviso').innerHTML = '<span>' + (C.t === '1T'
     ? '<b>Primer trimestre:</b> todavía hay campos sin cubrir y tu nota de actitud aún no está preparada (Iago la pone la semana de exámenes). Mientras, aquí ves lo que ya resta, suma o es neutro.'
-    : '<b>Ojo:</b> lo que está marcado con <b>1T</b> y la línea discontinua son del trimestre anterior: Iago los volverá a poner la semana de exámenes. Es tu punto de partida antes de aplicar las fuerzas: <b>puede variar</b>.';
+    : '<b>Ojo:</b> lo que está marcado con <b>1T</b> y la línea discontinua son del trimestre anterior: Iago los volverá a poner la semana de exámenes. Es tu punto de partida antes de aplicar las fuerzas: <b>puede variar</b>.') + '</span><button id="entendido">Entendido</button>';
+  /* (12-nov, Iago) tintinea en amarillo hasta que el alumno pulsa «Entendido» */
+  $('aviso').classList.add('tint'); $('entendido').onclick = function () { $('aviso').classList.remove('tint'); this.remove(); };
   var lad = $('lad'), ag = $('aguja'), num = $('num');
   EST.forEach(function (e, i) {
     var b = 5 - i, d = document.createElement('div');
@@ -220,10 +232,10 @@ body.f-sug .sug{border-color:#facc15}
   $('contN').textContent = '+' + fmt(POS) + ' de +2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + fmt(2 - POS) + ' para el tope del trimestre.';
   if (POS >= 2) $('cont').classList.add('lleno');
   setTimeout(function () { $('contI').style.width = (Math.min(2, POS) / 2 * 100) + '%'; }, 900);
-  addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); }); });
+  addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja', 'bal'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); }); });
   var BAL = POS - NEG, bal = $('bal');
   bal.innerHTML = '<b style="color:' + (BAL > 0.01 ? '#4ade80' : BAL < -1.5 ? '#f87171' : BAL < -0.01 ? '#fbbf24' : '#e4e4e7') + '">' + (BAL > 0 ? '+' : BAL < 0 ? '−' : '') + fmt(Math.abs(BAL)) + '</b>' +
-    '<span>Tu balance de fuerzas</span><small>Se aplica a la nota que pone Iago. En 0 o cerca, ya es un éxito; pasar de 0 cuesta. Lo importante: que no sea muy negativo.</small>';
+    '<span>Tu balance de fuerzas</span><div class="bb"><i class="r" id="balR"></i><i class="v" id="balV"></i><em id="balM"></em></div><small>Se aplica a la nota que pone Iago. En 0 o cerca, ya es un éxito; pasar de 0 cuesta. Lo importante: que no sea muy negativo.</small>';
   /* líneas de fuerza */
   var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0, choque: 0 };
   var pR = $('pR'), pV = $('pV'), fR = $('fR'), fV = $('fV'), haz = $('haz');
@@ -283,7 +295,8 @@ body.f-sug .sug{border-color:#facc15}
         ag.style.top = yDe(FIN) + 'px'; cuenta(desde, FIN, 3200);
         setTimeout(function () { $('pieEsc').innerHTML = 'Ahora mismo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>'; }, 3300);
       }
-      bal.classList.add('ve');
+      bal.classList.add('ve'); var esc4 = 50 / 4;   /* media barra = 4 puntos */
+      $('balR').style.width = Math.min(50, NEG * esc4) + '%'; $('balV').style.width = Math.min(50, POS * esc4) + '%'; $('balM').style.left = Math.max(2, Math.min(98, 50 + BAL * esc4)) + '%';
       sugs.forEach(function (s, k) { setTimeout(function () { s.classList.add('ve'); }, (SIN ? 400 : 3600) + k * 450); });
     }, 420);
   }

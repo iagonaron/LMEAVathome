@@ -54,6 +54,7 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 .fz b{display:block;font:800 23px/1.15 var(--f)}
 .fz small{display:block;margin-top:3px;font:500 17px/1.25 var(--f);color:#c4c4cc}
 .fz .v{font:900 34px/1 var(--f);color:var(--c);white-space:nowrap;text-align:right}
+.fz.dos .v{font-size:27px}
 .fz .v i{display:block;font:700 15px/1.2 var(--f);font-style:normal;color:#a1a1aa;margin-top:3px}
 .fz.neutro{--c:#a1a1aa;background:rgba(161,161,170,.13)}
 .fz.neutro .v{color:#d4d4d8}
@@ -100,6 +101,9 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 .aguja em{position:absolute;left:84%;top:0;transform:translate(-50%,-50%);padding:5px 12px;border-radius:9px;background:#fff;color:#0a0a0b;font:900 30px/1 var(--f);font-style:normal;font-variant-numeric:tabular-nums;box-shadow:0 0 18px rgba(255,255,255,.6)}
 .aguja.bote i,.aguja.bote em{animation:lat .55s ease-in-out infinite alternate}
 @keyframes lat{to{opacity:.25}}
+.aguja.roja i{background:#ef4444;box-shadow:0 0 12px #ef4444,0 0 32px rgba(239,68,68,.85);animation:tinte .16s steps(2) infinite}
+.aguja.roja em{background:#fecaca;color:#7f1d1d;box-shadow:0 0 22px rgba(239,68,68,.8)}
+@keyframes tinte{50%{opacity:.35}}
 .base{position:absolute;left:0;right:0;height:0;border-top:2px dashed rgba(255,255,255,.55);z-index:4;opacity:0;transition:opacity .5s}
 .base span{position:absolute;left:43%;bottom:4px;font:700 17px/1 var(--f);color:rgba(255,255,255,.85);white-space:nowrap}
 #ejemplo{position:absolute;left:0;right:0;bottom:-44px;text-align:left;padding-left:16px;font:700 22px/1 var(--f);color:#e4e4e7;opacity:0;transition:opacity .5s}
@@ -137,6 +141,17 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 #imp ul{transition:opacity .6s;list-style:none;margin:0;padding:36px 34px;border:2px solid rgba(250,204,21,.45);border-radius:22px;background:rgba(255,255,255,.04);display:grid;gap:28px}
 #imp li{font:600 32px/1.3 var(--f);display:grid;grid-template-columns:60px 1fr;gap:12px;opacity:0;transform:translateX(20px);transition:opacity .6s,transform .6s}
 #imp li.ve{opacity:1;transform:none}#imp li b{color:var(--oro)}
+/* regularidad (v5): ventana en el centro */
+#regu{position:absolute;left:50%;top:50%;width:980px;transform:translate(-50%,-46%) scale(.94);padding:34px 40px 30px;border-radius:24px;background:rgba(10,12,18,.97);border:2px solid rgba(34,197,94,.6);box-shadow:0 30px 80px rgba(0,0,0,.7);z-index:14;opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
+#regu.ve{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#regu h4{margin:0 0 6px;font:900 40px/1.1 var(--f)}#regu h4 span{color:#4ade80}
+#regu p{margin:0 0 22px;font:600 24px/1.3 var(--f);color:#a1a1aa}
+#regu .gr{position:relative;display:grid;grid-template-columns:repeat(8,1fr);gap:16px;align-items:end;height:300px;padding-top:10px}
+#regu .gr i{display:block;border-radius:8px 8px 0 0;background:#22c55e;height:100%;transform:scaleY(0);transform-origin:bottom;transition:transform .7s cubic-bezier(.3,1.3,.5,1)}
+#regu .gr i.no{background:repeating-linear-gradient(45deg,#22c55e 0 10px,#14532d 10px 20px)}
+#regu .gr .raya{position:absolute;left:0;right:0;border-top:3px dashed #fde68a}
+#regu .gr .raya b{position:absolute;right:0;top:-34px;font:800 22px/1 var(--f);color:#fde68a}
+#regu .sem{display:grid;grid-template-columns:repeat(8,1fr);gap:16px;margin-top:10px;font:700 18px/1 var(--f);color:#71717a;text-align:center}
 /* el mapa de teoría y las áreas (v4, bloque 9) */
 #mapa{z-index:12;display:grid;grid-template-columns:1.25fr 1fr;gap:50px;align-items:center;padding:60px 80px;background:rgba(6,8,13,.985)}
 #mapa h4{margin:0 0 18px;font:900 40px/1 var(--f)}#mapa h4 span{color:var(--oro)}
@@ -201,6 +216,8 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   <div class="capa" id="mr"><img id="mrImg" alt=""><div class="anillo"></div>
     <svg class="cursor" viewBox="0 0 24 24"><path d="M4 2l15 11-6.5 1.2L16 21l-3 1.4-3.4-6.9L4 20z" fill="#fff" stroke="#000" stroke-width="1.3"/></svg>
     <iframe id="mrIfr" title="Mi actitud" tabindex="-1"></iframe></div>
+  <div id="regu"><h4>Regularidad, <span>no atracones</span></h4><p>Cada semana cuentan, como mucho, 30 minutos. Lo que pase de ahí, esa semana, no suma.</p>
+    <div class="gr" id="reguGr"><div class="raya" id="reguRaya"><b>30 min</b></div></div><div class="sem"><span>S1</span><span>S2</span><span>S3</span><span>S4</span><span>S5</span><span>S6</span><span>S7</span><span>S8</span></div></div>
   <div class="capa" id="mapa"><div class="caja"><h4>Mi mapa <span>de teoría</span></h4><svg id="mapaSvg" viewBox="0 -40 900 640"></svg>
       <div class="ley"><span style="--c:#ef4444">Rojo: ×2</span><span style="--c:#f97316">Naranja: ×1,5</span><span style="--c:#eab308">Amarillo</span><span style="--c:#22c55e">Verde</span></div></div>
     <div class="caja"><h4>Mis <span>resultados</span></h4>
@@ -270,27 +287,27 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   var TARJ = [
     ['g1', N, 'Lo que no llega al límite', 'aún no resta', '0', ['neutras', 0.4], ['puntualidad', 0]],
     ['g2', NS, 'Lo esperable', 'no suma', '0', ['neutras', 0.9], ['puntualidad', 0]],
-    ['punt', R, 'Puntualidad', 'Mejorable · insuficiente', '−1<i>o −2</i>', ['puntualidad', 1.6]],
-    ['aten', R, 'Atención', 'Mejorable · insuficiente', '−1<i>o −2</i>', ['puntualidad', 2.0]],
-    ['comp', R, 'Comportamiento', 'Mejorable · insuficiente', '−1,5<i>o −3</i>', ['puntualidad', 2.4]],
+    ['punt', R, 'Puntualidad', 'Mejorable · insuficiente', '−1 / −2', ['puntualidad', 1.6], null, 'dos'],
+    ['aten', R, 'Atención', 'Mejorable · insuficiente', '−1 / −2', ['puntualidad', 2.0], null, 'dos'],
+    ['comp', R, 'Comportamiento', 'Mejorable · insuficiente', '−1,5 / −3', ['puntualidad', 2.4], null, 'dos'],
     ['fneu', N, 'Faltas que no restan', 'la 1.ª sin justificar · las justificadas<span class="xs">' + x('roja', '1.ª', 'faltas', 0.2) + x('azul', 'justif.', 'faltas4', 2.6) + x('azul', 'justif.', 'faltas4', 3.0) + '</span>', '0', ['faltas', 0]],
-    ['falt', R, 'Faltas sin justificar', 'la 2.ª, medio · desde la 3.ª, una entera<span class="xs">' + x('roja', '2.ª', 'faltas2', 0.1) + x('roja', '3.ª', 'faltas3', 0.4) + x('roja', '4.ª', 'faltas3', 0.9) + '</span>', '−0,5<i>luego −1</i>', ['faltas2', 0]] ];
+    ['falt', R, 'Faltas sin justificar', 'la 2.ª, medio · desde la 3.ª, una entera<span class="xs">' + x('roja', '2.ª', 'faltas2', 0.1) + x('roja', '3.ª', 'faltas3', 0.4) + x('roja', '4.ª', 'faltas3', 0.9) + '</span>', '<span id="vFalt">−0,5</span>', ['faltas2', 0]] ];
   if (G === 'gp') TARJ.push(
     ['port', R, 'Portal sin ver', 'de una clase a la que faltaste<br><span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '−0,5', ['portal', 3.0], null, 'tex rojo', tex('tex-magnetofono-2.webp', '16,8,6', 'rgba(255,90,70,.75)', '#ffe9c7', '50% 20%')],
     ['aldia', N, 'Te pusiste al día', 'lo viste en casa<br><span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '0', ['aldia', 0.3], null, 'tex gris', tex('tex-magnetofono-2-gris.webp', '39,39,42', '#a1a1aa', '#e4e4e7', '50% 20%')]);
   else TARJ.push(['quiz', R, 'Quiz sin hacer', 'medio punto cada uno', '−0,5', ['quiz', 1.0]], ['qex', N, 'Quiz exento', 'tu familia lo pidió por CentrosNET', '0', ['quizexento', 3.5]]);
   TARJ.push(['fx0', N, '1.ª y 2.ª ficha en periodo extra', 'se perdonan cada trimestre', '0', ['fichasregla', 0.4]],
-    ['fx', R, 'Fichas en periodo extra', 'desde la 3.ª del trimestre', '−0,25<i>cada una</i>', ['fichasregla', 2.2]]);
+    ['fx', R, 'Fichas en periodo extra', 'desde la 3.ª del trimestre, cada una', '−0,25', ['fichasregla', 2.2]]);
   if (VER === 'hoy') TARJ.push(['fxh', N, 'Fichas extra hasta el 13 de noviembre', 'este trimestre no cuentan', '0', ['fichasgratis', 0.5]]);
   TARJ.push(['esp', NS, 'Puntualidad, atención y buen comportamiento', 'es lo esperable', '0', ['esperable', 0.3]]);
-  if (G === 'gp') TARJ.push(
-    ['like', S, 'Un portal a mayores, en casa', 'por tu cuenta <span class="mg">👍 «Me gusta»</span><br><span class="pnom">ATONALIDAD · CAPÍTULO 2</span>', '+', ['suma', 1.0], null, 'tex', tex('tex-atonalidad-2.webp', '7,5,12', 'rgba(255,61,166,.75)', '#ff3da6', '50% 60%')],
-    ['rep', S, 'Repasar y experimentar', 'lo de clase, otra vez y a tu manera<br><span class="pnom">BLUES · ACTO 3</span>', '+', ['suma', 4.5], null, 'tex', tex('tex-blues-3.webp', '14,9,5', 'rgba(255,232,190,.6)', '#ffe3b0', '50% 46%')]);
-  else TARJ.push(['like', S, 'Trabajo a mayores', 'por tu cuenta, en las apps <span class="mg">👍 «Me gusta»</span>', '+', ['suma', 1.0]],
-    ['rep', S, 'Repasar en casa', 'rehacer lo de clase, a tu ritmo', '+', ['suma', 4.5]]);
-  TARJ.push(['reg', S, 'Regularidad, no atracones', 'Cada semana cuentan hasta 30 min<span class="barras"><i data-h="38"></i><i data-h="52"></i><i data-h="30"></i><i data-h="78" class="tope"></i><i data-h="44"></i><i data-h="52"></i><i data-h="20"></i><i data-h="48"></i></span>', '', ['regularidad', 0.3]],
+  var TEO = G === 'gp' ? 'Teoría · Modos' : 'Teoría · Intervalos';
+  TARJ.push(['ent', S, 'Entonación at home', 'por tu cuenta · 15 min, con micrófono <span class="mg">👍 «Me gusta»</span>', '+', ['suma', 2.4]],
+    ['teo', S, TEO, 'ejercicios a mayores · 10 min', '+', ['suma', 4.0]]);
+  if (G === 'gp') TARJ.push(['rep', S, 'Repasar y experimentar', 'lo de clase, otra vez y a tu manera<br><span class="pnom">BLUES · ACTO 3</span>', '+', ['suma', 5.6], null, 'tex', tex('tex-blues-3.webp', '14,9,5', 'rgba(255,232,190,.6)', '#ffe3b0', '50% 46%')]);
+  else TARJ.push(['rep', S, 'Repasar y experimentar', 'lo de clase, otra vez y a tu manera', '+', ['suma', 5.6]]);
+  TARJ.push(
     ['flojo', S, 'En tu punto flojo, vale doble', '<span class="areas"><span style="--c:#22c55e">Ritmo</span><span style="--c:#3b82f6" class="flojo">Entonación</span><span style="--c:#ec4899">Teoría</span><span style="--c:#f97316">Dictado</span></span>', '×2', ['flojo', 0.4]],
-    ['horas', S, '1 hora: +1 · 2 horas: +2', 'en el trimestre · y no sube más', '+2<i>como mucho</i>', ['tope', 0.3]]);
+    ['horas', S, '1 hora: +1 · 2 horas: +2', 'en el trimestre · como mucho', '+2', ['tope', 0.3]]);
   /* el alumno de ejemplo (bloque 10): las tarjetas genéricas se van y entran las suyas */
   var GEN = TARJ.length;
   TARJ.push(['ePun', R, 'Puntualidad insuficiente', 'alumno de ejemplo', '−2', ['ejR', 1.0]],
@@ -320,12 +337,16 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
       '<text x="' + l[1] + '" y="' + (l[2] + (l[2] > cy ? 52 : -34)) + '" text-anchor="middle" font-size="24" font-weight="800" fill="#e4e4e7" font-family="Inter,system-ui,sans-serif">' + l[0] + '</text></g>'; });
     sv.innerHTML = h; })();
   var LUCES = [].slice.call(document.querySelectorAll('#mapa .luz'));
+  /* regularidad: minutos de 8 semanas; la 4.ª es un atracón (90 min) y solo cuentan 30 */
+  var MINS = [22, 30, 15, 90, 26, 30, 10, 24], MAXM = 95, RB = [];
+  MINS.forEach(function (m) { var i = document.createElement('i'); if (m > 30) i.className = 'no'; i.style.height = (m / MAXM * 100) + '%'; $('reguGr').appendChild(i); RB.push(i); });
+  $('reguRaya').style.bottom = (30 / MAXM * 100) + '%';
   /* palabras clave: [cue, desfase, texto] */
   var CLAVES = [['intro', 0, ''], ['impresion', 0, 'Primera impresión'], ['escalera', 0, 'Cinco escalones'],
     ['dosfuerzas', 0, 'Dos fuerzas'], ['izq', 0, 'Lo que resta'], ['der', 0, 'Lo que suma'], ['neutras', 0, 'Lo neutro: ni resta ni suma'], ['puntualidad', 0, 'Puntualidad · atención · comportamiento'],
     ['semanaexamen', 0, 'Los valoro en la semana de exámenes'], ['faltas0', 0, 'Faltas sin justificar'],
     ['faltas', 0, 'La 1.ª, gratis'], ['faltas2', 0, 'La 2.ª, medio punto'], ['faltas3', 0, 'Desde la 3.ª, un punto'],
-    ['faltas4', 0.8, 'Aviso por CentrosNET = justificada'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia', 0, 'Ponerte al día: neutro'],
+    ['faltas4', 0.8, 'CentrosNET: antes de clase o hasta 24 h después'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia', 0, 'Ponerte al día: neutro'],
     ['quiz', 0, 'Quiz sin hacer: −0,5'], ['quizexento', 0, 'Exento si tu familia lo pide por CentrosNET'], ['puntos', 0, 'Cada escalón, dos puntos'], ['cuento', 0, 'Ya cuenta en la primera impresión'], ['fichas', 0, 'Fichas en periodo extra'], ['fichasregla', 0, '2 perdonadas · luego −0,25'], ['fichasgratis', 0, 'Hasta el 13 de noviembre, no cuentan'],
     ['esperable', 0, 'Lo esperable: neutro'], ['suma', 0, 'Trabajo a mayores'], ['regularidad', 0, 'Hasta 30 min por semana'], ['flojo', 0, 'Lo que más te cuesta, ×2'], ['tope', 0, 'Como mucho, un escalón'],
     ['ejemplo', 0, 'Un alumno de ejemplo'], ['ejR', 0, ''], ['chocan', 0, ''], ['franja', 0, 'Tu nota de actitud'], ['misresultados', 0, '']];
@@ -339,6 +360,13 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   var BASE = 7, EJ = { neg: 3, pos: 1 }, FIN = BASE - EJ.neg + EJ.pos;
   var CH = C.choque || { t0: t0('franja', -5), t1: t0('franja', 0) }, CHL = CH.t1 - CH.t0;
   var IMP = CH.t0 + CHL * 0.36, LLEGA = IMP + 2.6;      // impacto · la línea llega a su sitio
+  /* (v5) el ejemplo, paso a paso: cada resta tira de la línea blanca hacia abajo; la verde llega después y, en el choque, compensa */
+  function tc(id) { var z = TARJ.filter(function (q) { return q[0] === id; })[0]; return z ? z.t : null; }
+  var PASOS = [[tc('ePun'), -2], [tc('eF2'), -0.5], [tc(G === 'gp' ? 'ePor' : 'eQui'), -0.5]].filter(function (q) { return q[0] != null; });
+  var TVERDE = tc('eSum'), EJ0 = t0('ejemplo', 0) || 1e9, BAJO = BASE + PASOS.reduce(function (a, q) { return a + q[1]; }, 0);
+  var PULSOS = TARJ.filter(function (q, i) { return i < GEN && q[1] === 'c' && q.t != null; }).map(function (q) { return q.t; }).concat(PASOS.map(function (q) { return q[0]; }));
+  function valor(t) { var v = BASE; PASOS.forEach(function (q) { if (t >= q[0] + 0.15) v += q[1] * suave(Math.min(1, (t - q[0] - 0.15) / 0.6)); });
+    if (t >= IMP) v += (FIN - BAJO) * suave(Math.min(1, (t - IMP) / (LLEGA - IMP))); return v; }
   var geo = null;
   function mide() {
     var cols = $('cols'), L = $('colC'), Rr = $('colF'), x0 = cols.offsetLeft, y0 = cols.offsetTop;
@@ -346,7 +374,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
       yLad: y0 + lad.offsetTop, y0: y0, h: cols.offsetHeight };
   }
   var yAg = 0;
-  function onda(x, y, ms, esc) { var o = document.createElement('div'); o.className = 'onda'; o.style.left = x + 'px'; o.style.top = y + 'px'; $('esc').appendChild(o);
+  function onda(x, y, ms, esc, col) { var o = document.createElement('div'); o.className = 'onda'; o.style.left = x + 'px'; o.style.top = y + 'px'; if (col) { o.style.borderColor = col; o.style.boxShadow = '0 0 26px ' + col; } $('esc').appendChild(o);
     o.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(' + esc + ')', opacity: 0 }], { duration: ms, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = function () { o.remove(); }; }
   function estalla(x, y, n) {
     for (var i = 0; i < n; i++) { var c = document.createElement('div'), a = Math.random() * 6.283, d = 80 + Math.random() * 300, col = i % 3 === 0 ? '#ef4444' : i % 3 === 1 ? '#22c55e' : '#fff';
@@ -365,15 +393,18 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     var enCh = t >= CH.t0 && t < CH.t1, carga = enCh && t < IMP ? (t - CH.t0) / (IMP - CH.t0) : 0, tras = enCh && t >= IMP ? Math.min(1, (t - IMP) / (CH.t1 - IMP)) : 0;
     var e = carga ? 1 - Math.pow(1 - carga, 2.2) : 0, gord = enCh ? (carga ? 1 + 1.3 * e : 2.3 - 1.0 * tras) : 1;
     var vib = 1 + Math.sin(now * 3.1) * 0.12 + (enCh && !carga ? Math.sin(now * 45) * 0.3 * (1 - tras) : 0);
-    [[P.hR, P.pR, P.fR, P.cR, dR, F.wR, F.aR], [P.hV, P.pV, P.fV, P.cV, dV, F.wV, F.aV]].forEach(function (z) {
-      var w = Math.max(0, z[5] * vib * gord);
+    var rev = [F.revR, F.revV], pulso = F.pulso && now - F.pulso < 0.45 ? 1 - (now - F.pulso) / 0.45 : 0;
+    [[P.hR, P.pR, P.fR, P.cR, dR, F.wR, F.aR * (F.dimR ? .5 : 1), F.dimR ? '#52525b' : '#ef4444', 0], [P.hV, P.pV, P.fV, P.cV, dV, F.wV, F.aV * (F.dimV ? .5 : 1), F.dimV ? '#52525b' : '#22c55e', 1]].forEach(function (z) {
+      if (z[1].__c !== z[7]) { z[1].__c = z[7]; z[1].setAttribute('stroke', z[7]); z[0].setAttribute('stroke', z[7]); }
+      var w = Math.max(0, z[5] * vib * gord * (z[8] === 0 ? 1 + 1.4 * pulso : 1));
       z[0].setAttribute('d', z[4]); z[1].setAttribute('d', z[4]); z[2].setAttribute('d', z[4]);
       z[1].setAttribute('stroke-width', w.toFixed(2)); z[1].setAttribute('stroke-opacity', z[6].toFixed(3));
       z[0].setAttribute('stroke-width', (w * 2.3 + 3).toFixed(2)); z[0].setAttribute('stroke-opacity', (z[6] * (enCh ? .3 : .16)).toFixed(3));
       z[2].setAttribute('stroke-width', (z[5] * .45).toFixed(2)); z[2].style.opacity = z[6];
-      if (carga) { var len = z[1].getTotalLength(), d = len * (1 - e);
+      var rv = rev[z[8]], ee = carga ? e : (rv != null && rv < 1 ? 1 - Math.pow(1 - rv, 2) : 0);
+      if (ee) { var len = z[1].getTotalLength(), d = len * (1 - ee); e = ee;
         z[1].style.strokeDasharray = len; z[1].style.strokeDashoffset = d; z[0].style.strokeDasharray = len; z[0].style.strokeDashoffset = d;
-        var p = z[1].getPointAtLength(len * e); z[3].setAttribute('cx', p.x); z[3].setAttribute('cy', p.y); z[3].setAttribute('r', (9 + 5 * Math.sin(now * 20)).toFixed(1)); }
+        var p = z[1].getPointAtLength(len * ee); z[3].setAttribute('cx', p.x); z[3].setAttribute('cy', p.y); z[3].setAttribute('r', (9 + 5 * Math.sin(now * 20)).toFixed(1)); }
       else { if (z[1].style.strokeDasharray) { z[1].style.strokeDasharray = ''; z[1].style.strokeDashoffset = ''; z[0].style.strokeDasharray = ''; z[0].style.strokeDashoffset = ''; } z[3].setAttribute('r', 0); }
     });
     var rH = (F.neg && F.pos ? 11 : (F.neg || F.pos) ? 7 : 0) + Math.sin(now * 2.6) * 1.6;
@@ -381,6 +412,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     if (carga > .7) rH += 30 * (carga - .7) / .3;
     P.haz.setAttribute('cx', g.xC); P.haz.setAttribute('cy', yA + osc); P.haz.setAttribute('r', Math.max(0, rH).toFixed(1));
     // el impacto, una sola vez cuando el audio cruza ese instante
+    PULSOS.forEach(function (q) { if (!au.paused && ultT < q + 0.1 && t >= q + 0.1 && t - q < 0.6) { F.pulso = now; onda(g.xC, yA, 650, 3.2, '#ef4444'); } });
     if (!au.paused && ultT < IMP && t >= IMP && t - IMP < 0.4) {
       golpe(g, yA);
     }
@@ -407,15 +439,17 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     cls($('cinco0'), 've', entre(t, t0('intro', 0.3), t0('impresion', 0)));
     // la línea blanca: primera impresión → (choque) → final
     var conAg = t >= t0('impresion', 0.2);
-    cls(ag, 've', conAg); cls(ag, 'bote', conAg && t < IMP);
-    var v = t < IMP ? BASE : (t < LLEGA ? BASE + (FIN - BASE) * suave((t - IMP) / (LLEGA - IMP)) : FIN);
+    cls(ag, 've', conAg); cls(ag, 'bote', conAg && t < EJ0);
+    cls(ag, 'roja', PULSOS.some(function (q) { return t >= q + 0.1 && t < q + 0.75; }));
+    var v = valor(t);
     yAg = yDe(v) + Math.sin(performance.now() / 1000 * 2.2) * 1.2; sty(ag, 'transform', 'translateY(' + yAg.toFixed(1) + 'px)');
     txt($('num'), fmt(Math.round(v * 10) / 10));
     var E = C.escalones, ilu = E && t >= E.t0 - 0.1 && t < E.t1 + 0.6 ? Math.max(0, Math.min(4, Math.floor((t - E.t0 + 0.1) / (E.t1 - E.t0) * 5))) : -1;
     if (ilu >= 0) PELS.forEach(function (p, k) { cls(p, 'on', k === ilu); cls(p, 'mas', false); }); else marca(v, conAg);
     sty($('base'), 'top', yDe(BASE) + 'px'); sty($('base'), 'opacity', t >= t0('dosfuerzas', 0) && t < mrA ? '1' : '0');
     sty($('ejemplo'), 'opacity', t >= t0('ejemplo', 0.3) && t < mrA ? '1' : '0');
-    htm($('ejemplo'), t >= LLEGA ? 'Alumno de ejemplo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>' : 'Alumno de ejemplo: resta ' + fmt(EJ.neg) + ' · suma ' + fmt(EJ.pos));
+    var resta = -PASOS.reduce(function (a, q) { return a + (t >= q[0] ? q[1] : 0); }, 0);
+    htm($('ejemplo'), t >= LLEGA ? 'Alumno de ejemplo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>' : 'Alumno de ejemplo: parte de un 7' + (resta ? ' · resta ' + fmt(resta) : '') + (TVERDE != null && t >= TVERDE ? ' · suma 1' : ''));
     // focos
     var esc = $('cols'), fo = '', dim = false, dimN = entre(t, t0('neutras', 0), t0('puntualidad', 0));
     if (entre(t, t0('impresion', 0), t0('dosfuerzas', 0))) { dim = true; fo = 'colA'; }
@@ -438,17 +472,23 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
       var obj = Math.max(0, u.el.offsetTop + u.el.offsetHeight - L.clientHeight + 4); L.scrollTo({ top: obj, behavior: t - u.t < 2 ? 'smooth' : 'auto' }); });
     ['neuC', 'neuF'].forEach(function (id) { var l = $(id), hay = !!l.querySelector('.fz.ve'); cls(l.firstChild, 'oculto', hay); });
     XS.forEach(function (s) { cls(s.el, 've', s.t != null && t >= s.t); });
+    var vf = $('vFalt'); if (vf) txt(vf, t >= t0('faltas3', 0.9) ? '−2,5' : t >= t0('faltas3', 0.4) ? '−1,5' : '−0,5');
     var base2 = t >= t0('dosfuerzas', 0.6) ? 1 : 0;
-    F.neg = Math.max(base2, neg * 0.8); F.pos = Math.max(base2, Math.min(2, pos * 0.6));
+    if (t < EJ0) { F.neg = Math.max(base2, neg * 0.8); F.pos = Math.max(base2, Math.min(2, pos * 0.6)); F.revR = F.revV = null; }
+    else { var pr = PASOS.filter(function (q) { return t >= q[0]; }).length; F.neg = pr ? 1 + pr * 0.8 : 0; F.pos = TVERDE != null && t >= TVERDE ? 1.2 : 0;
+      F.revR = PASOS.length && t >= PASOS[0][0] ? Math.min(1, (t - PASOS[0][0]) / 0.7) : 0; F.revV = TVERDE != null && t >= TVERDE ? Math.min(1, (t - TVERDE) / 0.7) : 0;
+      if (t >= CH.t0) F.revR = F.revV = null; }
+    F.dimR = fo === 'colF' || dimN; F.dimV = fo === 'colC' || dimN;
     // etiquetas sobre puntualidad, atención y comportamiento
     ['punt', 'aten', 'comp'].forEach(function (k) { var g = $('tg-' + k); if (!g) return;
       var a = t0('semanaexamen', 0.3), b = t0('semanaexamen', 3.2); txt(g, t >= b ? '1T' : '📅 exámenes'); cls(g, 've', t >= a); });
     // barras de regularidad
-    var rv = t >= t0('regularidad', 0.8); BARRAS.forEach(function (i) { sty(i, 'transform', 'scaleY(' + (rv ? Math.min(+i.dataset.h, i.classList.contains('tope') ? 52 : 99) / 78 : 0) + ')'); });
+    var RG = C.regularidad, enRg = RG && entre(t, RG.t0 - 0.1, RG.t1 + 0.9); cls($('regu'), 've', !!enRg);
+    RB.forEach(function (b, i) { sty(b, 'transform', 'scaleY(' + (enRg && t >= RG.t0 + 0.4 + i * 0.22 ? 1 : 0) + ')'); });
     // palabra clave
     var k = null; CLAVES.forEach(function (c) { if (t >= c.t) k = c[2]; }); if (t >= mrA) k = '';
     txt($('clave'), k || '');
-    cls($('clave'), 've', !!k && !(C.mapa && entre(t, C.mapa.t0 - 0.2, C.mapa.t1 + 0.8)) && !MAQ.some(function (m) { return entre(t, m.t, m.hasta); }));
+    cls($('clave'), 've', !!k && !enRg && !(C.mapa && entre(t, C.mapa.t0 - 0.2, C.mapa.t1 + 0.8)) && !MAQ.some(function (m) { return entre(t, m.t, m.hasta); }));
     // máquina de escribir
     var m = null; MAQ.forEach(function (x) { if (entre(t, x.t, x.hasta)) m = x; });
     cls($('maquina'), 've', !!m);
@@ -467,7 +507,8 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     if (MP) { LUCES.forEach(function (l, i) { cls(l, 've', t >= MP.t0 + 0.3 + i * 0.25); }); ['ar1', 'ar2', 'ar3', 'ar4'].forEach(function (id, i) { cls($(id), 've', t >= MP.t0 + 0.6 + i * 0.35); }); }
     // en «Mi actitud»: señalar lo que se va diciendo
     var foco = '';
-    if (entre(t, t0('misresultados', 9), t1('misresultados', 0.5))) foco = 'sug';
+    if (entre(t, t0('misresultados', 6.2), t0('misresultados', 9.2))) foco = 'bal';
+    if (entre(t, t0('misresultados', 9.2), t1('misresultados', 0.5))) foco = 'sug';
     if (entre(t, t0('interroga', 0), t1('interroga', 0.5))) foco = 'aguja';
     if (entre(t, t0('barra', 0), t1('barra', 0.5))) foco = 'barra';
     if (foco !== mr.__foco) { mr.__foco = foco; try { $('mrIfr').contentWindow.postMessage({ tipo: 'foco', que: foco }, '*'); } catch (e) {} }
