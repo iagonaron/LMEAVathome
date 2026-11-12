@@ -51,7 +51,7 @@
     actitud: { t: '¿Qué pasa?', ops: ['No estoy de acuerdo con algo', 'No entiendo cómo se calcula'] }
   };
   var DETALLE_RES = ['No sé de dónde sale', 'Creo que está mal'];
-  var ICO = '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6"/><path d="M12 17h.01"/></svg>';
+  var ICO = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6"/><path d="M12 17h.01"/></svg>';
 
   function css() {
     if (document.getElementById('lm-incid-css')) return;
