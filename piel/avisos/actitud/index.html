@@ -104,6 +104,8 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 .aguja.roja i{background:#ef4444;box-shadow:0 0 12px #ef4444,0 0 32px rgba(239,68,68,.85);animation:tinte .16s steps(2) infinite}
 .aguja.roja em{background:#fecaca;color:#7f1d1d;box-shadow:0 0 22px rgba(239,68,68,.8)}
 @keyframes tinte{50%{opacity:.35}}
+.pel.pulsa{animation:pulsaPel .9s ease-out}
+@keyframes pulsaPel{0%{transform:scale(1)}25%{transform:scale(1.06);box-shadow:0 0 0 6px rgba(255,255,255,.7),0 0 60px color-mix(in srgb,var(--c) 80%,transparent)}100%{transform:scale(1)}}
 .base{position:absolute;left:0;right:0;height:0;border-top:2px dashed rgba(255,255,255,.55);z-index:4;opacity:0;transition:opacity .5s}
 .base span{position:absolute;left:43%;bottom:4px;font:700 17px/1 var(--f);color:rgba(255,255,255,.85);white-space:nowrap}
 #ejemplo{position:absolute;left:0;right:0;bottom:-44px;text-align:left;padding-left:16px;font:700 22px/1 var(--f);color:#e4e4e7;opacity:0;transition:opacity .5s}
@@ -141,6 +143,34 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 #imp ul{transition:opacity .6s;list-style:none;margin:0;padding:36px 34px;border:2px solid rgba(250,204,21,.45);border-radius:22px;background:rgba(255,255,255,.04);display:grid;gap:28px}
 #imp li{font:600 32px/1.3 var(--f);display:grid;grid-template-columns:60px 1fr;gap:12px;opacity:0;transform:translateX(20px);transition:opacity .6s,transform .6s}
 #imp li.ve{opacity:1;transform:none}#imp li b{color:var(--oro)}
+/* (v6) puntualidad, atención y comportamiento: se observan TODO el trimestre y se anotan en la semana de exámenes */
+#trim{position:absolute;left:50%;top:50%;width:1100px;transform:translate(-50%,-46%) scale(.94);padding:34px 40px 30px;border-radius:24px;background:rgba(10,12,18,.97);border:2px solid rgba(239,68,68,.6);box-shadow:0 30px 80px rgba(0,0,0,.7);z-index:14;opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
+#trim.ve{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#trim h4{margin:0 0 6px;font:900 38px/1.1 var(--f)}#trim h4 span{color:#fca5a5}
+#trim p{margin:0 0 24px;font:600 25px/1.35 var(--f);color:#d4d4d8}#trim p b{color:#fff}
+#trim .sem{display:grid;grid-template-columns:repeat(11,1fr) 1.9fr;gap:8px;align-items:stretch}
+#trim .sem i{display:grid;place-items:center;height:70px;border-radius:9px;background:rgba(255,255,255,.06);border:1.5px solid #3f3f46;font:800 15px/1 var(--f);font-style:normal;color:#71717a;transition:background .4s,border-color .4s,color .4s}
+#trim .sem i.ve{background:rgba(250,204,21,.16);border-color:#facc15;color:#fde68a}
+#trim .sem i.ex{background:rgba(255,255,255,.04);color:#a1a1aa;font-size:17px;line-height:1.2;text-align:center}
+#trim .sem i.ex.ve{background:#facc15;color:#111;border-color:#facc15}
+#trim .eti{display:grid;grid-template-columns:11fr 1.9fr;gap:8px;margin-top:10px;font:800 19px/1.2 var(--f);color:#fde68a;text-align:center}
+#trim ul{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:12px}
+#trim li{font:700 24px/1.3 var(--f);color:#e4e4e7;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}#trim li.ve{opacity:1;transform:none}
+#trim li b{color:#facc15}
+/* (v6) lo que suma, continuo: ventana en el centro */
+#horas{position:absolute;left:50%;top:50%;width:1100px;transform:translate(-50%,-46%) scale(.94);padding:34px 44px 36px;border-radius:24px;background:rgba(10,12,18,.97);border:2px solid rgba(34,197,94,.6);box-shadow:0 30px 80px rgba(0,0,0,.7);z-index:14;opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
+#horas.ve{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#horas h4{margin:0 0 6px;font:900 40px/1.1 var(--f)}#horas h4 span{color:#4ade80}
+#horas p{margin:0 0 40px;font:600 25px/1.35 var(--f);color:#d4d4d8}
+#horas .eje{position:relative;height:56px;border-radius:12px;background:rgba(255,255,255,.07);border:1.5px solid #3f3f46;overflow:hidden}
+#horas .eje i{position:absolute;left:0;top:0;bottom:0;width:0;background:#22c55e}
+#horas .eje i.tope{background:#facc15}
+#horas .eje b{position:absolute;right:16px;top:50%;transform:translateY(-50%);font:900 30px/1 var(--f);color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.6);font-variant-numeric:tabular-nums}
+#horas .mar{position:relative;height:70px;margin-top:8px}
+#horas .mar span{position:absolute;transform:translateX(-50%);text-align:center;font:800 22px/1.25 var(--f);color:#a1a1aa;white-space:nowrap}
+#horas .mar span em{display:block;font-style:normal;font-size:26px;color:#4ade80}
+#horas .mar span.t em{color:#facc15}
+#horas .nota{margin-top:14px;font:700 22px/1.3 var(--f);color:#fde68a;opacity:0;transition:opacity .5s}#horas .nota.ve{opacity:1}
 /* regularidad (v5): ventana en el centro */
 #regu{position:absolute;left:50%;top:50%;width:980px;transform:translate(-50%,-46%) scale(.94);padding:34px 40px 30px;border-radius:24px;background:rgba(10,12,18,.97);border:2px solid rgba(34,197,94,.6);box-shadow:0 30px 80px rgba(0,0,0,.7);z-index:14;opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
 #regu.ve{opacity:1;transform:translate(-50%,-50%) scale(1)}
@@ -155,7 +185,12 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 /* el mapa de teoría y las áreas (v4, bloque 9) */
 #mapa{z-index:12;display:grid;grid-template-columns:1.25fr 1fr;gap:50px;align-items:center;padding:60px 80px;background:rgba(6,8,13,.985)}
 #mapa h4{margin:0 0 18px;font:900 40px/1 var(--f)}#mapa h4 span{color:var(--oro)}
-#mapa .caja{background:rgba(13,15,22,.95);border:2px solid #2a2a31;border-radius:22px;padding:28px 30px}
+#mapa .caja{background:rgba(13,15,22,.95);border:2px solid #2a2a31;border-radius:22px;padding:28px 30px;transition:opacity .5s,box-shadow .5s,border-color .5s,transform .5s}
+#mapa.fA .cmapa,#mapa.fM .cres{opacity:.3;transform:scale(.97)}
+#mapa.fA .cres,#mapa.fM .cmapa{border-color:#facc15;box-shadow:0 0 0 3px rgba(250,204,21,.35),0 0 50px rgba(250,204,21,.25)}
+#mapa.fA .ar.top em{animation:late .7s ease-in-out infinite alternate}
+#mapa.fM .luz.top circle{animation:late .7s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes late{to{transform:scale(1.18);filter:brightness(1.5)}}
 #mapa svg{width:100%;height:auto;display:block}
 #mapa .luz{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.3);transition:opacity .4s,transform .5s cubic-bezier(.3,1.7,.5,1)}
 #mapa .luz.ve{opacity:1;transform:none}
@@ -216,15 +251,23 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   <div class="capa" id="mr"><img id="mrImg" alt=""><div class="anillo"></div>
     <svg class="cursor" viewBox="0 0 24 24"><path d="M4 2l15 11-6.5 1.2L16 21l-3 1.4-3.4-6.9L4 20z" fill="#fff" stroke="#000" stroke-width="1.3"/></svg>
     <iframe id="mrIfr" title="Mi actitud" tabindex="-1"></iframe></div>
+  <div id="trim"><h4>Puntualidad, atención y comportamiento: <span>todo el trimestre</span></h4>
+    <p>Me fijo <b>cada semana, desde el primer día</b>, y lo anoto <b>al final</b>, en la semana de exámenes.</p>
+    <div class="sem" id="trimSem"></div><div class="eti"><span>👀 lo que observo en clase, semana a semana</span><span>✍️ lo anoto</span></div>
+    <ul><li id="trimL1">1.er trimestre: hasta entonces, <b>sin cubrir</b>.</li><li id="trimL2">Desde el 2.º: verás <b>las del trimestre anterior</b>, como referencia.</li></ul></div>
+  <div id="horas"><h4>Lo que suma: <span>poco a poco</span></h4><p>Cuenta minuto a minuto: cada hora en el trimestre, +1. Sin saltos.</p>
+    <div class="eje"><i id="horasI"></i><b id="horasN">+0</b></div>
+    <div class="mar"><span style="left:0%;transform:none;text-align:left">0 min<em>+0</em></span><span style="left:33.33%">1 h<em>+1</em></span><span style="left:50%">1 h 30 min<em>+1,5</em></span><span class="t" style="left:66.67%">2 h<em>+2</em></span><span style="right:0;left:auto;transform:none;text-align:right">3 h<em>+2</em></span></div>
+    <div class="nota" id="horasNota">Desde 2 h, ya no sube más: es el tope del trimestre.</div></div>
   <div id="regu"><h4>Regularidad, <span>no atracones</span></h4><p>Cada semana cuentan, como mucho, 30 minutos. Lo que pase de ahí, esa semana, no suma.</p>
     <div class="gr" id="reguGr"><div class="raya" id="reguRaya"><b>30 min</b></div></div><div class="sem"><span>S1</span><span>S2</span><span>S3</span><span>S4</span><span>S5</span><span>S6</span><span>S7</span><span>S8</span></div></div>
-  <div class="capa" id="mapa"><div class="caja"><h4>Mi mapa <span>de teoría</span></h4><svg id="mapaSvg" viewBox="0 -40 900 640"></svg>
+  <div class="capa" id="mapa"><div class="caja cmapa"><h4>Mi mapa <span>de teoría</span></h4><svg id="mapaSvg" viewBox="0 -40 900 640"></svg>
       <div class="ley"><span style="--c:#ef4444">Rojo: ×2</span><span style="--c:#f97316">Naranja: ×1,5</span><span style="--c:#eab308">Amarillo</span><span style="--c:#22c55e">Verde</span></div></div>
-    <div class="caja"><h4>Mis <span>resultados</span></h4>
+    <div class="caja cres"><h4>Mis <span>resultados</span></h4>
       <div class="ar" id="ar1" style="--c:#22c55e"><span>Ritmo</span><i style="width:78%"></i><b>7,8</b><em>×1</em></div>
-      <div class="ar" id="ar2" style="--c:#3b82f6"><span>Entonación</span><i style="width:53%"></i><b>5,3</b><em style="--m:#f97316">×1,5</em></div>
+      <div class="ar top" id="ar2" style="--c:#3b82f6"><span>Entonación</span><i style="width:53%"></i><b>5,3</b><em style="--m:#f97316">×1,5</em></div>
       <div class="ar" id="ar3" style="--c:#ec4899"><span>Teoría</span><i style="width:69%"></i><b>6,9</b><em>×1</em></div>
-      <div class="ar" id="ar4" style="--c:#f97316"><span>Dictado</span><i style="width:42%"></i><b>4,2</b><em style="--m:#ef4444">×2</em></div>
+      <div class="ar top" id="ar4" style="--c:#f97316"><span>Dictado</span><i style="width:42%"></i><b>4,2</b><em style="--m:#ef4444">×2</em></div>
       <small>Si te ha llegado el aviso de «flojo» en un área, ahí vale ×2. Si no, la más baja, ×1,5.</small></div></div>
   <div class="capa" id="imp"><div><h3>La actitud es el <span>5&nbsp;%</span> de tu nota</h3>
       <p id="i1">Vale hasta <b>medio punto</b> del trimestre.</p>
@@ -301,13 +344,11 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   if (VER === 'hoy') TARJ.push(['fxh', N, 'Fichas extra hasta el 13 de noviembre', 'este trimestre no cuentan', '0', ['fichasgratis', 0.5]]);
   TARJ.push(['esp', NS, 'Puntualidad, atención y buen comportamiento', 'es lo esperable', '0', ['esperable', 0.3]]);
   var TEO = G === 'gp' ? 'Teoría · Modos' : 'Teoría · Intervalos';
-  TARJ.push(['ent', S, 'Entonación at home', 'por tu cuenta · 15 min, con micrófono <span class="mg">👍 «Me gusta»</span>', '+', ['suma', 2.4]],
-    ['teo', S, TEO, 'ejercicios a mayores · 10 min', '+', ['suma', 4.0]]);
-  if (G === 'gp') TARJ.push(['rep', S, 'Repasar y experimentar', 'lo de clase, otra vez y a tu manera<br><span class="pnom">BLUES · ACTO 3</span>', '+', ['suma', 5.6], null, 'tex', tex('tex-blues-3.webp', '14,9,5', 'rgba(255,232,190,.6)', '#ffe3b0', '50% 46%')]);
-  else TARJ.push(['rep', S, 'Repasar y experimentar', 'lo de clase, otra vez y a tu manera', '+', ['suma', 5.6]]);
-  TARJ.push(
-    ['flojo', S, 'En tu punto flojo, vale doble', '<span class="areas"><span style="--c:#22c55e">Ritmo</span><span style="--c:#3b82f6" class="flojo">Entonación</span><span style="--c:#ec4899">Teoría</span><span style="--c:#f97316">Dictado</span></span>', '×2', ['flojo', 0.4]],
-    ['horas', S, '1 hora: +1 · 2 horas: +2', 'en el trimestre · como mucho', '+2', ['tope', 0.3]]);
+  TARJ.push(['ent', S, 'Entonación at home', 'por tu cuenta · 15 min, con micrófono <span class="mg">👍 «Me gusta»</span>', '+', ['suma', 1.6]],
+    ['teo', S, TEO, 'ejercicios a mayores · 10 min', '+', ['suma', 3.0]]);
+  if (G === 'gp') TARJ.push(['rep', S, 'La Cabaña, día 2', 'a mayores, en casa · 18 min', '+', ['suma', 4.6], null, 'tex', tex('tex-cabana-2.webp', '14,9,4', 'rgba(255,255,255,.5)', '#aeffc3', '50% 64%')]);
+  else TARJ.push(['rep', S, 'Dictado at home · dictado 6', 'repetido por tu cuenta · 12 min', '+', ['suma', 4.6]]);
+  TARJ.push();
   /* el alumno de ejemplo (bloque 10): las tarjetas genéricas se van y entran las suyas */
   var GEN = TARJ.length;
   TARJ.push(['ePun', R, 'Puntualidad insuficiente', 'alumno de ejemplo', '−2', ['ejR', 1.0]],
@@ -333,10 +374,11 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     L.forEach(function (l, i) { var x = l[1], y = l[2], d = 'M' + cx + ' ' + cy + ' H' + (x < cx ? cx - 110 : x > cx ? cx + 110 : cx) + (x === cx ? ' V' + y : ' V' + y + ' H' + x);
       h += '<path d="' + d + '" fill="none" stroke="#3f3f46" stroke-width="4" stroke-linejoin="round"/>'; });
     h += '<rect x="370" y="250" width="160" height="60" rx="12" fill="#18181b" stroke="#facc15" stroke-width="3"/><text x="450" y="290" text-anchor="middle" font-size="28" font-weight="900" fill="#fff" font-family="Inter,system-ui,sans-serif">Teoría</text>';
-    L.forEach(function (l, i) { h += '<g class="luz" data-i="' + i + '"><circle cx="' + l[1] + '" cy="' + l[2] + '" r="22" fill="' + l[3] + '" stroke="#0a0a0b" stroke-width="4"/>' +
+    L.forEach(function (l, i) { h += '<g class="luz' + (/ef4444|f97316/.test(l[3]) ? ' top' : '') + '" data-i="' + i + '"><circle cx="' + l[1] + '" cy="' + l[2] + '" r="22" fill="' + l[3] + '" stroke="#0a0a0b" stroke-width="4"/>' +
       '<text x="' + l[1] + '" y="' + (l[2] + (l[2] > cy ? 52 : -34)) + '" text-anchor="middle" font-size="24" font-weight="800" fill="#e4e4e7" font-family="Inter,system-ui,sans-serif">' + l[0] + '</text></g>'; });
     sv.innerHTML = h; })();
   var LUCES = [].slice.call(document.querySelectorAll('#mapa .luz'));
+  var TS = []; for (var w = 1; w <= 12; w++) { var it = document.createElement('i'); if (w === 12) { it.className = 'ex'; it.innerHTML = '📅 Semana de<br>exámenes'; } else it.textContent = 'S' + w; $('trimSem').appendChild(it); TS.push(it); }
   /* regularidad: minutos de 8 semanas; la 4.ª es un atracón (90 min) y solo cuentan 30 */
   var MINS = [22, 30, 15, 90, 26, 30, 10, 24], MAXM = 95, RB = [];
   MINS.forEach(function (m) { var i = document.createElement('i'); if (m > 30) i.className = 'no'; i.style.height = (m / MAXM * 100) + '%'; $('reguGr').appendChild(i); RB.push(i); });
@@ -435,10 +477,11 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     sty($('play'), 'display', (t < 0.05 && au.paused) ? '' : 'none');
     var mrA = t0('misresultados', -0.3), impA = t0('importa', -0.2), finA = t0('cierre', -0.2);
     cls($('main'), 've', t >= T - 0.4 && t < mrA);
-    sty($('fuerzas'), 'opacity', (t >= t0('dosfuerzas', 0.6) && t < mrA && !(C.mapa && entre(t, C.mapa.t0 - 0.2, C.mapa.t1 + 0.8))) ? '1' : '0');
+    sty($('fuerzas'), 'opacity', (t >= t0('dosfuerzas', 0.6) && t < mrA && !(C.mapa && entre(t, (C.flojo || C.mapa).t0 - 0.2, C.mapa.t1 + 0.8))) ? '1' : '0');
     cls($('cinco0'), 've', entre(t, t0('intro', 0.3), t0('impresion', 0)));
     // la línea blanca: primera impresión → (choque) → final
-    var conAg = t >= t0('impresion', 0.2);
+    var T7 = t0('ejemplo', 3.4), sin7 = entre(t, EJ0, T7);   /* (v6) el ejemplo empieza en blanco: el 7 se marca al decirlo */
+    var conAg = t >= t0('impresion', 0.2) && !sin7;
     cls(ag, 've', conAg); cls(ag, 'bote', conAg && t < EJ0);
     cls(ag, 'roja', PULSOS.some(function (q) { return t >= q + 0.1 && t < q + 0.75; }));
     var v = valor(t);
@@ -446,10 +489,11 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     txt($('num'), fmt(Math.round(v * 10) / 10));
     var E = C.escalones, ilu = E && t >= E.t0 - 0.1 && t < E.t1 + 0.6 ? Math.max(0, Math.min(4, Math.floor((t - E.t0 + 0.1) / (E.t1 - E.t0) * 5))) : -1;
     if (ilu >= 0) PELS.forEach(function (p, k) { cls(p, 'on', k === ilu); cls(p, 'mas', false); }); else marca(v, conAg);
-    sty($('base'), 'top', yDe(BASE) + 'px'); sty($('base'), 'opacity', t >= t0('dosfuerzas', 0) && t < mrA ? '1' : '0');
+    PELS.forEach(function (p) { cls(p, 'pulsa', entre(t, T7, T7 + 0.9) && +p.dataset.b === banda(BASE)); });
+    sty($('base'), 'top', yDe(BASE) + 'px'); sty($('base'), 'opacity', t >= t0('dosfuerzas', 0) && t < mrA && !sin7 ? '1' : '0');
     sty($('ejemplo'), 'opacity', t >= t0('ejemplo', 0.3) && t < mrA ? '1' : '0');
     var resta = -PASOS.reduce(function (a, q) { return a + (t >= q[0] ? q[1] : 0); }, 0);
-    htm($('ejemplo'), t >= LLEGA ? 'Alumno de ejemplo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>' : 'Alumno de ejemplo: parte de un 7' + (resta ? ' · resta ' + fmt(resta) : '') + (TVERDE != null && t >= TVERDE ? ' · suma 1' : ''));
+    htm($('ejemplo'), t >= LLEGA ? 'Alumno de ejemplo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>' : (sin7 ? 'Alumno de ejemplo' : 'Alumno de ejemplo: parte de un 7') + (resta ? ' · resta ' + fmt(resta) : '') + (TVERDE != null && t >= TVERDE ? ' · suma 1' : ''));
     // focos
     var esc = $('cols'), fo = '', dim = false, dimN = entre(t, t0('neutras', 0), t0('puntualidad', 0));
     if (entre(t, t0('impresion', 0), t0('dosfuerzas', 0))) { dim = true; fo = 'colA'; }
@@ -474,7 +518,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     XS.forEach(function (s) { cls(s.el, 've', s.t != null && t >= s.t); });
     var vf = $('vFalt'); if (vf) txt(vf, t >= t0('faltas3', 0.9) ? '−2,5' : t >= t0('faltas3', 0.4) ? '−1,5' : '−0,5');
     var base2 = t >= t0('dosfuerzas', 0.6) ? 1 : 0;
-    if (t < EJ0) { F.neg = Math.max(base2, neg * 0.8); F.pos = Math.max(base2, Math.min(2, pos * 0.6)); F.revR = F.revV = null; }
+    if (t < EJ0) { var resumen = t < t0('puntualidad', 0); F.neg = Math.max(base2, neg * 0.8); var tS = t0('suma', 0); F.pos = pos ? Math.min(2, pos * 0.6) : (resumen || t >= tS ? base2 : 0); F.revR = null; F.revV = t >= tS && t < tS + 0.7 ? (t - tS) / 0.7 : null; }
     else { var pr = PASOS.filter(function (q) { return t >= q[0]; }).length; F.neg = pr ? 1 + pr * 0.8 : 0; F.pos = TVERDE != null && t >= TVERDE ? 1.2 : 0;
       F.revR = PASOS.length && t >= PASOS[0][0] ? Math.min(1, (t - PASOS[0][0]) / 0.7) : 0; F.revV = TVERDE != null && t >= TVERDE ? Math.min(1, (t - TVERDE) / 0.7) : 0;
       if (t >= CH.t0) F.revR = F.revV = null; }
@@ -483,12 +527,19 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     ['punt', 'aten', 'comp'].forEach(function (k) { var g = $('tg-' + k); if (!g) return;
       var a = t0('semanaexamen', 0.3), b = t0('semanaexamen', 3.2); txt(g, t >= b ? '1T' : '📅 exámenes'); cls(g, 've', t >= a); });
     // barras de regularidad
+    var SE = C.semanaexamen, enTr = SE && entre(t, SE.t0 - 0.1, SE.t1 + 0.9); cls($('trim'), 've', !!enTr);
+    TS.forEach(function (it, i) { cls(it, 've', enTr && t >= SE.t0 + 0.4 + i * 0.16); });
+    cls($('trimL1'), 've', enTr && t >= t0('semanaexamen', 2.6)); cls($('trimL2'), 've', enTr && t >= t0('semanaexamen', 4.8));
+    var TP = C.tope, enHo = TP && entre(t, TP.t0 - 0.1, TP.t1 + 1.0); cls($('horas'), 've', !!enHo);
+    if (TP) { var q = enHo ? Math.max(0, Math.min(1, (t - TP.t0 - 0.4) / (TP.t1 - TP.t0 - 0.8))) : 0, mins = q * 180, pts = Math.min(2, mins / 60);
+      sty($('horasI'), 'width', (q * 100).toFixed(2) + '%'); cls($('horasI'), 'tope', mins >= 120); txt($('horasN'), '+' + fmt(Math.round(pts * 10) / 10) + '  ·  ' + Math.round(mins) + ' min');
+      cls($('horasNota'), 've', enHo && mins >= 120); }
     var RG = C.regularidad, enRg = RG && entre(t, RG.t0 - 0.1, RG.t1 + 0.9); cls($('regu'), 've', !!enRg);
     RB.forEach(function (b, i) { sty(b, 'transform', 'scaleY(' + (enRg && t >= RG.t0 + 0.4 + i * 0.22 ? 1 : 0) + ')'); });
     // palabra clave
     var k = null; CLAVES.forEach(function (c) { if (t >= c.t) k = c[2]; }); if (t >= mrA) k = '';
     txt($('clave'), k || '');
-    cls($('clave'), 've', !!k && !enRg && !(C.mapa && entre(t, C.mapa.t0 - 0.2, C.mapa.t1 + 0.8)) && !MAQ.some(function (m) { return entre(t, m.t, m.hasta); }));
+    cls($('clave'), 've', !!k && !enRg && !enTr && !enHo && !(C.mapa && entre(t, (C.flojo || C.mapa).t0 - 0.2, C.mapa.t1 + 0.8)) && !MAQ.some(function (m) { return entre(t, m.t, m.hasta); }));
     // máquina de escribir
     var m = null; MAQ.forEach(function (x) { if (entre(t, x.t, x.hasta)) m = x; });
     cls($('maquina'), 've', !!m);
@@ -503,8 +554,9 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     if (dentro && !mr.dataset.cargado) { mr.dataset.cargado = 1; $('mrIfr').src = 'mi-actitud.html?caso=' + G + '1'; }
     if (!enMr && mr.dataset.cargado && t < mrA) { delete mr.dataset.cargado; $('mrIfr').src = 'about:blank'; }
     // el mapa de teoría y las áreas
-    var MP = C.mapa, enMapa = MP && entre(t, MP.t0 - 0.2, MP.t1 + 0.8); cls($('mapa'), 've', !!enMapa);
-    if (MP) { LUCES.forEach(function (l, i) { cls(l, 've', t >= MP.t0 + 0.3 + i * 0.25); }); ['ar1', 'ar2', 'ar3', 'ar4'].forEach(function (id, i) { cls($(id), 've', t >= MP.t0 + 0.6 + i * 0.35); }); }
+    var MP = C.mapa, FL = C.flojo || MP, enMapa = MP && entre(t, FL.t0 - 0.2, MP.t1 + 0.8); cls($('mapa'), 've', !!enMapa);
+    if (MP) { LUCES.forEach(function (l, i) { cls(l, 've', t >= FL.t0 + 0.3 + i * 0.2); }); ['ar1', 'ar2', 'ar3', 'ar4'].forEach(function (id, i) { cls($(id), 've', t >= FL.t0 + 0.3 + i * 0.3); });
+      var mM = t >= MP.t0 + 2.8; cls($('mapa'), 'fA', enMapa && !mM && t >= FL.t0 + 1.2); cls($('mapa'), 'fM', enMapa && mM); }
     // en «Mi actitud»: señalar lo que se va diciendo
     var foco = '';
     if (entre(t, t0('misresultados', 6.2), t0('misresultados', 9.2))) foco = 'bal';
