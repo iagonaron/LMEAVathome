@@ -4,15 +4,16 @@
 <meta name="robots" content="noindex">
 <!-- (12-nov-2026, Iago) Vídeo «Cómo valoro tu actitud» con su voz: ?g=ge | gp · ?v=hoy (este curso: la 1.ª vez, con el 1.er trimestre
      «gratis» para las fichas en periodo extra) | curso (el que se queda para principio de curso). Todo sale de la hora del audio
-     (cues.js = dónde empieza y acaba cada frase), así que la barra permite saltar a cualquier momento. -->
+     (cues.js = dónde empieza y acaba cada frase), así que la barra permite saltar a cualquier momento.
+     v3 (14:31): voz a velocidad real · columnas con scroll · tarjetas neutras del mismo tamaño · faltas con ✕ (rojas / azules)
+     · portales con su textura · choque de fuerzas con su propio momento · sin filtros de desenfoque (fluidez). -->
 <style>
-:root{--f:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--oro:#facc15;--suave:#a1a1aa}
+:root{--f:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--oro:#facc15;--suave:#a1a1aa;--gris:#a1a1aa}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f);overflow:hidden}
-#esc{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;overflow:hidden;background:#0a0a0b}
-#fondo{position:absolute;inset:0;background:url(fondo-video.jpg) center/cover;filter:blur(3px) brightness(.38);transform:scale(1.03)}
-.capa{position:absolute;inset:0;opacity:0;transition:opacity .9s;pointer-events:none}
-.capa.ve{opacity:1;pointer-events:auto}
+#esc{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;overflow:hidden;background:#0a0a0b url(fondo-video-b.jpg) center/cover}
+.capa{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .9s,visibility 0s .9s;pointer-events:none}
+.capa.ve{opacity:1;visibility:visible;transition:opacity .9s;pointer-events:auto}
 /* título */
 #tit{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;background:rgba(5,7,12,.35)}
 #tit h1{margin:0;font:900 132px/1 var(--f);letter-spacing:-.02em;text-align:center}
@@ -24,40 +25,57 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 #play{width:116px;height:116px;border-radius:22px;border:0;background:var(--oro);color:#111;cursor:pointer;display:grid;place-items:center;margin-top:24px}
 #play svg{width:48px;height:48px;margin-left:6px}
 /* la escena principal */
-#main{padding:34px 60px 0}
 #cab{position:absolute;left:60px;right:60px;top:30px;display:flex;justify-content:space-between;align-items:center}
 #cab b{font:900 34px/1 var(--f)}#cab span{font:800 22px/1 var(--f);letter-spacing:.24em;color:var(--oro);text-transform:uppercase}
-#cols{position:absolute;left:60px;right:60px;top:118px;height:790px;display:grid;grid-template-columns:1fr 1.02fr 1fr;gap:40px}
-.col{background:rgba(13,15,22,.86);border:2px solid #2a2a31;border-radius:20px;padding:22px 22px;display:flex;flex-direction:column;gap:11px;min-height:0;overflow:hidden;transition:opacity .6s,box-shadow .6s,border-color .6s}
+#cols{position:absolute;left:60px;right:60px;top:118px;height:800px;display:grid;grid-template-columns:1fr 1.02fr 1fr;gap:40px}
+.col{background:rgba(13,15,22,.9);border:2px solid #2a2a31;border-radius:20px;padding:20px 18px 18px 22px;display:flex;flex-direction:column;gap:11px;min-height:0;overflow:hidden;transition:opacity .6s}
 .col h2{margin:0;font:900 22px/1 var(--f);letter-spacing:.2em;text-transform:uppercase}
 .col.contra{border-color:rgba(239,68,68,.55)}.col.contra h2{color:#fca5a5}
 .col.favor{border-color:rgba(34,197,94,.55)}.col.favor h2{color:#86efac}
-.tope{margin-top:-6px;font:700 20px/1.2 var(--f);color:var(--suave);transition:color .4s,transform .4s;transform-origin:left}
+.tope{margin-top:-4px;font:700 20px/1.2 var(--f);color:var(--suave);transition:color .4s,transform .4s;transform-origin:left}
 .tope.foco{color:#fff;transform:scale(1.25)}
-.lista{display:flex;flex-direction:column;gap:9px}.lista.n{gap:6px}
-.neuw{margin-top:auto;padding-top:12px;border-top:1px dashed #3f3f46;display:flex;flex-direction:column;gap:10px;transition:background .6s,box-shadow .6s;border-radius:10px}
-.neuw h2{color:#a1a1aa!important;font-size:18px!important}
+/* listas con scroll propio (si hay muchas tarjetas, la columna se desplaza sola hasta la última) */
+.lista{position:relative;display:flex;flex-direction:column;gap:9px;flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:6px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+.lista::-webkit-scrollbar{width:6px}.lista::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:3px}
+.neuw{flex:0 1 auto;max-height:47%;min-height:118px;display:flex;flex-direction:column;gap:10px;padding:12px 10px 10px;margin:0 -6px -4px;border:2px dashed #3f3f46;border-radius:14px;transition:background .6s,border-color .6s,box-shadow .6s}
+.neuw h2{color:var(--gris)!important;font-size:18px!important;transition:color .5s}
+.neuw .lista{flex:1 1 auto}
+.vacio{font:600 17px/1.3 var(--f);color:#71717a;padding:6px 2px}
+.vacio.oculto{display:none}
 .dim .col:not(.foco),.dim .esc:not(.foco){opacity:.28}
-.dimN .lista:not(.n),.dimN .col>h2,.dimN .tope{opacity:.3}
-.dimN .neuw{box-shadow:0 0 0 2px rgba(161,161,170,.6);background:rgba(161,161,170,.08)}
-.fz{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;padding:10px 14px;border-radius:14px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);
+.dimN .col>h2,.dimN .col>.lista,.dimN .tope,.dimN .esc{opacity:.25}
+.dimN .neuw{border:3px solid #e4e4e7;background:rgba(228,228,231,.1);box-shadow:0 0 0 6px rgba(228,228,231,.12),0 0 50px rgba(228,228,231,.35)}
+.dimN .neuw h2{color:#fff!important}
+.fz{position:relative;flex:0 0 auto;display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;padding:11px 14px;border-radius:14px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 16%,#0d0f16);
   display:none;transition:box-shadow .5s}
 .fz.ve{display:grid;animation:aparece .55s ease-out}
 @keyframes aparece{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.fz.ahora{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 45%,transparent),0 0 30px color-mix(in srgb,var(--c) 40%,transparent)}
+.fz.ahora{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 50%,transparent),0 0 26px color-mix(in srgb,var(--c) 45%,transparent)}
 .fz b{display:block;font:800 23px/1.15 var(--f)}
 .fz small{display:block;margin-top:3px;font:500 17px/1.25 var(--f);color:#c4c4cc}
 .fz .v{font:900 34px/1 var(--f);color:var(--c);white-space:nowrap;text-align:right}
 .fz .v i{display:block;font:700 15px/1.2 var(--f);font-style:normal;color:#a1a1aa;margin-top:3px}
-.fz.neutro{--c:#71717a;padding:6px 12px;border-width:1.5px;background:rgba(113,113,122,.12)}
-.fz.neutro b{display:inline;font:700 18px/1.2 var(--f);color:#e4e4e7}
-.fz.neutro small{display:inline;margin:0 0 0 8px;font-size:15px;color:#a1a1aa}.fz.neutro small::before{content:"· "}
-.fz.neutro .v{font-size:22px;color:#a1a1aa}
+.fz.neutro{--c:#a1a1aa;background:rgba(161,161,170,.13)}
+.fz.neutro .v{color:#d4d4d8}
+/* tarjetas de portal con su textura */
+.fz.tex{border-color:var(--bd);background:linear-gradient(90deg,rgba(var(--rgb),.93),rgba(var(--rgb),.55)),var(--tex) var(--pos,50% 50%)/cover no-repeat,rgb(var(--rgb));text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.fz.tex b{color:var(--tono)}.fz.tex small{color:#f4f4f5}
+.fz.tex.rojo{border-color:#ef4444;background:linear-gradient(90deg,rgba(127,29,29,.94),rgba(127,29,29,.6)),var(--tex) var(--pos,50% 50%)/cover no-repeat,#450a0a}
+.fz.tex.rojo b{color:#fecaca}
+.fz.tex.gris{border-color:#a1a1aa;background:linear-gradient(90deg,rgba(39,39,42,.93),rgba(39,39,42,.55)),var(--tex) var(--pos,50% 50%)/cover no-repeat,#27272a}
+.fz.tex.gris b{color:#e4e4e7}
+.pnom{display:inline-block;margin-top:6px;padding:3px 9px;border-radius:7px;background:rgba(0,0,0,.45);border:1.5px solid currentColor;font:800 15px/1.2 var(--f);letter-spacing:.04em}
 .tag{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:7px;border:1.5px solid #fde68a;color:#fde68a;font:800 14px/1.3 var(--f);vertical-align:3px;opacity:0;transition:opacity .5s}
 .tag.ve{opacity:1}
-.mg{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:5px 10px;border-radius:8px;background:rgba(56,189,248,.14);border:1.5px solid rgba(56,189,248,.6);font:700 16px/1 var(--f);color:#bae6fd}
+.mg{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:5px 10px;border-radius:8px;background:rgba(56,189,248,.14);border:1.5px solid rgba(56,189,248,.6);font:700 16px/1 var(--f);color:#bae6fd;text-shadow:none}
+/* faltas: ✕ rojas (sin justificar) y azules (justificadas) */
+.xs{display:flex;gap:12px;margin-top:9px;flex-wrap:wrap}
+.x{display:flex;flex-direction:column;align-items:center;gap:4px;font:700 14px/1 var(--f);color:#d4d4d8;opacity:0;transform:scale(.3);transition:opacity .3s,transform .5s cubic-bezier(.3,1.7,.5,1)}
+.x.ve{opacity:1;transform:none}
+.x i{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font:900 26px/1 var(--f);font-style:normal;color:#fff;background:var(--xc);box-shadow:0 0 14px color-mix(in srgb,var(--xc) 55%,transparent)}
+.x.roja{--xc:#ef4444}.x.azul{--xc:#3b82f6}
 .barras{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;align-items:end;height:78px;margin-top:10px;position:relative}
-.barras i{display:block;background:#22c55e;border-radius:4px 4px 0 0;opacity:.85;height:0;transition:height .8s}
+.barras i{display:block;background:#22c55e;border-radius:4px 4px 0 0;opacity:.85;height:78px;transform:scaleY(0);transform-origin:bottom;transition:transform .8s}
 .barras i.tope{background:repeating-linear-gradient(45deg,#22c55e 0 6px,#166534 6px 12px)}
 .barras::after{content:"30 min";position:absolute;left:0;right:0;bottom:52px;border-top:2px dashed #fde68a;font:700 13px/1 var(--f);color:#fde68a;text-align:right;padding-top:3px}
 .areas{display:flex;gap:8px;margin-top:10px}
@@ -65,7 +83,7 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 .areas span.flojo{background:var(--c);color:#111;box-shadow:0 0 18px var(--c)}
 .areas span.flojo::after{content:" ×2"}
 /* la escalera */
-.esc{display:flex;flex-direction:column;min-height:0;transition:opacity .6s}
+.esc{display:flex;flex-direction:column;min-height:0;transition:opacity .6s,transform .6s}
 .esc h2{margin:0 0 12px;padding-left:16px;font:900 22px/1 var(--f);letter-spacing:.2em;text-transform:uppercase;color:#d4d4d8}
 .lad{position:relative;flex:1;min-height:0;display:grid;grid-template-rows:repeat(5,1fr);gap:11px}
 .pel{position:relative;border-radius:16px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 13%,#0d0d0f);display:flex;align-items:center;padding-left:24px;
@@ -76,32 +94,32 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 .pel s{text-decoration:none;opacity:0;transition:opacity .5s}
 .pel.on{background:var(--c);color:#0b0b0c;box-shadow:0 0 40px color-mix(in srgb,var(--c) 50%,transparent)}
 .pel.on i,.pel.on u{color:rgba(0,0,0,.55)}.pel.on.mas s{opacity:1}
-.aguja{position:absolute;left:-14px;right:-14px;height:0;top:0;z-index:5;transition:top 3.2s cubic-bezier(.5,0,.2,1),opacity .5s;pointer-events:none;opacity:0}
+.aguja{position:absolute;left:-14px;right:-14px;height:0;top:0;z-index:5;pointer-events:none;opacity:0;transition:opacity .5s;will-change:transform}
 .aguja.ve{opacity:1}
-.aguja i{position:absolute;left:0;right:0;top:-2.5px;height:5px;border-radius:3px;background:#fff;box-shadow:0 0 10px #fff,0 0 24px rgba(255,255,255,.7);animation:respira 2.8s ease-in-out infinite}
-@keyframes respira{0%,100%{transform:translateY(-1px)}50%{transform:translateY(1.5px)}}
+.aguja i{position:absolute;left:0;right:0;top:-2.5px;height:5px;border-radius:3px;background:#fff;box-shadow:0 0 10px #fff,0 0 24px rgba(255,255,255,.7)}
 .aguja em{position:absolute;left:84%;top:0;transform:translate(-50%,-50%);padding:5px 12px;border-radius:9px;background:#fff;color:#0a0a0b;font:900 30px/1 var(--f);font-style:normal;font-variant-numeric:tabular-nums;box-shadow:0 0 18px rgba(255,255,255,.6)}
 .aguja.bote i,.aguja.bote em{animation:lat .55s ease-in-out infinite alternate}
-@keyframes lat{to{opacity:.2}}
+@keyframes lat{to{opacity:.25}}
 .base{position:absolute;left:0;right:0;height:0;border-top:2px dashed rgba(255,255,255,.55);z-index:4;opacity:0;transition:opacity .5s}
 .base span{position:absolute;left:43%;bottom:4px;font:700 17px/1 var(--f);color:rgba(255,255,255,.85);white-space:nowrap}
-#ejemplo{position:absolute;left:0;right:0;bottom:-46px;text-align:left;padding-left:16px;font:700 22px/1 var(--f);color:#e4e4e7;opacity:0;transition:opacity .5s}
+#ejemplo{position:absolute;left:0;right:0;bottom:-44px;text-align:left;padding-left:16px;font:700 22px/1 var(--f);color:#e4e4e7;opacity:0;transition:opacity .5s}
 #ejemplo b{color:var(--oro)}
+.choca .col{opacity:.3}
 /* palabra clave abajo */
-#clave{position:absolute;left:60px;right:60px;top:968px;text-align:center;font:900 46px/1 var(--f);letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .4s;text-shadow:0 2px 20px rgba(0,0,0,.8)}
+#clave{position:absolute;left:60px;right:60px;top:972px;text-align:center;font:900 46px/1 var(--f);letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .4s;text-shadow:0 2px 20px rgba(0,0,0,.8)}
 #clave.ve{opacity:1}
 /* el chip del 5 % al principio */
 #cinco0{position:absolute;left:50%;top:420px;transform:translate(-50%,-50%) scale(.9);padding:30px 54px;border-radius:24px;background:rgba(13,15,22,.94);border:3px solid var(--oro);font:900 64px/1.1 var(--f);text-align:center;opacity:0;transition:opacity .6s,transform .6s;z-index:20}
 #cinco0 span{color:var(--oro)}#cinco0 small{display:block;margin-top:10px;font:700 28px/1.2 var(--f);color:#d4d4d8}
 #cinco0.ve{opacity:1;transform:translate(-50%,-50%) scale(1)}
 /* máquina de escribir */
-#maquina{position:absolute;left:50%;top:930px;transform:translateX(-50%);width:1500px;padding:22px 34px;border-radius:16px;background:#f5f0e6;color:#1c1917;font:600 34px/1.35 "Courier New",Courier,monospace;box-shadow:0 12px 40px rgba(0,0,0,.6);opacity:0;transition:opacity .4s;z-index:21;min-height:96px}
+#maquina{position:absolute;left:50%;top:934px;transform:translateX(-50%);width:1500px;padding:22px 34px;border-radius:16px;background:#f5f0e6;color:#1c1917;font:600 34px/1.35 "Courier New",Courier,monospace;box-shadow:0 12px 40px rgba(0,0,0,.6);opacity:0;transition:opacity .4s;z-index:21;min-height:96px}
 #maquina.ve{opacity:1}
 #maquina::after{content:"▌";animation:cursor .8s steps(1) infinite;color:#b91c1c}
 @keyframes cursor{50%{opacity:0}}
 /* Mis resultados */
-#mr{background:#05070c}#mr::before{content:"";position:absolute;inset:-30px;background:var(--mrimg) center/cover;filter:blur(18px) brightness(.5)}
-#mr img{position:absolute;left:50%;top:50%;width:1728px;height:1080px;transform:translate(-50%,-50%);transition:opacity .8s,transform 1.4s}
+#mr{background:#05070c var(--mrimg) center/cover}
+#mr img{position:absolute;left:50%;top:50%;width:1728px;height:1080px;transform:translate(-50%,-50%);transition:opacity .8s}
 #mr .anillo{position:absolute;left:calc(50% - 864px + 144px*1.244);top:calc(6px*1.244);width:calc(116px*1.244);height:calc(31px*1.244);border-radius:14px;box-shadow:0 0 0 4px var(--oro),0 0 40px var(--oro);opacity:0;animation:pulso 1s ease-in-out infinite alternate}
 #mr.boton .anillo{opacity:1}
 @keyframes pulso{to{box-shadow:0 0 0 8px rgba(250,204,21,.4),0 0 60px var(--oro)}}
@@ -119,13 +137,24 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 #imp ul{transition:opacity .6s;list-style:none;margin:0;padding:36px 34px;border:2px solid rgba(250,204,21,.45);border-radius:22px;background:rgba(255,255,255,.04);display:grid;gap:28px}
 #imp li{font:600 32px/1.3 var(--f);display:grid;grid-template-columns:60px 1fr;gap:12px;opacity:0;transform:translateX(20px);transition:opacity .6s,transform .6s}
 #imp li.ve{opacity:1;transform:none}#imp li b{color:var(--oro)}
-#sm{display:flex;align-items:center;justify-content:center;font:900 110px/1 var(--f);background:rgba(8,9,13,.9)}
-#sm span{color:var(--oro)}
+/* cierre */
+#fin{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;background:rgba(8,9,13,.92);text-align:center}
+#fin div{opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
+#fin div.ve{opacity:1;transform:none}
+#fin .f1{font:700 44px/1.3 var(--f);color:#d4d4d8}
+#fin .f2{font:600 38px/1.3 var(--f);color:#a1a1aa;max-width:1300px}
+#fin .f2 b{color:#fde68a}
+#fin .f3{font:900 120px/1 var(--f);margin-top:20px}#fin .f3 span{color:var(--oro)}
+#fin.sm .f1,#fin.sm .f2{opacity:.35}
+/* fuerzas */
 #fuerzas{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none;z-index:8;overflow:visible;opacity:0;transition:opacity .8s}
 #fuerzas path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+#fuerzas .halo{stroke-opacity:.2}
 #fuerzas .flujo{stroke:#fff;stroke-opacity:.55;stroke-dasharray:4 20;animation:fluye 1.1s linear infinite}
 @keyframes fluye{to{stroke-dashoffset:-24}}
-.chispa{position:absolute;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;pointer-events:none;z-index:9}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:30}
+.onda{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 30px #fff,inset 0 0 30px rgba(255,255,255,.6);pointer-events:none;z-index:9;opacity:0}
+.chispa{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#fff;pointer-events:none;z-index:9}
 /* controles discretos */
 #ctl{position:absolute;right:28px;bottom:26px;display:flex;gap:10px;z-index:40;opacity:0;transition:opacity .35s}
 body.raton #ctl,body:not(.sonando) #ctl{opacity:1}
@@ -133,23 +162,25 @@ body.raton #ctl,body:not(.sonando) #ctl{opacity:1}
 #barra{position:absolute;left:0;right:0;bottom:0;height:18px;z-index:40;cursor:pointer;opacity:0;transition:opacity .35s}
 body.raton #barra,body:not(.sonando) #barra{opacity:1}
 #barra::before{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:rgba(255,255,255,.14)}
-#barra i{position:absolute;left:0;bottom:0;height:6px;width:0;background:var(--oro)}
+#barra i{position:absolute;left:0;bottom:0;height:6px;width:100%;background:var(--oro);transform-origin:left;transform:scaleX(0)}
 </style></head>
 <body>
 <div id="esc">
-  <div id="fondo"></div>
   <div class="capa" id="main">
     <div id="cab"><b>Cómo valoro tu actitud</b><span>5 % de tu nota</span></div>
     <div id="cols">
-      <section class="col contra" id="colC"><h2>Resta</h2><div class="lista" id="contra"></div><div class="neuw" id="neuwC"><h2>Neutro · no resta</h2><div class="lista n" id="neuC"></div></div></section>
+      <section class="col contra" id="colC"><h2>Resta</h2><div class="lista" id="contra"></div><div class="neuw"><h2>Neutro · no resta</h2><div class="lista" id="neuC"><div class="vacio">Lo que no llega al límite</div></div></div></section>
       <section class="esc" id="colA"><h2>Actitud</h2><div class="lad" id="lad"><div class="aguja" id="aguja"><i></i><em id="num">7</em></div><div class="base" id="base"><span>primera impresión</span></div><div id="ejemplo"></div></div></section>
-      <section class="col favor" id="colF"><h2>Suma</h2><div class="tope" id="tope">Como mucho, un escalón (+2)</div><div class="lista" id="favor"></div><div class="neuw" id="neuwF"><h2>Neutro · no suma</h2><div class="lista n" id="neuF"></div></div></section>
+      <section class="col favor" id="colF"><h2>Suma</h2><div class="tope" id="tope">Como mucho, un escalón (+2)</div><div class="lista" id="favor"></div><div class="neuw"><h2>Neutro · no suma</h2><div class="lista" id="neuF"><div class="vacio">Lo que es lo esperable</div></div></div></section>
     </div>
     <div id="clave"></div>
   </div>
-  <svg id="fuerzas" viewBox="0 0 1920 1080"><defs><filter id="brillo" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <radialGradient id="gHaz"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
-    <path id="pR" stroke="#ef4444" filter="url(#brillo)"/><path id="fR" class="flujo"/><path id="pV" stroke="#22c55e" filter="url(#brillo)"/><path id="fV" class="flujo"/><circle id="haz" r="0" fill="url(#gHaz)"/></svg>
+  <svg id="fuerzas" viewBox="0 0 1920 1080"><defs><radialGradient id="gHaz"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+    <path id="hR" class="halo" stroke="#ef4444"/><path id="pR" stroke="#ef4444"/><path id="fR" class="flujo"/>
+    <path id="hV" class="halo" stroke="#22c55e"/><path id="pV" stroke="#22c55e"/><path id="fV" class="flujo"/>
+    <circle id="cR" r="0" fill="#fff" stroke="#ef4444" stroke-width="5"/><circle id="cV" r="0" fill="#fff" stroke="#22c55e" stroke-width="5"/>
+    <circle id="haz" r="0" fill="url(#gHaz)"/></svg>
+  <div id="flash"></div>
   <div id="cinco0">La actitud es el <span>5 %</span><small>de la nota del trimestre</small></div>
   <div id="maquina"></div>
   <div class="capa" id="mr"><img id="mrImg" alt=""><div class="anillo"></div>
@@ -163,7 +194,9 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     <ul><li id="b1"><span>⏰</span><span>Si eres puntual, <b>aprovechas más la clase</b>.</span></li>
       <li id="b2"><span>📅</span><span>Si entregas a tiempo, <b>no se te acumula</b> y lo haces con más calidad.</span></li>
       <li id="b3"><span>🎯</span><span>Si practicas lo que más te cuesta, <b>es donde más mejoras</b>.</span></li></ul></div>
-  <div class="capa" id="sm"><div>Sé <span>tú mismo</span>.</div></div>
+  <div class="capa" id="fin"><div class="f1" id="fin1">No hace falta que te obsesiones.</div>
+    <div class="f2" id="fin2">¿No te interesa o vas con mucho lío? Puedes no prestarle atención:<br><b>☕ esto es para los más cafeteros.</b></div>
+    <div class="f3" id="fin3">Sé <span>tú mismo</span>.</div></div>
   <div class="capa ve" id="tit"><p>Lenguaje Musical</p><h1>Cómo valoro<br>tu actitud</h1>
     <button id="play" title="Empezar"><svg viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z" fill="currentColor"/></svg></button>
     <div class="botones"><button class="boton" id="otra">Ver otra vez</button><button class="boton lleno" id="salir">Salir</button></div></div>
@@ -184,6 +217,11 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   var C = {}; CU.cues.forEach(function (c) { C[c.id] = c; });
   function t0(id, off) { var c = C[id]; return c ? c.t0 + (off || 0) : null; }
   function t1(id, off) { var c = C[id]; return c ? c.t1 + (off || 0) : null; }
+  /* pequeñas ayudas para no tocar el DOM si nada cambia (fluidez) */
+  function cls(el, c, on) { if (el.classList.contains(c) !== !!on) el.classList.toggle(c, !!on); }
+  function txt(el, s) { if (el.__t !== s) { el.__t = s; el.textContent = s; } }
+  function htm(el, s) { if (el.__h !== s) { el.__h = s; el.innerHTML = s; } }
+  function sty(el, p, v) { if (el.style[p] !== v) el.style[p] = v; }
   /* escalar el escenario */
   function escala() { var s = Math.min(innerWidth / 1920, innerHeight / 1080); $('esc').style.transform = 'translate(-50%,-50%) scale(' + s + ')'; }
   addEventListener('resize', escala); escala();
@@ -197,137 +235,206 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   EST.forEach(function (e, i) { var b = 5 - i, d = document.createElement('div'); d.className = 'pel'; d.style.setProperty('--c', e[1]); d.dataset.b = b;
     d.innerHTML = e[0] + '<s>+</s><i>' + (2 * b) + '</i><u>' + (2 * b - 1) + '</u>'; lad.insertBefore(d, ag); });
   var PELS = [].slice.call(lad.querySelectorAll('.pel'));
-  function yDe(v) { v = Math.max(0, Math.min(10, v)); var b = banda(v), p = PELS[5 - b]; return p.offsetTop + 3 + Math.max(0, Math.min(1, (2 * b - v + 0.5) / 2)) * (p.offsetHeight - 6); }
-  function marca(v, on) { var b = banda(v), m = esMas(v); PELS.forEach(function (p) { var o = on && +p.dataset.b === b; p.classList.toggle('on', o); p.classList.toggle('mas', o && m); }); }
-  /* tarjetas: [id, columna, título, detalle, valor, cuándo aparece (cue, desfase)] */
+  var PC = null;   /* posiciones de los escalones, medidas una vez (y otra si cambia el tamaño) */
+  function yDe(v) { if (!PC) PC = PELS.map(function (p) { return [p.offsetTop, p.offsetHeight]; });
+    v = Math.max(0, Math.min(10, v)); var b = banda(v), p = PC[5 - b]; return p[0] + 3 + Math.max(0, Math.min(1, (2 * b - v + 0.5) / 2)) * (p[1] - 6); }
+  function marca(v, on) { var b = banda(v), m = esMas(v); PELS.forEach(function (p) { var o = on && +p.dataset.b === b; cls(p, 'on', o); cls(p, 'mas', o && m); }); }
+  /* texturas de portal (las mismas que en la campana del Diario · gp.lmathome.es/hitos/) */
+  function tex(f, rgb, bd, tono, pos) { return 'style="--tex:url(' + f + ');--rgb:' + rgb + ';--bd:' + bd + ';--tono:' + tono + ';--pos:' + (pos || '50% 50%') + '"'; }
+  function x(cl, et, cue, off) { return '<span class="x ' + cl + '" data-c="' + cue + '" data-o="' + (off || 0) + '"><i>✕</i>' + et + '</span>'; }
+  /* tarjetas: [id, columna, título, detalle, valor, cuándo aparece (cue, desfase), [cuándo se va], clase extra, atributos] */
   var R = 'c', N = 'nc', S = 'f', NS = 'nf';
   var TARJ = [
+    ['g1', N, 'Lo que no llega al límite', 'aún no resta', '0', ['neutras', 0.4], ['puntualidad', 0]],
+    ['esp', NS, 'Buena puntualidad, atención y comportamiento', 'es lo esperable', '0', ['neutras', 1.6]],
     ['punt', R, 'Puntualidad', 'Mejorable · insuficiente', '−1<i>o −2</i>', ['puntualidad', 0.3]],
     ['aten', R, 'Atención', 'Mejorable · insuficiente', '−1<i>o −2</i>', ['atencion', 0.2]],
     ['comp', R, 'Comportamiento', 'Mejorable · insuficiente', '−1,5<i>o −3</i>', ['comportamiento', 0]],
-    ['f1', N, '1.ª falta sin justificar', 'la primera no cuenta', '0', ['faltas', 2.6]],
-    ['falt', R, 'Faltas sin justificar', 'La 2.ª, medio; desde la 3.ª, una entera', '−0,5<i>−1 cada una</i>', ['faltas', 4.4]],
-    ['fj', N, 'Falta justificada', 'tu familia avisa por CentrosNET', '0', ['faltas', 9.5]] ];
-  if (G === 'gp') TARJ.push(['port', R, 'Portal sin ver', 'De una clase a la que faltaste', '−0,5', ['portal', 4.5]],
-    ['aldia', N, 'Te pusiste al día', 'viste en casa el portal de esa clase', '0', ['aldia1', 0]]);
-  else TARJ.push(['quiz', R, 'Quiz sin hacer', 'Medio punto cada uno', '−0,5', ['quiz', 0.6]]);
-  TARJ.push(['fx', R, 'Fichas en periodo extra', 'Desde la 3.ª del trimestre', '−0,5<i>cada una</i>', ['fichasregla', 15.5]],
-    ['fx0', N, '1.ª y 2.ª ficha en periodo extra', 'se perdonan', '0', ['fichasregla', 15.5]]);
-  if (VER === 'hoy') TARJ.push(['fxh', N, 'Fichas extra hasta el 13 de noviembre', 'este trimestre no cuentan', '0', ['fichasgratis', 1], ['fichasregla', 15.3]]);
-  TARJ.push(['like', S, 'Trabajo a mayores', 'Por tu cuenta, en apps y portales <span class="mg">👍 «Me gusta»</span>', '+', ['like', 1.2]],
-    ['flojo', S, 'En tu punto flojo, vale doble', '<span class="areas"><span style="--c:#22c55e">Ritmo</span><span style="--c:#3b82f6" class="flojo">Entonación</span><span style="--c:#ec4899">Teoría</span><span style="--c:#f97316">Dictado</span></span>', '×2', ['flojas', 0]],
-    ['reg', S, 'Regularidad, no atracones', 'Cada semana cuentan hasta 30 min<span class="barras"><i data-h="38"></i><i data-h="52"></i><i data-h="30"></i><i data-h="78" class="tope"></i><i data-h="44"></i><i data-h="52"></i><i data-h="20"></i><i data-h="48"></i></span>', '', ['regularidad', 0.8]],
-    ['esp', NS, 'Buena puntualidad, atención y comportamiento', 'es lo esperable', '0', ['compensar', 0.5]]);
-  var COL = { c: '#ef4444', f: '#22c55e', nc: '#71717a', nf: '#71717a' };
+    ['fneu', N, 'Faltas que no restan', 'la 1.ª sin justificar · las justificadas<span class="xs">' + x('roja', '1.ª', 'faltas', 0.3) + x('azul', 'justif.', 'faltas4', 3.6) + x('azul', 'justif.', 'faltas4', 4.0) + '</span>', '0', ['faltas', 0.1]],
+    ['falt', R, 'Faltas sin justificar', 'la 2.ª, medio · desde la 3.ª, una entera<span class="xs">' + x('roja', '2.ª', 'faltas2', 0.1) + x('roja', '3.ª', 'faltas3', 0.5) + x('roja', '4.ª', 'faltas3', 1.0) + '</span>', '−0,5<i>luego −1</i>', ['faltas2', 0]] ];
+  if (G === 'gp') TARJ.push(
+    ['port', R, 'Portal sin ver', 'de una clase a la que faltaste<br><span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '−0,5', ['portal', 6.0], null, 'tex rojo', tex('tex-magnetofono-2.webp', '16,8,6', 'rgba(255,90,70,.75)', '#ffe9c7', '50% 20%')],
+    ['aldia', N, 'Te pusiste al día', 'lo viste en casa<br><span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '0', ['aldia3', 0], null, 'tex gris', tex('tex-magnetofono-2-gris.webp', '39,39,42', '#a1a1aa', '#e4e4e7', '50% 20%')]);
+  else TARJ.push(['quiz', R, 'Quiz sin hacer', 'medio punto cada uno', '−0,5', ['quiz', 1.4]]);
+  TARJ.push(['fx', R, 'Fichas en periodo extra', 'desde la 3.ª del trimestre', '−0,25<i>cada una</i>', [C.fichascurso ? 'fichascurso' : 'fichasregla', C.fichascurso ? 4 : 13.5]],
+    ['fx0', N, '1.ª y 2.ª ficha en periodo extra', 'se perdonan cada trimestre', '0', [C.fichascurso ? 'fichascurso' : 'fichasregla', C.fichascurso ? 3 : 12.8]]);
+  if (VER === 'hoy') TARJ.push(['fxh', N, 'Fichas extra hasta el 13 de noviembre', 'este trimestre no cuentan', '0', ['fichasgratis', 1], ['fichasregla', 12.6]]);
+  if (G === 'gp') TARJ.push(
+    ['like', S, 'Un portal a mayores, en casa', 'por tu cuenta <span class="mg">👍 «Me gusta»</span><br><span class="pnom">ATONALIDAD · CAPÍTULO 2</span>', '+', ['like', 1.2], null, 'tex', tex('tex-atonalidad-2.webp', '7,5,12', 'rgba(255,61,166,.75)', '#ff3da6', '50% 60%')],
+    ['rep', S, 'Repasar y experimentar', 'lo de clase, otra vez y a tu manera<br><span class="pnom">BLUES · ACTO 3</span>', '+', ['repaso', 1.0], null, 'tex', tex('tex-blues-3.webp', '14,9,5', 'rgba(255,232,190,.6)', '#ffe3b0', '50% 46%')]);
+  else TARJ.push(['like', S, 'Trabajo a mayores', 'por tu cuenta, en las apps <span class="mg">👍 «Me gusta»</span>', '+', ['like', 1.2]],
+    ['rep', S, 'Repasar en casa', 'rehacer lo de clase, a tu ritmo', '+', ['repaso', 1.0]]);
+  TARJ.push(['flojo', S, 'En tu punto flojo, vale doble', '<span class="areas"><span style="--c:#22c55e">Ritmo</span><span style="--c:#3b82f6" class="flojo">Entonación</span><span style="--c:#ec4899">Teoría</span><span style="--c:#f97316">Dictado</span></span>', '×2', ['sistema', 3.0]],
+    ['reg', S, 'Regularidad, no atracones', 'Cada semana cuentan hasta 30 min<span class="barras"><i data-h="38"></i><i data-h="52"></i><i data-h="30"></i><i data-h="78" class="tope"></i><i data-h="44"></i><i data-h="52"></i><i data-h="20"></i><i data-h="48"></i></span>', '', ['regularidad', 0.8]]);
+  var COL = { c: '#ef4444', f: '#22c55e', nc: '#a1a1aa', nf: '#a1a1aa' }, LST = { c: 'contra', f: 'favor', nc: 'neuC', nf: 'neuF' };
+  var XS = [];
   TARJ.forEach(function (x) {
-    var d = document.createElement('div'); d.className = 'fz' + (x[1].charAt(0) === 'n' ? ' neutro' : ''); d.style.setProperty('--c', COL[x[1]]); d.id = 'k-' + x[0];
+    var d = document.createElement('div'); d.className = 'fz' + (x[1].charAt(0) === 'n' ? ' neutro' : '') + (x[7] ? ' ' + x[7] : ''); d.style.setProperty('--c', COL[x[1]]); d.id = 'k-' + x[0];
+    if (x[8]) { var m = /style="([^"]*)"/.exec(x[8]); d.setAttribute('style', d.getAttribute('style') + ';' + m[1]); }
     d.innerHTML = '<div><b>' + x[2] + '<span class="tag" id="tg-' + x[0] + '"></span></b><small>' + x[3] + '</small></div><div class="v">' + x[4] + '</div>';
-    $({ c: 'contra', f: 'favor', nc: 'neuC', nf: 'neuF' }[x[1]]).appendChild(d); x.el = d; x.t = t0(x[5][0], x[5][1]);
+    $(LST[x[1]]).appendChild(d); x.el = d; x.t = t0(x[5][0], x[5][1]); x.fin = x[6] ? t0(x[6][0], x[6][1]) : null; x.antes = false;
+    [].forEach.call(d.querySelectorAll('.x'), function (e) { XS.push({ el: e, t: t0(e.dataset.c, +e.dataset.o) }); });
   });
+  /* las fichas: se colocan contando desde el final de la frase (la versión «curso» empieza distinto) */
+  var FR = C.fichascurso ? null : C.fichasregla;
+  TARJ.forEach(function (x) { if (!FR) return; if (x[0] === 'fx0') x.t = FR.t1 - 5.5; if (x[0] === 'fx') x.t = FR.t1 - 2.6; if (x[0] === 'fxh') x.fin = FR.t1 - 5.6; });
+  var BARRAS = [].slice.call(document.querySelectorAll('.barras i'));
   /* palabras clave: [cue, desfase, texto] */
   var CLAVES = [['intro', 0, ''], ['impresion', 0, 'Primera impresión'], ['detalles', 0, 'Sin los detalles'], ['profes', 0, 'Una valoración general'], ['interesante', 0, 'Pero…'],
-    ['dosfuerzas', 0, 'Dos fuerzas'], ['izq', 0, 'Lo que resta'], ['der', 0, 'Lo que suma'], ['neutras', 0, 'Lo neutro'], ['puntualidad', 0, ''],
-    ['semanaexamen', 0, 'La semana de exámenes'], ['referencia', 3, 'En el 2.º trimestre: lo del 1.º, como referencia'], ['otrasresta', 0, 'Faltas sin justificar'],
-    ['faltas', 9, 'Aviso por CentrosNET = justificada'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia1', 0, 'Ponerte al día: neutro'],
-    ['quiz', 0, 'Quiz sin hacer'], ['fichas', 0, 'Fichas en periodo extra'], ['fichasregla', 15, 'Hasta 2, no restan'], ['suma', 0, 'Lo que suma'], ['like', 0, 'Trabajo a mayores'],
-    ['repaso', 0, 'Repasa y experimenta'], ['sistema', 0, 'Lo que más te cuesta, ×2'], ['regularidad', 0, 'Minutos y regularidad'], ['tope1', 0, 'Como mucho…'],
-    ['compensar', 0, 'Para compensar'], ['franja', 0, 'Tu nota de actitud'], ['misresultados', 0, '']];
+    ['dosfuerzas', 0, 'Dos fuerzas'], ['izq', 0, 'Lo que resta'], ['der', 0, 'Lo que suma'], ['neutras', 0, 'Lo neutro: ni resta ni suma'], ['puntualidad', 0, ''],
+    ['semanaexamen', 0, 'La semana de exámenes'], ['referencia', 3, 'En el 2.º trimestre: lo del 1.º, como referencia'], ['faltas0', 0, 'Faltas sin justificar'],
+    ['faltas', 0, 'La 1.ª, gratis'], ['faltas2', 0, 'La 2.ª, medio punto'], ['faltas3', 0, 'Desde la 3.ª, un punto'],
+    ['faltas4', 1.5, 'Aviso por CentrosNET = justificada'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia1', 0, 'Ponerte al día: neutro'],
+    ['quiz', 0, 'Quiz sin hacer'], ['fichas', 0, 'Fichas en periodo extra'], ['fichasregla', C.fichasregla ? C.fichasregla.t1 - C.fichasregla.t0 - 5.6 : 0, 'Hasta 2, no restan'], ['fichascurso', 2.5, 'Hasta 2, no restan'], ['suma', 0, 'Lo que suma'], ['like', 0, 'Trabajo a mayores'],
+    ['repaso', 0, 'Repasa y experimenta'], ['sistema', 0, 'Lo que más te cuesta, ×2'], ['regularidad', 0, 'Minutos y regularidad'], ['tope', 0, 'Como mucho…'],
+    ['compensar', 0, 'Para compensar'], ['choque', 0, ''], ['franja', 0, 'Tu nota de actitud'], ['misresultados', 0, '']];
   CLAVES.forEach(function (k) { k.t = t0(k[0], k[1]); }); CLAVES = CLAVES.filter(function (k) { return k.t != null; }).sort(function (a, b) { return a.t - b.t; });
   /* máquina de escribir (lo que no dice la voz) */
   var MAQ = [];
-  if (VER === 'curso') MAQ.push({ t: t0('fichas', 0.4), hasta: t0('fichasregla', 6), txt: 'Fichas en periodo extra: se perdonan 2 por trimestre. Desde la 3.ª, −0,5 cada una.' });
-  MAQ.push({ t: t1('tope2', 0.05), hasta: t1('compensar', 0.5), txt: 'Un escalón: +2 en tu nota de actitud, como mucho, aunque eches muchas horas.' });
+  if (VER === 'curso' && !C.fichascurso) MAQ.push({ t: t0('fichas', 0.4), hasta: t0('fichasregla', 5), txt: 'Fichas en periodo extra: se perdonan 2 por trimestre. Desde la 3.ª, −0,25 cada una.' });
+  if (!C.tope || C.tope.t1 - C.tope.t0 < 4.6) MAQ.push({ t: t1('tope', 0.05), hasta: t1('compensar', 0.3), txt: 'Un escalón: +2 en tu nota de actitud, como mucho, aunque eches muchas horas.' });
   var teclas = new Audio('teclas.mp3'), ding = new Audio('ding.mp3'); teclas.volume = .35; ding.volume = .25; var ultTecla = 0, ultLen = 0;
-  /* fuerzas: la línea roja sale de «Resta», la verde de «Suma» */
-  var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0, choque: 0 }, pR = $('pR'), pV = $('pV'), fR = $('fR'), fV = $('fV'), haz = $('haz');
-  function chispa(x, y) { var c = document.createElement('div'), a = Math.random() * 6.283, d = 40 + Math.random() * 110; c.className = 'chispa'; c.style.left = x + 'px'; c.style.top = y + 'px'; $('esc').appendChild(c);
-    c.animate([{ transform: 'translate(-50%,-50%)', opacity: 1 }, { transform: 'translate(' + (Math.cos(a) * d) + 'px,' + (Math.sin(a) * d) + 'px) scale(.2)', opacity: 0 }], { duration: 450 + Math.random() * 400, easing: 'ease-out' }).onfinish = function () { c.remove(); }; }
-  function dibuja() {
-    var cols = $('cols'), L = $('colC'), Rr = $('colF'), x0 = cols.offsetLeft, y0 = cols.offsetTop;
-    var xL = x0 + L.offsetLeft + L.offsetWidth / 2, xR = x0 + Rr.offsetLeft + Rr.offsetWidth / 2, xC = x0 + lad.offsetLeft + lad.offsetWidth * 0.72;
-    var yA = y0 + lad.offsetTop + ag.offsetTop, t = performance.now() / 1000, osc = Math.sin(t * 2.3) * 1.3;
-    var yT = y0 - 16, yB = y0 + cols.offsetHeight + 16;
-    var dR = 'M' + xL + ' ' + y0 + ' V' + yT + ' H' + xC + ' V' + (yA - 6 + osc), dV = 'M' + xR + ' ' + (y0 + cols.offsetHeight) + ' V' + yB + ' H' + xC + ' V' + (yA + 6 + osc);
-    F.wR += ((F.neg ? 2.2 + Math.min(5, F.neg * 1.1) : 0) - F.wR) * 0.08; F.wV += ((F.pos ? 2.2 + Math.min(5, F.pos * 2) : 0) - F.wV) * 0.08;
-    F.aR += ((F.neg ? 1 : 0) - F.aR) * 0.06; F.aV += ((F.pos ? 1 : 0) - F.aV) * 0.06;
-    var lat = 1 + Math.sin(t * 3.1) * 0.12 + (F.choque ? Math.sin(t * 40) * 0.35 : 0);
-    [[pR, fR, dR, F.wR, F.aR], [pV, fV, dV, F.wV, F.aV]].forEach(function (z) { z[0].setAttribute('d', z[2]); z[1].setAttribute('d', z[2]);
-      z[0].setAttribute('stroke-width', Math.max(0, z[3] * lat)); z[0].setAttribute('stroke-opacity', z[4]); z[1].setAttribute('stroke-width', Math.max(0, z[3] * .45)); z[1].style.opacity = z[4]; });
-    var rH = (F.neg && F.pos ? 11 : (F.neg || F.pos) ? 7 : 0) + Math.sin(t * 2.6) * 1.6 + (F.choque ? 48 + Math.sin(t * 30) * 10 : 0);
-    haz.setAttribute('cx', xC); haz.setAttribute('cy', yA + osc); haz.setAttribute('r', Math.max(0, rH));
-    if (F.choque && Math.random() < .55) chispa(xC, yA + osc);
-  }
-  /* ---------- el estado de cada momento, a partir del tiempo del audio ---------- */
+  /* ---------- fuerzas ---------- */
+  var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0 }, P = {};
+  ['hR', 'pR', 'fR', 'hV', 'pV', 'fV', 'cR', 'cV', 'haz'].forEach(function (k) { P[k] = $(k); });
   var BASE = 7, EJ = G === 'gp' ? { neg: 3, pos: 1 } : { neg: 2.5, pos: 1 }, FIN = BASE - EJ.neg + EJ.pos;
-  var choqueA = t0('franja', 0.3), choqueB = choqueA + 3.2;
+  var CH = C.choque || { t0: t0('franja', -5), t1: t0('franja', 0) }, CHL = CH.t1 - CH.t0;
+  var IMP = CH.t0 + CHL * 0.36, LLEGA = IMP + 2.6;      // impacto · la línea llega a su sitio
+  var geo = null;
+  function mide() {
+    var cols = $('cols'), L = $('colC'), Rr = $('colF'), x0 = cols.offsetLeft, y0 = cols.offsetTop;
+    geo = { xL: x0 + L.offsetLeft + L.offsetWidth / 2, xR: x0 + Rr.offsetLeft + Rr.offsetWidth / 2, xC: x0 + lad.offsetLeft + lad.offsetWidth * 0.72,   /* lad.offsetParent es #cols */
+      yLad: y0 + lad.offsetTop, y0: y0, h: cols.offsetHeight };
+  }
+  var yAg = 0;
+  function onda(x, y, ms, esc) { var o = document.createElement('div'); o.className = 'onda'; o.style.left = x + 'px'; o.style.top = y + 'px'; $('esc').appendChild(o);
+    o.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(' + esc + ')', opacity: 0 }], { duration: ms, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = function () { o.remove(); }; }
+  function estalla(x, y, n) {
+    for (var i = 0; i < n; i++) { var c = document.createElement('div'), a = Math.random() * 6.283, d = 80 + Math.random() * 300, col = i % 3 === 0 ? '#ef4444' : i % 3 === 1 ? '#22c55e' : '#fff';
+      c.className = 'chispa'; c.style.left = x + 'px'; c.style.top = y + 'px'; c.style.background = col; c.style.boxShadow = '0 0 10px ' + col; $('esc').appendChild(c);
+      c.animate([{ transform: 'translate(0,0) scale(1.4)', opacity: 1 }, { transform: 'translate(' + (Math.cos(a) * d) + 'px,' + (Math.sin(a) * d) + 'px) scale(.2)', opacity: 0 }],
+        { duration: 700 + Math.random() * 700, easing: 'cubic-bezier(.1,.8,.3,1)' }).onfinish = (function (c) { return function () { c.remove(); }; })(c); } }
+  var ultT = 0, impHecho = false;
+  function dibuja(t) {
+    if (!geo) mide();
+    var g = geo, now = performance.now() / 1000, osc = Math.sin(now * 2.3) * 1.3, yA = g.yLad + yAg;
+    var yT = g.y0 - 16, yB = g.y0 + g.h + 16;
+    var dR = 'M' + g.xL + ' ' + g.y0 + ' V' + yT + ' H' + g.xC + ' V' + (yA - 6 + osc), dV = 'M' + g.xR + ' ' + (g.y0 + g.h) + ' V' + yB + ' H' + g.xC + ' V' + (yA + 6 + osc);
+    F.wR += ((F.neg ? 2.4 + Math.min(5, F.neg * 1.1) : 0) - F.wR) * 0.08; F.wV += ((F.pos ? 2.4 + Math.min(5, F.pos * 2) : 0) - F.wV) * 0.08;
+    F.aR += ((F.neg ? 1 : 0) - F.aR) * 0.06; F.aV += ((F.pos ? 1 : 0) - F.aV) * 0.06;
+    // el choque: carga (las líneas se redibujan con una cabeza brillante) → impacto → la línea blanca se mueve
+    var enCh = t >= CH.t0 && t < CH.t1, carga = enCh && t < IMP ? (t - CH.t0) / (IMP - CH.t0) : 0, tras = enCh && t >= IMP ? Math.min(1, (t - IMP) / (CH.t1 - IMP)) : 0;
+    var e = carga ? 1 - Math.pow(1 - carga, 2.2) : 0, gord = enCh ? (carga ? 1 + 1.3 * e : 2.3 - 1.0 * tras) : 1;
+    var vib = 1 + Math.sin(now * 3.1) * 0.12 + (enCh && !carga ? Math.sin(now * 45) * 0.3 * (1 - tras) : 0);
+    [[P.hR, P.pR, P.fR, P.cR, dR, F.wR, F.aR], [P.hV, P.pV, P.fV, P.cV, dV, F.wV, F.aV]].forEach(function (z) {
+      var w = Math.max(0, z[5] * vib * gord);
+      z[0].setAttribute('d', z[4]); z[1].setAttribute('d', z[4]); z[2].setAttribute('d', z[4]);
+      z[1].setAttribute('stroke-width', w.toFixed(2)); z[1].setAttribute('stroke-opacity', z[6].toFixed(3));
+      z[0].setAttribute('stroke-width', (w * 2.3 + 3).toFixed(2)); z[0].setAttribute('stroke-opacity', (z[6] * (enCh ? .3 : .16)).toFixed(3));
+      z[2].setAttribute('stroke-width', (z[5] * .45).toFixed(2)); z[2].style.opacity = z[6];
+      if (carga) { var len = z[1].getTotalLength(), d = len * (1 - e);
+        z[1].style.strokeDasharray = len; z[1].style.strokeDashoffset = d; z[0].style.strokeDasharray = len; z[0].style.strokeDashoffset = d;
+        var p = z[1].getPointAtLength(len * e); z[3].setAttribute('cx', p.x); z[3].setAttribute('cy', p.y); z[3].setAttribute('r', (9 + 5 * Math.sin(now * 20)).toFixed(1)); }
+      else { if (z[1].style.strokeDasharray) { z[1].style.strokeDasharray = ''; z[1].style.strokeDashoffset = ''; z[0].style.strokeDasharray = ''; z[0].style.strokeDashoffset = ''; } z[3].setAttribute('r', 0); }
+    });
+    var rH = (F.neg && F.pos ? 11 : (F.neg || F.pos) ? 7 : 0) + Math.sin(now * 2.6) * 1.6;
+    if (enCh && !carga) rH += (70 * Math.pow(1 - tras, 1.5) + 22) * (1 + Math.sin(now * 28) * .12);
+    if (carga > .7) rH += 30 * (carga - .7) / .3;
+    P.haz.setAttribute('cx', g.xC); P.haz.setAttribute('cy', yA + osc); P.haz.setAttribute('r', Math.max(0, rH).toFixed(1));
+    // el impacto, una sola vez cuando el audio cruza ese instante
+    if (!au.paused && ultT < IMP && t >= IMP && t - IMP < 0.4) {
+      golpe(g, yA);
+    }
+    ultT = t;
+  }
+  function golpe(g, yA) {
+      window.__golpes = (window.__golpes || 0) + 1;
+      $('flash').animate([{ opacity: .6 }, { opacity: 0 }], { duration: 550, easing: 'ease-out' });
+      onda(g.xC, yA, 1000, 9); setTimeout(function () { onda(g.xC, g.yLad + yAg, 1200, 14); }, 160);
+      estalla(g.xC, yA, 70);
+      $('cols').animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-9px,5px)' }, { transform: 'translate(8px,-6px)' }, { transform: 'translate(-5px,3px)' }, { transform: 'translate(0,0)' }], { duration: 420 });
+  }
+  window.__golpe = function () { golpe(geo, geo.yLad + yAg); };
+  /* ---------- el estado de cada momento, a partir del tiempo del audio ---------- */
   function entre(t, a, b) { return a != null && t >= a && (b == null || t < b); }
+  function suave(q) { return q < .5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2; }
   function pinta(t) {
     var T = CU.titulo, tl = CU.fin;
-    $('tit').classList.toggle('ve', t < T - 0.4 || t > tl + 0.6); $('tit').classList.toggle('final', t > tl + 0.6);
-    $('play').style.display = (t < 0.05 && au.paused) ? '' : 'none';
-    var mrA = t0('misresultados', -0.3), impA = t0('importa', -0.2), smA = t0('cierre', 8.0);
-    $('main').classList.toggle('ve', t >= T - 0.4 && t < mrA);
-    $('fuerzas').style.opacity = (t >= t0('dosfuerzas', 0.6) && t < mrA) ? 1 : 0;
-    $('cinco0').classList.toggle('ve', entre(t, t0('intro', 0.3), t0('impresion', 0)));
+    cls($('tit'), 've', t < T - 0.4 || t > tl + 0.6); cls($('tit'), 'final', t > tl + 0.6);
+    sty($('play'), 'display', (t < 0.05 && au.paused) ? '' : 'none');
+    var mrA = t0('misresultados', -0.3), impA = t0('importa', -0.2), finA = t0('cierre', -0.2);
+    cls($('main'), 've', t >= T - 0.4 && t < mrA);
+    sty($('fuerzas'), 'opacity', (t >= t0('dosfuerzas', 0.6) && t < mrA) ? '1' : '0');
+    cls($('cinco0'), 've', entre(t, t0('intro', 0.3), t0('impresion', 0)));
     // la línea blanca: primera impresión → (choque) → final
     var conAg = t >= t0('impresion', 0.2);
-    ag.classList.toggle('ve', conAg); ag.classList.toggle('bote', conAg && t < choqueA);
-    var v = t < choqueA ? BASE : (t < choqueB ? BASE + (FIN - BASE) * ((t - choqueA) / 3.2) : FIN);
-    if (Math.abs((+ag.dataset.v || -1) - (t < choqueA ? BASE : FIN)) > 0.01) { var dest = t < choqueA ? BASE : FIN; if (t > choqueB || t < choqueA) { ag.style.transition = 'none'; ag.style.top = yDe(dest) + 'px'; void ag.offsetWidth; ag.style.transition = ''; } else ag.style.top = yDe(dest) + 'px'; ag.dataset.v = dest; }
-    $('num').textContent = fmt(Math.round(v * 10) / 10); marca(v, conAg);
-    $('base').style.top = yDe(BASE) + 'px'; $('base').style.opacity = t >= t0('dosfuerzas', 0) && t < mrA ? 1 : 0;
-    $('ejemplo').style.opacity = t >= choqueA && t < mrA ? 1 : 0;
-    $('ejemplo').innerHTML = t >= choqueB ? 'Alumno de ejemplo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>' : 'Alumno de ejemplo: resta ' + fmt(EJ.neg) + ' · suma ' + fmt(EJ.pos);
+    cls(ag, 've', conAg); cls(ag, 'bote', conAg && t < IMP);
+    var v = t < IMP ? BASE : (t < LLEGA ? BASE + (FIN - BASE) * suave((t - IMP) / (LLEGA - IMP)) : FIN);
+    yAg = yDe(v) + Math.sin(performance.now() / 1000 * 2.2) * 1.2; sty(ag, 'transform', 'translateY(' + yAg.toFixed(1) + 'px)');
+    txt($('num'), fmt(Math.round(v * 10) / 10)); marca(v, conAg);
+    sty($('base'), 'top', yDe(BASE) + 'px'); sty($('base'), 'opacity', t >= t0('dosfuerzas', 0) && t < mrA ? '1' : '0');
+    sty($('ejemplo'), 'opacity', t >= CH.t0 && t < mrA ? '1' : '0');
+    htm($('ejemplo'), t >= LLEGA ? 'Alumno de ejemplo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>' : 'Alumno de ejemplo: resta ' + fmt(EJ.neg) + ' · suma ' + fmt(EJ.pos));
     // focos
-    var esc = $('cols'); esc.classList.remove('dim', 'dimN'); ['colC', 'colA', 'colF'].forEach(function (id) { $(id).classList.remove('foco'); });
-    if (entre(t, t0('impresion', 0), t0('dosfuerzas', 0))) { esc.classList.add('dim'); $('colA').classList.add('foco'); }
-    if (entre(t, t0('izq', 0), t0('der', 0)) || entre(t, t0('puntualidad', 0), t0('suma', 0))) { esc.classList.add('dim'); $('colC').classList.add('foco'); }
-    if (entre(t, t0('der', 0), t0('neutras', 0)) || entre(t, t0('suma', 0), t0('compensar', 0))) { esc.classList.add('dim'); $('colF').classList.add('foco'); }
-    if (entre(t, t0('neutras', 0), t0('puntualidad', 0))) esc.classList.add('dimN');
-    $('tope').classList.toggle('foco', entre(t, t0('tope1', -0.2), t1('compensar', 0)));
+    var esc = $('cols'), fo = '', dim = false, dimN = entre(t, t0('neutras', 0), t0('puntualidad', 0));
+    if (entre(t, t0('impresion', 0), t0('dosfuerzas', 0))) { dim = true; fo = 'colA'; }
+    if (entre(t, t0('izq', 0), t0('der', 0)) || entre(t, t0('puntualidad', 0), t0('suma', 0))) { dim = true; fo = 'colC'; }
+    if (entre(t, t0('der', 0), t0('neutras', 0)) || entre(t, t0('suma', 0), CH.t0)) { dim = true; fo = 'colF'; }
+    cls(esc, 'dim', dim); cls(esc, 'dimN', dimN); cls(esc, 'choca', entre(t, CH.t0, CH.t1));
+    ['colC', 'colA', 'colF'].forEach(function (id) { cls($(id), 'foco', fo === id); });
+    cls($('tope'), 'foco', entre(t, t0('tope', -0.2), t1('compensar', 0)));
     // fuerzas: crecen según entran tarjetas
     var neg = 0, pos = 0;
     TARJ.forEach(function (x) {
-      var ve = x.t != null && t >= x.t && t < mrA && !(x[6] && t >= t0(x[6][0], x[6][1])); x.el.classList.toggle('ve', ve);
-      x.el.classList.toggle('ahora', ve && t < x.t + 3);
+      var ve = x.t != null && t >= x.t && t < mrA && !(x.fin != null && t >= x.fin);
+      cls(x.el, 've', ve); cls(x.el, 'ahora', ve && t < x.t + 3);
+      if (ve) { var L = x.el.parentNode; if (!L.__u || L.__u.t <= x.t) L.__u = x; }
       if (ve && x[1] === 'c') neg += 1; if (ve && x[1] === 'f') pos += 1;
     });
+    /* cada lista se desplaza hasta su última tarjeta (suave si acaba de salir; de golpe si se ha saltado en la barra) */
+    ['contra', 'neuC', 'favor', 'neuF'].forEach(function (id) { var L = $(id), u = L.__u; L.__u = null;
+      var cual = u ? u[0] : ''; if (L.__cual === cual) return; L.__cual = cual; if (!u) return;
+      var obj = Math.max(0, u.el.offsetTop + u.el.offsetHeight - L.clientHeight + 4); L.scrollTo({ top: obj, behavior: t - u.t < 2 ? 'smooth' : 'auto' }); });
+    ['neuC', 'neuF'].forEach(function (id) { var l = $(id), hay = !!l.querySelector('.fz.ve'); cls(l.firstChild, 'oculto', hay); });
+    XS.forEach(function (s) { cls(s.el, 've', s.t != null && t >= s.t); });
     var base2 = t >= t0('dosfuerzas', 0.6) ? 1 : 0;
     F.neg = Math.max(base2, neg * 0.8); F.pos = Math.max(base2, Math.min(2, pos * 0.6));
-    F.choque = (t >= choqueA && t < choqueB) ? 1 : 0;
     // etiquetas sobre puntualidad, atención y comportamiento
     ['punt', 'aten', 'comp'].forEach(function (k) { var g = $('tg-' + k); if (!g) return;
-      var a = t0('semanaexamen', 0.5), b = t0('referencia', 3); g.textContent = t >= b ? '1T' : '📅 exámenes'; g.classList.toggle('ve', t >= a); });
+      var a = t0('semanaexamen', 0.5), b = t0('referencia', 3); txt(g, t >= b ? '1T' : '📅 exámenes'); cls(g, 've', t >= a); });
     // barras de regularidad
-    var rv = t >= t0('regularidad', 1.2); [].forEach.call(document.querySelectorAll('.barras i'), function (i) { i.style.height = rv ? Math.min(+i.dataset.h, i.classList.contains('tope') ? 52 : 99) + 'px' : '0px'; });
+    var rv = t >= t0('regularidad', 1.2); BARRAS.forEach(function (i) { sty(i, 'transform', 'scaleY(' + (rv ? Math.min(+i.dataset.h, i.classList.contains('tope') ? 52 : 99) / 78 : 0) + ')'); });
     // palabra clave
     var k = null; CLAVES.forEach(function (c) { if (t >= c.t) k = c[2]; }); if (t >= mrA) k = '';
-    if ($('clave').dataset.k !== k) { $('clave').dataset.k = k; $('clave').textContent = k || ''; }
-    $('clave').classList.toggle('ve', !!k && !MAQ.some(function (m) { return entre(t, m.t, m.hasta); }));
+    txt($('clave'), k || '');
+    cls($('clave'), 've', !!k && !MAQ.some(function (m) { return entre(t, m.t, m.hasta); }));
     // máquina de escribir
     var m = null; MAQ.forEach(function (x) { if (entre(t, x.t, x.hasta)) m = x; });
-    $('maquina').classList.toggle('ve', !!m);
-    if (m) { var n = Math.min(m.txt.length, Math.floor((t - m.t) * 22)); $('maquina').textContent = m.txt.slice(0, n);
+    cls($('maquina'), 've', !!m);
+    if (m) { var n = Math.min(m.txt.length, Math.floor((t - m.t) * 22)); txt($('maquina'), m.txt.slice(0, n));
       if (n > ultLen && n < m.txt.length && !au.paused && performance.now() - ultTecla > 45 && m.txt.charAt(n - 1) !== ' ') { try { var s = teclas.cloneNode(); s.volume = .22 + Math.random() * .15; s.playbackRate = .9 + Math.random() * .25; s.play(); } catch (e) {} ultTecla = performance.now(); }
       if (n === m.txt.length && ultLen < n && !au.paused) { try { ding.currentTime = 0; ding.play(); } catch (e) {} }
       ultLen = n; } else ultLen = 0;
     // Mis resultados
-    var mr = $('mr'), mrB = t0('importa', -0.2), enMr = entre(t, mrA, mrB);
-    mr.classList.toggle('ve', enMr); mr.classList.toggle('boton', entre(t, mrA + 1.5, mrA + 6.5)); mr.classList.toggle('clic', entre(t, mrA + 5.2, mrA + 5.5));
-    var dentro = entre(t, mrA + 6.0, mrB); mr.classList.toggle('dentro', dentro);
+    var mr = $('mr'), mrB = impA, enMr = entre(t, mrA, mrB);
+    cls(mr, 've', enMr); cls(mr, 'boton', entre(t, mrA + 1.5, mrA + 6.5)); cls(mr, 'clic', entre(t, mrA + 5.2, mrA + 5.5));
+    var dentro = entre(t, mrA + 6.0, mrB); cls(mr, 'dentro', dentro);
     if (dentro && !mr.dataset.cargado) { mr.dataset.cargado = 1; $('mrIfr').src = 'mi-actitud.html?caso=' + G + '1'; }
     if (!enMr && mr.dataset.cargado && t < mrA) { delete mr.dataset.cargado; $('mrIfr').src = 'about:blank'; }
     // por qué importa
-    var iA = mrB, I = C.importa, d = I ? I.t1 - I.t0 : 30;
-    $('imp').classList.toggle('ve', entre(t, iA, smA));
-    [['i1', .02], ['i2', .2], ['i3', .3], ['i4', .4], ['b1', .45], ['b2', .58], ['b3', .78]].forEach(function (p) { $(p[0]).classList.toggle('ve', t >= iA + 0.4 + d * p[1]); });
-    $('sm').classList.toggle('ve', entre(t, smA, tl + 0.6));
-    document.querySelector('#imp ul').style.opacity = $('b1').classList.contains('ve') ? 1 : 0;
-    $('bi').style.width = Math.min(100, 100 * t / CU.dur) + '%';
+    var I = C.importa, d = I ? I.t1 - I.t0 : 30;
+    cls($('imp'), 've', entre(t, impA, finA));
+    [['i1', .02], ['i2', .2], ['i3', .3], ['i4', .42], ['b1', .52], ['b2', .66], ['b3', .84]].forEach(function (p) { cls($(p[0]), 've', t >= impA + 0.4 + d * p[1]); });
+    sty(document.querySelector('#imp ul'), 'opacity', $('b1').classList.contains('ve') ? '1' : '0');
+    // cierre
+    cls($('fin'), 've', entre(t, finA, tl + 0.6));
+    cls($('fin1'), 've', t >= t0('cierre', 1.0)); cls($('fin2'), 've', t >= t0('cafe', 0.3)); cls($('fin3'), 've', t >= t0('sm', 0)); cls($('fin'), 'sm', t >= t0('sm', 0));
+    sty($('bi'), 'transform', 'scaleX(' + Math.min(1, t / CU.dur).toFixed(4) + ')');
   }
   /* bucle */
-  function bucle() { var t = au.currentTime || 0; pinta(t); dibuja(); requestAnimationFrame(bucle); }
-  $('mrImg').src = 'mr-' + G + '.jpg'; $('mr').style.setProperty('--mrimg', 'url(mr-' + G + '.jpg)');
+  function bucle() { var t = au.currentTime || 0; pinta(t); dibuja(t); requestAnimationFrame(bucle); }
+  addEventListener('resize', function () { geo = null; PC = null; });
+  $('mrImg').src = 'mr-' + G + '.jpg'; $('mr').style.setProperty('--mrimg', 'url(mr-' + G + '-b.jpg)');
   function empieza() { au.play().catch(function () {}); }
   $('play').onclick = empieza;
   $('otra').onclick = function () { au.currentTime = 0; empieza(); };
@@ -343,7 +450,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   if (Q.get('t')) au.addEventListener('loadedmetadata', function () { au.currentTime = +Q.get('t'); }, { once: true });
   requestAnimationFrame(bucle);
   if (!Q.get('t')) empieza();   /* si el navegador deja, arranca solo; si no, el botón */
-  window.__pinta = pinta;
+  window.__pinta = function (t) { pinta(t); dibuja(t); };
 })();
 </script>
 </body></html>
