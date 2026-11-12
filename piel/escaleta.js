@@ -182,7 +182,7 @@
         if (d && d.ok && ESC.k === k) { ESC.d = { hay: !!d.hay, bloques: d.bloques || [], tareas: d.tareas || [], act: d.actualizado_en || '' }; lsPon('lm_esc_pub:' + k, ESC.d); pintar(true); }
       }).catch(function () {}).then(function () { ESC.pidiendo = false; });
     }
-    return conExtras(ESC.d, c);   /* (2-nov-2026) las actividades fijas del consejo escolar */
+    return conEnlaces(conExtras(ESC.d, c));   /* (2-nov-2026) las actividades fijas del consejo escolar · (12-nov-2026) y sus enlaces */
   }
   /* (2-nov-2026, Iago) ELECCIÓN DE DELEGADOS Y DELEGADAS DEL CURSO (15:38: «no es consejo escolar»; la votación es en Lenguaje Musical de 1.º y 2.º GP, del 9 al 13-nov).
      «En la escaleta de esta semana… explicar elecciones consejo escolar… y que esta imagen… aparezca justo después de la
@@ -206,6 +206,32 @@
     var hecho = 0;
     for (var k = 0; k < cand.length && hecho < n; k++) { cand[k].b.m = +cand[k].b.m - 1; hecho++; }
     return hecho;
+  }
+  /* (12-nov-2026, Iago) ENLACES FIJOS DE «OTRAS ACTIVIDADES»: «en la sesión 2… una actividad que dure 3 minutos… una imagen ejemplo
+     de un alumno ficticio… que tenga el enlace directo a esa imagen en la escaleta cuando es portada, pero también… cuando está
+     comprimida o cuando está en el modo más». La actividad se pone en el Diario (Otra actividad, con este título); aquí solo se
+     le cuelga el enlace por su slot (el título sin tildes), en cualquier semana en que aparezca: el cartel enseña «Abrir ›», la
+     tarjeta y la ventana del + «▶ Ejemplo de actitud», y la barra comprimida «Abrir Ejemplo de actitud». No se abre sola.
+     La imagen, en ge.lmathome.es/piel/avisos/ (una para GE y otra para GP). Para quitarlo: vaciar ENLACES_FIJOS. */
+  var ENLACES_FIJOS = {
+    'como-valoro-tu-actitud': { t: 'Ejemplo de actitud', ge: 'https://ge.lmathome.es/piel/avisos/actitud-ejemplo-ge.html', gp: 'https://ge.lmathome.es/piel/avisos/actitud-ejemplo-gp.html' }
+  };
+  var ENL = { src: null, out: null };
+  function conEnlaces(pub) {
+    try {
+      if (!pub || !Array.isArray(pub.bloques)) return pub;
+      if (ENL.src === pub) return ENL.out;
+      var toca = pub.bloques.some(function (b) { return b && ENLACES_FIJOS[b.slot] && !b.video; });
+      var out = pub;
+      if (toca) {
+        out = {}; for (var q in pub) if (Object.prototype.hasOwnProperty.call(pub, q)) out[q] = pub[q];
+        out.bloques = pub.bloques.map(function (b) {
+          var e = b && ENLACES_FIJOS[b.slot]; if (!e || b.video) return b;
+          var c = JSON.parse(JSON.stringify(b)); c.video = { t: e.t, u: GRADO === 'gp' ? e.gp : e.ge, tema: 1 }; return c;
+        });
+      }
+      ENL.src = pub; ENL.out = out; return out;
+    } catch (e) { return pub; }
   }
   var EXF = { src: null, k: '', out: null };
   function conExtras(pub, c) {
