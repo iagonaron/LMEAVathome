@@ -327,9 +327,20 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
         var rm = await fetch(base + '.json?nc=' + Date.now()); if (!rm.ok) throw new Error('sin vídeo');
         var man = await rm.json(), tot = man.bytes || 0, rec = 0, trozos = [];
         /* (12-nov-2026, Iago: «en 4K») si hay versión 4K, esa; si no, la de 1920×1080 */
-        var k4 = man.k4 && !Q.get('hd') && man.k4.trozos && man.k4.trozos.length;   /* (12-nov-2026, Iago: «prefiero» el 4K siempre; ?hd=1 fuerza el de 1080p) */
-        if (k4) tot = man.k4.bytes || 0;
-        var lista = k4 ? man.k4.trozos.slice() : (man.trozos || []).slice(); if (!lista.length) for (var q = 1; q <= man.partes; q++) lista.push(base + '.' + q);
+        /* (12-nov-2026, Iago: en el aula —Chrome 94 en Linux, equipo justo— se cortaba a ratos) cada equipo baja la versión que puede mover:
+           el 4K solo si el navegador dice que lo decodifica fluido y por hardware; si no, 1080p a 60; y si ni eso, 1080p a 30.
+           ?calidad=4k | 60 | 30 lo fuerza (el antiguo ?hd=1 equivale a 60) */
+        var puede = async function (w, h, fps, br, hw) { try { var r = await navigator.mediaCapabilities.decodingInfo({ type: 'file', video: { contentType: 'video/mp4; codecs="avc1.640033"', width: w, height: h, framerate: fps, bitrate: br } });
+          return !!(r.supported && r.smooth && (!hw || r.powerEfficient)); } catch (e) { return false; } };
+        var cal = Q.get('calidad') || (Q.get('hd') ? '60' : ''), elegida = man.trozos ? '60' : '30', v4 = man.k4 && man.k4.trozos && man.k4.trozos.length, v30 = man.t30 && man.t30.trozos && man.t30.trozos.length;
+        var cv = +((/Chrome\/(\d+)/.exec(navigator.userAgent) || [])[1] || 0), aula = /Linux/.test(navigator.userAgent) && !/Android|CrOS/.test(navigator.userAgent) && cv && cv < 110;   /* la pantalla del aula: Linux con Chrome 94 */
+        if (cal) elegida = cal === '4k' && v4 ? '4k' : cal === '30' && v30 ? '30' : elegida;
+        else if (aula && v30) elegida = '30';
+        else if (v4 && await puede(3840, 2160, 60, 3e6, true)) elegida = '4k';
+        else if (v30 && !(await puede(1920, 1080, 60, 1e6, false))) elegida = '30';
+        var V = elegida === '4k' ? man.k4 : elegida === '30' && v30 ? man.t30 : man; document.documentElement.dataset.calidad = elegida;
+        tot = V.bytes || tot;
+        var lista = (V.trozos || []).slice(); if (!lista.length) for (var q = 1; q <= man.partes; q++) lista.push(base + '.' + q);
         for (var k = 0; k < lista.length; k++) {
           var r = await fetch(lista[k] + '?v=' + man.v); if (!r.ok || !r.body) throw new Error('http ' + r.status);
           var rd = r.body.getReader();
