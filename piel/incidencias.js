@@ -139,7 +139,7 @@
     el.querySelector('.li-env').addEventListener('click', cerrar);
   }
   function paso1() {
-    var el = pinta('<div class="li-paso">PASO 1 DE 3</div><h3>Incidencias · ¿sobre qué es?</h3>' +
+    var el = pinta('<div class="li-paso">PASO 1 DE 3</div><h3>Incidencias · ¿Qué ha pasado?</h3>' +
       TEMAS.map(function (t) { return '<button class="li-op' + (t[0] === 'otra' ? ' li-otra' : '') + '" data-t="' + t[0] + '">' + esc(t[1]) + (t[2] ? '<small>' + esc(t[2]) + '</small>' : '') + '</button>'; }).join('') + NOTA_CNET);
     el.querySelectorAll('[data-t]').forEach(function (b) { b.addEventListener('click', function () {
       E = { tema: b.getAttribute('data-t') };
