@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi actitud</title>
+<!-- (12-nov-2026, Iago) VERSIÓN REAL: ?real=1, la abre «Mis resultados» del portal (GE y GP) y le pasa los datos por postMessage. -->
+<!-- (12-nov-2026, Iago) «Mis resultados» → botón «Mi actitud»: las fuerzas que restan, suman o son neutras de este trimestre, la escalera
+     de actitud con la línea blanca y, al entrar, la línea viaja desde donde la viste la última vez hasta donde está ahora.
+     1.er trimestre: sin parámetros ni nota (aviso). Desde el 2.º: el punto de partida es lo que marcó Iago el trimestre anterior.
+     Maqueta para el vídeo: ?caso=gp1 | gp2 | ge1 | ge2 (datos de un alumno de ejemplo). -->
+<style>
+:root{--f:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--tinta:#f4f4f5;--suave:#a1a1aa;--card:rgba(13,17,28,.9);--bd:rgba(255,255,255,.14);--oro:#facc15}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;color:var(--tinta);font-family:var(--f);overflow:hidden;background:#0b1020}
+body{background:linear-gradient(rgba(6,9,18,.62),rgba(6,9,18,.62)),url(fondo.jpg) center/cover no-repeat;display:grid;grid-template-rows:auto auto 1fr auto;gap:1.6vh;padding:1.6vh 2vw 2.2vh}
+.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.izq{justify-self:start;display:flex;gap:.6vw;align-items:center}
+.btn2{border:1.5px solid rgba(255,255,255,.35);border-radius:10px;background:rgba(13,17,28,.7);color:#fff;font:800 clamp(11px,.9vw,15px)/1 var(--f);padding:.8em 1.1em;cursor:pointer}.btn2:hover{background:rgba(255,255,255,.12)}.btn2.mapa{border-color:#ec4899;color:#f9a8d4}
+body:not(.real) .btn2{display:none}
+a.fz,a.sugl{text-decoration:none;color:inherit;cursor:pointer}
+a.fz:hover{filter:brightness(1.18)}a.fz .v::after,a.sugl>span:last-child::after{content:" ↗";font-size:.6em;opacity:.8}
+.sug a.sugl{display:grid;grid-template-columns:auto 1fr;gap:.6vw;align-items:center;padding:.9vh .9vw;border-radius:12px;background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.5);font:500 clamp(11px,.95vw,16px)/1.35 var(--f);color:#e4e4e7;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+.sug a.sugl.ve{opacity:1;transform:none}.sug a.sugl:hover{background:rgba(250,204,21,.16)}.sug a.sugl b{color:#fff}.sug a.sugl span:first-child{font-size:1.5em}
+.sug .chips i[data-a]{cursor:pointer}.sug .chips i[data-a]:hover{filter:brightness(1.25)}
+.pop{position:fixed;inset:0;z-index:50;background:rgba(3,5,10,.6);display:grid;place-items:center}
+.pop[hidden]{display:none}
+.pop-c{position:relative;width:min(560px,92vw);max-height:84vh;overflow:auto;background:rgba(13,17,28,.98);border:2px solid var(--pc,#fff);border-radius:18px;padding:22px 22px 18px}
+.pop-c h3{margin:0 0 4px;font:900 22px/1.2 var(--f);color:var(--pc,#fff)}.pop-c p{margin:0 0 14px;font:500 14px/1.4 var(--f);color:#a1a1aa}
+.pop-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:16px;cursor:pointer}
+.pop-l{display:flex;flex-direction:column;gap:9px}
+.pop-l a{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--oc);background:color-mix(in srgb,var(--oc) 12%,transparent);color:#fff;text-decoration:none}
+.pop-l a:hover{background:color-mix(in srgb,var(--oc) 24%,transparent)}
+.pop-l a b{display:block;font:800 17px/1.2 var(--f)}.pop-l a small{display:block;margin-top:3px;font:500 13px/1.3 var(--f);color:#a1a1aa}
+.pop-l a em{font:900 20px/1 var(--f);font-style:normal;color:var(--oc);white-space:nowrap}
+.prov{display:none;margin-left:.5vw;padding:.3em .6em;border-radius:7px;border:1.5px dashed #facc15;color:#facc15;font:800 clamp(10px,.75vw,13px)/1 var(--f);letter-spacing:.08em;text-transform:uppercase}body.real.provi .prov{display:inline-block}
+.btn{justify-self:start;border:0;border-radius:10px;background:var(--oro);color:#111;font:800 clamp(12px,1vw,16px)/1 var(--f);padding:.85em 1.5em;cursor:pointer}
+.tit{display:flex;align-items:center;gap:.6vw;font:900 clamp(16px,1.35vw,24px)/1 var(--f)}
+.tit i{display:grid;place-items:center;width:2.2vw;height:2.2vw;min-width:28px;min-height:28px;border-radius:8px;background:var(--oro);color:#111;font-style:normal;font-size:.9em}
+.quien{justify-self:end;text-align:right;font:600 clamp(11px,.85vw,14px)/1.35 var(--f);color:#cbd5e1}.quien b{display:block;color:#fff;font-size:1.1em}
+.aviso{background:var(--card);border:1px solid rgba(250,204,21,.45);border-left:5px solid var(--oro);border-radius:14px;padding:1.2vh 1.4vw;font:500 clamp(12px,1.05vw,18px)/1.45 var(--f);color:#e4e4e7}
+.aviso b{color:#fff}
+.aviso{display:flex;align-items:center;gap:1.2vw}.aviso>span{flex:1}
+.aviso.tint{animation:avisoT 1.1s ease-in-out infinite}
+@keyframes avisoT{50%{background:rgba(250,204,21,.22);border-color:#facc15;box-shadow:0 0 0 2px rgba(250,204,21,.6),0 0 30px rgba(250,204,21,.35)}}
+.aviso button{flex:0 0 auto;border:0;border-radius:10px;background:var(--oro);color:#111;font:800 clamp(11px,.9vw,15px)/1 var(--f);padding:.8em 1.3em;cursor:pointer}
+main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
+.col{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:2vh 1.2vw;display:flex;flex-direction:column;gap:1.2vh;min-height:0;overflow:hidden}
+.col h2{margin:0;font:900 clamp(11px,.95vw,16px)/1 var(--f);letter-spacing:.14em;text-transform:uppercase}
+.col.contra{border-color:rgba(239,68,68,.5)}.col.contra h2{color:#fca5a5}
+.col.favor{border-color:rgba(34,197,94,.5)}.col.favor h2{color:#86efac}
+.tope{margin-top:-.4vh;font:600 clamp(10px,.85vw,14px)/1.2 var(--f);color:var(--suave)}
+.lista{display:flex;flex-direction:column;gap:1vh;flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:.3vw;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+.neuw{flex:0 1 auto;max-height:46%;min-height:9vh;padding:1vh .6vw .8vh;margin:0 -.3vw -.2vh;border:1.5px dashed #3f3f46;border-radius:12px;display:flex;flex-direction:column;gap:.8vh}
+.neuw h2{color:#a1a1aa!important;font-size:clamp(10px,.8vw,13px)!important}
+.fz{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.7vw;padding:1.1vh .9vw;border-radius:12px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);
+  flex:0 0 auto;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s}
+.fz.ve{opacity:1;transform:none}
+.fz b{display:block;font:800 clamp(12px,1.15vw,20px)/1.15 var(--f)}
+.fz small{display:block;margin-top:.4vh;font:500 clamp(10px,.85vw,14px)/1.3 var(--f);color:var(--suave)}
+.fz .v{font:900 clamp(16px,1.8vw,32px)/1 var(--f);color:var(--c);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fz em{font-style:normal;display:inline-block;margin-left:.4em;padding:.05em .4em;border-radius:6px;border:1px solid currentColor;font:700 .7em/1.3 var(--f);color:#fde68a;vertical-align:.15em}
+.fz.neutro{--c:#a1a1aa;background:rgba(161,161,170,.13)}
+.fz.neutro .v{color:#d4d4d8}
+.fz.tex{border-color:var(--bd);background:linear-gradient(90deg,rgba(var(--rgb),.93),rgba(var(--rgb),.55)),var(--tex) var(--pos,50% 50%)/cover no-repeat,rgb(var(--rgb));text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.fz.tex b{color:var(--tono)}.fz.tex small{color:#f4f4f5}
+.fz.tex.rojo{border-color:#ef4444;background:linear-gradient(90deg,rgba(127,29,29,.94),rgba(127,29,29,.6)),var(--tex) var(--pos,50% 50%)/cover no-repeat,#450a0a}.fz.tex.rojo b{color:#fecaca}
+.fz.tex.gris{border-color:#a1a1aa;background:linear-gradient(90deg,rgba(39,39,42,.93),rgba(39,39,42,.55)),var(--tex) var(--pos,50% 50%)/cover no-repeat,#27272a}.fz.tex.gris b{color:#e4e4e7}
+.xs{display:flex;gap:.6vw;margin-top:.6vh;flex-wrap:wrap}
+.x{display:flex;flex-direction:column;align-items:center;gap:.3vh;font:700 clamp(9px,.7vw,12px)/1 var(--f);color:#d4d4d8}
+.x i{width:clamp(18px,1.6vw,30px);height:clamp(18px,1.6vw,30px);border-radius:7px;display:grid;place-items:center;font:900 clamp(11px,1vw,19px)/1 var(--f);font-style:normal;color:#fff;background:var(--xc)}
+.x.roja{--xc:#ef4444}.x.azul{--xc:#3b82f6}
+.vacio{font:500 clamp(11px,.9vw,15px)/1.4 var(--f);color:var(--suave)}
+/* la escalera */
+.esc{background:transparent;border:0;padding:0 .2vw;display:flex;flex-direction:column;min-height:0}
+.esc h2{margin:0 0 1vh;font:900 clamp(11px,.95vw,16px)/1 var(--f);letter-spacing:.14em;text-transform:uppercase;color:#d4d4d8;padding-left:1vw}
+.lad{position:relative;flex:1;min-height:0;display:grid;grid-template-rows:repeat(5,1fr);gap:.9vh}
+.pel{position:relative;border-radius:14px;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 14%,rgba(10,12,20,.92));display:flex;align-items:center;padding-left:1.3vw;
+  font:900 clamp(13px,1.5vw,27px)/1 var(--f);letter-spacing:.05em;color:#fff;transition:background .7s,color .7s,box-shadow .7s;overflow:hidden}
+.pel::after{content:"";position:absolute;left:40%;right:0;top:50%;border-top:1.5px dashed color-mix(in srgb,var(--c) 45%,transparent)}
+.pel i,.pel u{position:absolute;right:1vw;font:700 clamp(10px,.85vw,15px)/1 var(--f);font-style:normal;text-decoration:none;color:var(--suave)}
+.pel i{top:22%}.pel u{bottom:22%}
+.pel s{text-decoration:none;opacity:0;transition:opacity .5s}
+.pel.on{background:var(--c);color:#0b0b0c;box-shadow:0 0 40px color-mix(in srgb,var(--c) 50%,transparent)}
+.pel.on i,.pel.on u{color:rgba(0,0,0,.55)}.pel.on.mas s{opacity:1}
+.lad.sin .pel{filter:saturate(.35) brightness(.75)}
+.aguja{position:absolute;left:-.7vw;right:-.7vw;height:0;top:0;z-index:5;transition:top 3.2s cubic-bezier(.5,0,.2,1);pointer-events:none}
+.aguja i{position:absolute;left:0;right:0;top:-2px;height:4px;border-radius:2px;background:#fff;box-shadow:0 0 8px #fff,0 0 22px rgba(255,255,255,.7);animation:respira 2.8s ease-in-out infinite}
+@keyframes respira{0%,100%{transform:translateY(-1px)}50%{transform:translateY(1.5px)}}
+.aguja em{position:absolute;left:84%;top:0;transform:translate(-50%,-50%);padding:.18em .45em;border-radius:8px;background:#fff;color:#0a0a0b;font:900 clamp(13px,1.4vw,26px)/1 var(--f);font-style:normal;font-variant-numeric:tabular-nums;box-shadow:0 0 18px rgba(255,255,255,.6)}
+.aguja.bote i,.aguja.bote em{animation:lat .55s ease-in-out infinite alternate}
+@keyframes lat{to{opacity:.2}}
+.aguja.duda i{background:repeating-linear-gradient(90deg,#fff 0 10px,transparent 10px 18px);box-shadow:none;opacity:.8}
+.aguja.duda em{background:#18181b;color:#fff;border:2px dashed rgba(255,255,255,.7);box-shadow:none}
+.base{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed rgba(255,255,255,.55);z-index:4;pointer-events:none;opacity:0;transition:opacity .4s}
+.base span{position:absolute;left:44%;bottom:3px;font:700 clamp(9px,.8vw,13px)/1 var(--f);color:rgba(255,255,255,.8);white-space:nowrap}
+.pie-esc{margin-top:1vh;text-align:left;padding-left:1vw;font:600 clamp(11px,.95vw,16px)/1.3 var(--f);color:#e4e4e7}.pie-esc b{color:var(--oro)}
+.bal{position:relative;z-index:9;background:rgba(13,17,28,.97)!important;margin-top:.8vh;display:grid;grid-template-columns:auto 1fr;gap:.2vh .9vw;align-items:center;padding:.8vh .9vw;border-radius:12px;background:var(--card);border:1.5px solid rgba(255,255,255,.22);opacity:0;transition:opacity .6s}
+.bal.ve{opacity:1}
+.bal b{grid-row:span 3;font:900 clamp(18px,2vw,34px)/1 var(--f);font-variant-numeric:tabular-nums}
+.bal .bb{position:relative;height:clamp(10px,.9vw,16px);border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden}
+.bal .bb::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;border-left:2px solid rgba(255,255,255,.7)}
+.bal .bb i{position:absolute;top:0;bottom:0;width:0;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.bal .bb i.r{right:50%;background:#ef4444}.bal .bb i.v{left:50%;background:#22c55e}
+.bal .bb em{position:absolute;top:50%;width:4px;height:160%;margin-left:-2px;transform:translateY(-50%);background:#fff;box-shadow:0 0 8px #fff;transition:left 1.4s cubic-bezier(.4,0,.2,1);left:50%}
+body.f-bal .bal{box-shadow:0 0 0 3px #facc15,0 0 36px rgba(250,204,21,.6)}
+.bal span{font:800 clamp(10px,.8vw,13px)/1.2 var(--f);letter-spacing:.12em;text-transform:uppercase;color:#d4d4d8}
+.bal small{font:500 clamp(10px,.78vw,13px)/1.3 var(--f);color:#a1a1aa}
+.cont{flex:0 0 auto;padding:1.4vh 1vw 1.2vh;border-radius:14px;border:2px solid rgba(34,197,94,.6);background:rgba(34,197,94,.08);transition:box-shadow .5s,transform .5s;transform-origin:center top}
+.cont-t{display:flex;justify-content:space-between;align-items:baseline;gap:.6vw;font:800 clamp(11px,.95vw,16px)/1.2 var(--f);color:#e4e4e7}
+.cont-t b{flex:0 0 auto;white-space:nowrap;font:900 clamp(16px,1.6vw,28px)/1 var(--f);color:#4ade80;font-variant-numeric:tabular-nums}
+.cont-b{margin-top:1vh;height:clamp(14px,1.4vw,24px);border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
+.cont-b::after{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1.5px dashed rgba(255,255,255,.35)}
+.cont-b i{display:block;height:100%;width:0;background:#22c55e;border-radius:6px;transition:width 1.6s cubic-bezier(.4,0,.2,1)}
+.cont small{display:block;margin-top:.7vh;font:600 clamp(10px,.85vw,14px)/1.3 var(--f);color:#a1a1aa}
+body.f-barra .cont{transform:scale(1.04)}
+.cont.lleno .cont-t b{color:#facc15}
+.cont.lleno{animation:avisoT 1.1s ease-in-out infinite}
+.cont.lleno{border-color:#facc15}.cont.lleno .cont-b i{background:#facc15}.cont.lleno small{color:#fde68a}
+body.f-barra .cont,body.f-sug .sug,body.f-aguja .aguja em{box-shadow:0 0 0 3px #facc15,0 0 36px rgba(250,204,21,.6)}
+body.f-sug .sug{border-color:#facc15}
+/* sugerencias */
+.sug{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:1.3vh 1.2vw;display:grid;grid-template-columns:auto 1fr 1fr 1fr 1.45fr;gap:.8vw;align-items:stretch}
+.sug h2{margin:0;align-self:center;font:900 clamp(11px,.95vw,16px)/1.2 var(--f);letter-spacing:.14em;text-transform:uppercase;color:var(--oro);writing-mode:horizontal-tb;max-width:8vw}
+.sug div{display:grid;grid-template-columns:auto 1fr;gap:.6vw;align-items:center;padding:.9vh .9vw;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  font:500 clamp(11px,.95vw,16px)/1.35 var(--f);color:#e4e4e7;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+.sug div.ve{opacity:1;transform:none}
+.sug div b{color:#fff}.sug div span:first-child{font-size:1.5em}
+.sug div.areas{display:flex;flex-direction:column;align-items:stretch;gap:.6vh;border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.07)}
+.sug div.areas>b{font:800 clamp(10px,.85vw,14px)/1.2 var(--f);letter-spacing:.06em;color:#86efac;text-transform:uppercase}
+.sug .chips{display:flex;gap:.4vw;flex-wrap:wrap;justify-content:flex-start;align-items:center}
+.sug .chips i{flex:0 0 auto;display:inline-block;font-style:normal;padding:.35vh .5vw;border-radius:7px;border:1.5px solid var(--c);color:var(--c);font:800 clamp(10px,.8vw,13px)/1.2 var(--f);background:color-mix(in srgb,var(--c) 12%,transparent)}
+.sug .chips i.top{background:var(--c);color:#111}
+.sug small{font:500 clamp(9px,.7vw,12px)/1.3 var(--f);color:#a1a1aa}
+#fuerzas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:8;overflow:visible}
+#fuerzas path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+#fuerzas .halo{stroke-opacity:.2}
+#fuerzas .flujo{stroke:#fff;stroke-opacity:.55;stroke-dasharray:3 16;animation:fluye 1.1s linear infinite}
+@keyframes fluye{to{stroke-dashoffset:-19}}
+.chispa{position:fixed;width:5px;height:5px;border-radius:50%;background:#fff;pointer-events:none;z-index:9}
+.onda{position:fixed;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;border:4px solid #fff;pointer-events:none;z-index:9;opacity:0}
+</style></head>
+<body>
+<div class="top"><div class="izq"><button class="btn" id="volver">Volver</button><button class="btn2" id="bVid" title="Cómo valoro tu actitud (vídeo)">▶ Vídeo</button><button class="btn2 mapa" id="bMapa" title="Ver mi mapa de teoría">◈ Mapa teórico</button></div><div class="tit"><i>⚖</i>Mi actitud<span class="prov" id="prov">Provisional</span></div><div class="quien"><b id="nombre">Alumno de ejemplo</b><span id="grupo"></span></div></div>
+<div class="pop" id="pop" hidden><div class="pop-c"><button class="pop-x" id="popX" aria-label="Cerrar">✕</button><h3 id="popT"></h3><p id="popS"></p><div class="pop-l" id="popL"></div></div></div>
+<div class="aviso" id="aviso"></div>
+<main>
+  <section class="col contra" id="colC"><h2>Resta</h2><div id="contra" class="lista"></div><div class="neuw"><h2>Neutro · no resta</h2><div id="neuC" class="lista n"></div></div></section>
+  <section class="esc"><h2>Actitud</h2><div class="lad" id="lad"><div class="aguja" id="aguja"><i></i><em id="num"></em></div><div class="base" id="base"><span id="baseT"></span></div></div><div class="pie-esc" id="pieEsc"></div><div class="bal" id="bal"></div></section>
+  <section class="col favor" id="colF"><h2>Suma</h2><div class="tope">Como mucho, un escalón (+2)</div><div id="favor" class="lista"></div><div class="cont" id="cont"><div class="cont-t"><span>Lo que llevas sumado este trimestre</span><b id="contN"></b></div><div class="cont-b"><i id="contI"></i></div><small id="contM"></small></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
+</main>
+<div class="sug" id="sug"><h2>Para mejorar</h2></div>
+<svg id="fuerzas" aria-hidden="true"><defs>
+<radialGradient id="gHaz"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+<path id="hR" class="halo" stroke="#ef4444"/><path id="pR" stroke="#ef4444"/><path id="fR" class="flujo"/><path id="hV" class="halo" stroke="#22c55e"/><path id="pV" stroke="#22c55e"/><path id="fV" class="flujo"/><circle id="haz" r="0" fill="url(#gHaz)"/></svg>
+<script>
+(function () {
+  'use strict';
+  var EST = [['EXCELENTE', '#3b82f6'], ['MUY BIEN', '#22c55e'], ['BIEN', '#eab308'], ['REGULAR', '#f59e0b'], ['MAL', '#ef4444']];
+  function banda(v) { return Math.min(5, Math.max(1, Math.ceil((v - 0.5) / 2))); }
+  function esMas(v) { return v >= 2 * banda(v) - 0.5; }
+  function etiqueta(v) { var e = EST[5 - banda(v)][0]; return esMas(v) ? e + '+' : e; }
+  function fmt(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
+  /* ✕ de faltas (rojas sin justificar, azules justificadas) y texturas de portal */
+  function X(cl, et) { return '<span class="x ' + cl + '"><i>✕</i>' + et + '</span>'; }
+  function XS() { return '<span class="xs">' + [].slice.call(arguments).join('') + '</span>'; }
+  var TX = { mag: ['tex-magnetofono-2.webp', '16,8,6', 'rgba(255,90,70,.75)', '#ffe9c7', '50% 20%'], magG: ['tex-magnetofono-2-gris.webp', '39,39,42', '#a1a1aa', '#e4e4e7', '50% 20%'],
+    ato: ['tex-atonalidad-2.webp', '7,5,12', 'rgba(255,61,166,.75)', '#ff3da6', '50% 60%'], blu: ['tex-blues-3.webp', '14,9,5', 'rgba(255,232,190,.6)', '#ffe3b0', '50% 46%'] };
+  /* casos de ejemplo · [lado, valor, título, detalle, etiqueta, {tex, cl, v}] · c resta, nc no resta, f suma, nf no suma */
+  var CASOS = {
+    gp1: { grupo: '2.º GP', t: '1T', base: null, desde: null, f: [
+        ['c', -0.5, 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS(X('roja', '20/10'))],
+        ['c', -0.5, 'Portal sin ver', 'Magnetófono, bobina 2 · el de la clase del 20/10', null, { tex: 'mag', cl: 'rojo' }],
+        ['nc', 0, 'Faltas que no restan', 'la 1.ª sin justificar · las justificadas' + XS(X('roja', '01/10'), X('azul', '08/10'))],
+        ['nc', 0, 'Te pusiste al día', 'Magnetófono, bobina 1 · la viste en casa', null, { tex: 'magG', cl: 'gris' }],
+        ['f', 0, 'Atonalidad, capítulo 2', 'a mayores, en casa · 25 min', null, { tex: 'ato', v: '+' }],
+        ['f', 1.2, '1 h 10 min extra', 'Por tu cuenta, en apps y portales · +1 por hora'] ],
+      sug: [['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>: así te pones al día y deja de restar.'],
+            ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> hasta <b>24 horas</b> después de la clase (mejor, antes).'],
+            ['⏰', 'Intenta <b>llegar puntual</b> a partir de ahora.']],
+      areas: [['Entonación', '×2', '#3b82f6'], ['Dictado', '×1,5', '#f97316'], ['Ritmo', '×1', '#22c55e'], ['Teoría', '×1', '#ec4899']] },
+    gp2: { grupo: '2.º GP', t: '2T', base: 7, desde: 6.5, f: [
+        ['c', -1, 'Atención mejorable', 'La que marcó Iago en el 1.er trimestre', '1T'],
+        ['c', -0.5, 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS(X('roja', '19/01'))],
+        ['c', -0.5, 'Portal sin ver', 'Magnetófono, bobina 2 · el de la clase del 19/01', null, { tex: 'mag', cl: 'rojo' }],
+        ['nc', 0, 'Faltas que no restan', 'la 1.ª sin justificar' + XS(X('roja', '12/01'))],
+        ['nc', 0, 'Ficha en el periodo extra', 'se perdonan 2 por trimestre'],
+        ['f', 0, 'Blues, acto 3', 'lo repasaste por tu cuenta · 30 min', null, { tex: 'blu', v: '+' }],
+        ['f', 1.2, '1 h 10 min extra', 'Regular y en tu punto flojo · +1 por hora'],
+        ['nf', 0, 'Buena puntualidad', 'es lo esperable', '1T'],
+        ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
+      sug: [['🎯', 'La atención la vuelve a valorar Iago la <b>semana de exámenes</b>: aún puedes cambiarla.'],
+            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b> antes de la clase (o, como mucho, 24 horas después).'],
+            ['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>.']],
+      areas: [['Entonación', '×2', '#3b82f6'], ['Teoría', '×1,5', '#ec4899'], ['Dictado', '×1', '#f97316'], ['Ritmo', '×1', '#22c55e']] },
+    ge1: { grupo: '4.º GE', t: '1T', base: null, desde: null, f: [
+        ['c', -0.5, 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS(X('roja', '23/10'))],
+        ['c', -1, '2 quiz sin terminar', 'Cartas 2.1 y 2.2: medio punto cada uno'],
+        ['nc', 0, 'Faltas que no restan', 'la 1.ª sin justificar · las justificadas' + XS(X('roja', '02/10'), X('azul', '07/10'))],
+        ['nc', 0, 'Ficha en el periodo extra', 'en el 1.er trimestre no cuenta'],
+        ['f', 2, '2 h extra, bien elegidas', 'Teoría era tu punto flojo: ahí valen doble'] ],
+      sug: [['⭐', 'Termina el <b>quiz de las cartas 2.1 y 2.2</b>: cada uno resta medio punto.'],
+            ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> hasta <b>24 horas</b> después de la clase (mejor, antes).'],
+            ['⏰', 'Intenta <b>llegar puntual</b> a partir de ahora.']],
+      areas: [['Ritmo', '×2', '#22c55e'], ['Teoría', '×1,5', '#ec4899'], ['Entonación', '×1', '#3b82f6'], ['Dictado', '×1', '#f97316']] },
+    ge2: { grupo: '4.º GE', t: '2T', base: 6, desde: 5, f: [
+        ['c', -1, 'Puntualidad mejorable', 'La que marcó Iago en el 1.er trimestre', '1T'],
+        ['c', -0.5, 'Quiz sin terminar', 'Carta 3.2'],
+        ['nc', 0, 'Faltas que no restan', 'las justificadas' + XS(X('azul', '15/01'))],
+        ['nc', 0, '2 fichas en el periodo extra', 'se perdonan 2 por trimestre'],
+        ['f', 2, '2 h 10 min extra', 'Regular y en tu punto flojo'],
+        ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
+      sug: [['⏰', 'La puntualidad la vuelve a valorar Iago la <b>semana de exámenes</b>: llega a tiempo.'],
+            ['⭐', 'Termina el <b>quiz de la carta 3.2</b>: resta medio punto.'],
+            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b> antes de la clase (o, como mucho, 24 horas después).']],
+      areas: [['Teoría', '×2', '#ec4899'], ['Ritmo', '×1,5', '#22c55e'], ['Dictado', '×1', '#f97316'], ['Entonación', '×1', '#3b82f6']] }
+  };
+  /* ================= (12-nov-2026, Iago) «Mi actitud» DE VERDAD =================
+     El portal (Mis resultados) abre esta página en una ventana y le pasa, por postMessage, los datos del alumno:
+     suite_mi_actitud (faltas, quiz, fichas del periodo extra, portales de clases a las que faltó, tiempo por su cuenta,
+     avisos de «flojo», parámetros que marca Iago), su actitud del trimestre (y la del anterior), sus medias de clase
+     y su mapa de teoría. Aquí se calculan las fuerzas con las mismas reglas que explica el vídeo:
+       RESTA · faltas sin justificar: la 1.ª no, la 2.ª −0,5 y desde la 3.ª −1 · quiz sin hacer −0,5 (salvo exento)
+              · portal de una clase a la que faltó, sin ver −0,5 (visto: neutro, «te pusiste al día»)
+              · fichas en el periodo extra: 2 gratis por trimestre, luego −0,25 (curso 26-27: las del 1T hasta el 13-nov no cuentan)
+              · puntualidad y atención mejorable −1 / insuficiente −2 · comportamiento −1,5 / −3
+       SUMA · el tiempo por tu cuenta, minuto a minuto: +1 por hora, como mucho +2 en el trimestre, multiplicado por área:
+              ×2 lo rojo del mapa de teoría o el apartado del que te llegó el aviso de «flojo»; ×1,5 lo amarillo del mapa;
+              si no hay nada de eso, ×1,5 tu apartado más flojo aun aprobado. Entonación = Entonación + Intervalia; Dictado = Dictado + Predict. */
+  var REAL = /[?&]real\b/.test(location.search);
+  var HITOS = 'https://gp.lmathome.es/hitos/';
+  var PORT = { acustica: ['Acústica', 'día', 'cabana'], atonalidad: ['Atonalidad', 'capítulo', 'atonalidad'], blues: ['Blues', 'acto', 'blues'],
+    afrolatin: ['4 Sabores', 'sabor', 'sabores'], modulacion: ['Modulación', 'sesión', 'modulacion'], transporte: ['Transporte', 'sesión', 'transporte'],
+    magnetofono: ['Magnetófono', 'bobina', 'magnetofono'], fonografo: ['Fonógrafo', 'parte', 'fonografo'] };
+  var TEXP = { acustica: ['14,9,4', 'rgba(255,255,255,.5)', { 1: ['50% 60%', '#a8cef2'], 2: ['50% 64%', '#aeffc3'], 3: ['50% 58%', '#ff9d8a'] }],
+    atonalidad: ['27,14,6', 'rgba(190,40,62,.85)', { 1: ['50% 64%', '#f4dfb0'], 2: ['50% 60%', '#ff3da6'], 3: ['50% 52%', '#4d9bff'] }],
+    afrolatin: ['20,11,6', 'rgba(255,233,199,.6)', { 1: ['50% 56%', '#ff8a3d'], 2: ['50% 54%', '#7ed3a8'], 3: ['50% 56%', '#f46fa0'], 4: ['50% 52%', '#5aaeea'] }],
+    modulacion: ['7,10,20', 'rgba(232,196,106,.85)', { 1: ['50% 50%', '#a9c4ff'], 2: ['50% 50%', '#ffd98a'], 3: ['50% 50%', '#ffd98a'], 4: ['50% 50%', '#c6e6a4'] }],
+    blues: ['14,9,5', 'rgba(255,232,190,.6)', { 1: ['50% 55%', '#ffe3b0'], 2: ['50% 56%', '#ffe3b0'], 3: ['50% 46%', '#ffe3b0'], 4: ['50% 52%', '#ffe3b0'], 5: ['50% 58%', '#ffe3b0'] }],
+    magnetofono: ['16,8,6', 'rgba(255,90,70,.75)', { 1: ['50% 22%', '#ffe9c7'], 2: ['50% 20%', '#ffe9c7'], 3: ['50% 18%', '#ffe9c7'] }],
+    transporte: ['6,12,29', 'rgba(99,230,255,.85)', { 1: ['50% 50%', '#9fefff'], 2: ['50% 50%', '#ffd28a'], 3: ['50% 50%', '#9fefff'], 4: ['50% 50%', '#ffd28a'] }],
+    fonografo: ['20,12,5', 'rgba(214,170,92,.8)', { 1: ['50% 42%', '#f3d9a4'], 2: ['50% 40%', '#f3d9a4'] }] };
+  function texDe(app, n) { var k = String(app || '').replace(/-(ge|gp)$/, ''), P = TEXP[k], Q = PORT[k]; if (!P || !Q) return null;
+    var q = P[2][n] || P[2][1]; return { u: HITOS + Q[2] + '-' + (P[2][n] ? n : 1) + '.webp', rgb: P[0], bd: P[1], tono: q[1], pos: q[0] }; }
+  function nomPortal(app, n) { var Q = PORT[String(app || '').replace(/-(ge|gp)$/, '')]; return Q ? Q[0] + ', ' + Q[1] + ' ' + n : 'Portal de la clase'; }
+  var AREA = { teoria: ['Teoría', '#ec4899'], ritmo: ['Ritmo', '#22c55e'], entonacion: ['Entonación', '#3b82f6'], audicion: ['Dictado', '#f97316'] };
+  function areaDe(app) { var k = String(app || '').replace(/-(ge|gp)$/, '');
+    if (k === 'teoria' || PORT[k]) return 'teoria'; if (k === 'ritmo' || k === 'desafio') return 'ritmo';
+    if (k === 'entonacion' || k === 'intervalia') return 'entonacion'; if (k === 'dictado' || k === 'predict') return 'audicion'; return null; }
+  var NOMAPP = { teoria: 'Teoría at home', ritmo: 'Ritmo at home', desafio: 'Desafío', entonacion: 'Entonación at home', intervalia: 'Intervalia', dictado: 'Dictado at home', predict: 'PreDict' };
+  function nomApp(app, gp) { var k = String(app || '').replace(/-(ge|gp)$/, ''); if (PORT[k]) return 'Portal ' + PORT[k][0];
+    var n = NOMAPP[k] || (k.charAt(0).toUpperCase() + k.slice(1)); return gp ? n.replace(' at home', ' PRO').replace('Ritmo PRO', 'Ritmo entonado PRO') : n; }
+  function dur(s) { var m = Math.round((s || 0) / 60); if (m < 60) return m + ' min'; return Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : ''); }
+  function ddmm(f) { var p = String(f || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] : String(f || ''); }
+  function f2(n) { return (Math.round(n * 100) / 100).toFixed(2).replace('.', ','); }
+  function fx(n) { return String(Math.round(n * 100) / 100).replace('.', ','); }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var TPREV = { '2T': '1T', '3T': '2T' };
+  var GH = 'https://iagonaron.github.io/';
+  var URLS = { ge: { ritmo: 'ritmoathome/', entonacion: 'entonacionathome/', intervalia: 'intervalia/', dictado: 'dictadoathome/', predict: 'predictathome/', teoria: 'teoriaathome/' },
+               gp: { ritmo: 'ritmopro/', entonacion: 'entonacionathome/', intervalia: 'intervaliapro/', dictado: 'dictadospro/', predict: 'predictpro/', teoria: 'teoriapro/' } };
+  function urlApp(gp, k, cuenta) { return (k === 'teoria' ? 'https://teoria.' + (gp ? 'gp' : 'ge') + '.lmathome.es/' : GH + URLS[gp ? 'gp' : 'ge'][k]) + (cuenta ? '#c=' + cuenta : ''); }
+  function nrm(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, ''); }
+  var PARAMS = [['puntual', 'Puntualidad', { mixta: -1, mala: -2 }, { buena: 'Buena puntualidad' }],
+                ['atencion', 'Atención', { mixta: -1, mala: -2 }, { buena: 'Buena atención' }],
+                ['comportamiento', 'Comportamiento', { mixto: -1.5, malo: -3 }, { bueno: 'Buen comportamiento' }]];
+  /* las cajas del mapa de teoría con algo en rojo (×2) o amarillo (×1,5): media de las 3 últimas veces (como el mapa) */
+  function mapaTeoria(M, gp) {
+    var out = { r: [], a: [], c: [] }; if (!M || !M.conceptos || !window.LMMapa || !window.LMMapa._mapa) return out;
+    var por = {}, porO = {}; M.conceptos.forEach(function (c) { var m = c.media3 != null ? +c.media3 : +c.media; if (!isNaN(m)) { por[c.key] = m; porO[c.key] = c; } });
+    (window.LMMapa._mapa[gp ? 'gp' : 'ge'] || []).forEach(function (caja) {
+      (caja[1] || []).forEach(function (con) { var peor = null; con.slice(1).forEach(function (k) { if (por[k] != null && (peor == null || por[k] < peor)) peor = por[k]; });
+        if (peor == null || peor >= 0.7) return;
+        var m = peor < 0.5 ? 2 : 1.5, u = null;
+        try { var rc = window.LMMapa._recursos(con.slice(1), gp ? 'gp' : 'ge', porO); var op = (rc.ops || []).filter(function (o) { return /libres/i.test(o.t); })[0] || (rc.ops || [])[0]; u = op && op.u; } catch (e) {}
+        out.c.push({ nom: con[0], caja: caja[0], m: m, u: u, n: [nrm(con[0]), nrm(caja[0])].concat(con.slice(1).map(nrm)) });
+        (m === 2 ? out.r : out.a).push(con[0]); });
+    });
+    out.c.sort(function (a, b) { return b.m - a.m; });
+    return out;
+  }
+  /* el multiplicador de un rato de teoría: el del concepto del mapa que coincida con lo que practicó (Modos, Acordes…); lo demás, ×1 */
+  function multSub(k, mp) { var kk = nrm(String(k).replace(/\|.*$/, '')).replace(/pro$/, '').replace(/^inv/, ''); if (kk.length < 4) return 1;
+    var m = 1; mp.c.forEach(function (c) { if (c.n.some(function (n) { return n && n.length >= 4 && (n.indexOf(kk) >= 0 || kk.indexOf(n) >= 0); })) m = Math.max(m, c.m); }); return m; }
+  function construye(P) {
+    var d = P.d || {}, t = d.trimestre || '1T', gp = d.nivel === 'gp', f = [], sug = [];
+    /* ---- faltas ---- */
+    var fl = (d.faltas || []).slice().sort(function (a, b) { return a.f < b.f ? -1 : 1; });
+    var fs = fl.filter(function (x) { return !x.j; }), fj = fl.filter(function (x) { return x.j; }), cuentan = fs.slice(1);
+    if (cuentan.length) f.push(['c', -(0.5 + (cuentan.length - 1)), 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS.apply(null, cuentan.map(function (x) { return X('roja', ddmm(x.f)); }))]);
+    if (fs.length || fj.length) f.push(['nc', 0, 'Faltas que no restan', [fs.length ? 'la 1.ª sin justificar' : '', fj.length ? 'las justificadas' : ''].filter(Boolean).join(' · ') +
+      XS.apply(null, (fs.length ? [X('roja', ddmm(fs[0].f))] : []).concat(fj.map(function (x) { return X('azul', ddmm(x.f)); })))]);
+    /* ---- portales de clases a las que faltó ---- */
+    (d.portales || []).forEach(function (p) { var T = texDe(p.app, p.n), nom = nomPortal(p.app, p.n);
+      if (!p.visto) { f.push(['c', -0.5, 'Portal sin ver', nom + ' · el de la clase del ' + ddmm(p.f), null, { T: T, cl: 'rojo', u: p.u }]);
+        if (sug.length < 3) sug.push(['🧭', 'Te falta ver el portal <b>' + esc(nom) + '</b>: así te pones al día y deja de restar.', p.u]); }
+      else f.push(['nc', 0, 'Te pusiste al día', nom + ' · lo viste en casa', null, { T: T, cl: 'gris' }]); });
+    /* ---- quiz ---- */
+    var Q = d.quiz_exento ? [] : (d.quiz || []).filter(function (q) { return q && q.carta; }), qz = Q.map(function (q) { return q.carta; });
+    var uQ = function (q) { return GH + (gp ? 'ritmopro/' : 'ritmoathome/') + '?quizCarta=' + encodeURIComponent(q.carta) + '&envio=' + encodeURIComponent(q.envio_id || '') + '&cuenta=' + encodeURIComponent(P.cuenta || ''); };
+    Q.forEach(function (q) { f.push(['c', -0.5, 'Quiz sin terminar', 'Carta ' + q.carta + (q.nombre ? ' · ' + q.nombre : '') + ': medio punto', null, { u: uQ(q) }]); });
+    if (Q.length) sug.unshift(['⭐', 'Termina ' + (Q.length === 1 ? 'el <b>quiz de la carta ' + esc(qz[0]) + '</b>: resta medio punto.' : 'los <b>quiz de las cartas ' + esc(qz.join(', ')) + '</b> (empieza por el ' + esc(qz[0]) + '): cada uno resta medio punto.'), uQ(Q[0])]);
+    /* ---- fichas en el periodo extra ---- */
+    var fe = d.fichas_extra || [], gratisCurso = fe.filter(function (x) { return d.curso === '2026-2027' && t === '1T' && x.fin <= '2026-11-13'; }),
+        resto = fe.filter(function (x) { return gratisCurso.indexOf(x) < 0; }), pagan = resto.slice(2), perd = resto.slice(0, 2);
+    if (pagan.length) f.push(['c', -0.25 * pagan.length, pagan.length === 1 ? 'Ficha en el periodo extra' : pagan.length + ' fichas en el periodo extra',
+      'se perdonan 2 por trimestre; desde la 3.ª, −0,25 · ' + (pagan.length === 1 ? 'ficha ' : 'fichas ') + pagan.map(function (x) { return x.n; }).join(', ')]);
+    if (perd.length) f.push(['nc', 0, perd.length === 1 ? 'Ficha en el periodo extra' : perd.length + ' fichas en el periodo extra', 'se perdonan 2 por trimestre · ' + (perd.length === 1 ? 'ficha ' : 'fichas ') + perd.map(function (x) { return x.n; }).join(', ')]);
+    /* (12-nov-2026, Iago) «partimos de cero para todos»: las del periodo extra de hasta el 13-nov (1T 26-27) ni se enseñan */
+    /* ---- puntualidad, atención y comportamiento: los marca Iago la semana de exámenes ---- */
+    var pr = d.params || {}, tagPrev = null, hayP = false;
+    PARAMS.forEach(function (Pm) {
+      var v = pr[t + ':' + Pm[0]], tag = null;
+      if (v == null && TPREV[t]) { for (var tt = TPREV[t]; tt && v == null; tt = TPREV[tt]) { v = pr[tt + ':' + Pm[0]]; tag = tt; } }
+      if (v == null) return; hayP = true; if (tag) tagPrev = tag;
+      if (Pm[2][v] != null) { var mal = Pm[2][v] <= -2; f.push(['c', Pm[2][v], Pm[1] + (mal ? ' insuficiente' : ' mejorable'), tag ? 'La que marcó Iago en el ' + (tag === '1T' ? '1.er' : '2.º') + ' trimestre' : 'La que marcó Iago este trimestre', tag]);
+        if (Pm[0] === 'puntual') sug.push(['⏰', tag ? 'La puntualidad la vuelve a valorar Iago la <b>semana de exámenes</b>: llega a tiempo.' : 'Intenta <b>llegar puntual</b> a partir de ahora.']);
+        if (Pm[0] === 'atencion' && tag) sug.push(['🎯', 'La atención la vuelve a valorar Iago la <b>semana de exámenes</b>: aún puedes cambiarla.']); }
+      else if (Pm[3][v]) f.push(['nf', 0, Pm[3][v], 'es lo esperable', tag]);
+    });
+    /* ---- lo que suma: minuto a minuto, con el multiplicador de cada área ---- */
+    var mp = mapaTeoria(P.mapa, gp), flojos = d.flojos || [], mult = { teoria: 1, ritmo: 1, entonacion: 1, audicion: 1 }, por = {};
+    if (mp.r.length) mult.teoria = 2, por.teoria = 'en rojo en tu mapa: ' + mp.r.slice(0, 2).join(', ');
+    else if (mp.a.length) mult.teoria = 1.5, por.teoria = 'en naranja en tu mapa: ' + mp.a.slice(0, 2).join(', ');
+    flojos.forEach(function (a) { if (mult[a] != null) { mult[a] = 2; por[a] = 'te llegó el aviso de que está flojo'; } });
+    if (!Object.keys(mult).some(function (a) { return mult[a] > 1; })) {
+      var md = P.medias || {}, peor = null; Object.keys(md).forEach(function (a) { if (mult[a] != null && md[a] >= 5 && (peor == null || md[a] < md[peor])) peor = a; });
+      if (peor) { mult[peor] = 1.5; por[peor] = 'tu apartado más flojo'; }
+    }
+    var tm = d.tiempo || {}, apps = tm.apps || {}, det = tm.det || {}, puntos = 0;
+    Object.keys(apps).map(function (a) { return [a, apps[a]]; }).filter(function (x) { return x[1] >= 60; }).sort(function (a, b) { return b[1] - a[1]; }).forEach(function (x) {
+      var ar = areaDe(x[0]), m = ar ? mult[ar] : 1, v = x[1] / 3600 * m, extra = '';
+      if (ar === 'teoria') { /* teoría: cada rato con el multiplicador de su concepto; los portales y lo demás, ×1 */
+        var dd = det[x[0]] || {}, conM = 0, sumM = 0, top = {}; Object.keys(dd).forEach(function (k) { var mm = PORT[String(x[0]).replace(/-(ge|gp)$/, '')] ? 1 : multSub(k, mp); conM += dd[k]; sumM += dd[k] * mm;
+          if (mm > 1) { var nk = String(k).replace(/\|.*$/, ''); top[nk] = Math.max(top[nk] || 0, mm); } });
+        v = (sumM + Math.max(0, x[1] - conM)) / 3600; m = 1;
+        extra = Object.keys(top).slice(0, 2).map(function (k) { return k.charAt(0).toUpperCase() + k.slice(1).replace(/-/g, ' ').replace(/pro$/, '') + ' ×' + String(top[k]).replace('.', ','); }).join(' · '); }
+      puntos += v;
+      var k = String(x[0]).replace(/-(ge|gp)$/, ''), o = null, tit = nomApp(x[0], gp);
+      if (PORT[k]) { var subs = Object.keys(det[x[0]] || {}).map(function (s) { var mm = /-(\d+)$/.exec(s); return [mm ? mm[1] : null, det[x[0]][s]]; }).filter(function (s) { return s[0]; }).sort(function (a, b) { return b[1] - a[1]; });
+        var n = subs.length ? subs[0][0] : 1; o = { T: texDe(x[0], n), v: '+' + f2(v) }; if (subs.length === 1) tit = nomPortal(x[0], n); }
+      f.push(['f', v, tit, dur(x[1]) + ' por tu cuenta' + (m > 1 ? ' · ' + (AREA[ar] ? AREA[ar][0] : '') + ' ×' + String(m).replace('.', ',') : '') + (extra ? ' · ' + extra : ''), null, o || { v: '+' + f2(v) }]);
+    });
+    if (tm.total >= 60 && !f.some(function (x) { return x[0] === 'f'; })) f.push(['nf', 0, dur(tm.total) + ' por tu cuenta', 'todavía no llega a sumar']);
+    /* chips de áreas: la de más valor primero */
+    var cu = P.cuenta || '', OPC = {
+      ritmo: [[gp ? 'Ritmo entonado PRO' : 'Ritmo at home', urlApp(gp, 'ritmo', cu), 'Lecciones y ejercicios de ritmo']],
+      entonacion: [['Entonación at home', urlApp(gp, 'entonacion', cu), 'Lecciones de entonación'], [gp ? 'Intervalia PRO' : 'Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']],
+      audicion: [[gp ? 'Dictados PRO' : 'Dictado at home', urlApp(gp, 'dictado', cu), 'Dictados'], [gp ? 'PreDict PRO' : 'PreDict at home', urlApp(gp, 'predict', cu), 'Cuenta como dictado']],
+      teoria: mp.c.map(function (c) { return [c.nom, c.u || urlApp(gp, 'teoria', cu), c.caja + (c.m === 2 ? ' · en rojo en tu mapa' : ' · en naranja en tu mapa'), c.m]; })
+                .concat([[gp ? 'Teoría PRO' : 'Teoría at home', urlApp(gp, 'teoria', cu), 'Todo lo demás de teoría', 1]]) };
+    var areas = Object.keys(mult).sort(function (a, b) { return mult[b] - mult[a]; }).map(function (a) { return [AREA[a][0], '×' + String(mult[a]).replace('.', ','), AREA[a][1], por[a] || '', OPC[a], a]; });
+    /* faltas: cómo justificarlas */
+    var ult = fs.length ? fs[fs.length - 1].f : null, hoy = new Date(), ayer = new Date(hoy.getTime() - 36e5 * 30);
+    var isoA = ayer.getFullYear() + '-' + String(ayer.getMonth() + 1).padStart(2, '0') + '-' + String(ayer.getDate()).padStart(2, '0');
+    sug.push(['✉️', ult && ult >= isoA ? 'Faltaste el ' + ddmm(ult) + ': tu familia puede justificarlo por <b>CentrosNET</b> hasta <b>24 horas</b> después de la clase.'
+                                      : 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b> antes de la clase (o, como mucho, 24 horas después).']);
+    if (!sug.some(function (s) { return s[0] === '⏰'; })) sug.push(['⏰', 'Intenta <b>llegar puntual</b>: Iago lo valora la semana de exámenes.']);
+    /* la actitud: si Iago ya la puso este trimestre, esa es la definitiva (las fuerzas explican cómo se llegó); si no, desde el 2.º, la del anterior como punto de partida */
+    var base = P.base != null ? +P.base : null, prev = P.prev != null ? +P.prev : null, definitiva = base != null;
+    return { grupo: P.grupoTxt || '', nombre: P.nombre || '', t: t, f: f, sug: sug.slice(0, 3), areas: areas, puntos: puntos,
+             definitiva: definitiva, base: definitiva ? base : (t !== '1T' ? prev : null), tagPrev: tagPrev || (TPREV[t] || null), hayP: hayP, cuenta: P.cuenta || '' };
+  }
+  function arranca(C) {
+  var $ = function (id) { return document.getElementById(id); };
+  $('grupo').textContent = (C.grupo ? C.grupo + ' · ' : '') + (C.t === '1T' ? '1.er' : C.t === '2T' ? '2.º' : '3.er') + ' trimestre'; if (C.nombre) $('nombre').textContent = C.nombre;
+  if (REAL && !C.definitiva) document.body.classList.add('provi');
+  var KAV = 'mi-actitud-entendido:' + (C.cuenta || '') + ':' + C.t + ':' + (C.definitiva ? 'd' : 'p'), visto = false; try { visto = REAL && localStorage.getItem(KAV) === '1'; } catch (e) {}
+  if (C.definitiva) $('aviso').innerHTML = '<span><b>Tu actitud de este trimestre ya está puesta.</b> Aquí ves las fuerzas que la llevaron hasta ahí: lo que restó, lo que sumó y lo que fue neutro.</span><button id="entendido">Entendido</button>';
+  else if (REAL) $('aviso').innerHTML = '<span><b>Todavía no es definitivo.</b> Hasta la <b>semana de exámenes</b>, cuando Iago cubre el resto (puntualidad, atención y comportamiento) y pone tu nota, <b>puedes mejorar estos datos</b>: termina lo que tengas pendiente y suma tiempo por tu cuenta.' + (C.t !== '1T' ? ' Lo marcado con <b>' + (C.tagPrev || '1T') + '</b> es del trimestre anterior.' : '') + '</span><button id="entendido">Entendido</button>';
+  else $('aviso').innerHTML = '<span>' + (C.t === '1T'
+    ? '<b>Primer trimestre:</b> todavía hay campos sin cubrir y tu nota de actitud aún no está preparada (Iago la pone la semana de exámenes). Mientras, aquí ves lo que ya resta, suma o es neutro.'
+    : '<b>Ojo:</b> lo que está marcado con <b>1T</b> y la línea discontinua son del trimestre anterior: Iago los volverá a poner la semana de exámenes. Es tu punto de partida antes de aplicar las fuerzas: <b>puede variar</b>.') + '</span><button id="entendido">Entendido</button>';
+  /* (12-nov, Iago) tintinea en amarillo hasta que el alumno pulsa «Entendido» */
+  if (visto) $('entendido').remove(); else { $('aviso').classList.add('tint'); $('entendido').onclick = function () { $('aviso').classList.remove('tint'); this.remove(); try { if (REAL) localStorage.setItem(KAV, '1'); } catch (e) {} }; }
+  var lad = $('lad'), ag = $('aguja'), num = $('num');
+  EST.forEach(function (e, i) {
+    var b = 5 - i, d = document.createElement('div');
+    d.className = 'pel'; d.style.setProperty('--c', e[1]); d.dataset.b = b;
+    d.innerHTML = e[0] + '<s>+</s><i>' + (2 * b) + '</i><u>' + (2 * b - 1) + '</u>';
+    lad.insertBefore(d, ag);
+  });
+  var PELS = Array.prototype.slice.call(lad.querySelectorAll('.pel'));
+  function yDe(v) {
+    v = Math.max(0, Math.min(10, v)); var b = banda(v), p = PELS[5 - b], r = p.getBoundingClientRect(), r0 = lad.getBoundingClientRect();
+    return r.top - r0.top + 3 + Math.max(0, Math.min(1, (2 * b - v + 0.5) / 2)) * (r.height - 6);
+  }
+  var cards = C.f.map(function (x) {
+    var o0 = x[5] || {}, d = document.createElement(o0.u ? 'a' : 'div'), col = x[0] === 'c' ? '#ef4444' : x[0] === 'f' ? '#22c55e' : '#a1a1aa', o = x[5] || {};
+    d.className = 'fz' + (x[0].charAt(0) === 'n' ? ' neutro' : '') + (o.tex || o.T ? ' tex' : '') + (o.cl ? ' ' + o.cl : ''); d.style.setProperty('--c', col);
+    if (o.u) { d.href = o.u; d.target = '_top'; }
+    if (o.T) { d.style.setProperty('--tex', 'url(' + o.T.u + ')'); d.style.setProperty('--rgb', o.T.rgb); d.style.setProperty('--bd', o.T.bd); d.style.setProperty('--tono', o.T.tono); d.style.setProperty('--pos', o.T.pos); }
+    if (o.tex) { var q = TX[o.tex]; d.style.setProperty('--tex', 'url(' + q[0] + ')'); d.style.setProperty('--rgb', q[1]); d.style.setProperty('--bd', q[2]); d.style.setProperty('--tono', q[3]); d.style.setProperty('--pos', q[4]); }
+    var v = o.v || (x[0].charAt(0) === 'n' ? '0' : (x[1] > 0 ? '+' : '−') + String(Math.abs(x[1])).replace('.', ','));
+    d.innerHTML = '<div><b>' + x[2] + (x[4] ? '<em>' + x[4] + '</em>' : '') + '</b>' + (x[3] ? '<small>' + x[3] + '</small>' : '') + '</div><div class="v">' + v + '</div>';
+    $({ c: 'contra', f: 'favor', nc: 'neuC', nf: 'neuF' }[x[0]]).appendChild(d);
+    return d;
+  });
+  ['neuF', 'neuC', 'favor', 'contra'].forEach(function (id) { if (!$(id).children.length) $(id).innerHTML = '<div class="vacio">' + (id === 'neuF' ? 'Nada por ahora.' : 'Nada por ahora.') + '</div>'; });
+  var sugs = C.sug.map(function (s) { var d = document.createElement(s[2] ? 'a' : 'div'); if (s[2]) { d.className = 'sugl'; d.href = s[2]; d.target = '_top'; } d.innerHTML = '<span>' + s[0] + '</span><span>' + s[1] + '</span>'; $('sug').appendChild(d); return d; });
+  /* (12-nov, Iago) para sumar: cuánto vale cada área (la más floja, más) · Entonación = Entonación + Intervalia (con micrófono) · Dictado = Dictado + Predict */
+  if (C.areas) { var dA = document.createElement('div'); dA.className = 'areas';
+    dA.innerHTML = '<b>Para sumar, donde más puntúas</b><span class="chips">' + C.areas.map(function (a, k) { return '<i style="--c:' + a[2] + '"' + (k === 0 && a[1] !== '×1' ? ' class="top"' : '') + (a[3] ? ' title="' + a[3] + '"' : '') + (a[4] ? ' data-a="' + k + '" role="button" tabindex="0"' : '') + '>' + a[0] + ' ' + a[1] + '</i>'; }).join('') + '</span><small>Entonación + Intervalia, con micrófono · Dictado + Predict</small>';
+    $('sug').appendChild(dA); sugs.push(dA);
+    if (REAL) dA.querySelectorAll('i[data-a]').forEach(function (el) { el.onclick = function () { abrePop(C.areas[+el.getAttribute('data-a')]); }; });
+    if (REAL) dA.querySelector('small').textContent = 'Pulsa un área para ir a practicar · Entonación + Intervalia · Dictado + PreDict'; }
+  var NEG = C.f.reduce(function (a, x) { return a + (x[1] < 0 ? -x[1] : 0); }, 0);
+  var POS = Math.min(2, C.f.reduce(function (a, x) { return a + (x[1] > 0 ? x[1] : 0); }, 0));
+  var SIN = C.base == null;
+  var FIN = SIN ? 5 : Math.max(0, Math.min(10, C.definitiva ? C.base : C.base - NEG + POS));
+  var BASAL = SIN ? 5 : Math.max(0, Math.min(10, C.definitiva ? C.base - (POS - NEG) : C.base));
+  var KV = 'mi-actitud-vista:' + (C.cuenta || '') + ':' + C.t, VISTA = null; try { VISTA = REAL ? parseFloat(localStorage.getItem(KV)) : null; } catch (e) {}
+  if (!SIN && C.desde == null && VISTA != null && !isNaN(VISTA)) C.desde = VISTA;
+  try { if (REAL && !SIN) localStorage.setItem(KV, String(FIN)); } catch (e) {}
+  /* (12-nov, Iago) el balance de fuerzas: lo que se sumará o restará a la nota que él ponga; cerca de 0 ya es un éxito */
+  /* (12-nov, Iago) la barra de lo que llevas sumado: se llena con lo extra hasta el tope (+2) y avisa al llegar */
+  $('contN').textContent = '+' + POS.toFixed(2).replace('.', ',') + '/2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + (2 - POS).toFixed(2).replace('.', ',') + ' para el tope del trimestre.';
+  if (POS >= 2) $('cont').classList.add('lleno');
+  setTimeout(function () { $('contI').style.width = (Math.min(2, POS) / 2 * 100) + '%'; }, 900);
+  var DEMO = null;
+  function ponBarra(p) { $('contI').style.width = (Math.min(2, p) / 2 * 100) + '%'; $('contN').textContent = '+' + Math.min(2, p).toFixed(2).replace('.', ',') + '/2';
+    var lleno = p >= 2; $('cont').classList.toggle('lleno', lleno);
+    $('contM').textContent = lleno ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + Math.max(0, 2 - p).toFixed(2).replace('.', ',') + ' para el tope del trimestre.'; }
+  addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja', 'bal'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); });
+    /* (12-nov, Iago) al explicarla en el vídeo: la barra sigue llenándose hasta el tope y avisa */
+    clearInterval(DEMO); if (d.que === 'barra') { var p = POS, t0 = Date.now(); DEMO = setInterval(function () { var q = (Date.now() - t0) / 1000;
+      if (q < 2.2) return; p = Math.min(2, POS + (q - 2.2) * 0.35); ponBarra(p); if (p >= 2) clearInterval(DEMO); }, 60); } });
+  var BAL = POS - NEG, bal = $('bal');
+  bal.innerHTML = '<b style="color:' + (BAL > 0.01 ? '#4ade80' : BAL < -1.5 ? '#f87171' : BAL < -0.01 ? '#fbbf24' : '#e4e4e7') + '">' + (BAL > 0 ? '+' : BAL < 0 ? '−' : '') + fmt(Math.abs(BAL)) + '</b>' +
+    '<span>Tu balance de fuerzas</span><div class="bb"><i class="r" id="balR"></i><i class="v" id="balV"></i><em id="balM"></em></div><small>Se aplica a la nota que pone Iago. En 0 o cerca, está bien; pasar de 0 es todo un éxito. Lo importante: que no sea muy negativo.</small>';
+  /* líneas de fuerza */
+  var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0, choque: 0 };
+  var pR = $('pR'), pV = $('pV'), fR = $('fR'), fV = $('fV'), haz = $('haz');
+  var RC = null; addEventListener('resize', function () { RC = null; });
+  var hR = $('hR'), hV = $('hV');
+  function dibuja() {
+    if (!RC) { var L0 = $('colC').getBoundingClientRect(), R0 = $('colF').getBoundingClientRect(), C0 = lad.getBoundingClientRect(), M0 = document.querySelector('main').getBoundingClientRect();
+      RC = { L: L0, R: R0, x: C0.left + C0.width * 0.72, top: C0.top, M: M0, vh: innerHeight / 100 }; }
+    var L = RC.L, R = RC.R, vh = RC.vh, x = RC.x, y = RC.top + ag.offsetTop, t = performance.now() / 1000, osc = Math.sin(t * 2.3) * 1.2;
+    var yT = RC.M.top - .8 * vh, yB = RC.M.bottom + .8 * vh, xL = L.left + L.width * 0.5, xR = R.left + R.width * 0.5;
+    var dR = 'M' + xL + ' ' + L.top + ' V' + yT + ' H' + x + ' V' + (y - 5 + osc), dV = 'M' + xR + ' ' + R.bottom + ' V' + yB + ' H' + x + ' V' + (y + 5 + osc);
+    F.wR += ((F.neg ? 2 + Math.min(5, F.neg * 1.1) : 0) - F.wR) * 0.08; F.wV += ((F.pos ? 2 + Math.min(5, F.pos * 1.6) : 0) - F.wV) * 0.08;
+    F.aR += ((F.neg ? 1 : 0) - F.aR) * 0.06; F.aV += ((F.pos ? 1 : 0) - F.aV) * 0.06;
+    var lat = 1 + Math.sin(t * 3.1) * 0.12 + (F.choque ? Math.sin(t * 40) * 0.35 : 0);
+    [[hR, pR, fR, dR, F.wR, F.aR], [hV, pV, fV, dV, F.wV, F.aV]].forEach(function (z) {
+      var w = Math.max(0, z[4] * lat * (F.choque ? 1.6 : 1));
+      z[0].setAttribute('d', z[3]); z[1].setAttribute('d', z[3]); z[2].setAttribute('d', z[3]);
+      z[1].setAttribute('stroke-width', w.toFixed(2)); z[1].setAttribute('stroke-opacity', z[5].toFixed(3));
+      z[0].setAttribute('stroke-width', (w * 3.2 + 3).toFixed(2)); z[0].setAttribute('stroke-opacity', (z[5] * .2).toFixed(3));
+      z[2].setAttribute('stroke-width', (z[4] * 0.45).toFixed(2)); z[2].style.opacity = z[5];
+    });
+    var rH = (F.neg && F.pos ? 10 : (F.neg || F.pos) ? 6 : 0) + Math.sin(t * 2.6) * 1.5 + (F.choque ? 42 + Math.sin(t * 30) * 9 : 0);
+    haz.setAttribute('cx', x); haz.setAttribute('cy', y + osc); haz.setAttribute('r', Math.max(0, rH).toFixed(1));
+    if (F.choque && Math.random() < 0.35) chispa(x, y + osc);
+    if (F.golpe) { F.golpe = 0; var o = document.createElement('div'); o.className = 'onda'; o.style.left = x + 'px'; o.style.top = y + 'px'; document.body.appendChild(o);
+      o.animate([{ transform: 'scale(.2)', opacity: 1 }, { transform: 'scale(7)', opacity: 0 }], { duration: 900, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = function () { o.remove(); };
+      for (var k = 0; k < 24; k++) chispa(x, y); }
+    requestAnimationFrame(dibuja);
+  }
+  function chispa(x, y) {
+    var c = document.createElement('div'), a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 90;
+    c.className = 'chispa'; c.style.left = x + 'px'; c.style.top = y + 'px'; document.body.appendChild(c);
+    c.animate([{ transform: 'translate(-50%,-50%)', opacity: 1 }, { transform: 'translate(' + (Math.cos(a) * d - 2) + 'px,' + (Math.sin(a) * d - 2) + 'px) scale(.2)', opacity: 0 }],
+      { duration: 450 + Math.random() * 400, easing: 'ease-out' }).onfinish = function () { c.remove(); };
+  }
+  function marca(v, on) {
+    var b = banda(v), mas = esMas(v);
+    PELS.forEach(function (p) { var o = on && +p.dataset.b === b; p.classList.toggle('on', o); p.classList.toggle('mas', o && mas); });
+  }
+  var CT = null;
+  function cuenta(a, b, ms) { clearInterval(CT); var t0 = Date.now(); CT = setInterval(function () { var q = Math.min(1, (Date.now() - t0) / ms), e = q < .5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+    var v = a + (b - a) * e; num.textContent = fmt(v); marca(v, true); if (q >= 1) clearInterval(CT); }, 50); }
+  function pon(v) { ag.style.transition = 'none'; ag.style.top = yDe(v) + 'px'; void ag.offsetWidth; ag.style.transition = ''; }
+  /* la entrada: la línea donde la viste la última vez → las fuerzas se cargan → el haz la lleva a su sitio nuevo */
+  function entra() {
+    var desde = SIN ? 5 : (C.desde != null ? C.desde : BASAL);
+    pon(desde);
+    if (SIN) { lad.classList.add('sin'); ag.classList.add('duda'); num.textContent = '?'; $('pieEsc').innerHTML = 'Tu actitud: <b>sin marcar todavía</b>'; }
+    else { num.textContent = fmt(desde); marca(desde, true); ag.classList.add('bote');
+      $('base').style.top = yDe(BASAL) + 'px'; $('baseT').textContent = C.definitiva ? 'punto de partida' : 'punto de partida · ' + C.t.replace('2T', '1T').replace('3T', '2T'); $('base').style.opacity = 1; }
+    var i = 0;
+    var paso = setInterval(function () {
+      if (i < cards.length) { cards[i].classList.add('ve'); var x = C.f[i]; if (x[1] < 0) F.neg -= x[1]; else if (x[1] > 0) F.pos = Math.min(2, F.pos + x[1]); i++; return; }
+      clearInterval(paso);
+      if (!SIN) {
+        ag.classList.remove('bote'); F.choque = 1; F.golpe = 1; setTimeout(function () { F.choque = 0; }, 3300);
+        ag.style.top = yDe(FIN) + 'px'; cuenta(desde, FIN, 3200);
+        setTimeout(function () { $('pieEsc').innerHTML = 'Ahora mismo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>'; }, 3300);
+      }
+      bal.classList.add('ve'); var esc4 = 50 / 4;   /* media barra = 4 puntos */
+      $('balR').style.width = Math.min(50, NEG * esc4) + '%'; $('balV').style.width = Math.min(50, POS * esc4) + '%'; $('balM').style.left = Math.max(2, Math.min(98, 50 + BAL * esc4)) + '%';
+      sugs.forEach(function (s, k) { setTimeout(function () { s.classList.add('ve'); }, (SIN ? 400 : 3600) + k * 450); });
+    }, 420);
+  }
+  window.addEventListener('resize', function () { pon(SIN ? 5 : FIN); if (!SIN) $('base').style.top = yDe(BASAL) + 'px'; });
+  requestAnimationFrame(dibuja);
+  setTimeout(entra, 700);
+  }
+  /* (12-nov-2026, Iago) ventanita al pulsar un área: Entonación (Entonación at home · Intervalia), Dictado (Dictado · PreDict),
+     Teoría (lo rojo ×2 y lo naranja ×1,5 del mapa, cada uno directo; y el portal de teoría para todo lo demás, ×1) */
+  function abrePop(a) {
+    var pop = document.getElementById('pop'), ops = a[4] || [];
+    if (ops.length === 1 && a[5] !== 'teoria') { try { top.location.href = ops[0][1]; } catch (e) { location.href = ops[0][1]; } return; }
+    pop.style.setProperty('--pc', a[2]); document.getElementById('popT').textContent = a[0] + ' · ' + a[1];
+    document.getElementById('popS').textContent = a[5] === 'teoria' ? 'Elige qué practicar: lo que peor te ha salido vale más.' : 'Elige la aplicación:';
+    document.getElementById('popL').innerHTML = ops.map(function (o) { var m = o[3] != null ? o[3] : null, oc = m === 2 ? '#ef4444' : m === 1.5 ? '#f59e0b' : a[2];
+      return '<a href="' + o[1] + '" target="_top" style="--oc:' + oc + '"><span><b>' + esc(o[0]) + '</b><small>' + esc(o[2] || '') + '</small></span>' + (m != null ? '<em>×' + String(m).replace('.', ',') + '</em>' : '<em>↗</em>') + '</a>'; }).join('');
+    pop.hidden = false;
+  }
+  document.getElementById('popX').onclick = function () { document.getElementById('pop').hidden = true; };
+  document.getElementById('pop').addEventListener('click', function (e) { if (e.target === this) this.hidden = true; });
+  if (!REAL) arranca(CASOS[new URLSearchParams(location.search).get('caso') || 'gp1'] || CASOS.gp1);
+  else {
+    document.body.classList.add('real');
+    var avisa = function (m) { try { parent.postMessage(m, '*'); } catch (e) {} };
+    document.getElementById('volver').onclick = function () { avisa({ tipo: 'actitud-cerrar' }); };
+    document.getElementById('bVid').onclick = function () { avisa({ tipo: 'actitud-video' }); };
+    document.getElementById('bMapa').onclick = function () { avisa({ tipo: 'actitud-mapa' }); };
+    var hecho = false;
+    addEventListener('message', function (e) { var m = e.data || {}; if (m.tipo !== 'actitud-datos' || hecho) return; hecho = true;
+      if (m.cuenta) window.__VISOR = { id: m.cuenta };   /* para que los enlaces del mapa lleven la cuenta (#c=) */
+      var va = function () { arranca(construye(m)); }; if (window.LMMapa) va(); else { var sc = document.createElement('script'); sc.src = '../../mapa.js?v=2026-10-21a'; sc.onload = va; sc.onerror = va; document.head.appendChild(sc); } });
+    avisa({ tipo: 'actitud-listo' });
+  }
+})();
+</script>
+</body></html>
