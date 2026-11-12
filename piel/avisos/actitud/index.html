@@ -321,12 +321,16 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   else { document.documentElement.classList.add('mp4', 'cargando');
     /* se descarga entero (con su barra) y luego ya no se para; si falla, se vuelve a la animación de siempre */
     (async function () {
-      var url = 'actitud-' + G + '-' + VER + '.mp4?v=2026-11-12a';
+      /* el MP4 va en trozos (actitud-…mp4.1, .2…) que dice actitud-…mp4.json; se juntan aquí */
+      var base = 'actitud-' + G + '-' + VER + '.mp4';
       try {
-        var r = await fetch(url); if (!r.ok || !r.body) throw new Error('http ' + r.status);
-        var tot = +r.headers.get('Content-Length') || 0, rec = 0, rd = r.body.getReader(), trozos = [];
-        for (;;) { var x = await rd.read(); if (x.done) break; trozos.push(x.value); rec += x.value.length;
-          if (tot) document.getElementById('cargaB').style.width = (100 * rec / tot).toFixed(1) + '%'; }
+        var rm = await fetch(base + '.json?nc=' + Date.now()); if (!rm.ok) throw new Error('sin vídeo');
+        var man = await rm.json(), tot = man.bytes || 0, rec = 0, trozos = [];
+        for (var k = 1; k <= man.partes; k++) {
+          var r = await fetch(base + '.' + k + '?v=' + man.v); if (!r.ok || !r.body) throw new Error('http ' + r.status);
+          var rd = r.body.getReader();
+          for (;;) { var x = await rd.read(); if (x.done) break; trozos.push(x.value); rec += x.value.length;
+            if (tot) document.getElementById('cargaB').style.width = (100 * rec / tot).toFixed(1) + '%'; } }
         VM.src = URL.createObjectURL(new Blob(trozos, { type: 'video/mp4' }));
         document.getElementById('cargaB').style.width = '100%'; document.documentElement.classList.remove('cargando'); if (Q.get('auto')) VM.play().catch(function () {});
         VM.addEventListener('ended', function () { var T = document.getElementById('tit'); T.classList.add('ve', 'final'); });
