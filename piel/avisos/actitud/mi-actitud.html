@@ -68,13 +68,34 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
 .base{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed rgba(255,255,255,.55);z-index:4;pointer-events:none;opacity:0;transition:opacity .4s}
 .base span{position:absolute;left:44%;bottom:3px;font:700 clamp(9px,.8vw,13px)/1 var(--f);color:rgba(255,255,255,.8);white-space:nowrap}
 .pie-esc{margin-top:1vh;text-align:left;padding-left:1vw;font:600 clamp(11px,.95vw,16px)/1.3 var(--f);color:#e4e4e7}.pie-esc b{color:var(--oro)}
+.bal{position:relative;z-index:9;background:rgba(13,17,28,.97)!important;margin-top:.8vh;display:grid;grid-template-columns:auto 1fr;gap:.2vh .9vw;align-items:center;padding:.8vh .9vw;border-radius:12px;background:var(--card);border:1.5px solid rgba(255,255,255,.22);opacity:0;transition:opacity .6s}
+.bal.ve{opacity:1}
+.bal b{grid-row:span 2;font:900 clamp(18px,2vw,34px)/1 var(--f);font-variant-numeric:tabular-nums}
+.bal span{font:800 clamp(10px,.8vw,13px)/1.2 var(--f);letter-spacing:.12em;text-transform:uppercase;color:#d4d4d8}
+.bal small{font:500 clamp(10px,.78vw,13px)/1.3 var(--f);color:#a1a1aa}
+.cont{padding:.9vh .8vw;border-radius:12px;border:1.5px solid rgba(34,197,94,.5);background:rgba(34,197,94,.06);transition:box-shadow .5s}
+.cont-t{display:flex;justify-content:space-between;align-items:baseline;gap:.6vw;font:700 clamp(10px,.8vw,13px)/1.2 var(--f);color:#d4d4d8}
+.cont-t b{font:900 clamp(13px,1.15vw,20px)/1 var(--f);color:#4ade80;font-variant-numeric:tabular-nums}
+.cont-b{margin-top:.7vh;height:clamp(8px,.8vw,14px);border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
+.cont-b::after{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1.5px dashed rgba(255,255,255,.35)}
+.cont-b i{display:block;height:100%;width:0;background:#22c55e;border-radius:6px;transition:width 1.6s cubic-bezier(.4,0,.2,1)}
+.cont small{display:block;margin-top:.5vh;font:500 clamp(9px,.72vw,12px)/1.3 var(--f);color:#a1a1aa}
+.cont.lleno{border-color:#facc15}.cont.lleno .cont-b i{background:#facc15}.cont.lleno small{color:#fde68a}
+body.f-barra .cont,body.f-sug .sug,body.f-aguja .aguja em{box-shadow:0 0 0 3px #facc15,0 0 36px rgba(250,204,21,.6)}
+body.f-sug .sug{border-color:#facc15}
 /* sugerencias */
-.sug{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:1.3vh 1.2vw;display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:1vw;align-items:stretch}
+.sug{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:1.3vh 1.2vw;display:grid;grid-template-columns:auto 1fr 1fr 1fr 1.45fr;gap:.8vw;align-items:stretch}
 .sug h2{margin:0;align-self:center;font:900 clamp(11px,.95vw,16px)/1.2 var(--f);letter-spacing:.14em;text-transform:uppercase;color:var(--oro);writing-mode:horizontal-tb;max-width:8vw}
 .sug div{display:grid;grid-template-columns:auto 1fr;gap:.6vw;align-items:center;padding:.9vh .9vw;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
   font:500 clamp(11px,.95vw,16px)/1.35 var(--f);color:#e4e4e7;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
 .sug div.ve{opacity:1;transform:none}
 .sug div b{color:#fff}.sug div span:first-child{font-size:1.5em}
+.sug div.areas{display:flex;flex-direction:column;align-items:stretch;gap:.6vh;border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.07)}
+.sug div.areas>b{font:800 clamp(10px,.85vw,14px)/1.2 var(--f);letter-spacing:.06em;color:#86efac;text-transform:uppercase}
+.sug .chips{display:flex;gap:.4vw;flex-wrap:wrap;justify-content:flex-start;align-items:center}
+.sug .chips i{flex:0 0 auto;display:inline-block;font-style:normal;padding:.35vh .5vw;border-radius:7px;border:1.5px solid var(--c);color:var(--c);font:800 clamp(10px,.8vw,13px)/1.2 var(--f);background:color-mix(in srgb,var(--c) 12%,transparent)}
+.sug .chips i.top{background:var(--c);color:#111}
+.sug small{font:500 clamp(9px,.7vw,12px)/1.3 var(--f);color:#a1a1aa}
 #fuerzas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:8;overflow:visible}
 #fuerzas path{fill:none;stroke-linecap:round;stroke-linejoin:round}
 #fuerzas .halo{stroke-opacity:.2}
@@ -88,8 +109,8 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
 <div class="aviso" id="aviso"></div>
 <main>
   <section class="col contra" id="colC"><h2>Resta</h2><div id="contra" class="lista"></div><div class="neuw"><h2>Neutro · no resta</h2><div id="neuC" class="lista n"></div></div></section>
-  <section class="esc"><h2>Actitud</h2><div class="lad" id="lad"><div class="aguja" id="aguja"><i></i><em id="num"></em></div><div class="base" id="base"><span id="baseT"></span></div></div><div class="pie-esc" id="pieEsc"></div></section>
-  <section class="col favor" id="colF"><h2>Suma</h2><div class="tope">Como mucho, un escalón (+2)</div><div id="favor" class="lista"></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
+  <section class="esc"><h2>Actitud</h2><div class="lad" id="lad"><div class="aguja" id="aguja"><i></i><em id="num"></em></div><div class="base" id="base"><span id="baseT"></span></div></div><div class="pie-esc" id="pieEsc"></div><div class="bal" id="bal"></div></section>
+  <section class="col favor" id="colF"><h2>Suma</h2><div class="tope">Como mucho, un escalón (+2)</div><div class="cont" id="cont"><div class="cont-t"><span>Lo que llevas sumado este trimestre</span><b id="contN"></b></div><div class="cont-b"><i id="contI"></i></div><small id="contM"></small></div><div id="favor" class="lista"></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
 </main>
 <div class="sug" id="sug"><h2>Para mejorar</h2></div>
 <svg id="fuerzas" aria-hidden="true"><defs>
@@ -118,8 +139,9 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
         ['f', 0, 'Atonalidad, capítulo 2', 'a mayores, en casa · 25 min', null, { tex: 'ato', v: '+' }],
         ['f', 1, '1 h 10 min extra', 'Por tu cuenta, en apps y portales'] ],
       sug: [['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>: así te pones al día y deja de restar.'],
-            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b>: la falta queda justificada.'],
-            ['🎯', 'Tu punto flojo es <b>Entonación</b>: los minutos que practiques ahí valen el doble.']] },
+            ['✉️', 'Faltaste el lunes: tu familia tiene <b>7 días</b> para justificarlo por <b>CentrosNET</b>.'],
+            ['⏰', 'Intenta <b>llegar puntual</b> a partir de ahora.']],
+      areas: [['Entonación', '×2', '#3b82f6'], ['Dictado', '×1,5', '#f97316'], ['Ritmo', '×1', '#22c55e'], ['Teoría', '×1', '#ec4899']] },
     gp2: { grupo: '2.º GP', t: '2T', base: 7, desde: 6.5, f: [
         ['c', -1, 'Atención mejorable', 'La que marcó Iago en el 1.er trimestre', '1T'],
         ['c', -0.5, 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS(X('roja', '19/01'))],
@@ -130,9 +152,10 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
         ['f', 1, '1 h 10 min extra', 'Regular y en tu punto flojo'],
         ['nf', 0, 'Buena puntualidad', 'es lo esperable', '1T'],
         ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
-      sug: [['🎯', 'Tu punto flojo es <b>Entonación</b>: los minutos que practiques ahí valen el doble.'],
-            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b>: la falta queda justificada.'],
-            ['👂', 'La atención la vuelve a valorar Iago la <b>semana de exámenes</b>: aún puedes cambiarla.']] },
+      sug: [['🎯', 'La atención la vuelve a valorar Iago la <b>semana de exámenes</b>: aún puedes cambiarla.'],
+            ['✉️', 'Si faltas, tu familia tiene <b>7 días</b> para justificarlo por <b>CentrosNET</b>.'],
+            ['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>.']],
+      areas: [['Entonación', '×2', '#3b82f6'], ['Teoría', '×1,5', '#ec4899'], ['Dictado', '×1', '#f97316'], ['Ritmo', '×1', '#22c55e']] },
     ge1: { grupo: '4.º GE', t: '1T', base: null, desde: null, f: [
         ['c', -0.5, 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS(X('roja', '23/10'))],
         ['c', -1, '2 quiz sin terminar', 'Cartas 2.1 y 2.2: medio punto cada uno'],
@@ -140,8 +163,9 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
         ['nc', 0, 'Ficha en el periodo extra', 'en el 1.er trimestre no cuenta'],
         ['f', 2, '2 h extra, bien elegidas', 'Teoría era tu punto flojo: ahí valen doble'] ],
       sug: [['⭐', 'Termina el <b>quiz de las cartas 2.1 y 2.2</b>: cada uno resta medio punto.'],
-            ['✉️', 'Si vas a faltar, que tu familia avise por <b>CentrosNET</b>: la falta queda justificada.'],
-            ['🎯', 'Tu punto flojo es <b>Ritmo</b>: los minutos en Ritmo at home valen el doble.']] },
+            ['✉️', 'Faltaste el lunes: tu familia tiene <b>7 días</b> para justificarlo por <b>CentrosNET</b>.'],
+            ['⏰', 'Intenta <b>llegar puntual</b> a partir de ahora.']],
+      areas: [['Ritmo', '×2', '#22c55e'], ['Teoría', '×1,5', '#ec4899'], ['Entonación', '×1', '#3b82f6'], ['Dictado', '×1', '#f97316']] },
     ge2: { grupo: '4.º GE', t: '2T', base: 6, desde: 5, f: [
         ['c', -1, 'Puntualidad mejorable', 'La que marcó Iago en el 1.er trimestre', '1T'],
         ['c', -0.5, 'Quiz sin terminar', 'Carta 3.2'],
@@ -149,9 +173,10 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
         ['nc', 0, '2 fichas en el periodo extra', 'se perdonan 2 por trimestre'],
         ['f', 2, '2 h 10 min extra', 'Regular y en tu punto flojo'],
         ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
-      sug: [['⏰', 'Llegar a tiempo cuenta: la puntualidad la vuelve a valorar Iago la <b>semana de exámenes</b>.'],
+      sug: [['⏰', 'La puntualidad la vuelve a valorar Iago la <b>semana de exámenes</b>: llega a tiempo.'],
             ['⭐', 'Termina el <b>quiz de la carta 3.2</b>: resta medio punto.'],
-            ['🎯', 'Sigue así con <b>Teoría at home</b>: es tu punto flojo y ahí los minutos valen doble.']] }
+            ['✉️', 'Si faltas, tu familia tiene <b>7 días</b> para justificarlo por <b>CentrosNET</b>.']],
+      areas: [['Teoría', '×2', '#ec4899'], ['Ritmo', '×1,5', '#22c55e'], ['Dictado', '×1', '#f97316'], ['Entonación', '×1', '#3b82f6']] }
   };
   var C = CASOS[new URLSearchParams(location.search).get('caso') || 'gp1'] || CASOS.gp1;
   var $ = function (id) { return document.getElementById(id); };
@@ -182,10 +207,23 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
   });
   ['neuF', 'neuC', 'favor', 'contra'].forEach(function (id) { if (!$(id).children.length) $(id).innerHTML = '<div class="vacio">' + (id === 'neuF' ? 'Nada por ahora.' : 'Nada por ahora.') + '</div>'; });
   var sugs = C.sug.map(function (s) { var d = document.createElement('div'); d.innerHTML = '<span>' + s[0] + '</span><span>' + s[1] + '</span>'; $('sug').appendChild(d); return d; });
+  /* (12-nov, Iago) para sumar: cuánto vale cada área (la más floja, más) · Entonación = Entonación + Intervalia (con micrófono) · Dictado = Dictado + Predict */
+  if (C.areas) { var dA = document.createElement('div'); dA.className = 'areas';
+    dA.innerHTML = '<b>Para sumar, donde más puntúas</b><span class="chips">' + C.areas.map(function (a, k) { return '<i style="--c:' + a[2] + '"' + (k === 0 ? ' class="top"' : '') + '>' + a[0] + ' ' + a[1] + '</i>'; }).join('') + '</span><small>Entonación + Intervalia, con micrófono · Dictado + Predict</small>';
+    $('sug').appendChild(dA); sugs.push(dA); }
   var NEG = C.f.reduce(function (a, x) { return a + (x[1] < 0 ? -x[1] : 0); }, 0);
   var POS = Math.min(2, C.f.reduce(function (a, x) { return a + (x[1] > 0 ? x[1] : 0); }, 0));
   var SIN = C.base == null;
   var FIN = SIN ? 5 : Math.max(0, Math.min(10, C.base - NEG + POS));
+  /* (12-nov, Iago) el balance de fuerzas: lo que se sumará o restará a la nota que él ponga; cerca de 0 ya es un éxito */
+  /* (12-nov, Iago) la barra de lo que llevas sumado: se llena con lo extra hasta el tope (+2) y avisa al llegar */
+  $('contN').textContent = '+' + fmt(POS) + ' de +2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + fmt(2 - POS) + ' para el tope del trimestre.';
+  if (POS >= 2) $('cont').classList.add('lleno');
+  setTimeout(function () { $('contI').style.width = (Math.min(2, POS) / 2 * 100) + '%'; }, 900);
+  addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); }); });
+  var BAL = POS - NEG, bal = $('bal');
+  bal.innerHTML = '<b style="color:' + (BAL > 0.01 ? '#4ade80' : BAL < -1.5 ? '#f87171' : BAL < -0.01 ? '#fbbf24' : '#e4e4e7') + '">' + (BAL > 0 ? '+' : BAL < 0 ? '−' : '') + fmt(Math.abs(BAL)) + '</b>' +
+    '<span>Tu balance de fuerzas</span><small>Se aplica a la nota que pone Iago. En 0 o cerca, ya es un éxito; pasar de 0 cuesta. Lo importante: que no sea muy negativo.</small>';
   /* líneas de fuerza */
   var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0, choque: 0 };
   var pR = $('pR'), pV = $('pV'), fR = $('fR'), fV = $('fV'), haz = $('haz');
@@ -245,6 +283,7 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
         ag.style.top = yDe(FIN) + 'px'; cuenta(desde, FIN, 3200);
         setTimeout(function () { $('pieEsc').innerHTML = 'Ahora mismo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>'; }, 3300);
       }
+      bal.classList.add('ve');
       sugs.forEach(function (s, k) { setTimeout(function () { s.classList.add('ve'); }, (SIN ? 400 : 3600) + k * 450); });
     }, 420);
   }

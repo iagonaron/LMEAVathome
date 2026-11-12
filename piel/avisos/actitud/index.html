@@ -137,6 +137,21 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 #imp ul{transition:opacity .6s;list-style:none;margin:0;padding:36px 34px;border:2px solid rgba(250,204,21,.45);border-radius:22px;background:rgba(255,255,255,.04);display:grid;gap:28px}
 #imp li{font:600 32px/1.3 var(--f);display:grid;grid-template-columns:60px 1fr;gap:12px;opacity:0;transform:translateX(20px);transition:opacity .6s,transform .6s}
 #imp li.ve{opacity:1;transform:none}#imp li b{color:var(--oro)}
+/* el mapa de teoría y las áreas (v4, bloque 9) */
+#mapa{z-index:12;display:grid;grid-template-columns:1.25fr 1fr;gap:50px;align-items:center;padding:60px 80px;background:rgba(6,8,13,.985)}
+#mapa h4{margin:0 0 18px;font:900 40px/1 var(--f)}#mapa h4 span{color:var(--oro)}
+#mapa .caja{background:rgba(13,15,22,.95);border:2px solid #2a2a31;border-radius:22px;padding:28px 30px}
+#mapa svg{width:100%;height:auto;display:block}
+#mapa .luz{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.3);transition:opacity .4s,transform .5s cubic-bezier(.3,1.7,.5,1)}
+#mapa .luz.ve{opacity:1;transform:none}
+#mapa .ar{display:grid;grid-template-columns:200px 1fr 70px 96px;gap:14px;align-items:center;margin:16px 0;font:800 26px/1 var(--f);opacity:0;transform:translateX(20px);transition:opacity .5s,transform .5s}
+#mapa .ar.ve{opacity:1;transform:none}
+#mapa .ar i{display:block;height:18px;border-radius:5px;background:var(--c)}
+#mapa .ar b{font:900 26px/1 var(--f);text-align:right;font-variant-numeric:tabular-nums}
+#mapa .ar em{font-style:normal;text-align:center;padding:7px 0;border-radius:9px;border:2px solid var(--m,#52525b);color:var(--m,#a1a1aa);font:900 24px/1 var(--f)}
+#mapa .ley{display:flex;gap:16px;margin-top:22px;font:700 22px/1.2 var(--f);color:#d4d4d8;flex-wrap:wrap}
+#mapa .ley span{display:inline-flex;align-items:center;gap:8px}#mapa .ley span::before{content:"";width:18px;height:18px;border-radius:50%;background:var(--c)}
+#mapa small{display:block;margin-top:14px;font:600 20px/1.35 var(--f);color:#a1a1aa}
 /* cierre */
 #fin{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;background:rgba(8,9,13,.92);text-align:center}
 #fin div{opacity:0;transform:translateY(16px);transition:opacity .7s,transform .7s}
@@ -186,6 +201,14 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   <div class="capa" id="mr"><img id="mrImg" alt=""><div class="anillo"></div>
     <svg class="cursor" viewBox="0 0 24 24"><path d="M4 2l15 11-6.5 1.2L16 21l-3 1.4-3.4-6.9L4 20z" fill="#fff" stroke="#000" stroke-width="1.3"/></svg>
     <iframe id="mrIfr" title="Mi actitud" tabindex="-1"></iframe></div>
+  <div class="capa" id="mapa"><div class="caja"><h4>Mi mapa <span>de teoría</span></h4><svg id="mapaSvg" viewBox="0 -40 900 640"></svg>
+      <div class="ley"><span style="--c:#ef4444">Rojo: ×2</span><span style="--c:#f97316">Naranja: ×1,5</span><span style="--c:#eab308">Amarillo</span><span style="--c:#22c55e">Verde</span></div></div>
+    <div class="caja"><h4>Mis <span>resultados</span></h4>
+      <div class="ar" id="ar1" style="--c:#22c55e"><span>Ritmo</span><i style="width:78%"></i><b>7,8</b><em>×1</em></div>
+      <div class="ar" id="ar2" style="--c:#3b82f6"><span>Entonación</span><i style="width:53%"></i><b>5,3</b><em style="--m:#f97316">×1,5</em></div>
+      <div class="ar" id="ar3" style="--c:#ec4899"><span>Teoría</span><i style="width:69%"></i><b>6,9</b><em>×1</em></div>
+      <div class="ar" id="ar4" style="--c:#f97316"><span>Dictado</span><i style="width:42%"></i><b>4,2</b><em style="--m:#ef4444">×2</em></div>
+      <small>Si te ha llegado el aviso de «flojo» en un área, ahí vale ×2. Si no, la más baja, ×1,5.</small></div></div>
   <div class="capa" id="imp"><div><h3>La actitud es el <span>5&nbsp;%</span> de tu nota</h3>
       <p id="i1">Vale hasta <b>medio punto</b> del trimestre.</p>
       <p id="i2">En el boletín, la nota es un número entero:</p>
@@ -246,26 +269,37 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   var R = 'c', N = 'nc', S = 'f', NS = 'nf';
   var TARJ = [
     ['g1', N, 'Lo que no llega al límite', 'aún no resta', '0', ['neutras', 0.4], ['puntualidad', 0]],
-    ['esp', NS, 'Buena puntualidad, atención y comportamiento', 'es lo esperable', '0', ['neutras', 1.6]],
-    ['punt', R, 'Puntualidad', 'Mejorable · insuficiente', '−1<i>o −2</i>', ['puntualidad', 0.3]],
-    ['aten', R, 'Atención', 'Mejorable · insuficiente', '−1<i>o −2</i>', ['atencion', 0.2]],
-    ['comp', R, 'Comportamiento', 'Mejorable · insuficiente', '−1,5<i>o −3</i>', ['comportamiento', 0]],
-    ['fneu', N, 'Faltas que no restan', 'la 1.ª sin justificar · las justificadas<span class="xs">' + x('roja', '1.ª', 'faltas', 0.3) + x('azul', 'justif.', 'faltas4', 3.6) + x('azul', 'justif.', 'faltas4', 4.0) + '</span>', '0', ['faltas', 0.1]],
-    ['falt', R, 'Faltas sin justificar', 'la 2.ª, medio · desde la 3.ª, una entera<span class="xs">' + x('roja', '2.ª', 'faltas2', 0.1) + x('roja', '3.ª', 'faltas3', 0.5) + x('roja', '4.ª', 'faltas3', 1.0) + '</span>', '−0,5<i>luego −1</i>', ['faltas2', 0]] ];
+    ['g2', NS, 'Lo esperable', 'no suma', '0', ['neutras', 0.9], ['puntualidad', 0]],
+    ['punt', R, 'Puntualidad', 'Mejorable · insuficiente', '−1<i>o −2</i>', ['puntualidad', 1.6]],
+    ['aten', R, 'Atención', 'Mejorable · insuficiente', '−1<i>o −2</i>', ['puntualidad', 2.0]],
+    ['comp', R, 'Comportamiento', 'Mejorable · insuficiente', '−1,5<i>o −3</i>', ['puntualidad', 2.4]],
+    ['fneu', N, 'Faltas que no restan', 'la 1.ª sin justificar · las justificadas<span class="xs">' + x('roja', '1.ª', 'faltas', 0.2) + x('azul', 'justif.', 'faltas4', 2.6) + x('azul', 'justif.', 'faltas4', 3.0) + '</span>', '0', ['faltas', 0]],
+    ['falt', R, 'Faltas sin justificar', 'la 2.ª, medio · desde la 3.ª, una entera<span class="xs">' + x('roja', '2.ª', 'faltas2', 0.1) + x('roja', '3.ª', 'faltas3', 0.4) + x('roja', '4.ª', 'faltas3', 0.9) + '</span>', '−0,5<i>luego −1</i>', ['faltas2', 0]] ];
   if (G === 'gp') TARJ.push(
-    ['port', R, 'Portal sin ver', 'de una clase a la que faltaste<br><span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '−0,5', ['portal', 6.0], null, 'tex rojo', tex('tex-magnetofono-2.webp', '16,8,6', 'rgba(255,90,70,.75)', '#ffe9c7', '50% 20%')],
-    ['aldia', N, 'Te pusiste al día', 'lo viste en casa<br><span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '0', ['aldia3', 0], null, 'tex gris', tex('tex-magnetofono-2-gris.webp', '39,39,42', '#a1a1aa', '#e4e4e7', '50% 20%')]);
-  else TARJ.push(['quiz', R, 'Quiz sin hacer', 'medio punto cada uno', '−0,5', ['quiz', 1.4]]);
-  TARJ.push(['fx', R, 'Fichas en periodo extra', 'desde la 3.ª del trimestre', '−0,25<i>cada una</i>', [C.fichascurso ? 'fichascurso' : 'fichasregla', C.fichascurso ? 4 : 13.5]],
-    ['fx0', N, '1.ª y 2.ª ficha en periodo extra', 'se perdonan cada trimestre', '0', [C.fichascurso ? 'fichascurso' : 'fichasregla', C.fichascurso ? 3 : 12.8]]);
-  if (VER === 'hoy') TARJ.push(['fxh', N, 'Fichas extra hasta el 13 de noviembre', 'este trimestre no cuentan', '0', ['fichasgratis', 1], ['fichasregla', 12.6]]);
+    ['port', R, 'Portal sin ver', 'de una clase a la que faltaste<br><span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '−0,5', ['portal', 3.0], null, 'tex rojo', tex('tex-magnetofono-2.webp', '16,8,6', 'rgba(255,90,70,.75)', '#ffe9c7', '50% 20%')],
+    ['aldia', N, 'Te pusiste al día', 'lo viste en casa<br><span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '0', ['aldia', 0.3], null, 'tex gris', tex('tex-magnetofono-2-gris.webp', '39,39,42', '#a1a1aa', '#e4e4e7', '50% 20%')]);
+  else TARJ.push(['quiz', R, 'Quiz sin hacer', 'medio punto cada uno', '−0,5', ['quiz', 1.0]], ['qex', N, 'Quiz exento', 'tu familia lo pidió por CentrosNET', '0', ['quizexento', 3.5]]);
+  TARJ.push(['fx0', N, '1.ª y 2.ª ficha en periodo extra', 'se perdonan cada trimestre', '0', ['fichasregla', 0.4]],
+    ['fx', R, 'Fichas en periodo extra', 'desde la 3.ª del trimestre', '−0,25<i>cada una</i>', ['fichasregla', 2.2]]);
+  if (VER === 'hoy') TARJ.push(['fxh', N, 'Fichas extra hasta el 13 de noviembre', 'este trimestre no cuentan', '0', ['fichasgratis', 0.5]]);
+  TARJ.push(['esp', NS, 'Puntualidad, atención y buen comportamiento', 'es lo esperable', '0', ['esperable', 0.3]]);
   if (G === 'gp') TARJ.push(
-    ['like', S, 'Un portal a mayores, en casa', 'por tu cuenta <span class="mg">👍 «Me gusta»</span><br><span class="pnom">ATONALIDAD · CAPÍTULO 2</span>', '+', ['like', 1.2], null, 'tex', tex('tex-atonalidad-2.webp', '7,5,12', 'rgba(255,61,166,.75)', '#ff3da6', '50% 60%')],
-    ['rep', S, 'Repasar y experimentar', 'lo de clase, otra vez y a tu manera<br><span class="pnom">BLUES · ACTO 3</span>', '+', ['repaso', 1.0], null, 'tex', tex('tex-blues-3.webp', '14,9,5', 'rgba(255,232,190,.6)', '#ffe3b0', '50% 46%')]);
-  else TARJ.push(['like', S, 'Trabajo a mayores', 'por tu cuenta, en las apps <span class="mg">👍 «Me gusta»</span>', '+', ['like', 1.2]],
-    ['rep', S, 'Repasar en casa', 'rehacer lo de clase, a tu ritmo', '+', ['repaso', 1.0]]);
-  TARJ.push(['flojo', S, 'En tu punto flojo, vale doble', '<span class="areas"><span style="--c:#22c55e">Ritmo</span><span style="--c:#3b82f6" class="flojo">Entonación</span><span style="--c:#ec4899">Teoría</span><span style="--c:#f97316">Dictado</span></span>', '×2', ['sistema', 3.0]],
-    ['reg', S, 'Regularidad, no atracones', 'Cada semana cuentan hasta 30 min<span class="barras"><i data-h="38"></i><i data-h="52"></i><i data-h="30"></i><i data-h="78" class="tope"></i><i data-h="44"></i><i data-h="52"></i><i data-h="20"></i><i data-h="48"></i></span>', '', ['regularidad', 0.8]]);
+    ['like', S, 'Un portal a mayores, en casa', 'por tu cuenta <span class="mg">👍 «Me gusta»</span><br><span class="pnom">ATONALIDAD · CAPÍTULO 2</span>', '+', ['suma', 1.0], null, 'tex', tex('tex-atonalidad-2.webp', '7,5,12', 'rgba(255,61,166,.75)', '#ff3da6', '50% 60%')],
+    ['rep', S, 'Repasar y experimentar', 'lo de clase, otra vez y a tu manera<br><span class="pnom">BLUES · ACTO 3</span>', '+', ['suma', 4.5], null, 'tex', tex('tex-blues-3.webp', '14,9,5', 'rgba(255,232,190,.6)', '#ffe3b0', '50% 46%')]);
+  else TARJ.push(['like', S, 'Trabajo a mayores', 'por tu cuenta, en las apps <span class="mg">👍 «Me gusta»</span>', '+', ['suma', 1.0]],
+    ['rep', S, 'Repasar en casa', 'rehacer lo de clase, a tu ritmo', '+', ['suma', 4.5]]);
+  TARJ.push(['reg', S, 'Regularidad, no atracones', 'Cada semana cuentan hasta 30 min<span class="barras"><i data-h="38"></i><i data-h="52"></i><i data-h="30"></i><i data-h="78" class="tope"></i><i data-h="44"></i><i data-h="52"></i><i data-h="20"></i><i data-h="48"></i></span>', '', ['regularidad', 0.3]],
+    ['flojo', S, 'En tu punto flojo, vale doble', '<span class="areas"><span style="--c:#22c55e">Ritmo</span><span style="--c:#3b82f6" class="flojo">Entonación</span><span style="--c:#ec4899">Teoría</span><span style="--c:#f97316">Dictado</span></span>', '×2', ['flojo', 0.4]],
+    ['horas', S, '1 hora: +1 · 2 horas: +2', 'en el trimestre · y no sube más', '+2<i>como mucho</i>', ['tope', 0.3]]);
+  /* el alumno de ejemplo (bloque 10): las tarjetas genéricas se van y entran las suyas */
+  var GEN = TARJ.length;
+  TARJ.push(['ePun', R, 'Puntualidad insuficiente', 'alumno de ejemplo', '−2', ['ejR', 1.0]],
+    ['eF1', N, '1.ª falta sin justificar', 'gratis<span class="xs">' + x('roja', '1.ª', 'ejR', 5.4) + '</span>', '0', ['ejR', 5.3]],
+    ['eF2', R, '2.ª falta sin justificar', 'medio punto<span class="xs">' + x('roja', '2.ª', 'ejR', 6.6) + '</span>', '−0,5', ['ejR', 6.5]]);
+  if (G === 'gp') TARJ.push(['ePor', R, 'Portal sin ver', '<span class="pnom">MAGNETÓFONO · BOBINA 2</span>', '−0,5', ['ejX', 0.2], null, 'tex rojo', tex('tex-magnetofono-2.webp', '16,8,6', 'rgba(255,90,70,.75)', '#ffe9c7', '50% 20%')]);
+  else TARJ.push(['eQui', R, 'Quiz sin hacer', 'medio punto', '−0,5', ['ejX', 0.2]]);
+  TARJ.push(['eSum', S, '1 hora a mayores', 'por tu cuenta', '+1', ['ejT', 2.4]]);
+  TARJ.forEach(function (x, i) { if (i < GEN && !x[6]) x[6] = ['ejemplo', 0]; });
   var COL = { c: '#ef4444', f: '#22c55e', nc: '#a1a1aa', nf: '#a1a1aa' }, LST = { c: 'contra', f: 'favor', nc: 'neuC', nf: 'neuF' };
   var XS = [];
   TARJ.forEach(function (x) {
@@ -275,29 +309,34 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     $(LST[x[1]]).appendChild(d); x.el = d; x.t = t0(x[5][0], x[5][1]); x.fin = x[6] ? t0(x[6][0], x[6][1]) : null; x.antes = false;
     [].forEach.call(d.querySelectorAll('.x'), function (e) { XS.push({ el: e, t: t0(e.dataset.c, +e.dataset.o) }); });
   });
-  /* las fichas: se colocan contando desde el final de la frase (la versión «curso» empieza distinto) */
-  var FR = C.fichascurso ? null : C.fichasregla;
-  TARJ.forEach(function (x) { if (!FR) return; if (x[0] === 'fx0') x.t = FR.t1 - 5.5; if (x[0] === 'fx') x.t = FR.t1 - 2.6; if (x[0] === 'fxh') x.fin = FR.t1 - 5.6; });
   var BARRAS = [].slice.call(document.querySelectorAll('.barras i'));
+  (function () { var sv = $('mapaSvg'), cx = 450, cy = 280, h = '';
+    var L = [['Intervalos', 120, 70, '#ef4444'], ['Acordes', 450, 40, '#f97316'], ['Tonalidades', 780, 70, '#22c55e'], ['Compases', 80, 280, '#eab308'],
+      ['Escalas', 820, 280, '#ef4444'], ['Cadencias', 120, 490, '#22c55e'], ['Grados', 450, 520, '#f97316'], ['Modos', 780, 490, '#52525b']];
+    L.forEach(function (l, i) { var x = l[1], y = l[2], d = 'M' + cx + ' ' + cy + ' H' + (x < cx ? cx - 110 : x > cx ? cx + 110 : cx) + (x === cx ? ' V' + y : ' V' + y + ' H' + x);
+      h += '<path d="' + d + '" fill="none" stroke="#3f3f46" stroke-width="4" stroke-linejoin="round"/>'; });
+    h += '<rect x="370" y="250" width="160" height="60" rx="12" fill="#18181b" stroke="#facc15" stroke-width="3"/><text x="450" y="290" text-anchor="middle" font-size="28" font-weight="900" fill="#fff" font-family="Inter,system-ui,sans-serif">Teoría</text>';
+    L.forEach(function (l, i) { h += '<g class="luz" data-i="' + i + '"><circle cx="' + l[1] + '" cy="' + l[2] + '" r="22" fill="' + l[3] + '" stroke="#0a0a0b" stroke-width="4"/>' +
+      '<text x="' + l[1] + '" y="' + (l[2] + (l[2] > cy ? 52 : -34)) + '" text-anchor="middle" font-size="24" font-weight="800" fill="#e4e4e7" font-family="Inter,system-ui,sans-serif">' + l[0] + '</text></g>'; });
+    sv.innerHTML = h; })();
+  var LUCES = [].slice.call(document.querySelectorAll('#mapa .luz'));
   /* palabras clave: [cue, desfase, texto] */
-  var CLAVES = [['intro', 0, ''], ['impresion', 0, 'Primera impresión'], ['detalles', 0, 'Sin los detalles'], ['profes', 0, 'Una valoración general'], ['interesante', 0, 'Pero…'],
-    ['dosfuerzas', 0, 'Dos fuerzas'], ['izq', 0, 'Lo que resta'], ['der', 0, 'Lo que suma'], ['neutras', 0, 'Lo neutro: ni resta ni suma'], ['puntualidad', 0, ''],
-    ['semanaexamen', 0, 'La semana de exámenes'], ['referencia', 3, 'En el 2.º trimestre: lo del 1.º, como referencia'], ['faltas0', 0, 'Faltas sin justificar'],
+  var CLAVES = [['intro', 0, ''], ['impresion', 0, 'Primera impresión'], ['escalera', 0, 'Cinco escalones'],
+    ['dosfuerzas', 0, 'Dos fuerzas'], ['izq', 0, 'Lo que resta'], ['der', 0, 'Lo que suma'], ['neutras', 0, 'Lo neutro: ni resta ni suma'], ['puntualidad', 0, 'Puntualidad · atención · comportamiento'],
+    ['semanaexamen', 0, 'Los valoro en la semana de exámenes'], ['faltas0', 0, 'Faltas sin justificar'],
     ['faltas', 0, 'La 1.ª, gratis'], ['faltas2', 0, 'La 2.ª, medio punto'], ['faltas3', 0, 'Desde la 3.ª, un punto'],
-    ['faltas4', 1.5, 'Aviso por CentrosNET = justificada'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia1', 0, 'Ponerte al día: neutro'],
-    ['quiz', 0, 'Quiz sin hacer'], ['fichas', 0, 'Fichas en periodo extra'], ['fichasregla', C.fichasregla ? C.fichasregla.t1 - C.fichasregla.t0 - 5.6 : 0, 'Hasta 2, no restan'], ['fichascurso', 2.5, 'Hasta 2, no restan'], ['suma', 0, 'Lo que suma'], ['like', 0, 'Trabajo a mayores'],
-    ['repaso', 0, 'Repasa y experimenta'], ['sistema', 0, 'Lo que más te cuesta, ×2'], ['regularidad', 0, 'Minutos y regularidad'], ['tope', 0, 'Como mucho…'],
-    ['compensar', 0, 'Para compensar'], ['choque', 0, ''], ['franja', 0, 'Tu nota de actitud'], ['misresultados', 0, '']];
+    ['faltas4', 0.8, 'Aviso por CentrosNET = justificada'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia', 0, 'Ponerte al día: neutro'],
+    ['quiz', 0, 'Quiz sin hacer: −0,5'], ['quizexento', 0, 'Exento si tu familia lo pide por CentrosNET'], ['puntos', 0, 'Cada escalón, dos puntos'], ['cuento', 0, 'Ya cuenta en la primera impresión'], ['fichas', 0, 'Fichas en periodo extra'], ['fichasregla', 0, '2 perdonadas · luego −0,25'], ['fichasgratis', 0, 'Hasta el 13 de noviembre, no cuentan'],
+    ['esperable', 0, 'Lo esperable: neutro'], ['suma', 0, 'Trabajo a mayores'], ['regularidad', 0, 'Hasta 30 min por semana'], ['flojo', 0, 'Lo que más te cuesta, ×2'], ['tope', 0, 'Como mucho, un escalón'],
+    ['ejemplo', 0, 'Un alumno de ejemplo'], ['ejR', 0, ''], ['chocan', 0, ''], ['franja', 0, 'Tu nota de actitud'], ['misresultados', 0, '']];
   CLAVES.forEach(function (k) { k.t = t0(k[0], k[1]); }); CLAVES = CLAVES.filter(function (k) { return k.t != null; }).sort(function (a, b) { return a.t - b.t; });
   /* máquina de escribir (lo que no dice la voz) */
-  var MAQ = [];
-  if (VER === 'curso' && !C.fichascurso) MAQ.push({ t: t0('fichas', 0.4), hasta: t0('fichasregla', 5), txt: 'Fichas en periodo extra: se perdonan 2 por trimestre. Desde la 3.ª, −0,25 cada una.' });
-  if (!C.tope || C.tope.t1 - C.tope.t0 < 4.6) MAQ.push({ t: t1('tope', 0.05), hasta: t1('compensar', 0.3), txt: 'Un escalón: +2 en tu nota de actitud, como mucho, aunque eches muchas horas.' });
+  var MAQ = [];   /* v4: el tope y las fichas ya los dice la voz */
   var teclas = new Audio('teclas.mp3'), ding = new Audio('ding.mp3'); teclas.volume = .35; ding.volume = .25; var ultTecla = 0, ultLen = 0;
   /* ---------- fuerzas ---------- */
   var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0 }, P = {};
   ['hR', 'pR', 'fR', 'hV', 'pV', 'fV', 'cR', 'cV', 'haz'].forEach(function (k) { P[k] = $(k); });
-  var BASE = 7, EJ = G === 'gp' ? { neg: 3, pos: 1 } : { neg: 2.5, pos: 1 }, FIN = BASE - EJ.neg + EJ.pos;
+  var BASE = 7, EJ = { neg: 3, pos: 1 }, FIN = BASE - EJ.neg + EJ.pos;
   var CH = C.choque || { t0: t0('franja', -5), t1: t0('franja', 0) }, CHL = CH.t1 - CH.t0;
   var IMP = CH.t0 + CHL * 0.36, LLEGA = IMP + 2.6;      // impacto · la línea llega a su sitio
   var geo = null;
@@ -364,25 +403,27 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     sty($('play'), 'display', (t < 0.05 && au.paused) ? '' : 'none');
     var mrA = t0('misresultados', -0.3), impA = t0('importa', -0.2), finA = t0('cierre', -0.2);
     cls($('main'), 've', t >= T - 0.4 && t < mrA);
-    sty($('fuerzas'), 'opacity', (t >= t0('dosfuerzas', 0.6) && t < mrA) ? '1' : '0');
+    sty($('fuerzas'), 'opacity', (t >= t0('dosfuerzas', 0.6) && t < mrA && !(C.mapa && entre(t, C.mapa.t0 - 0.2, C.mapa.t1 + 0.8))) ? '1' : '0');
     cls($('cinco0'), 've', entre(t, t0('intro', 0.3), t0('impresion', 0)));
     // la línea blanca: primera impresión → (choque) → final
     var conAg = t >= t0('impresion', 0.2);
     cls(ag, 've', conAg); cls(ag, 'bote', conAg && t < IMP);
     var v = t < IMP ? BASE : (t < LLEGA ? BASE + (FIN - BASE) * suave((t - IMP) / (LLEGA - IMP)) : FIN);
     yAg = yDe(v) + Math.sin(performance.now() / 1000 * 2.2) * 1.2; sty(ag, 'transform', 'translateY(' + yAg.toFixed(1) + 'px)');
-    txt($('num'), fmt(Math.round(v * 10) / 10)); marca(v, conAg);
+    txt($('num'), fmt(Math.round(v * 10) / 10));
+    var E = C.escalones, ilu = E && t >= E.t0 - 0.1 && t < E.t1 + 0.6 ? Math.max(0, Math.min(4, Math.floor((t - E.t0 + 0.1) / (E.t1 - E.t0) * 5))) : -1;
+    if (ilu >= 0) PELS.forEach(function (p, k) { cls(p, 'on', k === ilu); cls(p, 'mas', false); }); else marca(v, conAg);
     sty($('base'), 'top', yDe(BASE) + 'px'); sty($('base'), 'opacity', t >= t0('dosfuerzas', 0) && t < mrA ? '1' : '0');
-    sty($('ejemplo'), 'opacity', t >= CH.t0 && t < mrA ? '1' : '0');
+    sty($('ejemplo'), 'opacity', t >= t0('ejemplo', 0.3) && t < mrA ? '1' : '0');
     htm($('ejemplo'), t >= LLEGA ? 'Alumno de ejemplo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>' : 'Alumno de ejemplo: resta ' + fmt(EJ.neg) + ' · suma ' + fmt(EJ.pos));
     // focos
     var esc = $('cols'), fo = '', dim = false, dimN = entre(t, t0('neutras', 0), t0('puntualidad', 0));
     if (entre(t, t0('impresion', 0), t0('dosfuerzas', 0))) { dim = true; fo = 'colA'; }
-    if (entre(t, t0('izq', 0), t0('der', 0)) || entre(t, t0('puntualidad', 0), t0('suma', 0))) { dim = true; fo = 'colC'; }
-    if (entre(t, t0('der', 0), t0('neutras', 0)) || entre(t, t0('suma', 0), CH.t0)) { dim = true; fo = 'colF'; }
+    if (entre(t, t0('izq', 0), t0('der', 0)) || entre(t, t0('puntualidad', 0), t0('esperable', 0))) { dim = true; fo = 'colC'; }
+    if (entre(t, t0('der', 0), t0('neutras', 0)) || entre(t, t0('esperable', 0), t0('ejemplo', 0))) { dim = true; fo = 'colF'; }
     cls(esc, 'dim', dim); cls(esc, 'dimN', dimN); cls(esc, 'choca', entre(t, CH.t0, CH.t1));
     ['colC', 'colA', 'colF'].forEach(function (id) { cls($(id), 'foco', fo === id); });
-    cls($('tope'), 'foco', entre(t, t0('tope', -0.2), t1('compensar', 0)));
+    cls($('tope'), 'foco', entre(t, t0('tope', -0.2), t1('tope', 0.5)));
     // fuerzas: crecen según entran tarjetas
     var neg = 0, pos = 0;
     TARJ.forEach(function (x) {
@@ -401,13 +442,13 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     F.neg = Math.max(base2, neg * 0.8); F.pos = Math.max(base2, Math.min(2, pos * 0.6));
     // etiquetas sobre puntualidad, atención y comportamiento
     ['punt', 'aten', 'comp'].forEach(function (k) { var g = $('tg-' + k); if (!g) return;
-      var a = t0('semanaexamen', 0.5), b = t0('referencia', 3); txt(g, t >= b ? '1T' : '📅 exámenes'); cls(g, 've', t >= a); });
+      var a = t0('semanaexamen', 0.3), b = t0('semanaexamen', 3.2); txt(g, t >= b ? '1T' : '📅 exámenes'); cls(g, 've', t >= a); });
     // barras de regularidad
-    var rv = t >= t0('regularidad', 1.2); BARRAS.forEach(function (i) { sty(i, 'transform', 'scaleY(' + (rv ? Math.min(+i.dataset.h, i.classList.contains('tope') ? 52 : 99) / 78 : 0) + ')'); });
+    var rv = t >= t0('regularidad', 0.8); BARRAS.forEach(function (i) { sty(i, 'transform', 'scaleY(' + (rv ? Math.min(+i.dataset.h, i.classList.contains('tope') ? 52 : 99) / 78 : 0) + ')'); });
     // palabra clave
     var k = null; CLAVES.forEach(function (c) { if (t >= c.t) k = c[2]; }); if (t >= mrA) k = '';
     txt($('clave'), k || '');
-    cls($('clave'), 've', !!k && !MAQ.some(function (m) { return entre(t, m.t, m.hasta); }));
+    cls($('clave'), 've', !!k && !(C.mapa && entre(t, C.mapa.t0 - 0.2, C.mapa.t1 + 0.8)) && !MAQ.some(function (m) { return entre(t, m.t, m.hasta); }));
     // máquina de escribir
     var m = null; MAQ.forEach(function (x) { if (entre(t, x.t, x.hasta)) m = x; });
     cls($('maquina'), 've', !!m);
@@ -421,6 +462,15 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     var dentro = entre(t, mrA + 6.0, mrB); cls(mr, 'dentro', dentro);
     if (dentro && !mr.dataset.cargado) { mr.dataset.cargado = 1; $('mrIfr').src = 'mi-actitud.html?caso=' + G + '1'; }
     if (!enMr && mr.dataset.cargado && t < mrA) { delete mr.dataset.cargado; $('mrIfr').src = 'about:blank'; }
+    // el mapa de teoría y las áreas
+    var MP = C.mapa, enMapa = MP && entre(t, MP.t0 - 0.2, MP.t1 + 0.8); cls($('mapa'), 've', !!enMapa);
+    if (MP) { LUCES.forEach(function (l, i) { cls(l, 've', t >= MP.t0 + 0.3 + i * 0.25); }); ['ar1', 'ar2', 'ar3', 'ar4'].forEach(function (id, i) { cls($(id), 've', t >= MP.t0 + 0.6 + i * 0.35); }); }
+    // en «Mi actitud»: señalar lo que se va diciendo
+    var foco = '';
+    if (entre(t, t0('misresultados', 9), t1('misresultados', 0.5))) foco = 'sug';
+    if (entre(t, t0('interroga', 0), t1('interroga', 0.5))) foco = 'aguja';
+    if (entre(t, t0('barra', 0), t1('barra', 0.5))) foco = 'barra';
+    if (foco !== mr.__foco) { mr.__foco = foco; try { $('mrIfr').contentWindow.postMessage({ tipo: 'foco', que: foco }, '*'); } catch (e) {} }
     // por qué importa
     var I = C.importa, d = I ? I.t1 - I.t0 : 30;
     cls($('imp'), 've', entre(t, impA, finA));
@@ -428,12 +478,13 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     sty(document.querySelector('#imp ul'), 'opacity', $('b1').classList.contains('ve') ? '1' : '0');
     // cierre
     cls($('fin'), 've', entre(t, finA, tl + 0.6));
-    cls($('fin1'), 've', t >= t0('cierre', 1.0)); cls($('fin2'), 've', t >= t0('cafe', 0.3)); cls($('fin3'), 've', t >= t0('sm', 0)); cls($('fin'), 'sm', t >= t0('sm', 0));
+    cls($('fin1'), 've', t >= t0('cierre', 0.3)); cls($('fin2'), 've', t >= t0('cafe', 0.3)); cls($('fin3'), 've', t >= t0('sm', 0)); cls($('fin'), 'sm', t >= t0('sm', 0));
     sty($('bi'), 'transform', 'scaleX(' + Math.min(1, t / CU.dur).toFixed(4) + ')');
   }
   /* bucle */
   function bucle() { var t = au.currentTime || 0; pinta(t); dibuja(t); requestAnimationFrame(bucle); }
   addEventListener('resize', function () { geo = null; PC = null; });
+  $('mrIfr').addEventListener('load', function () { $('mr').__foco = null; });   /* al cargar, se le vuelve a decir qué señalar */
   $('mrImg').src = 'mr-' + G + '.jpg'; $('mr').style.setProperty('--mrimg', 'url(mr-' + G + '-b.jpg)');
   function empieza() { au.play().catch(function () {}); }
   $('play').onclick = empieza;
