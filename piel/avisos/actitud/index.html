@@ -210,6 +210,7 @@ html,body{margin:0;height:100%;background:#000;color:#f4f4f5;font-family:var(--f
 #fin .f2{font:600 38px/1.3 var(--f);color:#a1a1aa;max-width:1300px}
 #fin .f2 b{color:#fde68a}
 #fin .f3{font:900 120px/1 var(--f);margin-top:20px}#fin .f3 span{color:var(--oro)}
+#fin .f4{font:600 36px/1.3 var(--f);color:#d4d4d8;margin-top:18px}
 #fin.sm .f1,#fin.sm .f2{opacity:.35}
 /* fuerzas */
 #fuerzas{position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none;z-index:8;overflow:visible;opacity:0;transition:opacity .8s}
@@ -281,7 +282,8 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
       <li id="b3"><span>🎯</span><span>Si practicas lo que más te cuesta, <b>es donde más mejoras</b>.</span></li></ul></div>
   <div class="capa" id="fin"><div class="f1" id="fin1">No hace falta que te obsesiones.</div>
     <div class="f2" id="fin2">¿No te interesa o vas con mucho lío? Puedes no prestarle atención:<br><b>☕ esto es para los más cafeteros.</b></div>
-    <div class="f3" id="fin3">Sé <span>tú mismo</span>.</div></div>
+    <div class="f3" id="fin3">Sé <span>tú mismo</span>.</div>
+    <div class="f4" id="fin4">Y aquí tienes más información, por si te ayuda.</div></div>
   <div class="capa ve" id="tit"><p>Lenguaje Musical</p><h1>Cómo valoro<br>tu actitud</h1>
     <button id="play" title="Empezar"><svg viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z" fill="currentColor"/></svg></button>
     <div class="botones"><button class="boton" id="otra">Ver otra vez</button><button class="boton lleno" id="salir">Salir</button></div></div>
@@ -594,7 +596,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     sty(document.querySelector('#imp ul'), 'opacity', $('b1').classList.contains('ve') ? '1' : '0');
     // cierre
     cls($('fin'), 've', entre(t, finA, tl + 0.6));
-    cls($('fin1'), 've', t >= t0('cierre', 0.3)); cls($('fin2'), 've', t >= t0('cafe', 0.3)); cls($('fin3'), 've', t >= t0('sm', 0)); cls($('fin'), 'sm', t >= t0('sm', 0));
+    cls($('fin1'), 've', t >= t0('cierre', 0.3)); cls($('fin2'), 've', t >= t0('cafe', 0.3)); cls($('fin3'), 've', t >= t0('sm', 0)); cls($('fin4'), 've', t >= t0('mas', 0.1)); cls($('fin'), 'sm', t >= t0('sm', 0));
     sty($('bi'), 'transform', 'scaleX(' + Math.min(1, t / CU.dur).toFixed(4) + ')');
   }
   /* bucle */
