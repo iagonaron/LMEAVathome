@@ -326,8 +326,12 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
       try {
         var rm = await fetch(base + '.json?nc=' + Date.now()); if (!rm.ok) throw new Error('sin vídeo');
         var man = await rm.json(), tot = man.bytes || 0, rec = 0, trozos = [];
-        for (var k = 1; k <= man.partes; k++) {
-          var r = await fetch(base + '.' + k + '?v=' + man.v); if (!r.ok || !r.body) throw new Error('http ' + r.status);
+        /* (12-nov-2026, Iago: «en 4K») si hay versión 4K, esa; si no, la de 1920×1080 */
+        var k4 = man.k4 && !Q.get('hd') && man.k4.trozos && man.k4.trozos.length;   /* (12-nov-2026, Iago: «prefiero» el 4K siempre; ?hd=1 fuerza el de 1080p) */
+        if (k4) tot = man.k4.bytes || 0;
+        var lista = k4 ? man.k4.trozos.slice() : (man.trozos || []).slice(); if (!lista.length) for (var q = 1; q <= man.partes; q++) lista.push(base + '.' + q);
+        for (var k = 0; k < lista.length; k++) {
+          var r = await fetch(lista[k] + '?v=' + man.v); if (!r.ok || !r.body) throw new Error('http ' + r.status);
           var rd = r.body.getReader();
           for (;;) { var x = await rd.read(); if (x.done) break; trozos.push(x.value); rec += x.value.length;
             if (tot) document.getElementById('cargaB').style.width = (100 * rec / tot).toFixed(1) + '%'; } }

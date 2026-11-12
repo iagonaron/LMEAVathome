@@ -12,6 +12,7 @@
 html,body{margin:0;height:100%;color:var(--tinta);font-family:var(--f);overflow:hidden;background:#0b1020}
 body{background:linear-gradient(rgba(6,9,18,.62),rgba(6,9,18,.62)),url(fondo.jpg) center/cover no-repeat;display:grid;grid-template-rows:auto auto 1fr auto;gap:1.6vh;padding:1.6vh 2vw 2.2vh}
 .top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.x.gris{--xc:#a1a1aa}
 .izq{justify-self:start;display:flex;gap:.6vw;align-items:center}
 .btn2{border:1.5px solid rgba(255,255,255,.35);border-radius:10px;background:rgba(13,17,28,.7);color:#fff;font:800 clamp(11px,.9vw,15px)/1 var(--f);padding:.8em 1.1em;cursor:pointer}.btn2:hover{background:rgba(255,255,255,.12)}.btn2.mapa{border-color:#ec4899;color:#f9a8d4}
 body:not(.real) .btn2{display:none}
@@ -63,6 +64,8 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
 .fz.tex b{color:var(--tono)}.fz.tex small{color:#f4f4f5}
 .fz.tex.rojo{border-color:#ef4444;background:linear-gradient(90deg,rgba(127,29,29,.94),rgba(127,29,29,.6)),var(--tex) var(--pos,50% 50%)/cover no-repeat,#450a0a}.fz.tex.rojo b{color:#fecaca}
 .fz.tex.gris{border-color:#a1a1aa;background:linear-gradient(90deg,rgba(39,39,42,.93),rgba(39,39,42,.55)),var(--tex) var(--pos,50% 50%)/cover no-repeat,#27272a}.fz.tex.gris b{color:#e4e4e7}
+/* (12-nov-2026, Iago) en SUMA, todo con contorno verde y el fondo algo enverdecido, aunque el portal sea de otro color: que se entienda que suma */
+#favor .fz.tex{border-color:#22c55e;background:linear-gradient(90deg,rgba(6,44,22,.93),rgba(6,44,22,.55)),var(--tex) var(--pos,50% 50%)/cover no-repeat,#052e16}
 .xs{display:flex;gap:.6vw;margin-top:.6vh;flex-wrap:wrap}
 .x{display:flex;flex-direction:column;align-items:center;gap:.3vh;font:700 clamp(9px,.7vw,12px)/1 var(--f);color:#d4d4d8}
 .x i{width:clamp(18px,1.6vw,30px);height:clamp(18px,1.6vw,30px);border-radius:7px;display:grid;place-items:center;font:900 clamp(11px,1vw,19px)/1 var(--f);font-style:normal;color:#fff;background:var(--xc)}
@@ -138,7 +141,7 @@ body.f-sug .sug{border-color:#facc15}
 .onda{position:fixed;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;border:4px solid #fff;pointer-events:none;z-index:9;opacity:0}
 </style></head>
 <body>
-<div class="top"><div class="izq"><button class="btn" id="volver">Volver</button><button class="btn2" id="bVid" title="Cómo valoro tu actitud (vídeo)">▶ Vídeo</button><button class="btn2 mapa" id="bMapa" title="Ver mi mapa de teoría"><svg viewBox="0 0 24 24" width="1.25em" height="1.25em" style="vertical-align:-.25em;margin-right:.35em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="7" height="7" rx="1.6"/><path d="M12 8.5V4.5M15.5 12h3V6.5M12 15.5v4M8.5 12h-3v5.5"/><circle cx="12" cy="3.3" r="1.3"/><circle cx="18.5" cy="5.2" r="1.3"/><circle cx="12" cy="20.7" r="1.3"/><circle cx="5.5" cy="18.8" r="1.3"/></svg>Mapa teórico</button></div><div class="tit"><i>⚖</i>Mi actitud<span class="prov" id="prov">Provisional</span></div><div class="quien"><b id="nombre">Alumno de ejemplo</b><span id="grupo"></span></div></div>
+<div class="top"><div class="izq"><button class="btn" id="volver">Volver</button><button class="btn2" id="bVid" title="Cómo valoro tu actitud (vídeo)">▶ Vídeo</button><button class="btn2 mapa" id="bMapa" title="Ver mi mapa de teoría"><svg viewBox="0 0 24 24" width="1.25em" height="1.25em" style="vertical-align:-.25em;margin-right:.35em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="7" height="7" rx="1.6"/><path d="M12 8.5V4.5M15.5 12h3V6.5M12 15.5v4M8.5 12h-3v5.5"/><circle cx="12" cy="3.3" r="1.3"/><circle cx="18.5" cy="5.2" r="1.3"/><circle cx="12" cy="20.7" r="1.3"/><circle cx="5.5" cy="18.8" r="1.3"/></svg>Mapa teórico</button></div><div class="tit"><i><svg viewBox="0 0 24 24" width="84%" height="84%" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="3.6" r="1.3"/><path d="M12 4.9V20.3M7.8 20.7h8.4M3.6 7.2h16.8"/><path d="M3.6 7.2L1.5 13.4M3.6 7.2l2.1 6.2M20.4 7.2l-2.1 6.2M20.4 7.2l2.1 6.2"/><path d="M1.2 13.4h4.8a2.4 2.4 0 0 1-4.8 0zM18 13.4h4.8a2.4 2.4 0 0 1-4.8 0z"/></svg></i>Mi actitud<span class="prov" id="prov">Provisional</span></div><div class="quien"><b id="nombre">Alumno de ejemplo</b><span id="grupo"></span></div></div>
 <div class="pop" id="pop" hidden><div class="pop-c"><button class="pop-x" id="popX" aria-label="Cerrar">✕</button><h3 id="popT"></h3><p id="popS"></p><div class="pop-l" id="popL"></div></div></div>
 <div class="aviso" id="aviso"></div>
 <main>
@@ -283,13 +286,18 @@ body.f-sug .sug{border-color:#facc15}
     var d = P.d || {}, t = d.trimestre || '1T', gp = d.nivel === 'gp', f = [], sug = [];
     /* ---- faltas ---- */
     var fl = (d.faltas || []).slice().sort(function (a, b) { return a.f < b.f ? -1 : 1; });
-    var fs = fl.filter(function (x) { return !x.j; }), fj = fl.filter(function (x) { return x.j; }), cuentan = fs.slice(1);
+    var fs = fl.filter(function (x) { return !x.j && !x.p; }), fj = fl.filter(function (x) { return x.j && !x.p; }), cuentan = fs.slice(1);
+    /* (12-nov-2026, Iago) las faltas se pasan cada sábado: las de esta semana (en cola) se enseñan, pero aún no cuentan */
+    var fp = fl.filter(function (x) { return x.p; }), fpD = fp.map(function (x) { return x.f; });
+    if (fp.length) f.push(['nc', 0, fp.length === 1 ? 'Falta pendiente de revisar' : 'Faltas pendientes de revisar', 'Iago las revisa el sábado; hasta entonces no cuentan' + XS.apply(null, fp.map(function (x) { return X('gris', ddmm(x.f)); }))]);
     if (cuentan.length) f.push(['c', -(0.5 + (cuentan.length - 1)), 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS.apply(null, cuentan.map(function (x) { return X('roja', ddmm(x.f)); }))]);
     if (fs.length || fj.length) f.push(['nc', 0, 'Faltas que no restan', [fs.length ? 'la 1.ª sin justificar' : '', fj.length ? 'las justificadas' : ''].filter(Boolean).join(' · ') +
       XS.apply(null, (fs.length ? [X('roja', ddmm(fs[0].f))] : []).concat(fj.map(function (x) { return X('azul', ddmm(x.f)); })))]);
     /* ---- portales de clases a las que faltó ---- */
     (d.portales || []).forEach(function (p) { var T = texDe(p.app, p.n), nom = nomPortal(p.app, p.n);
-      if (!p.visto) { f.push(['c', -0.5, 'Portal sin ver', nom + ' · el de la clase del ' + ddmm(p.f), null, { T: T, cl: 'rojo', u: p.u }]);
+      if (!p.visto && fpD.indexOf(p.f) >= 0) { f.push(['nc', 0, 'Portal por ver', nom + ' · el de la clase del ' + ddmm(p.f) + ': si lo ves antes del sábado, no resta', null, { T: T, cl: 'gris', u: p.u }]);
+        if (sug.length < 3) sug.push(['🧭', 'Ve el portal <b>' + esc(nom) + '</b> antes del sábado: así no llega a restar.', p.u]); }
+      else if (!p.visto) { f.push(['c', -0.5, 'Portal sin ver', nom + ' · el de la clase del ' + ddmm(p.f), null, { T: T, cl: 'rojo', u: p.u }]);
         if (sug.length < 3) sug.push(['🧭', 'Te falta ver el portal <b>' + esc(nom) + '</b>: así te pones al día y deja de restar.', p.u]); }
       else f.push(['nc', 0, 'Te pusiste al día', nom + ' · lo viste en casa', null, { T: T, cl: 'gris' }]); });
     /* ---- quiz ---- */
@@ -356,7 +364,7 @@ body.f-sug .sug{border-color:#facc15}
     /* la actitud: si Iago ya la puso este trimestre, esa es la definitiva (las fuerzas explican cómo se llegó); si no, desde el 2.º, la del anterior como punto de partida */
     var base = P.base != null ? +P.base : null, prev = P.prev != null ? +P.prev : null, definitiva = base != null;
     return { grupo: P.grupoTxt || '', nombre: P.nombre || '', t: t, f: f, sug: sug.slice(0, 3), areas: areas, puntos: puntos,
-             definitiva: definitiva, base: definitiva ? base : (t !== '1T' ? prev : null), tagPrev: tagPrev || (TPREV[t] || null), hayP: hayP, cuenta: P.cuenta || '' };
+             definitiva: definitiva, base: definitiva ? base : (t !== '1T' ? prev : null), tagPrev: tagPrev || (TPREV[t] || null), hayP: hayP, cuenta: P.cuenta || '', faltasAl: d.faltas_al || null };
   }
   function arranca(C) {
   var $ = function (id) { return document.getElementById(id); };
@@ -364,7 +372,7 @@ body.f-sug .sug{border-color:#facc15}
   if (REAL && !C.definitiva) document.body.classList.add('provi');
   var KAV = 'mi-actitud-entendido:' + (C.cuenta || '') + ':' + C.t + ':' + (C.definitiva ? 'd' : 'p'), visto = false; try { visto = REAL && localStorage.getItem(KAV) === '1'; } catch (e) {}
   if (C.definitiva) $('aviso').innerHTML = '<span><b>Tu actitud de este trimestre ya está puesta.</b> Aquí ves las fuerzas que la llevaron hasta ahí: lo que restó, lo que sumó y lo que fue neutro.</span><button id="entendido">Entendido</button>';
-  else if (REAL) $('aviso').innerHTML = '<span><b>Todavía no es definitivo.</b> Hasta la <b>semana de exámenes</b>, cuando Iago cubre el resto (puntualidad, atención y comportamiento) y pone tu nota, <b>puedes mejorar estos datos</b>: termina lo que tengas pendiente y suma tiempo por tu cuenta.' + (C.t !== '1T' ? ' Lo marcado con <b>' + (C.tagPrev || '1T') + '</b> es del trimestre anterior.' : '') + '</span><button id="entendido">Entendido</button>';
+  else if (REAL) $('aviso').innerHTML = '<span><b>Todavía no es definitivo.</b> Hasta la <b>semana de exámenes</b>, cuando Iago cubre el resto (puntualidad, atención y comportamiento) y pone tu nota, <b>puedes mejorar estos datos</b>: termina lo que tengas pendiente y suma tiempo por tu cuenta.' + (C.faltasAl ? ' <br><small style="opacity:.85">🗓️ <b>Al momento:</b> tiempo por tu cuenta, quiz y fichas. <b>Cada sábado:</b> faltas y portales de esas clases (última vez: <b>sábado ' + ddmm(String(C.faltasAl).slice(0, 10)) + '</b>).</small>' : '') + (C.t !== '1T' ? ' Lo marcado con <b>' + (C.tagPrev || '1T') + '</b> es del trimestre anterior.' : '') + '</span><button id="entendido">Entendido</button>';
   else $('aviso').innerHTML = '<span>' + (C.t === '1T'
     ? '<b>Primer trimestre:</b> todavía hay campos sin cubrir y tu nota de actitud aún no está preparada (Iago la pone la semana de exámenes). Mientras, aquí ves lo que ya resta, suma o es neutro.'
     : '<b>Ojo:</b> lo que está marcado con <b>1T</b> y la línea discontinua son del trimestre anterior: Iago los volverá a poner la semana de exámenes. Es tu punto de partida antes de aplicar las fuerzas: <b>puede variar</b>.') + '</span><button id="entendido">Entendido</button>';
