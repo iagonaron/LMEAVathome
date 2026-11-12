@@ -155,7 +155,9 @@
     if (document.visibilityState !== 'visible') return;
     if (familia === 'teoria' && !ejercicio()) return;   /* en Teoría, el menú del inicio no es practicar (como el contador de siempre) */
     var ej = ejercicio(); if (ej && /^(portada|lugares)$|-carga$/.test(ej)) return;   /* (12-nov-2026) la portada y la carga de los portales, no */
-    if (practicando() || sonando()) acc += 1;   /* un segundo más de práctica */
+    /* (12-nov-2026, Iago) «en Teoría ver vídeos o apuntes no cuenta: un alumno puede poner vídeos y no estar pendiente»: en Teoría
+       solo cuenta practicar de verdad (tocar cosas distintas); un vídeo sonando, no. En los demás (portales temáticos…), como antes. */
+    if (practicando() || (familia !== 'teoria' && sonando())) acc += 1;   /* un segundo más de práctica */
   }, T.s);
   setInterval(function () { if (acc >= 20) { latido(acc); acc = 0; } }, T.minuto);
   function soltar() { if (acc >= 20) { latido(acc, true); acc = 0; } }
