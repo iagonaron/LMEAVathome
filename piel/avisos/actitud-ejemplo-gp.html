@@ -1,10 +1,260 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Cómo valoro tu actitud · ejemplo</title>
+<title>Cómo valoro tu actitud</title>
 <meta name="robots" content="noindex">
+<!-- (12-nov-2026, Iago) «que las fuerzas contrapuestas hagan su trabajo y suban o bajen peldaños… yo pulso a bote pronto… que empiece
+     a parpadear… las fuerzas negativas pueden hacer descender… las positivas, como mucho, un escalón… las neutras, neutras… y al final
+     que se defina su actitud». Animación para la escaleta del aula (se abre desde «Cómo valoro tu actitud»). ?g=ge | ?g=gp elige el
+     alumno de ejemplo. Espacio o → avanza, ← retrocede, P pausa, R vuelve a empezar. Pesos: los que fijó Iago el 12-nov-2026. -->
 <style>
-html,body{margin:0;height:100%;background:#000}
-body{display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2.5vh 2vw}
-img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+:root{--f:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--bg:#0a0a0b;--caja:#111113;--borde:#26262b;--tinta:#f4f4f5;--suave:#a1a1aa;
+  --rojo:#ef4444;--verde:#22c55e;--gris:#71717a;--oro:#facc15}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tinta);font-family:var(--f);overflow:hidden;font-feature-settings:"cv08" 1}
+body{display:grid;grid-template-rows:auto 1fr auto;gap:1.6vh;padding:3vh 3vw 2.4vh}
+header{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:2vw}
+header .eye{font:800 clamp(11px,1.15vw,20px)/1 var(--f);letter-spacing:.24em;text-transform:uppercase;color:var(--oro);white-space:nowrap}
+header h1{margin:0;font:900 clamp(22px,3vw,54px)/1 var(--f);text-align:center;letter-spacing:-.01em}
+header .alu{justify-self:end;font:600 clamp(12px,1.2vw,22px)/1.2 var(--f);color:var(--suave);text-align:right}
+main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:2vw;min-height:0}
+.col{background:var(--caja);border:2px solid var(--borde);border-radius:18px;padding:2.2vh 1.4vw;display:flex;flex-direction:column;gap:1.4vh;min-height:0;overflow:hidden}
+.col h2{margin:0 0 .4vh;font:800 clamp(11px,1.1vw,19px)/1 var(--f);letter-spacing:.2em;text-transform:uppercase}
+.col.contra{border-color:rgba(239,68,68,.45)}.col.contra h2{color:#fca5a5}
+.col.favor{border-color:rgba(34,197,94,.45)}.col.favor h2{color:#86efac}.tope{margin-top:-.6vh;font:600 clamp(10px,1vw,18px)/1.2 var(--f);color:var(--suave)}
+.fz{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.8vw;padding:1.3vh 1vw;border-radius:12px;border:2px solid var(--c);
+  background:color-mix(in srgb,var(--c) 16%,transparent);opacity:0;transform:translateY(14px) scale(.97);transition:opacity .5s,transform .5s}
+.fz.ve{opacity:1;transform:none}
+.fz.ahora{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 45%,transparent),0 0 34px color-mix(in srgb,var(--c) 40%,transparent)}
+.fz b{display:block;font:800 clamp(13px,1.45vw,26px)/1.15 var(--f)}
+.fz small{display:block;margin-top:.5vh;font:500 clamp(10px,1vw,18px)/1.3 var(--f);color:var(--suave)}
+.fz .v{font:900 clamp(18px,2.2vw,40px)/1 var(--f);color:var(--c);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* el termómetro (12-nov-2026, 13:04, Iago: «que lo que vean sea como una especie de termómetro y una línea blanca de donde están…
+   una línea roja, una línea verde, que se chocan… y el choque es un haz de luz blanca y esa luz mueve la línea… como dos espadas láser») */
+.esc{position:relative;display:flex;flex-direction:column;min-height:0}
+.esc h2{margin:0 0 1.2vh;font:800 clamp(11px,1.1vw,19px)/1 var(--f);letter-spacing:.2em;text-transform:uppercase;color:var(--suave);text-align:center}
+.ter{position:relative;flex:1;min-height:0;margin:1.4vh 0 1vh}
+.barT{position:absolute;top:0;bottom:0;left:31%;width:12%;border-radius:12px;overflow:hidden;border:2px solid #3f3f46;display:grid;grid-template-rows:repeat(5,1fr)}
+.barT div{position:relative;background:color-mix(in srgb,var(--c) 38%,#0d0d0f)}
+.barT div::after{content:"";position:absolute;left:0;right:0;top:50%;border-top:1.5px dashed rgba(255,255,255,.35)}
+.num{position:absolute;left:calc(31% - 1vw);transform:translate(-100%,-50%);font:700 clamp(10px,1vw,17px)/1 var(--f);color:#71717a;font-variant-numeric:tabular-nums}
+.lab{position:absolute;left:calc(43% + 1.4vw);transform:translateY(-50%);font:800 clamp(11px,1.2vw,21px)/1 var(--f);letter-spacing:.04em;color:color-mix(in srgb,var(--c) 70%,#a1a1aa);
+  white-space:nowrap;transition:color .5s,transform .5s,text-shadow .5s}
+.lab.mas{opacity:.85}
+.lab.on{color:#fff;transform:translateY(-50%) scale(1.25);transform-origin:left center;text-shadow:0 0 18px var(--c),0 0 4px var(--c)}
+.aguja{position:absolute;left:calc(31% - 2.2vw);width:calc(12% + 4.4vw);height:0;top:0;z-index:5;transition:top 3.2s cubic-bezier(.5,0,.2,1)}
+.aguja i{position:absolute;left:0;right:0;top:-2.5px;height:5px;border-radius:3px;background:#fff;box-shadow:0 0 10px #fff,0 0 26px rgba(255,255,255,.75)}
+.aguja em{position:absolute;left:-.6vw;top:0;transform:translate(-100%,-50%);font:900 clamp(18px,2.3vw,42px)/1 var(--f);font-style:normal;color:#fff;
+  font-variant-numeric:tabular-nums;text-shadow:0 0 16px rgba(0,0,0,.9)}
+.aguja.bote i{animation:lat .55s ease-in-out infinite alternate}
+@keyframes lat{to{opacity:.15}}
+.aguja.tiembla{animation:tiembla .09s linear infinite}
+@keyframes tiembla{0%{margin-top:-2px}50%{margin-top:2px}100%{margin-top:-1px}}
+/* las espadas: roja desde arriba, verde desde abajo; la punta de las dos, en la aguja */
+.sable{position:absolute;left:calc(37% - .5vw);width:1vw;min-width:8px;z-index:4;border-radius:999px;background:linear-gradient(90deg,var(--s),#fff 38%,#fff 62%,var(--s));height:0;
+  transition:height 1s cubic-bezier(.3,1.4,.5,1),top 3.2s cubic-bezier(.5,0,.2,1),opacity .4s}
+.sable.r{--s:#ef4444;box-shadow:0 0 8px #fff,0 0 16px #ef4444,0 0 34px #ef4444,0 0 60px rgba(239,68,68,.7)}
+.sable.v{--s:#22c55e;box-shadow:0 0 8px #fff,0 0 16px #22c55e,0 0 34px #22c55e,0 0 60px rgba(34,197,94,.7)}
+.sable b{position:absolute;left:50%;width:1.7vw;min-width:13px;height:3.4vh;transform:translateX(-50%);border-radius:4px;
+  background:linear-gradient(90deg,#3f3f46,#d4d4d8 45%,#52525b);border:1px solid #18181b}
+.sable.r b{top:0}.sable.v b{bottom:0}
+.sable.zumba{animation:zumba .12s linear infinite}
+@keyframes zumba{50%{filter:brightness(1.35)}}
+.choque{position:absolute;left:37%;width:0;height:0;z-index:6;transition:top 3.2s cubic-bezier(.5,0,.2,1)}
+.choque::before{content:"";position:absolute;left:-7vh;top:-7vh;width:14vh;height:14vh;border-radius:50%;
+  background:radial-gradient(circle,#fff 0,#fff 14%,rgba(255,255,255,.55) 32%,rgba(255,255,255,0) 68%);opacity:0;transform:scale(.3);transition:opacity .3s,transform .3s}
+.choque.on::before{opacity:1;transform:scale(1);animation:destello .16s linear infinite}
+@keyframes destello{50%{transform:scale(1.18)}}
+.chispa{position:absolute;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;pointer-events:none;z-index:7}
+.base{position:absolute;right:calc(69% + 2.6vw);transform:translate(0,-50%);z-index:5;pointer-events:none;opacity:0;transition:opacity .4s}
+.base span{display:inline-block;padding:.35em .6em;border-radius:8px;border:1.5px dashed rgba(255,255,255,.6);font:700 clamp(10px,.95vw,16px)/1 var(--f);color:#fff;background:rgba(10,10,11,.85);white-space:nowrap}
+/* neutro: abajo de cada columna, en gris y en una línea (Iago, 13:06) */
+.lista{display:flex;flex-direction:column;gap:1.3vh}.lista.n{gap:.6vh}
+.neuw{margin-top:auto;padding-top:1.4vh;border-top:1px dashed #3f3f46;display:flex;flex-direction:column;gap:.9vh}
+.neuw h2{color:#a1a1aa!important;font-size:clamp(10px,.95vw,16px)!important}
+.fz.neutro{--c:#71717a;padding:.75vh .9vw;border-width:1.5px;background:rgba(113,113,122,.10)}
+.fz.neutro b{display:inline;font:700 clamp(11px,1.15vw,20px)/1.2 var(--f);color:#d4d4d8}
+.fz.neutro small{display:inline;margin:0 0 0 .5em;font-size:clamp(10px,1vw,17px);color:#a1a1aa}
+.fz.neutro small::before{content:"· "}
+.fz.neutro .v{font-size:clamp(12px,1.2vw,22px);color:#a1a1aa}
+.pie{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2vw;min-height:8vh}
+.cap{font:600 clamp(14px,1.75vw,32px)/1.25 var(--f);color:#fff}
+.cap b{color:var(--oro)}
+.ctl{display:flex;gap:.6vw}
+.ctl button{width:5.2vh;height:5.2vh;min-width:34px;min-height:34px;border-radius:10px;border:1.5px solid #3f3f46;background:#18181b;color:#fff;
+  font:700 clamp(14px,1.4vw,24px)/1 var(--f);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.ctl button:hover{border-color:#a1a1aa}
+.barra{height:4px;border-radius:2px;background:#27272a;overflow:hidden;grid-column:1/-1}
+.barra i{display:block;height:100%;width:0;background:var(--oro);transition:width .5s}
+/* el final: el 5 % */
+.cinco{position:fixed;inset:0;background:#0a0a0b;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .6s;z-index:10}
+.cinco.ve{opacity:1;pointer-events:auto}
+.cinco .in{width:min(1500px,92vw);display:grid;grid-template-columns:1.1fr 1fr;gap:4vw;align-items:center}
+.cinco h3{margin:0 0 2vh;font:900 clamp(30px,5vw,96px)/.95 var(--f)}
+.cinco h3 span{color:var(--oro)}
+.cinco p{margin:0 0 1.6vh;font:500 clamp(15px,1.6vw,30px)/1.35 var(--f);color:#d4d4d8}
+.cinco p b{color:#fff}
+.cinco ul{list-style:none;margin:0;padding:3vh 2vw;border:2px solid rgba(250,204,21,.45);border-radius:18px;background:rgba(255,255,255,.04);display:grid;gap:2.2vh}
+.cinco li{font:600 clamp(14px,1.45vw,27px)/1.3 var(--f);display:grid;grid-template-columns:2.2em 1fr;gap:.6em;align-items:start}
+.cinco li i{font-style:normal;font-size:1.3em}
+.cinco .ej{display:inline-block;margin-top:.6vh;padding:.3em .6em;border-radius:8px;background:#18181b;border:1px solid #3f3f46;font-variant-numeric:tabular-nums}
+.cinco .vuelve{position:absolute;bottom:3vh;right:3vw}
+@media (max-width:800px){body{overflow:auto;height:auto}main{grid-template-columns:1fr}.lad{min-height:50vh}.cinco .in{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.pel.bote,.luna.bote::before,.luna.bote::after{animation:none}}
 </style></head>
-<body><img src="actitud-ejemplo-gp.webp?v=2" alt="Ejemplo de un alumno ficticio: a mejorar, poca puntualidad, atención mixta, faltas y un portal de una clase a la que faltó sin ver; a favor, buen comportamiento, tiempo por su cuenta y, en gris, lo que vio para ponerse al día. Actitud: bien."></body></html>
+<body>
+<header><div class="eye">Lenguaje Musical</div><h1>Cómo valoro tu actitud</h1><div class="alu" id="alu">Alumno de ejemplo</div></header>
+<main>
+  <section class="col contra"><h2>Resta</h2><div id="contra" class="lista"></div><div class="neuw"><h2>Neutro · no resta</h2><div id="neuC" class="lista n"></div></div></section>
+  <section class="esc"><h2>Actitud</h2><div class="ter" id="ter"><div class="barT" id="barT"></div><div class="sable r" id="sR"><b></b></div><div class="sable v" id="sV"><b></b></div><div class="choque" id="choque"></div><div class="aguja" id="aguja"><i></i><em id="num">7</em></div><div class="base" id="base"><span>a bote pronto →</span></div></div></section>
+  <section class="col favor"><h2>Suma</h2><div class="tope">Como mucho, un escalón (+2)</div><div id="favor" class="lista"></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
+</main>
+<div class="pie"><div class="cap" id="cap"></div>
+  <div class="ctl"><button id="bAnt" title="Anterior (←)">‹</button><button id="bPau" title="Pausa (P)">❚❚</button><button id="bSig" title="Siguiente (→)">›</button><button id="bRe" title="Empezar otra vez (R)">↺</button></div>
+  <div class="barra"><i id="barra"></i></div></div>
+<div class="cinco" id="cinco"><div class="in">
+  <div><h3>La actitud es el <span>5&nbsp;%</span> de tu nota</h3>
+    <p>Vale hasta <b>medio punto</b> del trimestre: cada punto de actitud son <b>0,05</b>.</p>
+    <p>Y la nota del boletín es un número entero:</p><p><span class="ej">8,45 → 8</span> &nbsp; <span class="ej">8,5 → 9</span></p><p>A veces, ese medio punto es justo lo que decide tu nota.</p></div>
+  <ul>
+    <li><i>⏰</i><span>Si eres puntual, <b>aprovechas más la clase</b>.</span></li>
+    <li><i>📅</i><span>Si entregas en plazo, <b>no se te acumula el trabajo</b> y lo haces con más calidad.</span></li>
+    <li><i>🎯</i><span>Si practicas lo que más te cuesta, <b>es donde más mejoras</b>.</span></li>
+    <li><i>🧭</i><span>Si faltas, <b>ponte al día con el portal</b> de esa clase.</span></li>
+  </ul></div>
+  <div class="ctl vuelve"><button id="bRe2" title="Ver otra vez">↺</button></div></div>
+<script>
+(function () {
+  'use strict';
+  /* cinco estadios de 2 puntos, cada uno partido en dos: 9 EXCELENTE, 10 EXCELENTE+ … 1 MAL, 2 MAL+ (Iago, 12-nov-2026, 13:04) */
+  var EST = [['EXCELENTE', '#3b82f6'], ['MUY BIEN', '#22c55e'], ['BIEN', '#eab308'], ['REGULAR', '#f59e0b'], ['MAL', '#ef4444']];
+  function banda(v) { return Math.min(5, Math.max(1, Math.ceil(v / 2))); }                 /* 1 = MAL … 5 = EXCELENTE */
+  function etiqueta(v) { var b = banda(v), e = EST[5 - b][0]; return v > 2 * b - 1 ? e + '+' : e; }
+  var G = (new URLSearchParams(location.search).get('g') || (/gp/.test(location.pathname) ? 'gp' : 'ge')) === 'gp' ? 'gp' : 'ge';
+  /* las fuerzas del alumno de ejemplo (en 2.ª persona: lo ven los alumnos) · c en contra, f a favor, n neutro */
+  /* c resta · nc neutro que no resta · f suma · nf neutro que no suma */
+  var DATOS = {
+    gp: { base: 7, f: [
+      ['c', -2, 'Puntualidad insuficiente', 'Llegas tarde a menudo'],
+      ['c', -1, 'Atención mejorable', 'Te cuesta mantenerla en clase'],
+      ['nc', 0, '1.ª falta sin justificar', 'solo una: no cuenta'],
+      ['c', -0.5, '2.ª falta sin justificar', 'La 2.ª resta medio; desde la 3.ª, una entera'],
+      ['nc', 0, 'Falta justificada', 'no cuenta'],
+      ['c', -0.5, 'Portal sin ver', 'Atonalidad, capítulo 1: el de una clase a la que faltaste'],
+      ['nc', 0, 'Te pusiste al día', 'Acústica, día 2'],
+      ['f', 1, '1 h 10 min extra', 'Por tu cuenta, en apps y portales: cada semana cuentan hasta 30 min'],
+      ['nf', 0, 'Buen comportamiento', 'es lo esperable'] ] },
+    ge: { base: 7, f: [
+      ['c', -1, 'Puntualidad mejorable', 'Algunos días llegas tarde'],
+      ['c', -1, 'Atención mejorable', 'Te cuesta mantenerla en clase'],
+      ['nc', 0, '1.ª falta sin justificar', 'solo una: no cuenta'],
+      ['c', -0.5, '2.ª falta sin justificar', 'La 2.ª resta medio; desde la 3.ª, una entera'],
+      ['nc', 0, 'Falta justificada', 'no cuenta'],
+      ['c', -0.5, 'Quiz sin terminar', 'Carta 2.1'],
+      ['nc', 0, 'Ficha entregada en el periodo extra', 'en el 1.er trimestre no cuenta'],
+      ['f', 2, '2 h extra, bien elegidas', 'Teoría era tu punto flojo: ahí los minutos valen doble'],
+      ['nf', 0, 'Buen comportamiento', 'es lo esperable'] ] }
+  };
+  var D = DATOS[G], N = D.f.length;
+  var NEG = D.f.reduce(function (a, x) { return a + (x[1] < 0 ? -x[1] : 0); }, 0);
+  var POS = Math.min(2, D.f.reduce(function (a, x) { return a + (x[1] > 0 ? x[1] : 0); }, 0));
+  var FIN = Math.max(0, Math.min(10, D.base - NEG + POS));
+  var $ = function (id) { return document.getElementById(id); };
+  var ter = $('ter'), barT = $('barT'), ag = $('aguja'), num = $('num'), sR = $('sR'), sV = $('sV'), ch = $('choque');
+  EST.forEach(function (e) { var d = document.createElement('div'); d.style.setProperty('--c', e[1]); barT.appendChild(d); });
+  var LABS = [];
+  for (var k = 10; k >= 1; k--) {
+    var b = banda(k), e = EST[5 - b], l = document.createElement('div');
+    l.className = 'lab' + (k % 2 === 0 ? ' mas' : ''); l.style.setProperty('--c', e[1]); l.textContent = e[0] + (k % 2 === 0 ? '+' : '') + ' · ' + k;
+    l.dataset.v = k; ter.appendChild(l); LABS.push(l);
+  }
+  for (var n2 = 0; n2 <= 10; n2 += 2) { var t2 = document.createElement('div'); t2.className = 'num'; t2.textContent = n2; t2.dataset.v = n2; ter.appendChild(t2); }
+  function yDe(v) { var h = barT.getBoundingClientRect().height; return (10 - Math.max(0, Math.min(10, v))) / 10 * h; }
+  function coloca() {
+    LABS.forEach(function (l) { l.style.top = yDe(+l.dataset.v - 0.5) + 'px'; });
+    Array.prototype.forEach.call(ter.querySelectorAll('.num'), function (t) { t.style.top = yDe(+t.dataset.v) + 'px'; });
+  }
+  /* las tarjetas */
+  var cards = D.f.map(function (x) {
+    var d = document.createElement('div'), col = x[0] === 'c' ? '#ef4444' : x[0] === 'f' ? '#22c55e' : '#71717a';
+    d.className = 'fz' + (x[0].charAt(0) === 'n' ? ' neutro' : ''); d.style.setProperty('--c', col);
+    var v = x[0].charAt(0) === 'n' ? '0' : (x[1] > 0 ? '+' : '−') + String(Math.abs(x[1])).replace('.', ',');
+    d.innerHTML = '<div><b>' + x[2] + '</b>' + (x[3] ? '<small>' + x[3] + '</small>' : '') + '</div><div class="v">' + v + '</div>';
+    $({ c: 'contra', f: 'favor', nc: 'neuC', nf: 'neuF' }[x[0]]).appendChild(d);
+    return d;
+  });
+  /* pasos: 0 = a bote pronto; 1..N = cada fuerza (las espadas se cargan); N+1 = el choque mueve la aguja; N+2 = el resultado; N+3 = el 5 % */
+  var PASOS = N + 4, paso = -1, pausa = false, t = null, chispas = null;
+  function fmt(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
+  function pinta(anim) {
+    var neg = 0, pos = 0, k;
+    for (k = 0; k < N && k < paso; k++) { if (D.f[k][1] < 0) neg -= D.f[k][1]; else pos += D.f[k][1]; }
+    pos = Math.min(2, pos);
+    var movida = paso >= N + 1, v = movida ? FIN : D.base, h = barT.getBoundingClientRect().height, pp = h / 10;
+    cards.forEach(function (c, i) { c.classList.toggle('ve', i < paso); c.classList.toggle('ahora', i === paso - 1 && paso <= N); });
+    if (!anim) { [ag, sR, sV, ch].forEach(function (x) { x.style.transition = 'none'; }); }
+    var y = yDe(v);
+    ag.style.top = y + 'px'; ch.style.top = y + 'px';
+    /* largo de cada espada: su fuerza (1 punto = una décima del termómetro, y un poco más para que se vea) */
+    var lr = Math.min(neg * pp, y), lv = Math.min(pos * pp, h - y);
+    sR.style.height = lr + 'px'; sR.style.top = (y - lr) + 'px'; sR.style.opacity = lr ? 1 : 0;
+    sV.style.height = lv + 'px'; sV.style.top = y + 'px'; sV.style.opacity = lv ? 1 : 0;
+    if (!anim) { void ag.offsetWidth; [ag, sR, sV, ch].forEach(function (x) { x.style.transition = ''; }); }
+    ag.classList.toggle('bote', paso <= N);
+    var choca = paso === N + 1;
+    ag.classList.toggle('tiembla', choca && anim); ch.classList.toggle('on', choca);
+    sR.classList.toggle('zumba', choca); sV.classList.toggle('zumba', choca);
+    if (choca && anim) { lanzaChispas(); setTimeout(function () { ag.classList.remove('tiembla'); ch.classList.remove('on'); sR.classList.remove('zumba'); sV.classList.remove('zumba'); paraChispas(); }, 3300); }
+    else paraChispas();
+    /* el número cuenta mientras la aguja viaja */
+    if (choca && anim) cuenta(D.base, FIN, 3200); else num.textContent = fmt(v);
+    var et = etiqueta(v);
+    var marca = function () { LABS.forEach(function (l) { l.classList.toggle('on', paso >= 0 && etiqueta(+l.dataset.v - 0.01) === et && Math.abs(+l.dataset.v - v) < 1); }); };
+    if (choca && anim) { LABS.forEach(function (l) { l.classList.remove('on'); }); setTimeout(marca, 3200); } else marca();
+    $('base').style.top = yDe(D.base) + 'px'; $('base').style.opacity = (paso >= 1 && paso <= N + 2) ? 1 : 0;
+    var cap = '';
+    if (paso <= 0) cap = 'Iago marca <b>a bote pronto</b> cómo ve tu actitud: <b>' + etiqueta(D.base) + ' (' + fmt(D.base) + ')</b>. Ahora entran las fuerzas.';
+    else if (paso <= N) { var x = D.f[paso - 1]; cap = x[0] === 'c' ? 'En contra: <b>' + x[2].toLowerCase() + '</b> carga la espada roja (' + fmt(x[1]) + ').' :
+      x[0] === 'f' ? 'A favor: <b>' + x[2] + '</b> carga la espada verde (+' + fmt(x[1]) + '). Como mucho, un escalón.' : (x[0] === 'nc' ? 'No resta: <b>' : 'No suma: <b>') + x[2].toLowerCase() + '</b> (' + x[3] + ').'; }
+    else if (paso === N + 1) cap = '¡Choque! La roja empuja con <b>' + fmt(NEG) + '</b> y la verde con <b>' + fmt(POS) + '</b>: la luz blanca mueve la línea.';
+    else cap = 'Tu actitud se queda en <b>' + et + ' (' + fmt(v) + ')</b>: lo que Iago vio a bote pronto, recolocado.';
+    $('cap').innerHTML = cap;
+    $('barra').style.width = Math.min(100, 100 * (paso + 1) / PASOS) + '%';
+    $('cinco').classList.toggle('ve', paso >= N + 3);
+  }
+  var CT = null;
+  function cuenta(a, b, ms) { clearInterval(CT); var t0 = Date.now(); CT = setInterval(function () { var q = Math.min(1, (Date.now() - t0) / ms), e = q < .5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+    num.textContent = fmt(Math.round((a + (b - a) * e) * 10) / 10); if (q >= 1) clearInterval(CT); }, 50); }
+  function lanzaChispas() {
+    paraChispas();
+    chispas = setInterval(function () {
+      for (var i = 0; i < 3; i++) {
+        var c = document.createElement('div'), r = ch.getBoundingClientRect(), r0 = ter.getBoundingClientRect(), a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 90;
+        c.className = 'chispa'; c.style.left = (r.left - r0.left) + 'px'; c.style.top = (r.top - r0.top) + 'px'; ter.appendChild(c);
+        c.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: 'translate(' + Math.cos(a) * d + 'px,' + Math.sin(a) * d + 'px) scale(.2)', opacity: 0 }],
+          { duration: 500 + Math.random() * 400, easing: 'ease-out' }).onfinish = function () { this.effect.target.remove(); };
+      }
+    }, 60);
+  }
+  function paraChispas() { if (chispas) { clearInterval(chispas); chispas = null; } }
+  function dur() { return paso <= 0 ? 4200 : paso <= N ? 3300 : paso === N + 1 ? 4600 : paso === N + 2 ? 6000 : 0; }
+  function prog() { clearTimeout(t); if (pausa || paso >= PASOS - 1) return; t = setTimeout(function () { ir(paso + 1, true); }, dur()); }
+  function ir(p, anim) { paso = Math.max(0, Math.min(PASOS - 1, p)); pinta(anim); prog(); }
+  function pau(v) { pausa = (v === undefined) ? !pausa : v; $('bPau').textContent = pausa ? '▶' : '❚❚'; $('bPau').title = pausa ? 'Seguir (P)' : 'Pausa (P)'; prog(); }
+  $('bSig').onclick = function () { ir(paso + 1, true); };
+  $('bAnt').onclick = function () { ir(paso - 1, false); };
+  $('bPau').onclick = function () { pau(); };
+  $('bRe').onclick = $('bRe2').onclick = function () { pau(false); ir(0, false); };
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); ir(paso + 1, true); }
+    else if (e.key === 'ArrowLeft') ir(paso - 1, false);
+    else if (/^[pP]$/.test(e.key)) pau();
+    else if (/^[rR]$/.test(e.key)) { pau(false); ir(0, false); }
+  });
+  window.addEventListener('resize', function () { coloca(); pinta(false); });
+  coloca();
+  if (/[?&]paso=\d+/.test(location.search)) { pausa = true; $('bPau').textContent = '▶'; ir(+/paso=(\d+)/.exec(location.search)[1], false); }
+  else { pinta(false); setTimeout(function () { ir(0, false); }, 500); }
+})();
+</script>
+</body></html>
