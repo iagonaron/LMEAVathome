@@ -49,7 +49,7 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
 .col{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:2vh 1.2vw;display:flex;flex-direction:column;gap:1.2vh;min-height:0;overflow:hidden}
 .col h2{margin:0;font:900 clamp(11px,.95vw,16px)/1 var(--f);letter-spacing:.14em;text-transform:uppercase}
 .col.contra{border-color:rgba(239,68,68,.5)}.col.contra h2{color:#fca5a5}
-.col.favor{border-color:rgba(34,197,94,.5)}.col.favor h2{color:#86efac}
+.col.favor{border-color:rgba(34,197,94,.5);position:relative}.qsuma{position:absolute;top:1.6vh;right:1vw;border:1.5px solid rgba(134,239,172,.6);background:transparent;color:#86efac;border-radius:8px;padding:.35em .7em;font:700 clamp(10px,.8vw,13px)/1 var(--f);cursor:pointer}body:not(.real) .qsuma{display:none}@media (hover:hover){.qsuma:hover{background:rgba(34,197,94,.14)}}.pop-l .qs{font:500 14px/1.45 var(--f);color:#e4e4e7}.pop-l .qs b{color:#fff}.pop-l .qs h4{margin:4px 0 6px;font:800 13px/1 var(--f);letter-spacing:.08em}.pop-l .qs ul{margin:0 0 6px;padding-left:18px}.pop-l .qs li{margin:0 0 5px}.pop-l .qs .si{color:#4ade80}.pop-l .qs .no{color:#f87171}.pop-l .qs .nota{font-size:12.5px;color:#a1a1aa}.col.favor h2{color:#86efac}
 .tope{margin-top:-.4vh;font:600 clamp(10px,.85vw,14px)/1.2 var(--f);color:var(--suave)}
 .lista{display:flex;flex-direction:column;gap:1vh;flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:.3vw;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
 .neuw{flex:0 1 auto;max-height:46%;min-height:9vh;padding:1vh .6vw .8vh;margin:0 -.3vw -.2vh;border:1.5px dashed #3f3f46;border-radius:12px;display:flex;flex-direction:column;gap:.8vh}
@@ -152,7 +152,7 @@ body.f-sug .sug{border-color:#facc15}
 <main>
   <section class="col contra" id="colC"><h2>Resta</h2><div id="contra" class="lista"></div><div class="neuw"><h2>Neutro · no resta</h2><div id="neuC" class="lista n"></div></div></section>
   <section class="esc"><h2>Actitud</h2><div class="lad" id="lad"><div class="aguja" id="aguja"><i></i><em id="num"></em></div><div class="base" id="base"><span id="baseT"></span></div></div><div class="pie-esc" id="pieEsc"></div><div class="bal" id="bal"></div></section>
-  <section class="col favor" id="colF"><h2>Suma</h2><div class="tope">Como mucho, un escalón (+2)</div><div id="favor" class="lista"></div><div class="cont" id="cont"><div class="cont-t"><span>Lo que llevas sumado este trimestre</span><b id="contN"></b></div><div class="cont-b"><i id="contI"></i></div><small id="contM"></small></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
+  <section class="col favor" id="colF"><h2>Suma</h2><button class="qsuma" id="qSuma" type="button" title="¿Qué suma y qué no?">¿Qué suma?</button><div class="tope">Como mucho, un escalón (+2)</div><div id="favor" class="lista"></div><div class="cont" id="cont"><div class="cont-t"><span>Lo que llevas sumado este trimestre</span><b id="contN"></b></div><div class="cont-b"><i id="contI"></i></div><small id="contM"></small></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
 </main>
 <div class="sug" id="sug"><h2>Para mejorar</h2></div>
 <svg id="fuerzas" aria-hidden="true"><defs>
@@ -411,13 +411,13 @@ body.f-sug .sug{border-color:#facc15}
     return d;
   });
   ['neuF', 'neuC', 'favor', 'contra'].forEach(function (id) { if (!$(id).children.length) $(id).innerHTML = '<div class="vacio">' + (id === 'neuF' ? 'Nada por ahora.' : 'Nada por ahora.') + '</div>'; });
-  var sugs = C.sug.map(function (s) { var d = document.createElement(s[2] ? 'a' : 'div'); if (s[2]) { d.className = 'sugl'; d.href = s[2]; d.target = '_top'; } d.innerHTML = '<span>' + s[0] + '</span><span>' + s[1] + '</span>'; $('sug').appendChild(d); return d; });
+  var sugs = C.sug.map(function (s) { var d = document.createElement(s[2] ? 'a' : 'div'); if (s[2]) { d.className = 'sugl'; d.href = s[2]; d.target = '_top'; } d.innerHTML = '<span>' + (ICOS_SUG[s[0]] || s[0]) + '</span><span>' + s[1] + '</span>'; $('sug').appendChild(d); return d; });
   /* (12-nov, Iago) para sumar: cuánto vale cada área (la más floja, más) · Entonación = Entonación + Intervalia (con micrófono) · Dictado = Dictado + Predict */
   if (C.areas) { var dA = document.createElement('div'); dA.className = 'areas';
     dA.innerHTML = '<b>Para sumar, donde más puntúas</b><span class="chips">' + C.areas.map(function (a, k) { return '<i style="--c:' + a[2] + '"' + (k === 0 && a[1] !== '×1' ? ' class="top"' : '') + (a[3] ? ' title="' + a[3] + '"' : '') + (a[4] ? ' data-a="' + k + '" role="button" tabindex="0"' : '') + '>' + a[0] + ' ' + a[1] + '</i>'; }).join('') + '</span><small>Entonación + Intervalia, con micrófono · Dictado + Predict</small>';
     $('sug').appendChild(dA); sugs.push(dA);
     if (REAL) dA.querySelectorAll('i[data-a]').forEach(function (el) { el.onclick = function () { abrePop(C.areas[+el.getAttribute('data-a')]); }; });
-    if (REAL) dA.querySelector('small').textContent = 'Pulsa un área para ir a practicar · Entonación + Intervalia · Dictado + PreDict'; }
+    if (REAL) dA.querySelector('small').textContent = 'Pulsa un área para ir a practicar'; }
   var NEG = C.f.reduce(function (a, x) { return a + (x[1] < 0 ? -x[1] : 0); }, 0);
   var POS = Math.min(2, C.f.reduce(function (a, x) { return a + (x[1] > 0 ? x[1] : 0); }, 0));
   var SIN = C.base == null;
@@ -523,6 +523,23 @@ body.f-sug .sug{border-color:#facc15}
   }
   /* (12-nov-2026, Iago) ventanita al pulsar un área: Entonación (Entonación at home · Intervalia), Dictado (Dictado · PreDict),
      Teoría (lo rojo ×2 y lo naranja ×1,5 del mapa, cada uno directo; y el portal de teoría para todo lo demás, ×1) */
+  var ICOS_SUG = {"⭐": "<svg viewBox=\"0 0 24 24\" width=\"1.25em\" height=\"1.25em\" fill=\"none\" stroke=\"#fde68a\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z\"/></svg>", "🧭": "<svg viewBox=\"0 0 24 24\" width=\"1.25em\" height=\"1.25em\" fill=\"none\" stroke=\"#fde68a\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M15.5 8.5l-2 5-5 2 2-5z\"/></svg>", "✉️": "<svg viewBox=\"0 0 24 24\" width=\"1.25em\" height=\"1.25em\" fill=\"none\" stroke=\"#fde68a\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3.5\" y=\"6\" width=\"17\" height=\"12\" rx=\"2\"/><path d=\"M4 7l8 6 8-6\"/></svg>", "⏰": "<svg viewBox=\"0 0 24 24\" width=\"1.25em\" height=\"1.25em\" fill=\"none\" stroke=\"#fde68a\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"13\" r=\"7.5\"/><path d=\"M12 9.5V13l2.5 1.5M5 5.5l2-1.5M19 5.5l-2-1.5\"/></svg>", "🎯": "<svg viewBox=\"0 0 24 24\" width=\"1.25em\" height=\"1.25em\" fill=\"none\" stroke=\"#fde68a\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8.5\"/><circle cx=\"12\" cy=\"12\" r=\"4.5\"/><circle cx=\"12\" cy=\"12\" r=\".8\"/></svg>"};
+  /* (12-nov-2026, Iago) «¿Qué cosas suman y qué no?», arriba a la derecha de SUMA. Reglas provisionales: Iago las afina */
+  function abreQueSuma() { var pop = document.getElementById('pop'); if (!pop) return; pop.style.setProperty('--pc', '#86efac');
+    document.getElementById('popT').textContent = '¿Qué suma y qué no?';
+    document.getElementById('popS').textContent = 'Suma el tiempo que trabajas por tu cuenta en el portal: como mucho 30 minutos por semana y +2 en el trimestre.';
+    document.getElementById('popL').innerHTML = '<div class="qs"><h4 class="si">✓ CUENTA</h4><ul>'
+      + '<li><b>Hacer ejercicios</b> (Teoría, Ritmo, Entonación, Intervalia, PreDict…): solo los momentos en que trabajas de verdad: respondes, tocas, estudias o interpretas.</li>'
+      + '<li><b>Dictado</b>: si completas un dictado, o si le dedicas al menos 15 minutos ese día.</li>'
+      + '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…).</li></ul>'
+      + '<h4 class="no">✕ NO CUENTA</h4><ul>'
+      + '<li>La pantalla abierta o quieta, sin hacer nada (aunque muevas el ratón).</li>'
+      + '<li><b>Ver vídeos o leer apuntes de Teoría</b>: ayudan y se valoran, pero no se pueden contar: cualquiera podría dejarlos puestos horas.</li>'
+      + '<li>La portada y las pantallas de carga.</li>'
+      + '<li>El portal de una clase a la que faltaste: eso es ponerte al día.</li></ul>'
+      + '<div class="nota">Iago está afinando estas reglas estos días; si cambian, se verán aquí.</div></div>';
+    pop.hidden = false; }
+  try { document.getElementById('qSuma').onclick = abreQueSuma; } catch (e) {}
   function abrePop(a) {
     var pop = document.getElementById('pop'), ops = a[4] || [];
     if (ops.length === 1 && a[5] !== 'teoria') { try { top.location.href = ops[0][1]; } catch (e) { location.href = ops[0][1]; } return; }
