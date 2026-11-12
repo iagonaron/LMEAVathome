@@ -49,7 +49,7 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
 .col{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:2vh 1.2vw;display:flex;flex-direction:column;gap:1.2vh;min-height:0;overflow:hidden}
 .col h2{margin:0;font:900 clamp(11px,.95vw,16px)/1 var(--f);letter-spacing:.14em;text-transform:uppercase}
 .col.contra{border-color:rgba(239,68,68,.5)}.col.contra h2{color:#fca5a5}
-.col.favor{border-color:rgba(34,197,94,.5);position:relative}.qsuma{position:absolute;top:1.6vh;right:1vw;border:1.5px solid rgba(134,239,172,.6);background:transparent;color:#86efac;border-radius:8px;padding:.35em .7em;font:700 clamp(10px,.8vw,13px)/1 var(--f);cursor:pointer}body:not(.real) .qsuma{display:none}@media (hover:hover){.qsuma:hover{background:rgba(34,197,94,.14)}}.pop-l .qs{font:500 14px/1.45 var(--f);color:#e4e4e7}.pop-l .qs b{color:#fff}.pop-l .qs h4{margin:4px 0 6px;font:800 13px/1 var(--f);letter-spacing:.08em}.pop-l .qs ul{margin:0 0 6px;padding-left:18px}.pop-l .qs li{margin:0 0 5px}.pop-l .qs .si{color:#4ade80}.pop-l .qs .no{color:#f87171}.pop-l .qs .nota{font-size:12.5px;color:#a1a1aa}.col.favor h2{color:#86efac}
+.col.favor{border-color:rgba(34,197,94,.5);position:relative}.qsuma{position:absolute;top:1.6vh;right:1vw;border:1.5px solid rgba(134,239,172,.6);background:transparent;color:#86efac;border-radius:8px;padding:.35em .7em;font:700 clamp(10px,.8vw,13px)/1 var(--f);cursor:pointer}body:not(.real) .qsuma{display:none}@media (hover:hover){.qsuma:hover{background:rgba(34,197,94,.14)}}.pop-l .qs{font:500 14px/1.45 var(--f);color:#e4e4e7}.pop-l .qs b{color:#fff}.pop-l .qs h4{margin:4px 0 6px;font:800 13px/1 var(--f);letter-spacing:.08em}.pop-l .qs ul{margin:0 0 6px;padding-left:18px}.pop-l .qs li{margin:0 0 5px}.pop-l .qs .si{color:#4ade80}.pop-l .qs .no{color:#f87171}.pop-l .qs .nota{font-size:12.5px;color:#a1a1aa}.pop-l .qs .idea{margin:0 0 10px;padding:8px 10px;border-radius:8px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3)}.pop-l .qs .nota b{color:#d4d4d8}.col.favor h2{color:#86efac}
 .tope{margin-top:-.4vh;font:600 clamp(10px,.85vw,14px)/1.2 var(--f);color:var(--suave)}
 .lista{display:flex;flex-direction:column;gap:1vh;flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:.3vw;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
 .neuw{flex:0 1 auto;max-height:46%;min-height:9vh;padding:1vh .6vw .8vh;margin:0 -.3vw -.2vh;border:1.5px dashed #3f3f46;border-radius:12px;display:flex;flex-direction:column;gap:.8vh}
@@ -527,17 +527,20 @@ body.f-sug .sug{border-color:#facc15}
   /* (12-nov-2026, Iago) «¿Qué cosas suman y qué no?», arriba a la derecha de SUMA. Reglas provisionales: Iago las afina */
   function abreQueSuma() { var pop = document.getElementById('pop'); if (!pop) return; pop.style.setProperty('--pc', '#86efac');
     document.getElementById('popT').textContent = '¿Qué suma y qué no?';
-    document.getElementById('popS').textContent = 'Suma el tiempo que trabajas por tu cuenta en el portal: como mucho 30 minutos por semana y +2 en el trimestre.';
-    document.getElementById('popL').innerHTML = '<div class="qs"><h4 class="si">✓ CUENTA</h4><ul>'
-      + '<li><b>Hacer ejercicios</b> (Teoría, Ritmo, Entonación, Intervalia, PreDict…): solo los momentos en que trabajas de verdad: respondes, tocas, estudias o interpretas.</li>'
-      + '<li><b>Dictado</b>: si completas un dictado, o si le dedicas al menos 15 minutos ese día.</li>'
-      + '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…).</li></ul>'
-      + '<h4 class="no">✕ NO CUENTA</h4><ul>'
-      + '<li>La pantalla abierta o quieta, sin hacer nada (aunque muevas el ratón).</li>'
-      + '<li><b>Ver vídeos o leer apuntes de Teoría</b>: ayudan y se valoran, pero no se pueden contar: cualquiera podría dejarlos puestos horas.</li>'
-      + '<li>La portada y las pantallas de carga.</li>'
+    document.getElementById('popS').textContent = 'Suma el tiempo que dedicas por tu cuenta a actividades del portal en las que trabajas de verdad: como mucho 30 minutos por semana y +2 en el trimestre.';
+    document.getElementById('popL').innerHTML = '<div class="qs"><p class="idea"><b>La idea:</b> si haces una actividad del portal de buena fe, siguiendo los pasos que propone, te cuenta <b>todo el rato que dura</b>, no solo los segundos en que pulsas algo.</p>'
+      + '<h4 class="si">✓ SUMA</h4><ul>'
+      + '<li><b>Teoría</b>: hacer los ejercicios, responderlos y darle a corregir.</li>'
+      + '<li><b>Ritmo, Entonación, Ritmo entonado, Intervalia, PreDict…</b>: practicar con sus fases de estudio, el metrónomo, grabarte o interpretar.</li>'
+      + '<li><b>Dictado</b>: completar un dictado, o dedicarle al menos 15 minutos ese día.</li>'
+      + '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…): avanzar por ellos haciendo sus actividades, aunque tengan mucho vídeo.</li></ul>'
+      + '<h4 class="no">✕ NO SUMA</h4><ul>'
+      + '<li>Los ratos de <b>menos de 3 minutos</b>.</li>'
+      + '<li>Solo <b>ver vídeos didácticos</b> o <b>leer apuntes</b>.</li>'
+      + '<li>Una pantalla <b>sin nada que hacer</b>: unos apuntes, o una lección de ritmo puesta sin estudiarla ni practicarla.</li>'
+      + '<li>Tener la pantalla abierta, <b>mover el ratón o darle a la ruedecita</b> sin más.</li>'
       + '<li>El portal de una clase a la que faltaste: eso es ponerte al día.</li></ul>'
-      + '<div class="nota">Iago está afinando estas reglas estos días; si cambian, se verán aquí.</div></div>';
+      + '<div class="nota"><b>¿Por qué?</b> Leer apuntes o ver vídeos también es estudiar y tiene su valor, pero no hay forma de comprobar si alguien lo está haciendo de verdad o solo ha dejado la pantalla puesta. Para que sea justo para todos, solo cuenta lo que se puede comprobar.</div></div>';
     pop.hidden = false; }
   try { document.getElementById('qSuma').onclick = abreQueSuma; } catch (e) {}
   function abrePop(a) {
