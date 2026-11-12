@@ -244,7 +244,9 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     <path id="hR" class="halo" stroke="#ef4444"/><path id="pR" stroke="#ef4444"/><path id="fR" class="flujo"/>
     <path id="hV" class="halo" stroke="#22c55e"/><path id="pV" stroke="#22c55e"/><path id="fV" class="flujo"/>
     <circle id="cR" r="0" fill="#fff" stroke="#ef4444" stroke-width="5"/><circle id="cV" r="0" fill="#fff" stroke="#22c55e" stroke-width="5"/>
-    <circle id="haz" r="0" fill="url(#gHaz)"/></svg>
+    <circle id="haz" r="0" fill="url(#gHaz)"/>
+    <text id="tR" x="0" y="0" text-anchor="middle" font-size="30" font-weight="900" fill="#fecaca" stroke="#450a0a" stroke-width="6" paint-order="stroke" font-family="Inter,system-ui,sans-serif" opacity="0"></text>
+    <text id="tV" x="0" y="0" text-anchor="middle" font-size="34" font-weight="900" fill="#bbf7d0" stroke="#052e16" stroke-width="6" paint-order="stroke" font-family="Inter,system-ui,sans-serif" opacity="0">+1</text></svg>
   <div id="flash"></div>
   <div id="cinco0">La actitud es el <span>5 %</span><small>de la nota del trimestre</small></div>
   <div id="maquina"></div>
@@ -405,9 +407,16 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   /* (v5) el ejemplo, paso a paso: cada resta tira de la línea blanca hacia abajo; la verde llega después y, en el choque, compensa */
   function tc(id) { var z = TARJ.filter(function (q) { return q[0] === id; })[0]; return z ? z.t : null; }
   var PASOS = [[tc('ePun'), -2], [tc('eF2'), -0.5], [tc(G === 'gp' ? 'ePor' : 'eQui'), -0.5]].filter(function (q) { return q[0] != null; });
-  var TVERDE = tc('eSum'), EJ0 = t0('ejemplo', 0) || 1e9, BAJO = BASE + PASOS.reduce(function (a, q) { return a + q[1]; }, 0);
-  var PULSOS = TARJ.filter(function (q, i) { return i < GEN && q[1] === 'c' && q.t != null; }).map(function (q) { return q.t; }).concat(PASOS.map(function (q) { return q[0]; }));
-  function valor(t) { var v = BASE; PASOS.forEach(function (q) { if (t >= q[0] + 0.15) v += q[1] * suave(Math.min(1, (t - q[0] - 0.15) / 0.6)); });
+  var TVERDE = t0('chocan', 0) != null ? t0('chocan', 0) : tc('eSum'), EJ0 = t0('ejemplo', 0) || 1e9, BAJO = BASE + PASOS.reduce(function (a, q) { return a + q[1]; }, 0);
+  /* (v7) en el ejemplo, cada resta viaja despacio por la línea roja (la 1.ª la dibuja, 2,6 s; las demás, un «paquete» rojo, 2 s) y al llegar baja la línea blanca (1,4 s) */
+  var LENTO1 = 2.6, LENTO = 2.0, BAJA = 1.4;
+  PASOS.forEach(function (q, i) { q.A = q[0] + (i === 0 ? LENTO1 : LENTO); });
+  /* cada resta es una bola roja que sale de la columna y desemboca en la línea blanca: en la explicación, 1,6 s; en el ejemplo, más lenta */
+  function fmtD(d) { return '−' + String(Math.abs(d)).replace('.', ','); }
+  var PAQ = TARJ.filter(function (q, i) { return i < GEN && q[1] === 'c' && q.t != null; }).map(function (q) { var m = /−[\d,]+/.exec(q[4].replace(/<[^>]*>/g, '')); return { s: q.t, d: 1.6, l: m ? m[0] : '−' }; })
+    .concat(PASOS.filter(function (q, i) { return i > 0; }).map(function (q) { return { s: q[0], d: LENTO, l: fmtD(q[1]) }; }));
+  var PULSOS = PAQ.map(function (q) { return q.s + q.d; }).concat(PASOS.length ? [PASOS[0].A] : []);
+  function valor(t) { var v = BASE; PASOS.forEach(function (q) { if (t >= q.A) v += q[1] * suave(Math.min(1, (t - q.A) / BAJA)); });
     if (t >= IMP) v += (FIN - BAJO) * suave(Math.min(1, (t - IMP) / (LLEGA - IMP))); return v; }
   var geo = null;
   function mide() {
@@ -438,17 +447,25 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     var rev = [F.revR, F.revV], pulso = F.pulso && now - F.pulso < 0.45 ? 1 - (now - F.pulso) / 0.45 : 0;
     [[P.hR, P.pR, P.fR, P.cR, dR, F.wR, F.aR * (F.dimR ? .5 : 1), F.dimR ? '#52525b' : '#ef4444', 0], [P.hV, P.pV, P.fV, P.cV, dV, F.wV, F.aV * (F.dimV ? .5 : 1), F.dimV ? '#52525b' : '#22c55e', 1]].forEach(function (z) {
       if (z[1].__c !== z[7]) { z[1].__c = z[7]; z[1].setAttribute('stroke', z[7]); z[0].setAttribute('stroke', z[7]); }
-      var w = Math.max(0, z[5] * vib * gord * (z[8] === 0 ? 1 + 1.4 * pulso : 1));
+      var w = Math.max(0, z[5] * vib * gord * (z[8] === 0 ? 1 + 1.4 * pulso + (F.packR != null ? 0.35 : 0) : 1));
       z[0].setAttribute('d', z[4]); z[1].setAttribute('d', z[4]); z[2].setAttribute('d', z[4]);
       z[1].setAttribute('stroke-width', w.toFixed(2)); z[1].setAttribute('stroke-opacity', z[6].toFixed(3));
       z[0].setAttribute('stroke-width', (w * 2.3 + 3).toFixed(2)); z[0].setAttribute('stroke-opacity', (z[6] * (enCh ? .3 : .16)).toFixed(3));
       z[2].setAttribute('stroke-width', (z[5] * .45).toFixed(2)); z[2].style.opacity = z[6];
-      var rv = rev[z[8]], ee = carga ? e : (rv != null && rv < 1 ? 1 - Math.pow(1 - rv, 2) : 0);
+      var rv = rev[z[8]], ee = rv != null && rv < 1 ? (z[8] === 0 && F.lentoR ? rv * rv * (3 - 2 * rv) : z[8] === 1 && t >= EJ0 ? rv * rv : 1 - Math.pow(1 - rv, 2)) : 0;
+      z[2].style.opacity = ee ? 0 : z[6];
       if (ee) { var len = z[1].getTotalLength(), d = len * (1 - ee); e = ee;
         z[1].style.strokeDasharray = len; z[1].style.strokeDashoffset = d; z[0].style.strokeDasharray = len; z[0].style.strokeDashoffset = d;
-        var p = z[1].getPointAtLength(len * ee); z[3].setAttribute('cx', p.x); z[3].setAttribute('cy', p.y); z[3].setAttribute('r', (9 + 5 * Math.sin(now * 20)).toFixed(1)); }
+        var p = z[1].getPointAtLength(len * ee); z[3].setAttribute('cx', p.x); z[3].setAttribute('cy', p.y);
+        if (z[8] === 0 && F.lentoR) cabezaRoja(z[3], now); else { cabezaNormal(z[3]); z[3].setAttribute('r', (9 + 5 * Math.sin(now * 20)).toFixed(1)); } }
+      else if (z[8] === 0 && F.packR != null) { if (z[1].style.strokeDasharray) { z[1].style.strokeDasharray = ''; z[1].style.strokeDashoffset = ''; z[0].style.strokeDasharray = ''; z[0].style.strokeDashoffset = ''; }
+        var len2 = z[1].getTotalLength(), fr = F.packR * F.packR * (3 - 2 * F.packR), p2 = z[1].getPointAtLength(len2 * fr);
+        z[3].setAttribute('cx', p2.x); z[3].setAttribute('cy', p2.y); cabezaRoja(z[3], now); }
       else { if (z[1].style.strokeDasharray) { z[1].style.strokeDasharray = ''; z[1].style.strokeDashoffset = ''; z[0].style.strokeDasharray = ''; z[0].style.strokeDashoffset = ''; } z[3].setAttribute('r', 0); }
     });
+    var tR = $('tR'), tV = $('tV'), cr = P.cR, cv = P.cV;
+    if (+cr.getAttribute('r') > 0 && F.labR) { if (tR.__l !== F.labR) { tR.__l = F.labR; tR.textContent = F.labR; } tR.setAttribute('x', cr.getAttribute('cx')); tR.setAttribute('y', +cr.getAttribute('cy') < 200 ? +cr.getAttribute('cy') + 48 : +cr.getAttribute('cy') - 22); tR.setAttribute('opacity', 1); } else tR.setAttribute('opacity', 0);
+    if (+cv.getAttribute('r') > 0 && t >= EJ0) { tV.setAttribute('x', cv.getAttribute('cx')); tV.setAttribute('y', +cv.getAttribute('cy') + 46); tV.setAttribute('opacity', 1); } else tV.setAttribute('opacity', 0);
     var rH = (F.neg && F.pos ? 11 : (F.neg || F.pos) ? 7 : 0) + Math.sin(now * 2.6) * 1.6;
     if (enCh && !carga) rH += (70 * Math.pow(1 - tras, 1.5) + 22) * (1 + Math.sin(now * 28) * .12);
     if (carga > .7) rH += 30 * (carga - .7) / .3;
@@ -460,6 +477,10 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     }
     ultT = t;
   }
+  /* la cabeza de la resta: roja, oscura por dentro, que late de forma irregular (sutilmente nociva) */
+  function cabezaRoja(c, now) { if (c.__m !== 'r') { c.__m = 'r'; c.setAttribute('fill', '#7f1d1d'); c.setAttribute('stroke', '#ef4444'); c.setAttribute('stroke-width', '4'); }
+    c.setAttribute('r', (11 + 2.6 * Math.sin(now * 13) + 1.6 * Math.sin(now * 31 + 1.3) + 0.8 * Math.sin(now * 57)).toFixed(1)); }
+  function cabezaNormal(c) { if (c.__m === 'r') { c.__m = ''; c.setAttribute('fill', '#fff'); c.setAttribute('stroke', c.id === 'cR' ? '#ef4444' : '#22c55e'); c.setAttribute('stroke-width', '5'); } }
   function golpe(g, yA) {
       window.__golpes = (window.__golpes || 0) + 1;
       $('flash').animate([{ opacity: .6 }, { opacity: 0 }], { duration: 550, easing: 'ease-out' });
@@ -492,7 +513,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     PELS.forEach(function (p) { cls(p, 'pulsa', entre(t, T7, T7 + 0.9) && +p.dataset.b === banda(BASE)); });
     sty($('base'), 'top', yDe(BASE) + 'px'); sty($('base'), 'opacity', t >= t0('dosfuerzas', 0) && t < mrA && !sin7 ? '1' : '0');
     sty($('ejemplo'), 'opacity', t >= t0('ejemplo', 0.3) && t < mrA ? '1' : '0');
-    var resta = -PASOS.reduce(function (a, q) { return a + (t >= q[0] ? q[1] : 0); }, 0);
+    var resta = -PASOS.reduce(function (a, q) { return a + (t >= q.A ? q[1] : 0); }, 0);
     htm($('ejemplo'), t >= LLEGA ? 'Alumno de ejemplo: <b>' + etiqueta(FIN) + ' (' + fmt(FIN) + ')</b>' : (sin7 ? 'Alumno de ejemplo' : 'Alumno de ejemplo: parte de un 7') + (resta ? ' · resta ' + fmt(resta) : '') + (TVERDE != null && t >= TVERDE ? ' · suma 1' : ''));
     // focos
     var esc = $('cols'), fo = '', dim = false, dimN = entre(t, t0('neutras', 0), t0('puntualidad', 0));
@@ -518,10 +539,12 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     XS.forEach(function (s) { cls(s.el, 've', s.t != null && t >= s.t); });
     var vf = $('vFalt'); if (vf) txt(vf, t >= t0('faltas3', 0.9) ? '−2,5' : t >= t0('faltas3', 0.4) ? '−1,5' : '−0,5');
     var base2 = t >= t0('dosfuerzas', 0.6) ? 1 : 0;
+    F.lentoR = false; F.packR = null; F.labR = ''; PAQ.forEach(function (q) { if (t >= q.s && t < q.s + q.d) { F.packR = (t - q.s) / q.d; F.labR = q.l; } });
     if (t < EJ0) { var resumen = t < t0('puntualidad', 0); F.neg = Math.max(base2, neg * 0.8); var tS = t0('suma', 0); F.pos = pos ? Math.min(2, pos * 0.6) : (resumen || t >= tS ? base2 : 0); F.revR = null; F.revV = t >= tS && t < tS + 0.7 ? (t - tS) / 0.7 : null; }
     else { var pr = PASOS.filter(function (q) { return t >= q[0]; }).length; F.neg = pr ? 1 + pr * 0.8 : 0; F.pos = TVERDE != null && t >= TVERDE ? 1.2 : 0;
-      F.revR = PASOS.length && t >= PASOS[0][0] ? Math.min(1, (t - PASOS[0][0]) / 0.7) : 0; F.revV = TVERDE != null && t >= TVERDE ? Math.min(1, (t - TVERDE) / 0.7) : 0;
-      if (t >= CH.t0) F.revR = F.revV = null; }
+      F.revR = PASOS.length && t >= PASOS[0][0] ? Math.min(1, (t - PASOS[0][0]) / LENTO1) : 0; F.lentoR = true; if (F.revR > 0 && F.revR < 1) F.labR = fmtD(PASOS[0][1]);
+ F.revV = TVERDE != null && t >= TVERDE ? Math.min(1, (t - TVERDE) / Math.max(0.7, IMP - TVERDE)) : 0;
+      if (t >= CH.t0) F.revR = null; if (t >= IMP) F.revV = null; }
     F.dimR = fo === 'colF' || dimN; F.dimV = fo === 'colC' || dimN;
     // etiquetas sobre puntualidad, atención y comportamiento
     ['punt', 'aten', 'comp'].forEach(function (k) { var g = $('tg-' + k); if (!g) return;

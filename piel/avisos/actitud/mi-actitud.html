@@ -83,13 +83,16 @@ main{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:1.6vw;min-height:0}
 body.f-bal .bal{box-shadow:0 0 0 3px #facc15,0 0 36px rgba(250,204,21,.6)}
 .bal span{font:800 clamp(10px,.8vw,13px)/1.2 var(--f);letter-spacing:.12em;text-transform:uppercase;color:#d4d4d8}
 .bal small{font:500 clamp(10px,.78vw,13px)/1.3 var(--f);color:#a1a1aa}
-.cont{padding:.9vh .8vw;border-radius:12px;border:1.5px solid rgba(34,197,94,.5);background:rgba(34,197,94,.06);transition:box-shadow .5s}
-.cont-t{display:flex;justify-content:space-between;align-items:baseline;gap:.6vw;font:700 clamp(10px,.8vw,13px)/1.2 var(--f);color:#d4d4d8}
-.cont-t b{font:900 clamp(13px,1.15vw,20px)/1 var(--f);color:#4ade80;font-variant-numeric:tabular-nums}
-.cont-b{margin-top:.7vh;height:clamp(8px,.8vw,14px);border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
+.cont{flex:0 0 auto;padding:1.4vh 1vw 1.2vh;border-radius:14px;border:2px solid rgba(34,197,94,.6);background:rgba(34,197,94,.08);transition:box-shadow .5s,transform .5s;transform-origin:center top}
+.cont-t{display:flex;justify-content:space-between;align-items:baseline;gap:.6vw;font:800 clamp(11px,.95vw,16px)/1.2 var(--f);color:#e4e4e7}
+.cont-t b{font:900 clamp(16px,1.6vw,28px)/1 var(--f);color:#4ade80;font-variant-numeric:tabular-nums}
+.cont-b{margin-top:1vh;height:clamp(14px,1.4vw,24px);border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
 .cont-b::after{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1.5px dashed rgba(255,255,255,.35)}
 .cont-b i{display:block;height:100%;width:0;background:#22c55e;border-radius:6px;transition:width 1.6s cubic-bezier(.4,0,.2,1)}
-.cont small{display:block;margin-top:.5vh;font:500 clamp(9px,.72vw,12px)/1.3 var(--f);color:#a1a1aa}
+.cont small{display:block;margin-top:.7vh;font:600 clamp(10px,.85vw,14px)/1.3 var(--f);color:#a1a1aa}
+body.f-barra .cont{transform:scale(1.04)}
+.cont.lleno .cont-t b{color:#facc15}
+.cont.lleno{animation:avisoT 1.1s ease-in-out infinite}
 .cont.lleno{border-color:#facc15}.cont.lleno .cont-b i{background:#facc15}.cont.lleno small{color:#fde68a}
 body.f-barra .cont,body.f-sug .sug,body.f-aguja .aguja em{box-shadow:0 0 0 3px #facc15,0 0 36px rgba(250,204,21,.6)}
 body.f-sug .sug{border-color:#facc15}
@@ -120,7 +123,7 @@ body.f-sug .sug{border-color:#facc15}
 <main>
   <section class="col contra" id="colC"><h2>Resta</h2><div id="contra" class="lista"></div><div class="neuw"><h2>Neutro · no resta</h2><div id="neuC" class="lista n"></div></div></section>
   <section class="esc"><h2>Actitud</h2><div class="lad" id="lad"><div class="aguja" id="aguja"><i></i><em id="num"></em></div><div class="base" id="base"><span id="baseT"></span></div></div><div class="pie-esc" id="pieEsc"></div><div class="bal" id="bal"></div></section>
-  <section class="col favor" id="colF"><h2>Suma</h2><div class="tope">Como mucho, un escalón (+2)</div><div class="cont" id="cont"><div class="cont-t"><span>Lo que llevas sumado este trimestre</span><b id="contN"></b></div><div class="cont-b"><i id="contI"></i></div><small id="contM"></small></div><div id="favor" class="lista"></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
+  <section class="col favor" id="colF"><h2>Suma</h2><div class="tope">Como mucho, un escalón (+2)</div><div id="favor" class="lista"></div><div class="cont" id="cont"><div class="cont-t"><span>Lo que llevas sumado este trimestre</span><b id="contN"></b></div><div class="cont-b"><i id="contI"></i></div><small id="contM"></small></div><div class="neuw"><h2>Neutro · no suma</h2><div id="neuF" class="lista n"></div></div></section>
 </main>
 <div class="sug" id="sug"><h2>Para mejorar</h2></div>
 <svg id="fuerzas" aria-hidden="true"><defs>
@@ -232,7 +235,14 @@ body.f-sug .sug{border-color:#facc15}
   $('contN').textContent = '+' + fmt(POS) + ' de +2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + fmt(2 - POS) + ' para el tope del trimestre.';
   if (POS >= 2) $('cont').classList.add('lleno');
   setTimeout(function () { $('contI').style.width = (Math.min(2, POS) / 2 * 100) + '%'; }, 900);
-  addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja', 'bal'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); }); });
+  var DEMO = null;
+  function ponBarra(p) { $('contI').style.width = (Math.min(2, p) / 2 * 100) + '%'; $('contN').textContent = '+' + fmt(Math.round(p * 10) / 10) + ' de +2';
+    var lleno = p >= 2; $('cont').classList.toggle('lleno', lleno);
+    $('contM').textContent = lleno ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : 'Te queda +' + fmt(Math.round((2 - p) * 10) / 10) + ' para el tope del trimestre.'; }
+  addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja', 'bal'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); });
+    /* (12-nov, Iago) al explicarla en el vídeo: la barra sigue llenándose hasta el tope y avisa */
+    clearInterval(DEMO); if (d.que === 'barra') { var p = POS, t0 = Date.now(); DEMO = setInterval(function () { var q = (Date.now() - t0) / 1000;
+      if (q < 2.2) return; p = Math.min(2, POS + (q - 2.2) * 0.35); ponBarra(p); if (p >= 2) clearInterval(DEMO); }, 60); } });
   var BAL = POS - NEG, bal = $('bal');
   bal.innerHTML = '<b style="color:' + (BAL > 0.01 ? '#4ade80' : BAL < -1.5 ? '#f87171' : BAL < -0.01 ? '#fbbf24' : '#e4e4e7') + '">' + (BAL > 0 ? '+' : BAL < 0 ? '−' : '') + fmt(Math.abs(BAL)) + '</b>' +
     '<span>Tu balance de fuerzas</span><div class="bb"><i class="r" id="balR"></i><i class="v" id="balV"></i><em id="balM"></em></div><small>Se aplica a la nota que pone Iago. En 0 o cerca, está bien; pasar de 0 es todo un éxito. Lo importante: que no sea muy negativo.</small>';
