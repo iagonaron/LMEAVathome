@@ -376,6 +376,7 @@ body.f-sug .sug{border-color:#facc15}
              semLlena: !!(d.semana && d.semana.secs >= (d.semana.tope || 1800)), renueva: d.semana ? d.semana.renueva : null };
   }
   function arranca(C) {
+  window.__MA_GP = !!C.gp;   /* (12-nov-2026) nivel, para «¿Qué suma?» */
   var $ = function (id) { return document.getElementById(id); };
   $('grupo').textContent = (C.grupo ? C.grupo + ' · ' : '') + (C.t === '1T' ? '1.er' : C.t === '2T' ? '2.º' : '3.er') + ' trimestre'; if (C.nombre) $('nombre').textContent = C.nombre;
   if (REAL && !C.definitiva) document.body.classList.add('provi');
@@ -528,19 +529,21 @@ body.f-sug .sug{border-color:#facc15}
   function abreQueSuma() { var pop = document.getElementById('pop'); if (!pop) return; pop.style.setProperty('--pc', '#86efac');
     document.getElementById('popT').textContent = '¿Qué suma y qué no?';
     document.getElementById('popS').textContent = 'Suma el tiempo que dedicas por tu cuenta a actividades del portal en las que trabajas de verdad: como mucho 30 minutos por semana y +2 en el trimestre.';
-    document.getElementById('popL').innerHTML = '<div class="qs"><p class="idea"><b>La idea:</b> si haces una actividad del portal de buena fe, siguiendo los pasos que propone, te cuenta <b>todo el rato que dura</b>, no solo los segundos en que pulsas algo. Si pasa un rato sin que hagas nada, se pone en pausa hasta que vuelvas.</p>'
+    var GP = !!window.__MA_GP;   /* (12-nov-2026, Iago) GE sin Ritmo entonado ni portales; GP sin Ritmo ni Entonación */
+    document.getElementById('popL').innerHTML = '<div class="qs"><p class="idea"><b>La idea:</b> si haces una actividad del portal con normalidad, siguiendo los pasos que propone, te cuenta <b>todo el rato que dura</b>, no solo los segundos en que pulsas algo. Si pasa un rato largo sin que hagas nada, se pone en pausa hasta que vuelvas a estar trabajando de verdad.</p>'
       + '<h4 class="si">✓ SUMA</h4><ul>'
-      + '<li><b>Teoría</b>: hacer ejercicios y corregirlos.</li>'
-      + '<li><b>Ritmo, Entonación, Ritmo entonado, Intervalia, PreDict…</b>: practicar con sus fases de estudio, el metrónomo o interpretando.</li>'
-      + '<li><b>Dictado</b>: completar un dictado, o dedicarle al menos 15 minutos ese día.</li>'
-      + '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…): avanzar por ellos haciendo sus actividades, aunque tengan mucho vídeo.</li></ul>'
-      + '<h4 class="no">✕ NO SUMA</h4><ul>'
-      + '<li><b>Menos de 3 minutos</b> en total en un área ese día (si haces 2 min de un ejercicio de Teoría y 3 de otro, cuentan los 5).</li>'
+      + '<li><b>Teoría</b>: hacer ejercicios y comprobar tus respuestas.</li>'
+      + (GP ? '<li><b>Ritmo entonado, Intervalia, PreDict…</b>: practicar con sus fases de estudio, el metrónomo o interpretando.</li>'
+            : '<li><b>Ritmo, Entonación, Intervalia, PreDict…</b>: practicar con sus fases de estudio, el metrónomo o interpretando.</li>')
+      + '<li><b>Dictado</b>: completar un dictado de principio a fin y ver la solución para corregirte.</li>'
+      + (GP ? '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…): avanzar por ellos haciendo sus actividades. El tiempo de un capítulo se suma <b>cuando lo terminas</b>, aunque lo hagas en varios días.</li>' : '')
+      + '</ul><h4 class="no">✕ NO SUMA</h4><ul>'
+      + '<li><b>Menos de 3 minutos</b> en total en un área ese día (si haces 2 min de un ejercicio de Teoría y 3 de otro, sí cuentan los 5).</li>'
       + '<li>Solo <b>ver vídeos didácticos</b> o <b>leer apuntes</b>.</li>'
-      + '<li>Una pantalla <b>sin nada que hacer</b>: unos apuntes, o una lección de ritmo puesta sin estudiarla ni practicarla.</li>'
+      + '<li>Una <b>lección de ritmo puesta sin interactuar con ella</b>: solo reproducirla no permite comprobar que es trabajo real.</li>'
       + '<li>Tener la pantalla abierta, <b>mover el ratón o darle a la ruedecita</b> sin más.</li>'
-      + '<li>El portal de una clase a la que faltaste: eso es ponerte al día.</li></ul>'
-      + '<div class="nota"><b>¿Por qué?</b> Ver los vídeos de Teoría o leer apuntes es una parte valiosa del trabajo, y a Iago le gustaría contarla, pero no hay forma de comprobar si alguien lo está haciendo de verdad o solo ha dejado la pantalla puesta. Para que sea justo para todos, solo cuenta lo que se puede comprobar.</div></div>';
+      + (GP ? '<li>El portal de una clase a la que faltaste: eso es ponerte al día.</li>' : '')
+      + '</ul><div class="nota"><b>¿Por qué?</b> Ver los vídeos de Teoría o leer apuntes es una parte valiosa del trabajo, e Iago aprecia que lo hagas, pero no hay forma de comprobar si alguien lo está haciendo de verdad o solo ha dejado la pantalla puesta. Para que sea justo para todos, solo cuenta lo que se puede comprobar.</div></div>';
     pop.hidden = false; }
   try { document.getElementById('qSuma').onclick = abreQueSuma; } catch (e) {}
   function abrePop(a) {
