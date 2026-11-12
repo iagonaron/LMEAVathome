@@ -235,7 +235,7 @@ body.f-sug .sug{border-color:#facc15}
   addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja', 'bal'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); }); });
   var BAL = POS - NEG, bal = $('bal');
   bal.innerHTML = '<b style="color:' + (BAL > 0.01 ? '#4ade80' : BAL < -1.5 ? '#f87171' : BAL < -0.01 ? '#fbbf24' : '#e4e4e7') + '">' + (BAL > 0 ? '+' : BAL < 0 ? '−' : '') + fmt(Math.abs(BAL)) + '</b>' +
-    '<span>Tu balance de fuerzas</span><div class="bb"><i class="r" id="balR"></i><i class="v" id="balV"></i><em id="balM"></em></div><small>Se aplica a la nota que pone Iago. En 0 o cerca, ya es un éxito; pasar de 0 cuesta. Lo importante: que no sea muy negativo.</small>';
+    '<span>Tu balance de fuerzas</span><div class="bb"><i class="r" id="balR"></i><i class="v" id="balV"></i><em id="balM"></em></div><small>Se aplica a la nota que pone Iago. En 0 o cerca, está bien; pasar de 0 es todo un éxito. Lo importante: que no sea muy negativo.</small>';
   /* líneas de fuerza */
   var F = { neg: 0, pos: 0, wR: 0, wV: 0, aR: 0, aV: 0, choque: 0 };
   var pR = $('pR'), pV = $('pV'), fR = $('fR'), fV = $('fV'), haz = $('haz');
