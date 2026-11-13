@@ -276,10 +276,10 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   <div id="regu"><h4>Regularidad, <span>no atracones</span></h4><p>Cada semana cuentan, como mucho, 30 minutos. Lo que pase de ahí, esa semana, no suma.</p>
     <div class="gr" id="reguGr"><div class="raya" id="reguRaya"><b>30 min</b></div></div><div class="sem"><span>S1</span><span>S2</span><span>S3</span><span>S4</span><span>S5</span><span>S6</span><span>S7</span><span>S8</span></div></div>
   <div class="capa" id="mapa"><div class="caja cmapa"><h4>Mi mapa <span>de teoría</span></h4><svg id="mapaSvg" viewBox="0 -40 900 640"></svg>
-      <div class="ley"><span style="--c:#ef4444">Rojo: ×2</span><span style="--c:#f97316">Naranja: ×1,5</span><span style="--c:#eab308">Amarillo</span><span style="--c:#22c55e">Verde</span></div></div>
+      <div class="ley"><span style="--c:#ef4444">Rojo: ×2</span><span style="--c:#eab308">Amarillo: ×1,5</span><span style="--c:#22c55e">Verde: ×1</span></div></div>
     <div class="caja cres"><h4>Mis <span>resultados</span></h4>
       <div class="ar" id="ar1" style="--c:#22c55e"><span>Ritmo</span><i style="width:78%"></i><b>7,8</b><em>×1</em></div>
-      <div class="ar top" id="ar2" style="--c:#3b82f6"><span>Entonación</span><i style="width:53%"></i><b>5,3</b><em style="--m:#f97316">×1,5</em></div>
+      <div class="ar top" id="ar2" style="--c:#3b82f6"><span>Entonación</span><i style="width:53%"></i><b>5,3</b><em style="--m:#eab308">×1,5</em></div>
       <div class="ar" id="ar3" style="--c:#ec4899"><span>Teoría</span><i style="width:69%"></i><b>6,9</b><em>×1</em></div>
       <div class="ar top" id="ar4" style="--c:#f97316"><span>Dictado</span><i style="width:42%"></i><b>4,2</b><em style="--m:#ef4444">×2</em></div>
       <small>Si te ha llegado el aviso de «flojo» en un área, ahí vale ×2. Si no, la más baja, ×1,5.</small></div></div>
@@ -431,12 +431,12 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
   });
   var BARRAS = [].slice.call(document.querySelectorAll('.barras i'));
   (function () { var sv = $('mapaSvg'), cx = 450, cy = 280, h = '';
-    var L = [['Intervalos', 120, 70, '#ef4444'], ['Acordes', 450, 40, '#f97316'], ['Tonalidades', 780, 70, '#22c55e'], ['Compases', 80, 280, '#eab308'],
-      ['Escalas', 820, 280, '#ef4444'], ['Cadencias', 120, 490, '#22c55e'], ['Grados', 450, 520, '#f97316'], ['Modos', 780, 490, '#52525b']];
+    var L = [['Intervalos', 120, 70, '#ef4444'], ['Acordes', 450, 40, '#eab308'], ['Tonalidades', 780, 70, '#22c55e'], ['Compases', 80, 280, '#22c55e'],
+      ['Escalas', 820, 280, '#ef4444'], ['Cadencias', 120, 490, '#22c55e'], ['Grados', 450, 520, '#eab308'], ['Modos', 780, 490, '#52525b']];
     L.forEach(function (l, i) { var x = l[1], y = l[2], d = 'M' + cx + ' ' + cy + ' H' + (x < cx ? cx - 110 : x > cx ? cx + 110 : cx) + (x === cx ? ' V' + y : ' V' + y + ' H' + x);
       h += '<path d="' + d + '" fill="none" stroke="#3f3f46" stroke-width="4" stroke-linejoin="round"/>'; });
     h += '<rect x="370" y="250" width="160" height="60" rx="12" fill="#18181b" stroke="#facc15" stroke-width="3"/><text x="450" y="290" text-anchor="middle" font-size="28" font-weight="900" fill="#fff" font-family="Inter,system-ui,sans-serif">Teoría</text>';
-    L.forEach(function (l, i) { h += '<g class="luz' + (/ef4444|f97316/.test(l[3]) ? ' top' : '') + '" data-i="' + i + '"><circle cx="' + l[1] + '" cy="' + l[2] + '" r="22" fill="' + l[3] + '" stroke="#0a0a0b" stroke-width="4"/>' +
+    L.forEach(function (l, i) { h += '<g class="luz' + (/ef4444|eab308/.test(l[3]) ? ' top' : '') + '" data-i="' + i + '"><circle cx="' + l[1] + '" cy="' + l[2] + '" r="22" fill="' + l[3] + '" stroke="#0a0a0b" stroke-width="4"/>' +
       '<text x="' + l[1] + '" y="' + (l[2] + (l[2] > cy ? 52 : -34)) + '" text-anchor="middle" font-size="24" font-weight="800" fill="#e4e4e7" font-family="Inter,system-ui,sans-serif">' + l[0] + '</text></g>'; });
     sv.innerHTML = h; })();
   var LUCES = [].slice.call(document.querySelectorAll('#mapa .luz'));
@@ -450,7 +450,7 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
     ['dosfuerzas', 0, 'Dos fuerzas'], ['izq', 0, 'Lo que resta'], ['der', 0, 'Lo que suma'], ['neutras', 0, 'Lo neutro: ni resta ni suma'], ['puntualidad', 0, 'Puntualidad · atención · comportamiento'],
     ['semanaexamen', 0, 'Los valoro en la semana de exámenes'], ['faltas0', 0, 'Faltas sin justificar'],
     ['faltas', 0, 'La 1.ª, gratis'], ['faltas2', 0, 'La 2.ª, medio punto'], ['faltas3', 0, 'Desde la 3.ª, un punto'],
-    ['faltas4', 0.8, 'CentrosNET: antes de clase o hasta 24 h después'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia', 0, 'Ponerte al día: neutro'],
+    ['faltas4', 0.8, 'CentrosNET: antes del viernes a las 23:59'], ['portal', 0, 'Portales de clases a las que faltaste'], ['aldia', 0, 'Ponerte al día: neutro'],
     ['quiz', 0, 'Quiz sin hacer: −0,5'], ['quizexento', 0, 'Exento si tu familia lo pide por CentrosNET'], ['puntos', 0, 'Cada escalón, dos puntos'], ['cuento', 0, 'Ya cuenta en la primera impresión'], ['fichas', 0, 'Fichas en periodo extra'], ['fichasregla', 0, '2 perdonadas · luego −0,25'], ['fichasgratis', 0, 'Hasta el 13 de noviembre, no cuentan'],
     ['esperable', 0, 'Lo esperable: neutro'], ['suma', 0, 'Trabajo a mayores'], ['regularidad', 0, 'Hasta 30 min por semana'], ['flojo', 0, 'Lo que más te cuesta, ×2'], ['tope', 0, 'Como mucho, un escalón'],
     ['ejemplo', 0, 'Un alumno de ejemplo'], ['ejR', 0, ''], ['chocan', 0, ''], ['franja', 0, 'Tu nota de actitud'], ['misresultados', 0, '']];
