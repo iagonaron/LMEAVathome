@@ -180,6 +180,28 @@
     if (practicando() || (familia !== 'teoria' && sonando())) acc += 1;   /* un segundo más de práctica */
   }, T.s);
   setInterval(function () { if (acc >= 20) { latido(acc); acc = 0; } }, T.minuto);
+  /* (13-nov-2026, Iago, «Qué suma» v2) Portales: «cada capítulo tiene que verse entero» (entre nosotros, con el 75 % ya cuenta).
+     El portal dice cuánto lleva del capítulo en data-lm-progreso (0–1), en el mismo elemento que data-lm-ejercicio.
+     Se manda el máximo alcanzado (suite_actividad_progreso) al subir 5 puntos (como mucho cada 20 s) o al cruzar el 75 % / el 100 %. */
+  var progEnv = {}, progT = {};
+  setInterval(function () {
+    try {
+      var d = document.querySelector('[data-lm-ejercicio][data-lm-progreso]'); if (!d) return;
+      var ej = d.getAttribute('data-lm-ejercicio'), p = parseFloat(d.getAttribute('data-lm-progreso'));
+      if (!ej || !(p >= 0) || /^(portada|lugares)$|-carga$/.test(ej)) return;
+      p = Math.min(1, Math.round(p * 1000) / 1000);
+      var antes = progEnv[ej] || 0, ahora = Date.now();
+      var cruza = (antes < 0.75 && p >= 0.75) || (antes < 1 && p >= 1);
+      if (p <= antes || (!cruza && (p - antes < 0.05 || ahora - (progT[ej] || 0) < 20000))) return;
+      var cta = leerCookie(); if (!cta || window.__SUITE_ALUMNO) return;
+      progEnv[ej] = p; progT[ej] = ahora;
+      fetch(SB + '/rest/v1/rpc/suite_actividad_progreso', {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
+        body: JSON.stringify({ p_cuenta_id: cta, p_app: app, p_clave: ej, p_pct: p })
+      }).catch(function () {});
+    } catch (e) {}
+  }, 5 * T.s);
   function soltar() { if (acc >= 20) { latido(acc, true); acc = 0; } }
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') soltar(); });
   window.addEventListener('pagehide', soltar);
