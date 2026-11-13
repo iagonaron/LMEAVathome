@@ -272,7 +272,7 @@ body.f-sug .sug{border-color:#facc15}
     if (k === 'entonacion' || k === 'intervalia') return 'entonacion'; if (k === 'dictado' || k === 'predict') return 'audicion'; return null; }
   var NOMAPP = { teoria: 'Teoría at home', ritmo: 'Ritmo at home', desafio: 'Desafío', acceso: 'Acceso rítmico', entonacion: 'Entonación at home', intervalia: 'Intervalia', dictado: 'Dictado at home', predict: 'PreDict' };
   function nomApp(app, gp) { var k = String(app || '').replace(/-(ge|gp)$/, ''); if (PORT[k]) return 'Portal ' + PORT[k][0];
-    var n = NOMAPP[k] || (k.charAt(0).toUpperCase() + k.slice(1)); return gp ? n.replace(' at home', ' PRO').replace('Ritmo PRO', 'Ritmo entonado PRO') : n; }
+    var n = NOMAPP[k] || (k.charAt(0).toUpperCase() + k.slice(1)); return gp ? n.replace('Ritmo at home', 'Ritmo entonado at home') : n; }   /* (13/14-nov, Iago) nunca «PRO» */
   function dur(s) { var m = Math.round((s || 0) / 60); if (m < 60) return m + ' min'; return Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : ''); }
   function ddmm(f) { var p = String(f || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] : String(f || ''); }
   function f2(n) { return (Math.round(n * 100) / 100).toFixed(2).replace('.', ','); }
@@ -366,12 +366,14 @@ body.f-sug .sug{border-color:#facc15}
           if (mm > 1) { var nk = String(k).replace(/\|.*$/, ''); top[nk] = Math.max(top[nk] || 0, mm); } });
         v = (sumM + Math.max(0, x[1] - conM)) / 3600; m = 1;
         extra = Object.keys(top).slice(0, 2).map(function (k) { return k.charAt(0).toUpperCase() + k.slice(1).replace(/-/g, ' ').replace(/pro$/, '') + ' ×' + String(top[k]).replace('.', ','); }).join(' · '); }
-      puntos += v; if (ar) { EF[ar] = EF[ar] || [0, 0]; EF[ar][0] += x[1]; EF[ar][1] += v * 3600; }
+      puntos += v; if (ar && !PORT[String(x[0]).replace(/-(ge|gp)$/, '')]) { EF[ar] = EF[ar] || [0, 0];   /* (14-nov) los portales van ×1: no entran en el multiplicador de teoría */ EF[ar][0] += x[1]; EF[ar][1] += v * 3600; }
       var k = String(x[0]).replace(/-(ge|gp)$/, ''), o = null, tit = nomApp(x[0], gp);
       if (PORT[k]) { var subs = Object.keys(det[x[0]] || {}).map(function (s) { var mm = /-(\d+)$/.exec(s); return [mm ? mm[1] : null, det[x[0]][s]]; }).filter(function (s) { return s[0]; }).sort(function (a, b) { return b[1] - a[1]; });
         var n = subs.length ? subs[0][0] : 1; o = { T: texDe(x[0], n), v: '+' + f2(v) }; if (subs.length === 1) tit = nomPortal(x[0], n); }
       f.push(['f', v, tit, dur(x[1]) + ' por tu cuenta' + (m > 1 ? ' · ' + (AREA[ar] ? AREA[ar][0] : '') + ' ×' + String(m).replace('.', ',') : '') + (extra ? ' · ' + extra : ''), null, o || { v: '+' + f2(v) }]);
     });
+    /* (14-nov-2026, Iago) cuando se llega al tope del trimestre, cada tarjeta dice lo que suma de verdad (lo que cabía hasta +2) */
+    var acuT = 0; f.forEach(function (x) { if (x[0] !== 'f') return; var q = Math.max(0, Math.min(x[1], 2 - acuT)); acuT += x[1]; if (q < x[1]) { x[1] = q; if (x[5]) x[5].v = '+' + f2(q); } });
     if (tm.total >= 60 && !f.some(function (x) { return x[0] === 'f'; })) f.push(['nf', 0, dur(tm.total) + ' por tu cuenta', 'todavía no llega a sumar']);
     /* (13-nov-2026, Qué suma v2) se guarda el multiplicador de cada área para que el aviso «👍 verificado» diga lo que suma de verdad */
     try { if (REAL && P.cuenta) { var MM = {}; Object.keys(mult).forEach(function (a) { MM[a] = EF[a] && EF[a][0] ? Math.round(EF[a][1] / EF[a][0] * 100) / 100 : mult[a]; });
@@ -379,11 +381,11 @@ body.f-sug .sug{border-color:#facc15}
         body: JSON.stringify({ p_cuenta_id: P.cuenta, p_mult: MM }) }).catch(function () {}); } } catch (e) {}
     /* chips de áreas: la de más valor primero */
     var cu = P.cuenta || '', OPC = {
-      ritmo: [[gp ? 'Ritmo entonado PRO' : 'Ritmo at home', urlApp(gp, 'ritmo', cu), 'Lecciones y ejercicios de ritmo']],
-      entonacion: [['Entonación at home', urlApp(gp, 'entonacion', cu), 'Lecciones de entonación'], [gp ? 'Intervalia PRO' : 'Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']],
-      audicion: [[gp ? 'Dictados PRO' : 'Dictado at home', urlApp(gp, 'dictado', cu), 'Dictados'], [gp ? 'PreDict PRO' : 'PreDict at home', urlApp(gp, 'predict', cu), 'Cuenta como dictado']],
+      ritmo: [[gp ? 'Ritmo entonado at home' : 'Ritmo at home', urlApp(gp, 'ritmo', cu), 'Lecciones y ejercicios de ritmo']],
+      entonacion: [['Entonación at home', urlApp(gp, 'entonacion', cu), 'Lecciones de entonación'], [gp ? 'Intervalia at home' : 'Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']],
+      audicion: [[gp ? 'Dictados at home' : 'Dictado at home', urlApp(gp, 'dictado', cu), 'Dictados'], [gp ? 'PreDict at home' : 'PreDict at home', urlApp(gp, 'predict', cu), 'Cuenta como dictado']],
       teoria: mp.c.map(function (c) { return [c.nom, c.u || urlApp(gp, 'teoria', cu), c.caja + (c.m === 2 ? ' · en rojo en tu mapa' : ' · en amarillo en tu mapa'), c.m]; })
-                .concat([[gp ? 'Teoría PRO' : 'Teoría at home', urlApp(gp, 'teoria', cu), mp.c.length ? 'Todo lo demás de teoría' : (por.teoria ? 'Teoría · ' + por.teoria : 'Apuntes, vídeos y ejercicios'), mp.c.length ? 1 : mult.teoria]]) };
+                .concat([[gp ? 'Teoría at home' : 'Teoría at home', urlApp(gp, 'teoria', cu), mp.c.length ? 'Todo lo demás de teoría' : (por.teoria ? 'Teoría · ' + por.teoria : 'Apuntes, vídeos y ejercicios'), mp.c.length ? 1 : mult.teoria]]) };
     var areas = Object.keys(mult).sort(function (a, b) { return mult[b] - mult[a]; }).map(function (a) { return [AREA[a][0], '×' + String(mult[a]).replace('.', ','), AREA[a][1], por[a] || '', OPC[a], a]; });
     /* faltas: cómo justificarlas */
     /* (13-nov-2026, Iago) plazo para justificar: hasta el VIERNES de esa semana a las 23:59 (encaja con el barrido de los sábados) */
@@ -660,7 +662,7 @@ body.f-sug .sug{border-color:#facc15}
       + '<li><b>Teoría</b>: hacer ejercicios y <b>corregirlos</b> (botón «Corregir» o «Comprobar»). Como mucho <b>5 min al día por tipo de ejercicio</b> y <b>12 min al día</b> en total.</li>'
       + '<li><b>Dictado</b>: completar un dictado de principio a fin y abrir la solución para corregirte. Como mucho <b>18 min por dictado</b>.</li>'
       + (GP ? '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…): cada capítulo tiene que <b>verse entero</b>. Como mucho <b>18 min por capítulo</b>, aunque lo hagas en varios días.</li>'
-              + '<li><b>Ritmo entonado PRO</b>: estudiando por fases, en cada apartado lo que suena + 2 min; como mucho <b>15 min</b> si llegas a la entonación o <b>12 min</b> si te quedas en la lectura; en la prueba directa, lo que suena + 2 min.</li>'
+              + '<li><b>Ritmo entonado at home</b>: estudiando por fases, en cada apartado lo que suena + 2 min; como mucho <b>15 min</b> si llegas a la entonación o <b>12 min</b> si te quedas en la lectura; en la prueba directa, lo que suena + 2 min.</li>'
             : '<li><b>Ritmo at home</b>: estudiando por fases (escucha las cartas, hasta 2 min; ritmo aislado, hasta 2 min; lectura, lo que suena + 2 min; entonación, lo que suena + 1 min), como mucho <b>15 min</b> con las 4 fases o <b>12 min</b> si llegas a la lectura (en 4.º basta con llegar a la lectura); en la prueba directa, lo que suena + 2 min.</li>'
               + '<li><b>Entonación at home</b>: cuenta si pasas el tiempo de estudio y completas <b>al menos un intento</b>: el estudio (hasta lo que dura) más lo que suenan tus intentos, como mucho <b>8 min</b> de intentos.</li>'
               + '<li><b>Acceso rítmico</b>: igual que Entonación: el estudio (hasta 5 min) más lo que suenan tus pruebas, como mucho <b>8 min</b> de pruebas, sin cortesía.</li>'
