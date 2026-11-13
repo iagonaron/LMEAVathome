@@ -341,11 +341,18 @@ body.raton #barra,body:not(.sonando) #barra{opacity:1}
         var V = elegida === '4k' ? man.k4 : elegida === '30' && v30 ? man.t30 : man; document.documentElement.dataset.calidad = elegida;
         tot = V.bytes || tot;
         var lista = (V.trozos || []).slice(); if (!lista.length) for (var q = 1; q <= man.partes; q++) lista.push(base + '.' + q);
+        /* (13-nov-2026, C0 · Iago: «que se descargue la primera vez y ya») cada trozo se guarda en la caché del navegador (Cache API) con su versión (?v=):
+           la siguiente vez sale de ahí, sin red; al cambiar la versión se borran los trozos viejos de este vídeo. Sin Cache API, como antes. */
+        var CA = null; try { if (window.caches) CA = await caches.open('lm-actitud-video'); } catch (e) { CA = null; }
+        if (CA) try { (await CA.keys()).forEach(function (rq) { var u = new URL(rq.url); if (u.pathname.indexOf('actitud-' + G + '-' + VER) >= 0 && u.searchParams.get('v') !== String(man.v)) CA.delete(rq); }); } catch (e) {}
         for (var k = 0; k < lista.length; k++) {
-          var r = await fetch(lista[k] + '?v=' + man.v); if (!r.ok || !r.body) throw new Error('http ' + r.status);
+          var url = new URL(lista[k] + '?v=' + man.v, location.href).href, r = null, deCa = false, mios = [];
+          if (CA) try { r = await CA.match(url); deCa = !!(r && r.body); } catch (e) { r = null; }
+          if (!deCa) { r = await fetch(url); if (!r.ok || !r.body) throw new Error('http ' + r.status); }
           var rd = r.body.getReader();
-          for (;;) { var x = await rd.read(); if (x.done) break; trozos.push(x.value); rec += x.value.length;
-            if (tot) document.getElementById('cargaB').style.width = (100 * rec / tot).toFixed(1) + '%'; } }
+          for (;;) { var x = await rd.read(); if (x.done) break; trozos.push(x.value); mios.push(x.value); rec += x.value.length;
+            if (tot) document.getElementById('cargaB').style.width = (100 * rec / tot).toFixed(1) + '%'; }
+          if (CA && !deCa) try { await CA.put(url, new Response(new Blob(mios, { type: 'application/octet-stream' }))); } catch (e) {} }
         VM.src = URL.createObjectURL(new Blob(trozos, { type: 'video/mp4' }));
         document.getElementById('cargaB').style.width = '100%'; document.documentElement.classList.remove('cargando'); if (Q.get('auto')) VM.play().catch(function () {});
         VM.addEventListener('ended', function () { var T = document.getElementById('tit'); T.classList.add('ve', 'final'); });
