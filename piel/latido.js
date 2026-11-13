@@ -128,9 +128,14 @@
     EV.forEach(function (ev) { try { doc.addEventListener(ev, toque, { capture: true, passive: true }); } catch (e) {} });
   }
   enganchar(document);
+  /* (13-nov-2026, C0 · «Qué suma» v2) un vídeo mudo, sin volumen o en bucle (láminas animadas, esperas) no es estar viendo nada;
+     un portal que narra por WebAudio puede decirlo con data-lm-sonando="1"; y sin tocar nada en 10 min, el vídeo deja de contar */
+  function suenaDeVerdad(x) { return !x.paused && !x.ended && x.currentTime > 0 && !x.muted && x.volume > 0 && !x.loop; }
   function sonando() {
+    if (Date.now() - ultimoToque > 600000) return false;
+    try { if (document.querySelector('[data-lm-sonando="1"]')) return true; } catch (e) {}
     var m = document.querySelectorAll('video, audio');
-    for (var i = 0; i < m.length; i++) { if (!m[i].paused && !m[i].ended && m[i].currentTime > 0) return true; }
+    for (var i = 0; i < m.length; i++) { if (suenaDeVerdad(m[i])) return true; }
     /* (17-oct-2026, Iago: «qué tipo de ejercicios hizo, cuánto tiempo estuvo en cada uno») también el vídeo o el audio que suena
        dentro de un iframe de la misma web: los vídeos de Teoría (intros/…) van en uno y, vistos sin tocar nada, a los 2 minutos
        dejaban de contar. Los iframes de otra web no se pueden mirar (contentDocument es null): no cuentan, como antes. */
@@ -140,7 +145,7 @@
         var dd = null; try { dd = fr[j].contentDocument; } catch (e) {}
         if (!dd) continue;
         var mm = dd.querySelectorAll('video, audio');
-        for (var k = 0; k < mm.length; k++) { if (!mm[k].paused && !mm[k].ended && mm[k].currentTime > 0) return true; }
+        for (var k = 0; k < mm.length; k++) { if (suenaDeVerdad(mm[k])) return true; }
       }
     } catch (e) {}
     return false;
@@ -184,26 +189,45 @@
   /* (13-nov-2026, Iago, «Qué suma» v2) Portales: «cada capítulo tiene que verse entero» (entre nosotros, con el 75 % ya cuenta).
      El portal dice cuánto lleva del capítulo en data-lm-progreso (0–1), en el mismo elemento que data-lm-ejercicio.
      Se manda el máximo alcanzado (suite_actividad_progreso) al subir 5 puntos (como mucho cada 20 s) o al cruzar el 75 % / el 100 %. */
-  var progEnv = {}, progT = {};
-  setInterval(function () {
+  var progEnv = {}, progT = {}, progVisto = {};
+  function mandaProg(ej, p, cta) {
+    progEnv[ej] = p; progT[ej] = Date.now();
     try {
-      var d = document.querySelector('[data-lm-ejercicio][data-lm-progreso]'); if (!d) return;
-      var ej = d.getAttribute('data-lm-ejercicio'), p = parseFloat(d.getAttribute('data-lm-progreso'));
-      if (!ej || !(p >= 0) || /^(portada|lugares)$|-carga$/.test(ej)) return;
-      p = Math.min(1, Math.round(p * 1000) / 1000);
-      var antes = progEnv[ej] || 0, ahora = Date.now();
-      var cruza = (antes < 0.75 && p >= 0.75) || (antes < 1 && p >= 1);
-      if (p <= antes || (!cruza && (p - antes < 0.05 || ahora - (progT[ej] || 0) < 20000))) return;
-      var cta = leerCookie(); if (!cta || window.__SUITE_ALUMNO) return;
-      progEnv[ej] = p; progT[ej] = ahora;
       fetch(SB + '/rest/v1/rpc/suite_actividad_progreso', {
         method: 'POST', keepalive: true,
         headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON },
         body: JSON.stringify({ p_cuenta_id: cta, p_app: app, p_clave: ej, p_pct: p })
       }).catch(function () {});
     } catch (e) {}
-  }, 5 * T.s);
-  function soltar() { if (acc >= 20) { latido(acc, true); acc = 0; } }
+  }
+  /* (13-nov-2026, C0) también al salir u ocultar la página y al cambiar de capítulo se manda lo que falte: antes, quien pulsaba
+     «Volver» en menos de 5 s tras el final perdía el 100 % */
+  function mirarProg(forzar) {
+    try {
+      var d = document.querySelector('[data-lm-ejercicio][data-lm-progreso]');
+      if (d) {
+        var ej = d.getAttribute('data-lm-ejercicio'), p = parseFloat(d.getAttribute('data-lm-progreso'));
+        if (ej && p >= 0 && !/^(portada|lugares)$|-carga$/.test(ej)) { p = Math.min(1, Math.round(p * 1000) / 1000); if (p > (progVisto[ej] || 0)) progVisto[ej] = p; }
+      }
+      var cta = leerCookie(); if (!cta || window.__SUITE_ALUMNO) return;
+      var actual = d && d.getAttribute('data-lm-ejercicio');
+      Object.keys(progVisto).forEach(function (k) {
+        var q = progVisto[k], antes = progEnv[k] || 0; if (q <= antes) return;
+        var cruza = (antes < 0.75 && q >= 0.75) || (antes < 1 && q >= 1);
+        if (forzar || k !== actual || cruza || (q - antes >= 0.05 && Date.now() - (progT[k] || 0) >= 20000)) mandaProg(k, q, cta);
+      });
+    } catch (e) {}
+  }
+  setInterval(function () { mirarProg(false); }, 5 * T.s);
+  try {
+    var progMO = null;
+    new MutationObserver(function (ms) {
+      ms.forEach(function (m) { try { var t = m.target, ej = t.getAttribute('data-lm-ejercicio'), p = parseFloat(t.getAttribute('data-lm-progreso'));   /* se apunta ya: un cambio rápido de capítulo no lo pierde */
+        if (ej && p >= 0 && !/^(portada|lugares)$|-carga$/.test(ej)) { p = Math.min(1, Math.round(p * 1000) / 1000); if (p > (progVisto[ej] || 0)) progVisto[ej] = p; } } catch (e) {} });
+      if (progMO) return; progMO = setTimeout(function () { progMO = null; mirarProg(false); }, 400); })
+      .observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['data-lm-progreso', 'data-lm-ejercicio'] });
+  } catch (e) {}
+  function soltar() { mirarProg(true); if (acc >= 20) { latido(acc, true); acc = 0; } }
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') soltar(); });
   window.addEventListener('pagehide', soltar);
 })();
