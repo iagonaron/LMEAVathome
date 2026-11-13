@@ -232,7 +232,7 @@ body.f-sug .sug{border-color:#facc15}
        SUMA · el tiempo por tu cuenta, minuto a minuto: +1 por hora, como mucho +2 en el trimestre, multiplicado por área:
               ×2 lo rojo del mapa de teoría o el apartado del que te llegó el aviso de «flojo»; ×1,5 lo amarillo del mapa;
               si no hay nada de eso, ×1,5 tu apartado más flojo aun aprobado. Entonación = Entonación + Intervalia; Dictado = Dictado + Predict. */
-  var REAL = /[?&]real\b/.test(location.search);
+  var REAL = /[?&]real\b/.test(location.search); var ANON_MA = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';   /* clave pública (anon), la misma que latido.js */
   var HITOS = 'https://gp.lmathome.es/hitos/';
   var PORT = { acustica: ['Acústica', 'día', 'cabana'], atonalidad: ['Atonalidad', 'capítulo', 'atonalidad'], blues: ['Blues', 'acto', 'blues'],
     afrolatin: ['4 Sabores', 'sabor', 'sabores'], modulacion: ['Modulación', 'sesión', 'modulacion'], transporte: ['Transporte', 'sesión', 'transporte'],
@@ -340,7 +340,7 @@ body.f-sug .sug{border-color:#facc15}
       var md = P.medias || {}, peor = null; Object.keys(md).forEach(function (a) { if (mult[a] != null && md[a] >= 5 && (peor == null || md[a] < md[peor])) peor = a; });
       if (peor) { mult[peor] = 1.5; por[peor] = 'tu apartado más flojo'; }
     }
-    var tm = d.tiempo || {}, apps = tm.apps || {}, det = tm.det || {}, puntos = 0;
+    var tm = d.tiempo || {}, apps = tm.apps || {}, det = tm.det || {}, puntos = 0; var EF = {};   /* (13-nov) multiplicador efectivo por área, para el aviso 👍 */
     Object.keys(apps).map(function (a) { return [a, apps[a]]; }).filter(function (x) { return x[1] >= 60; }).sort(function (a, b) { return b[1] - a[1]; }).forEach(function (x) {
       var ar = areaDe(x[0]), m = ar ? mult[ar] : 1, v = x[1] / 3600 * m, extra = '';
       if (ar === 'teoria' && mp.c.length) { /* teoría: cada rato con el multiplicador de su concepto; los portales y lo demás, ×1 */
@@ -348,13 +348,17 @@ body.f-sug .sug{border-color:#facc15}
           if (mm > 1) { var nk = String(k).replace(/\|.*$/, ''); top[nk] = Math.max(top[nk] || 0, mm); } });
         v = (sumM + Math.max(0, x[1] - conM)) / 3600; m = 1;
         extra = Object.keys(top).slice(0, 2).map(function (k) { return k.charAt(0).toUpperCase() + k.slice(1).replace(/-/g, ' ').replace(/pro$/, '') + ' ×' + String(top[k]).replace('.', ','); }).join(' · '); }
-      puntos += v;
+      puntos += v; if (ar) { EF[ar] = EF[ar] || [0, 0]; EF[ar][0] += x[1]; EF[ar][1] += v * 3600; }
       var k = String(x[0]).replace(/-(ge|gp)$/, ''), o = null, tit = nomApp(x[0], gp);
       if (PORT[k]) { var subs = Object.keys(det[x[0]] || {}).map(function (s) { var mm = /-(\d+)$/.exec(s); return [mm ? mm[1] : null, det[x[0]][s]]; }).filter(function (s) { return s[0]; }).sort(function (a, b) { return b[1] - a[1]; });
         var n = subs.length ? subs[0][0] : 1; o = { T: texDe(x[0], n), v: '+' + f2(v) }; if (subs.length === 1) tit = nomPortal(x[0], n); }
       f.push(['f', v, tit, dur(x[1]) + ' por tu cuenta' + (m > 1 ? ' · ' + (AREA[ar] ? AREA[ar][0] : '') + ' ×' + String(m).replace('.', ',') : '') + (extra ? ' · ' + extra : ''), null, o || { v: '+' + f2(v) }]);
     });
     if (tm.total >= 60 && !f.some(function (x) { return x[0] === 'f'; })) f.push(['nf', 0, dur(tm.total) + ' por tu cuenta', 'todavía no llega a sumar']);
+    /* (13-nov-2026, Qué suma v2) se guarda el multiplicador de cada área para que el aviso «👍 verificado» diga lo que suma de verdad */
+    try { if (REAL && P.cuenta) { var MM = {}; Object.keys(mult).forEach(function (a) { MM[a] = EF[a] && EF[a][0] ? Math.round(EF[a][1] / EF[a][0] * 100) / 100 : mult[a]; });
+      fetch('https://woiptkyrxkbpnvioypit.supabase.co/rest/v1/rpc/suite_actitud_mult_guardar', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: ANON_MA, Authorization: 'Bearer ' + ANON_MA },
+        body: JSON.stringify({ p_cuenta_id: P.cuenta, p_mult: MM }) }).catch(function () {}); } } catch (e) {}
     /* chips de áreas: la de más valor primero */
     var cu = P.cuenta || '', OPC = {
       ritmo: [[gp ? 'Ritmo entonado PRO' : 'Ritmo at home', urlApp(gp, 'ritmo', cu), 'Lecciones y ejercicios de ritmo']],
@@ -373,7 +377,7 @@ body.f-sug .sug{border-color:#facc15}
     var base = P.base != null ? +P.base : null, prev = P.prev != null ? +P.prev : null, definitiva = base != null;
     return { grupo: P.grupoTxt || '', nombre: P.nombre || '', t: t, f: f, sug: sug.slice(0, 3), areas: areas, puntos: puntos,
              definitiva: definitiva, base: definitiva ? base : (t !== '1T' ? prev : null), tagPrev: tagPrev || (TPREV[t] || null), hayP: hayP, cuenta: P.cuenta || '', faltasAl: d.faltas_al || null, gp: gp,
-             semLlena: !!(d.semana && d.semana.secs >= (d.semana.tope || 1800)), renueva: d.semana ? d.semana.renueva : null };
+             semLlena: !!(d.semana && d.semana.secs >= (d.semana.tope || 1800)), sinv: d.sin_verificar || 0, renueva: d.semana ? d.semana.renueva : null };
   }
   function arranca(C) {
   window.__MA_GP = !!C.gp;   /* (12-nov-2026) nivel, para «¿Qué suma?» */
@@ -429,13 +433,13 @@ body.f-sug .sug{border-color:#facc15}
   try { if (REAL && !SIN) localStorage.setItem(KV, String(FIN)); } catch (e) {}
   /* (12-nov, Iago) el balance de fuerzas: lo que se sumará o restará a la nota que él ponga; cerca de 0 ya es un éxito */
   /* (12-nov, Iago) la barra de lo que llevas sumado: se llena con lo extra hasta el tope (+2) y avisa al llegar */
-  $('contN').textContent = '+' + POS.toFixed(2).replace('.', ',') + '/2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : (C.semLlena ? '🛑 Has alcanzado tu tope semanal (30 minutos) · se renueva el lunes ' + ddmm(String(C.renueva)) + '.' : 'Te queda +' + (2 - POS).toFixed(2).replace('.', ',') + ' para el tope del trimestre.');
+  $('contN').textContent = '+' + POS.toFixed(2).replace('.', ',') + '/2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : (C.semLlena ? '🛑 Has alcanzado tu tope semanal (30 minutos) · se renueva el lunes ' + ddmm(String(C.renueva)) + '.' : 'Te queda +' + (2 - POS).toFixed(2).replace('.', ',') + ' para el tope del trimestre.') + (C.sinv >= 180 ? ' ⏳ ' + dur(C.sinv) + ' esperando el 👍 de Iago.' : '');
   if (POS >= 2) $('cont').classList.add('lleno');
   setTimeout(function () { $('contI').style.width = (Math.min(2, POS) / 2 * 100) + '%'; }, 900);
   var DEMO = null;
   function ponBarra(p) { $('contI').style.width = (Math.min(2, p) / 2 * 100) + '%'; $('contN').textContent = '+' + Math.min(2, p).toFixed(2).replace('.', ',') + '/2';
     var lleno = p >= 2; $('cont').classList.toggle('lleno', lleno);
-    $('contM').textContent = lleno ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : (C.semLlena ? '🛑 Has alcanzado tu tope semanal (30 minutos) · se renueva el lunes ' + ddmm(String(C.renueva)) + '.' : 'Te queda +' + Math.max(0, 2 - p).toFixed(2).replace('.', ',') + ' para el tope del trimestre.'); }
+    $('contM').textContent = lleno ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : (C.semLlena ? '🛑 Has alcanzado tu tope semanal (30 minutos) · se renueva el lunes ' + ddmm(String(C.renueva)) + '.' : 'Te queda +' + Math.max(0, 2 - p).toFixed(2).replace('.', ',') + ' para el tope del trimestre.') + (C.sinv >= 180 ? ' ⏳ ' + dur(C.sinv) + ' esperando el 👍 de Iago.' : ''); }
   addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja', 'bal'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); });
     /* (12-nov, Iago) al explicarla en el vídeo: la barra sigue llenándose hasta el tope y avisa */
     clearInterval(DEMO); if (d.que === 'barra') { var p = POS, t0 = Date.now(); DEMO = setInterval(function () { var q = (Date.now() - t0) / 1000;
@@ -528,22 +532,27 @@ body.f-sug .sug{border-color:#facc15}
   /* (12-nov-2026, Iago) «¿Qué cosas suman y qué no?», arriba a la derecha de SUMA. Reglas provisionales: Iago las afina */
   function abreQueSuma() { var pop = document.getElementById('pop'); if (!pop) return; pop.style.setProperty('--pc', '#86efac');
     document.getElementById('popT').textContent = '¿Qué suma y qué no?';
-    document.getElementById('popS').textContent = 'Suma el tiempo que dedicas por tu cuenta a actividades del portal en las que trabajas de verdad: como mucho 30 minutos por semana y +2 en el trimestre.';
+    document.getElementById('popS').textContent = 'Suma el tiempo que dedicas por tu cuenta y que Iago verifica con un 👍: como mucho 30 minutos por semana y +2 en el trimestre.';
     var GP = !!window.__MA_GP;   /* (12-nov-2026, Iago) GE sin Ritmo entonado ni portales; GP sin Ritmo ni Entonación */
-    document.getElementById('popL').innerHTML = '<div class="qs"><p class="idea"><b>La idea:</b> si haces una actividad del portal con normalidad, siguiendo los pasos que propone, te cuenta <b>todo el rato que dura</b>, no solo los segundos en que pulsas algo. Si pasa un rato largo sin que hagas nada, se pone en pausa hasta que vuelvas a estar trabajando de verdad.</p>'
-      + '<h4 class="si">✓ SUMA</h4><ul>'
-      + '<li><b>Teoría</b>: hacer ejercicios y comprobar tus respuestas.</li>'
-      + (GP ? '<li><b>Ritmo entonado, Intervalia, PreDict…</b>: practicar con sus fases de estudio, el metrónomo o interpretando.</li>'
-            : '<li><b>Ritmo, Entonación, Intervalia, PreDict…</b>: practicar con sus fases de estudio, el metrónomo o interpretando.</li>')
-      + '<li><b>Dictado</b>: completar un dictado de principio a fin y ver la solución para corregirte.</li>'
-      + (GP ? '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…): avanzar por ellos haciendo sus actividades. El tiempo de un capítulo se suma <b>cuando lo terminas</b>, aunque lo hagas en varios días.</li>' : '')
-      + '</ul><h4 class="no">✕ NO SUMA</h4><ul>'
-      + '<li><b>Menos de 3 minutos</b> en total en un área ese día (si haces 2 min de un ejercicio de Teoría y 3 de otro, sí cuentan los 5).</li>'
+    /* (13-nov-2026, Iago, «Qué suma» v2) lo oficial es el 👍 de Iago; debajo, los requisitos (qué le llega para verificar) y el máximo de cada actividad */
+    document.getElementById('popL').innerHTML = '<div class="qs"><p class="idea"><b>Lo importante:</b> cuando Iago le da <b>👍</b> a una actividad tuya, queda <b>validada y verificada</b>, y desde ese momento te suma. En el propio aviso de «Me gusta» verás cuánto te ha sumado.</p>'
+      + '<p class="nota" style="margin:0 0 10px">Abajo hay muchos datos: están para que quede registro y sea justo para todos, pero <b>no tienes que aprendértelos</b>. Sirven para saber qué trabajo le llega a Iago para verificarlo y cuánto puede valer cada actividad.</p>'
+      + '<h4 class="si">✓ LE LLEGA A IAGO (y su máximo)</h4><ul>'
+      + '<li><b>Teoría</b>: hacer ejercicios y <b>corregirlos</b> (botón «Corregir» o «Comprobar»). Como mucho <b>5 min al día por tipo de ejercicio</b> y <b>12 min al día</b> en total.</li>'
+      + '<li><b>Dictado</b>: completar un dictado de principio a fin y abrir la solución para corregirte. Como mucho <b>18 min por dictado</b>.</li>'
+      + (GP ? '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…): cada capítulo tiene que <b>verse entero</b>. Como mucho <b>18 min por capítulo</b>, aunque lo hagas en varios días.</li>'
+              + '<li><b>Ritmo entonado PRO</b>: estudiando por fases (escucha las cartas, hasta 2 min; ritmo aislado, hasta 2 min; lectura, lo que suena + 2 min; entonación, lo que suena + 1 min), como mucho <b>15 min</b> con las 4 fases o <b>12 min</b> si llegas a la lectura; en la prueba directa, lo que suena + 2 min.</li>'
+            : '<li><b>Ritmo at home</b>: estudiando por fases (escucha las cartas, hasta 2 min; ritmo aislado, hasta 2 min; lectura, lo que suena + 2 min; entonación, lo que suena + 1 min), como mucho <b>15 min</b> con las 4 fases o <b>12 min</b> si llegas a la lectura (en 4.º basta con llegar a la lectura); en la prueba directa, lo que suena + 2 min.</li>'
+              + '<li><b>Entonación at home</b>: cuenta si pasas el tiempo de estudio y completas <b>al menos un intento</b>: el estudio (hasta lo que dura) más lo que suenan tus intentos, como mucho <b>8 min</b> de intentos.</li>')
+      + '<li><b>Intervalia, PreDict…</b>: practicar con sus fases de estudio, el metrónomo o interpretando.</li>'
+      + '</ul><h4 class="no">✕ NO LE LLEGA</h4><ul>'
+      + '<li>Una actividad de <b>menos de 3 minutos</b>.</li>'
+      + '<li>Un dictado o un capítulo <b>a medias</b>, o un ejercicio de Teoría <b>sin corregir</b>.</li>'
       + '<li>Solo <b>ver vídeos didácticos</b> o <b>leer apuntes</b>.</li>'
-      + '<li>Una <b>lección de ritmo puesta sin interactuar con ella</b>: solo reproducirla no permite comprobar que es trabajo real.</li>'
+      + '<li>Una lección de ritmo puesta <b>sin interactuar</b> con ella: más de 30 segundos sin tocar nada, se pone en pausa.</li>'
       + '<li>Tener la pantalla abierta, <b>mover el ratón o darle a la ruedecita</b> sin más.</li>'
       + (GP ? '<li>El portal de una clase a la que faltaste: eso es ponerte al día.</li>' : '')
-      + '</ul><div class="nota"><b>¿Por qué?</b> Ver los vídeos de Teoría o leer apuntes es una parte valiosa del trabajo, e Iago aprecia que lo hagas, pero no hay forma de comprobar si alguien lo está haciendo de verdad o solo ha dejado la pantalla puesta. Para que sea justo para todos, solo cuenta lo que se puede comprobar.</div></div>';
+      + '</ul><div class="nota"><b>¿Y si he hecho más?</b> Cada tipo de tarea tiene su valor: si una actividad llega a su máximo, el aviso de «Me gusta» te lo dice. Ver vídeos o leer apuntes también es valioso, e Iago lo aprecia, pero solo cuenta lo que se puede comprobar: así es justo para todos. <br>Lo que ya te sumaba antes del 13 de noviembre se queda como estaba.</div></div>';
     pop.hidden = false; }
   try { document.getElementById('qSuma').onclick = abreQueSuma; } catch (e) {}
   function abrePop(a) {
