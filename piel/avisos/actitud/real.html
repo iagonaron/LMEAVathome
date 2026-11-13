@@ -195,7 +195,7 @@ body.f-sug .sug{border-color:#facc15}
         ['f', 0, 'Atonalidad, capítulo 2', 'a mayores, en casa · 25 min', null, { tex: 'ato', v: '+' }],
         ['f', 1.2, '1 h 10 min extra', 'Por tu cuenta, en apps y portales · +1 por hora'] ],
       sug: [['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>: así te pones al día y deja de restar.'],
-            ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> hasta <b>el viernes a las 23:59</b> (mejor, cuanto antes).'],
+            ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> antes del <b>viernes a las 23:59</b>.'],
             ['⏰', 'Intenta <b>llegar puntual</b> a partir de ahora.']],
       areas: [['Entonación', '×2', '#3b82f6'], ['Dictado', '×1,5', '#f97316'], ['Ritmo', '×1', '#22c55e'], ['Teoría', '×1', '#ec4899']] },
     gp2: { grupo: '2.º GP', t: '2T', base: 7, desde: 6.5, f: [
@@ -209,7 +209,7 @@ body.f-sug .sug{border-color:#facc15}
         ['nf', 0, 'Buena puntualidad', 'es lo esperable', '1T'],
         ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
       sug: [['🎯', 'La atención la vuelve a valorar Iago la <b>semana de exámenes</b>: aún puedes cambiarla.'],
-            ['✉️', 'Si faltas, que tu familia lo justifique por <b>CentrosNET</b>: como muy tarde, el <b>viernes de esa semana a las 23:59</b>.'],
+            ['✉️', 'Si faltas, tu familia puede justificarlo por <b>CentrosNET</b> antes del <b>viernes a las 23:59</b> de esa semana.'],
             ['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>.']],
       areas: [['Entonación', '×2', '#3b82f6'], ['Teoría', '×1,5', '#ec4899'], ['Dictado', '×1', '#f97316'], ['Ritmo', '×1', '#22c55e']] },
     ge1: { grupo: '4.º GE', t: '1T', base: null, desde: null, f: [
@@ -219,7 +219,7 @@ body.f-sug .sug{border-color:#facc15}
         ['nc', 0, 'Ficha en el periodo extra', 'en el 1.er trimestre no cuenta'],
         ['f', 2, '2 h extra, bien elegidas', 'Teoría era tu punto flojo: ahí valen doble'] ],
       sug: [['⭐', 'Termina el <b>quiz de las cartas 2.1 y 2.2</b>: cada uno resta medio punto.'],
-            ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> hasta <b>el viernes a las 23:59</b> (mejor, cuanto antes).'],
+            ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> antes del <b>viernes a las 23:59</b>.'],
             ['⏰', 'Intenta <b>llegar puntual</b> a partir de ahora.']],
       areas: [['Ritmo', '×2', '#22c55e'], ['Teoría', '×1,5', '#ec4899'], ['Entonación', '×1', '#3b82f6'], ['Dictado', '×1', '#f97316']] },
     ge2: { grupo: '4.º GE', t: '2T', base: 6, desde: 5, f: [
@@ -231,7 +231,7 @@ body.f-sug .sug{border-color:#facc15}
         ['nf', 0, 'Buen comportamiento', 'es lo esperable', '1T'] ],
       sug: [['⏰', 'La puntualidad la vuelve a valorar Iago la <b>semana de exámenes</b>: llega a tiempo.'],
             ['⭐', 'Termina el <b>quiz de la carta 3.2</b>: resta medio punto.'],
-            ['✉️', 'Si faltas, que tu familia lo justifique por <b>CentrosNET</b>: como muy tarde, el <b>viernes de esa semana a las 23:59</b>.']],
+            ['✉️', 'Si faltas, tu familia puede justificarlo por <b>CentrosNET</b> antes del <b>viernes a las 23:59</b> de esa semana.']],
       areas: [['Teoría', '×2', '#ec4899'], ['Ritmo', '×1,5', '#22c55e'], ['Dictado', '×1', '#f97316'], ['Entonación', '×1', '#3b82f6']] }
   };
   /* ================= (12-nov-2026, Iago) «Mi actitud» DE VERDAD =================
@@ -389,8 +389,8 @@ body.f-sug .sug{border-color:#facc15}
     /* (13-nov-2026, Iago) plazo para justificar: hasta el VIERNES de esa semana a las 23:59 (encaja con el barrido de los sábados) */
     var ult = fs.length ? fs[fs.length - 1].f : null, hoy = new Date(), dsem = hoy.getDay(), lun = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - ((dsem + 6) % 7));
     var isoL = lun.getFullYear() + '-' + String(lun.getMonth() + 1).padStart(2, '0') + '-' + String(lun.getDate()).padStart(2, '0');
-    sug.push(['✉️', ult && ult >= isoL && dsem >= 1 && dsem <= 5 ? 'Faltaste el ' + ddmm(ult) + ': tu familia puede justificarlo por <b>CentrosNET</b> hasta <b>este viernes a las 23:59</b>.'
-                                      : 'Si faltas, que tu familia lo justifique por <b>CentrosNET</b>: como muy tarde, el <b>viernes de esa semana a las 23:59</b>.']);
+    sug.push(['✉️', ult && ult >= isoL && dsem >= 1 && dsem <= 5 ? 'Faltaste el ' + ddmm(ult) + ': tu familia puede justificarlo por <b>CentrosNET</b> antes del <b>viernes a las 23:59</b>.'
+                                      : 'Si faltas, tu familia puede justificarlo por <b>CentrosNET</b> antes del <b>viernes a las 23:59</b> de esa semana.']);
     if (!sug.some(function (s) { return s[0] === '⏰'; })) sug.push(['⏰', 'Intenta <b>llegar puntual</b>: Iago lo valora la semana de exámenes.']);
     /* la actitud: si Iago ya la puso este trimestre, esa es la definitiva (las fuerzas explican cómo se llegó); si no, desde el 2.º, la del anterior como punto de partida */
     var base = P.base != null ? +P.base : null, prev = P.prev != null ? +P.prev : null, definitiva = base != null;
