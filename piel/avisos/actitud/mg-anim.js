@@ -1,5 +1,5 @@
 /* (13-nov-2026, C0 · Iago) EL 👍 DE IAGO, LA PRIMERA VEZ QUE SE VE EN LA CAMPANA
-   Al abrir las notificaciones con un «A Iago le ha gustado» sin leer: el pulgar late con la campanita y, un segundo
+   Al abrir las notificaciones con un «A Iago le ha gustado» sin leer: el pulgar late con un «pop» suave y, poco
    después, cae el sello «verificado» con su golpe (un poco de polvo y la tarjeta vibra un instante). Sutil, breve y
    una sola vez por aviso (se apunta en este navegador). Volumen bajo. Sin animación si el sistema pide menos movimiento.
    Lo cargan los portales GE y GP (<script … mg-anim.js> en su index.html).
@@ -7,8 +7,8 @@
 (function () {
   if (window.__lmMgAnim) return; window.__lmMgAnim = 1;
   var BASE = 'https://ge.lmathome.es/piel/avisos/actitud/sfx/';
-  var KEY = 'lm_mg_anim_vistos';
-  var VOL_DING = 0.22, VOL_SELLO = 0.32;
+  var KEY = 'lm_mg_anim_vistos2';   /* (13-nov) v2: se vuelve a ver una vez con el sonido nuevo */
+  var VOL_DING = 0.12, VOL_SELLO = 0.2;   /* (13-nov, Iago) más bajos */
   var menos = false; try { menos = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
 
   function vistos() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
@@ -17,7 +17,7 @@
   var aud = {};
   function prepara(n) { try { if (!aud[n]) { aud[n] = new Audio(BASE + n); aud[n].preload = 'auto'; } } catch (e) {} }
   function suena(n, vol) { try { prepara(n); var a = aud[n]; a.volume = vol; a.currentTime = 0; var p = a.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
-  prepara('mg-ding.mp3'); prepara('mg-sello.mp3');
+  prepara('mg-ding.mp3?v=2'); prepara('mg-sello.mp3');
 
   /* el sello no se ve hasta que «cae» (regla por aviso, para que sobreviva si la lista se repinta) */
   var hoja = document.createElement('style'); (document.head || document.documentElement).appendChild(hoja);
@@ -38,14 +38,14 @@
     /* 1) el pulgar late con la campanita */
     setTimeout(function () {
       var c = nodo(id), t = c && c.querySelector('.cv2-tile');
-      suena('mg-ding.mp3', VOL_DING);
+      suena('mg-ding.mp3?v=2', VOL_DING);
       if (t && t.animate) {
         t.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35) rotate(-10deg)', offset: .3 }, { transform: 'scale(.95)', offset: .6 }, { transform: 'scale(1)' }],
           { duration: 900, easing: 'ease-out' });
         t.animate([{ boxShadow: '0 0 0 0 rgba(96,165,250,.55)' }, { boxShadow: '0 0 0 14px rgba(96,165,250,0)' }], { duration: 900, easing: 'ease-out' });
       }
     }, 250);
-    /* 2) un segundo largo después de que acabe el pulgar, el sello cae: golpe, polvo y la tarjeta vibra un instante */
+    /* 2) poco después del pulgar, el sello cae: golpe, polvo y la tarjeta vibra un instante */
     setTimeout(function () {
       var c = nodo(id), s = c && c.querySelector('.mgv-sello');
       delete ocultos[id]; pintaReglas();
@@ -63,7 +63,7 @@
           { transform: 'translate(.8px,.3px)' }, { transform: 'translate(0,0)' }], { duration: 200, easing: 'ease-out' });
         polvo(c2, s);
       }, 245);
-    }, 2200);   /* (Iago) al menos un segundo entre que acaba el pulgar (250 + 900 ms) y el sello */
+    }, 1500);   /* (Iago, 15:55) un poco más juntos: el sello 1,25 s después de que empiece el pulgar */
   }
 
   function polvo(card, s) {
