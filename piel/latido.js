@@ -51,7 +51,8 @@
       if (visor()) return;   /* en el Ojeador la sesión es la del alumno que se mira: no se apunta en este navegador */
       var s = null; try { s = JSON.parse(localStorage.getItem(grado === 'gp' ? 'lmpro_session' : 'lmeav_session') || 'null'); } catch (e) {}
       if (!s && window.__LM_SES) s = window.__LM_SES;
-      var id = (s && s.id && s.estado === 'validado' && !TESTER[norm(s.nombre)]) ? String(s.id) : '';
+      /* (13-nov-2026, Iago) las cuentas Tester/Protester cuentan como un alumno más, para que él pueda probar el 👍 y «Mi actitud» */
+      var id = (s && s.id && s.estado === 'validado') ? String(s.id) : '';
       if (id === ultimo) return;
       ultimo = id;
       try {
