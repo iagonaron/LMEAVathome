@@ -268,9 +268,9 @@ body.f-sug .sug{border-color:#facc15}
   function nomPortal(app, n) { var Q = PORT[String(app || '').replace(/-(ge|gp)$/, '')]; return Q ? Q[0] + ', ' + Q[1] + ' ' + n : 'Portal de la clase'; }
   var AREA = { teoria: ['Teoría', '#ec4899'], ritmo: ['Ritmo', '#22c55e'], entonacion: ['Entonación', '#3b82f6'], audicion: ['Dictado', '#f97316'] };
   function areaDe(app) { var k = String(app || '').replace(/-(ge|gp)$/, '');
-    if (k === 'teoria' || PORT[k]) return 'teoria'; if (k === 'ritmo' || k === 'desafio') return 'ritmo';
+    if (k === 'teoria' || PORT[k]) return 'teoria'; if (k === 'ritmo' || k === 'desafio' || k === 'acceso') return 'ritmo';
     if (k === 'entonacion' || k === 'intervalia') return 'entonacion'; if (k === 'dictado' || k === 'predict') return 'audicion'; return null; }
-  var NOMAPP = { teoria: 'Teoría at home', ritmo: 'Ritmo at home', desafio: 'Desafío', entonacion: 'Entonación at home', intervalia: 'Intervalia', dictado: 'Dictado at home', predict: 'PreDict' };
+  var NOMAPP = { teoria: 'Teoría at home', ritmo: 'Ritmo at home', desafio: 'Desafío', acceso: 'Acceso rítmico', entonacion: 'Entonación at home', intervalia: 'Intervalia', dictado: 'Dictado at home', predict: 'PreDict' };
   function nomApp(app, gp) { var k = String(app || '').replace(/-(ge|gp)$/, ''); if (PORT[k]) return 'Portal ' + PORT[k][0];
     var n = NOMAPP[k] || (k.charAt(0).toUpperCase() + k.slice(1)); return gp ? n.replace(' at home', ' PRO').replace('Ritmo PRO', 'Ritmo entonado PRO') : n; }
   function dur(s) { var m = Math.round((s || 0) / 60); if (m < 60) return m + ' min'; return Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : ''); }
@@ -563,7 +563,6 @@ body.f-sug .sug{border-color:#facc15}
       bal.classList.add('ve'); var esc4 = 50 / 4;   /* media barra = 4 puntos */
       $('balR').style.width = Math.min(50, NEG * esc4) + '%'; $('balV').style.width = Math.min(50, POS * esc4) + '%'; $('balM').style.left = Math.max(2, Math.min(98, 50 + BAL * esc4)) + '%';
       sugs.forEach(function (s, k) { setTimeout(function () { s.classList.add('ve'); }, (SIN ? 400 : 3600) + k * 450); });
-      if (NP) setTimeout(sumaNueva, SIN ? 900 : 3900);
     }, 420);
   }
   /* (13-nov-2026, Iago) Al entrar desde el aviso 👍: todo lo demás YA colocado (sin la entrada de siempre); solo aparece en «Suma»
@@ -660,10 +659,12 @@ body.f-sug .sug{border-color:#facc15}
       + '<li><b>Teoría</b>: hacer ejercicios y <b>corregirlos</b> (botón «Corregir» o «Comprobar»). Como mucho <b>5 min al día por tipo de ejercicio</b> y <b>12 min al día</b> en total.</li>'
       + '<li><b>Dictado</b>: completar un dictado de principio a fin y abrir la solución para corregirte. Como mucho <b>18 min por dictado</b>.</li>'
       + (GP ? '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…): cada capítulo tiene que <b>verse entero</b>. Como mucho <b>18 min por capítulo</b>, aunque lo hagas en varios días.</li>'
-              + '<li><b>Ritmo entonado PRO</b>: estudiando por fases (escucha las cartas, hasta 2 min; ritmo aislado, hasta 2 min; lectura, lo que suena + 2 min; entonación, lo que suena + 1 min), como mucho <b>15 min</b> con las 4 fases o <b>12 min</b> si llegas a la lectura; en la prueba directa, lo que suena + 2 min.</li>'
+              + '<li><b>Ritmo entonado PRO</b>: estudiando por fases, en cada apartado lo que suena + 2 min; como mucho <b>15 min</b> si llegas a la entonación o <b>12 min</b> si te quedas en la lectura; en la prueba directa, lo que suena + 2 min.</li>'
             : '<li><b>Ritmo at home</b>: estudiando por fases (escucha las cartas, hasta 2 min; ritmo aislado, hasta 2 min; lectura, lo que suena + 2 min; entonación, lo que suena + 1 min), como mucho <b>15 min</b> con las 4 fases o <b>12 min</b> si llegas a la lectura (en 4.º basta con llegar a la lectura); en la prueba directa, lo que suena + 2 min.</li>'
-              + '<li><b>Entonación at home</b>: cuenta si pasas el tiempo de estudio y completas <b>al menos un intento</b>: el estudio (hasta lo que dura) más lo que suenan tus intentos, como mucho <b>8 min</b> de intentos.</li>')
-      + '<li><b>Intervalia, PreDict…</b>: practicar con sus fases de estudio, el metrónomo o interpretando.</li>'
+              + '<li><b>Entonación at home</b>: cuenta si pasas el tiempo de estudio y completas <b>al menos un intento</b>: el estudio (hasta lo que dura) más lo que suenan tus intentos, como mucho <b>8 min</b> de intentos.</li>'
+              + '<li><b>Acceso rítmico</b>: igual que Entonación: el estudio (hasta 5 min) más lo que suenan tus pruebas, como mucho <b>8 min</b> de pruebas, sin cortesía.</li>'
+              + '<li><b>Desafío</b>: lo que suena + 2 min de cortesía, como mucho <b>8 min</b>.</li>')
+      + '<li><b>Intervalia y PreDict</b>: practicar con sus fases de estudio, el metrónomo o interpretando. Como mucho <b>12 min</b> por actividad.</li>'
       + '</ul><h4 class="no">✕ NO LE LLEGA</h4><ul>'
       + '<li>Una actividad de <b>menos de 3 minutos</b>.</li>'
       + '<li>Un dictado o un capítulo <b>a medias</b>, o un ejercicio de Teoría <b>sin corregir</b>.</li>'
