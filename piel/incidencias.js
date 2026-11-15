@@ -2,8 +2,11 @@
    INCIDENCIAS (12-nov-2026, Iago) · botón «?» en la barra de iconos del portal (GE y GP), a la izquierda de
    «Mis resultados». El alumno elige en 2-3 pasos de qué va (una app que no funciona, no entiende una app, una
    nota de Mis resultados, Mi actitud u otra cosa) y lo cuenta en pocas palabras. Le llega a Iago a la campana
-   del Diario; él contesta una vez y la respuesta le llega al alumno a su campana. No es un chat: faltas,
-   justificantes, tutorías y cosas de clase van por CentrosNET.
+   del Diario; él contesta y la respuesta le llega al alumno a su campana. Faltas, justificantes, tutorías y cosas
+   de clase van por CentrosNET.
+   · (15-nov-2026, Iago) «que me puedan contestar… que sea como un chat… aunque solo trataremos esa incidencia»: cada
+     incidencia es un CHAT con Iago. El «?» abre el chat si hay uno en marcha (3 semanas desde lo último); en la campana,
+     el aviso «Respuesta a tu incidencia» lleva «💬 Abrir el chat». SQL: suite_incidencia_alumno_hilo / _escribir.
    · No sale en las cuentas Tester / Protester (Iago no lo usa).
    · Como mucho una incidencia abierta por alumno.
    · SQL: suite_incidencia_alumno_enviar / _estado (alumno) · suite_incidencias_alumno_listar / _responder (Diario).
@@ -82,7 +85,19 @@
       '#lm-incid .li-env{background:#e2e8f0;color:#111;border:0;border-radius:10px;padding:11px 16px;font-family:inherit;font-size:14px;font-weight:800;line-height:1;cursor:pointer}#lm-incid .li-env:disabled{opacity:.5;cursor:default}' +
       '#lm-incid .li-err{color:#fca5a5;font-size:12.5px;margin-top:8px}' +
       '#lm-incid .li-ok{text-align:center;padding:14px 4px 4px}#lm-incid .li-ok .c{width:52px;height:52px;border-radius:50%;border:2px solid #22c55e;margin:0 auto 12px;display:grid;place-items:center;color:#22c55e;font-size:26px}' +
-      '#lm-incid .li-ok p{color:#cbd5e1;font-size:14px;line-height:1.45;margin:0 0 14px}';
+      '#lm-incid .li-ok p{color:#cbd5e1;font-size:14px;line-height:1.45;margin:0 0 14px}' +
+      /* (15-nov-2026) el chat */
+      '#lm-incid .li-hilo{display:flex;flex-direction:column;gap:8px;max-height:min(46vh,380px);overflow-y:auto;padding:4px 2px 6px;margin:0 0 10px}' +
+      '#lm-incid .li-m{max-width:84%;padding:8px 11px;border-radius:12px;font-size:14px;line-height:1.42;white-space:pre-wrap;overflow-wrap:anywhere}' +
+      '#lm-incid .li-m small{display:block;font-size:11px;color:#94a3b8;margin-top:4px}' +
+      '#lm-incid .li-m.yo{align-self:flex-end;background:rgba(226,232,240,.16);border:1px solid rgba(226,232,240,.35);border-bottom-right-radius:4px}' +
+      '#lm-incid .li-m.iago{align-self:flex-start;background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.55);border-bottom-left-radius:4px}' +
+      '#lm-incid .li-m.iago b{display:block;font-size:11.5px;color:#4ade80;letter-spacing:.04em;margin-bottom:2px}' +
+      '#lm-incid .li-espera{align-self:center;font-size:12px;color:#94a3b8;text-align:center}' +
+      '#lm-incid .li-escr{display:flex;gap:8px;align-items:flex-end}#lm-incid .li-escr textarea{min-height:46px;height:46px;flex:1}' +
+      '#lm-incid .li-escr .li-env{flex:0 0 auto}' +
+      '#lm-incid .li-nueva{display:block;margin:10px auto 0;background:transparent;border:0;color:#94a3b8;font-family:inherit;font-size:12.5px;text-decoration:underline;cursor:pointer}' +
+      '.li-chatbtn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;border:1.5px solid #22c55e;border-radius:9px;background:rgba(34,197,94,.14);color:#fff;font-family:inherit;font-size:13px;font-weight:800;line-height:1;padding:8px 12px;cursor:pointer}';
     document.head.appendChild(st);
   }
 
@@ -131,9 +146,55 @@
     var s = cuenta(); if (!s) return;
     E = {};
     pinta('<div class="li-paso">INCIDENCIAS</div><h3>Un momento…</h3>');
-    var st = await rpc('suite_incidencia_alumno_estado', { p_cuenta_id: s.id });
-    if (st && st.ok && st.abierta) { yaAbierta(st.abierta); return; }
+    var h = await rpc('suite_incidencia_alumno_hilo', { p_cuenta_id: s.id });
+    if (h && h.ok && h.hilo) { chat(h.hilo); return; }
+    if (!h || !h.ok) {   // si el chat no responde, como antes
+      var st = await rpc('suite_incidencia_alumno_estado', { p_cuenta_id: s.id });
+      if (st && st.ok && st.abierta) { yaAbierta(st.abierta); return; }
+    }
     paso1();
+  }
+  /* (15-nov-2026, Iago) el CHAT de la incidencia */
+  function hora(iso) { try { var d = new Date(iso); return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' · ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+  function chat(h, aviso) {
+    var ms = h.mensajes || [];
+    var ultAlu = ms.length && ms[ms.length - 1].autor === 'alumno';
+    var tit = h.objeto && h.objeto !== 'Otra' ? h.objeto : (nomTema(h.tema) || 'Tu incidencia');
+    var burbujas = ms.map(function (m) { return m.autor === 'iago'
+      ? '<div class="li-m iago"><b>IAGO</b>' + esc(m.texto) + '<small>' + esc(hora(m.t)) + '</small></div>'
+      : '<div class="li-m yo">' + esc(m.texto) + '<small>' + esc(hora(m.t)) + '</small></div>'; }).join('') +
+      (ultAlu ? '<div class="li-espera">' + (aviso ? '✓ Enviado. ' : '') + 'Iago te contestará aquí; te avisará en la campana 🔔</div>' : '');
+    var el = pinta('<div class="li-paso">💬 CHAT CON IAGO</div><h3>' + esc(tit) + '</h3>' +
+      '<div class="li-hilo">' + burbujas + '</div>' +
+      '<div class="li-escr"><textarea maxlength="1500" placeholder="Escribe a Iago…"></textarea><button class="li-env">Enviar</button></div>' +
+      '<div class="li-err" hidden></div>' +
+      (h.estado === 'respondida' ? '<button class="li-nueva">¿Es otra cosa distinta? Abre una incidencia nueva</button>' : ''));
+    var hilo = el.querySelector('.li-hilo'); hilo.scrollTop = hilo.scrollHeight;
+    var ta = el.querySelector('textarea'), b = el.querySelector('.li-env'), err = el.querySelector('.li-err');
+    b.addEventListener('click', async function () {
+      var txt = (ta.value || '').trim(); if (!txt) { try { ta.focus(); } catch (e) {} return; }
+      b.disabled = true; b.textContent = '…'; err.hidden = true;
+      var r = await rpc('suite_incidencia_alumno_escribir', { p_cuenta_id: cuenta().id, p_id: h.id, p_texto: txt });
+      if (r && r.ok) { h.mensajes = r.mensajes || ms.concat([{ autor: 'alumno', texto: txt, t: new Date().toISOString() }]); h.estado = 'abierta'; chat(h, true); return; }
+      b.disabled = false; b.textContent = 'Enviar'; err.hidden = false;
+      err.textContent = r && r.error === 'cerrada' ? 'Iago ya cerró esta incidencia. Si pasa otra cosa, abre una nueva con el botón «?».'
+        : r && r.error === 'muchos' ? 'Este chat ya tiene muchos mensajes. Si es otra cosa, abre una incidencia nueva.'
+        : 'No se ha podido enviar. Revisa la conexión y vuelve a intentarlo.';
+    });
+    var nv = el.querySelector('.li-nueva'); if (nv) nv.addEventListener('click', function () { E = {}; paso1(); });
+  }
+  /* en la campana del portal: el aviso «Respuesta a tu incidencia» lleva su botón para abrir el chat */
+  function botonesCampana() {
+    var tt = document.querySelectorAll('.alu-item .alu-item-tit');
+    for (var i = 0; i < tt.length; i++) {
+      if (!/Respuesta a tu incidencia/i.test(tt[i].textContent || '')) continue;
+      var it = tt[i].closest('.alu-item'), cont = it && (it.querySelector('.cv2-cont') || it.querySelector('.alu-item-main'));
+      if (!cont || cont.querySelector('.li-chatbtn')) continue;
+      css();
+      var bc = document.createElement('button'); bc.type = 'button'; bc.className = 'li-chatbtn'; bc.textContent = '💬 Abrir el chat con Iago';
+      bc.addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); abrir(); });
+      cont.appendChild(bc);
+    }
   }
   function fecha(iso) { try { var d = new Date(iso); return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }); } catch (e) { return ''; } }
   function nomTema(t) { for (var i = 0; i < TEMAS.length; i++) if (TEMAS[i][0] === t) return TEMAS[i][1]; return ''; }
@@ -192,6 +253,8 @@
     var ctx = { url: location.href.split('#')[0], ua: navigator.userAgent, pantalla: screen.width + '×' + screen.height, ventana: innerWidth + '×' + innerHeight, hora: new Date().toISOString(), portal: GP ? 'gp' : 'ge' };
     var r = await rpc('suite_incidencia_alumno_enviar', { p_cuenta_id: s.id, p_tema: E.tema, p_objeto: E.objeto || null, p_detalle: E.detalle || null, p_texto: txt, p_contexto: ctx });
     if (r && r.ok) {
+      var h2 = await rpc('suite_incidencia_alumno_hilo', { p_cuenta_id: s.id });
+      if (h2 && h2.ok && h2.hilo) { chat(h2.hilo, true); return; }
       var ok = pinta('<div class="li-ok"><div class="c">✓</div><h3 style="margin:0 0 8px">Enviado a Iago</h3><p>Lo atenderá lo antes posible. Te llegará la respuesta a la campana 🔔.</p><button class="li-env">Cerrar</button></div>');
       ok.querySelector('.li-env').addEventListener('click', cerrar);
       return;
@@ -202,8 +265,8 @@
   }
 
   /* ---- arranque: el botón aparece cuando aparece «Mis resultados» (cuenta validada) ---- */
-  function tick() { try { boton(); } catch (e) {} }
+  function tick() { try { boton(); } catch (e) {} try { if (cuenta() && !esTester()) botonesCampana(); } catch (e) {} }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick); else tick();
   setInterval(tick, 1500);
-  window.LMIncidencias = { abrir: abrir };
+  window.LMIncidencias = { abrir: abrir, chat: chat };
 })();
