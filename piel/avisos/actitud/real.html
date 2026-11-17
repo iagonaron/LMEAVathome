@@ -197,7 +197,7 @@ body.f-sug .sug{border-color:#facc15}
       sug: [['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>: así te pones al día y deja de restar.'],
             ['✉️', 'Faltaste ayer: tu familia puede justificarlo por <b>CentrosNET</b> antes del <b>viernes a las 23:59</b>.'],
             ['⏰', 'Intenta <b>llegar puntual</b> a las clases y, si un día no puedes, avisa a Iago previamente.']],
-      areas: [['Entonación', '×2', '#3b82f6'], ['Dictado', '×1,5', '#f97316'], ['Ritmo', '×1', '#22c55e'], ['Teoría', '×1', '#ec4899']] },
+      areas: [['Intervalia', '×2', '#3b82f6'], ['Dictado', '×1,5', '#f97316'], ['Ritmo entonado', '×1', '#22c55e'], ['Teoría', '×1', '#ec4899']] },
     gp2: { grupo: '2.º GP', t: '2T', base: 7, desde: 6.5, f: [
         ['c', -1, 'Atención mejorable', 'La que marcó Iago en el 1.er trimestre', '1T'],
         ['c', -0.5, 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS(X('roja', '19/01'))],
@@ -211,7 +211,7 @@ body.f-sug .sug{border-color:#facc15}
       sug: [['🎯', 'La atención la vuelve a valorar Iago la <b>semana de exámenes</b>: aún puedes cambiarla.'],
             ['✉️', 'Si faltas, tu familia puede justificarlo por <b>CentrosNET</b> antes del <b>viernes a las 23:59</b> de esa semana.'],
             ['🧭', 'Te falta ver el portal <b>Magnetófono, bobina 2</b>.']],
-      areas: [['Entonación', '×2', '#3b82f6'], ['Teoría', '×1,5', '#ec4899'], ['Dictado', '×1', '#f97316'], ['Ritmo', '×1', '#22c55e']] },
+      areas: [['Intervalia', '×2', '#3b82f6'], ['Teoría', '×1,5', '#ec4899'], ['Dictado', '×1', '#f97316'], ['Ritmo entonado', '×1', '#22c55e']] },
     ge1: { grupo: '4.º GE', t: '1T', base: null, desde: null, f: [
         ['c', -0.5, 'Faltas sin justificar', 'la 2.ª resta medio; desde la 3.ª, una entera' + XS(X('roja', '23/10'))],
         ['c', -1, '2 quiz sin terminar', 'Cartas 2.1 y 2.2: medio punto cada uno'],
@@ -267,6 +267,8 @@ body.f-sug .sug{border-color:#facc15}
     var q = P[2][n] || P[2][1]; return { u: HITOS + Q[2] + '-' + (P[2][n] ? n : 1) + '.webp', rgb: P[0], bd: P[1], tono: q[1], pos: q[0] }; }
   function nomPortal(app, n) { var Q = PORT[String(app || '').replace(/-(ge|gp)$/, '')]; return Q ? Q[0] + ', ' + Q[1] + ' ' + n : 'Portal de la clase'; }
   var AREA = { teoria: ['Teoría', '#ec4899'], ritmo: ['Ritmo', '#22c55e'], entonacion: ['Entonación', '#3b82f6'], audicion: ['Dictado', '#f97316'] };
+  /* (17-nov-2026, Iago) en profesional: «en vez de Entonación pon Intervalia, y que sea de color azul, y Ritmo pon Ritmo entonado» */
+  function nomArea(a, gp) { return gp ? ({ ritmo: 'Ritmo entonado', entonacion: 'Intervalia' }[a] || AREA[a][0]) : AREA[a][0]; }
   function areaDe(app) { var k = String(app || '').replace(/-(ge|gp)$/, '');
     if (k === 'teoria' || PORT[k]) return 'teoria'; if (k === 'ritmo' || k === 'desafio' || k === 'acceso') return 'ritmo';
     if (k === 'entonacion' || k === 'intervalia') return 'entonacion'; if (k === 'dictado' || k === 'predict') return 'audicion'; return null; }
@@ -370,7 +372,7 @@ body.f-sug .sug{border-color:#facc15}
       var k = String(x[0]).replace(/-(ge|gp)$/, ''), o = null, tit = nomApp(x[0], gp);
       if (PORT[k]) { var subs = Object.keys(det[x[0]] || {}).map(function (s) { var mm = /-(\d+)$/.exec(s); return [mm ? mm[1] : null, det[x[0]][s]]; }).filter(function (s) { return s[0]; }).sort(function (a, b) { return b[1] - a[1]; });
         var n = subs.length ? subs[0][0] : 1; o = { T: texDe(x[0], n), v: '+' + f2(v) }; if (subs.length === 1) tit = nomPortal(x[0], n); }
-      f.push(['f', v, tit, dur(x[1]) + ' por tu cuenta' + (m > 1 ? ' · ' + (AREA[ar] ? AREA[ar][0] : '') + ' ×' + String(m).replace('.', ',') : '') + (extra ? ' · ' + extra : ''), null, o || { v: '+' + f2(v) }]);
+      f.push(['f', v, tit, dur(x[1]) + ' por tu cuenta' + (m > 1 ? ' · ' + (AREA[ar] ? nomArea(ar, gp) : '') + ' ×' + String(m).replace('.', ',') : '') + (extra ? ' · ' + extra : ''), null, o || { v: '+' + f2(v) }]);
     });
     /* (14-nov-2026, Iago) cuando se llega al tope del trimestre, cada tarjeta dice lo que suma de verdad (lo que cabía hasta +2) */
     var acuT = 0; f.forEach(function (x) { if (x[0] !== 'f') return; var q = Math.max(0, Math.min(x[1], 2 - acuT)); acuT += x[1]; if (q < x[1]) { x[1] = q; if (x[5]) x[5].v = '+' + f2(q); } });
@@ -382,11 +384,12 @@ body.f-sug .sug{border-color:#facc15}
     /* chips de áreas: la de más valor primero */
     var cu = P.cuenta || '', OPC = {
       ritmo: [[gp ? 'Ritmo entonado at home' : 'Ritmo at home', urlApp(gp, 'ritmo', cu), 'Lecciones y ejercicios de ritmo']],
-      entonacion: [['Entonación at home', urlApp(gp, 'entonacion', cu), 'Lecciones de entonación'], [gp ? 'Intervalia at home' : 'Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']],
+      entonacion: gp ? [['Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']]
+                     : [['Entonación at home', urlApp(gp, 'entonacion', cu), 'Lecciones de entonación'], ['Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']],
       audicion: [[gp ? 'Dictados at home' : 'Dictado at home', urlApp(gp, 'dictado', cu), 'Dictados'], [gp ? 'PreDict at home' : 'PreDict at home', urlApp(gp, 'predict', cu), 'Cuenta como dictado']],
       teoria: mp.c.map(function (c) { return [c.nom, c.u || urlApp(gp, 'teoria', cu), c.caja + (c.m === 2 ? ' · en rojo en tu mapa' : ' · en amarillo en tu mapa'), c.m]; })
                 .concat([[gp ? 'Teoría at home' : 'Teoría at home', urlApp(gp, 'teoria', cu), mp.c.length ? 'Todo lo demás de teoría' : (por.teoria ? 'Teoría · ' + por.teoria : 'Apuntes, vídeos y ejercicios'), mp.c.length ? 1 : mult.teoria]]) };
-    var areas = Object.keys(mult).sort(function (a, b) { return mult[b] - mult[a]; }).map(function (a) { return [AREA[a][0], '×' + String(mult[a]).replace('.', ','), AREA[a][1], por[a] || '', OPC[a], a]; });
+    var areas = Object.keys(mult).sort(function (a, b) { return mult[b] - mult[a]; }).map(function (a) { return [nomArea(a, gp), '×' + String(mult[a]).replace('.', ','), AREA[a][1], por[a] || '', OPC[a], a]; });
     /* faltas: cómo justificarlas */
     /* (13-nov-2026, Iago) plazo para justificar: hasta el VIERNES de esa semana a las 23:59 (encaja con el barrido de los sábados) */
     var ult = fs.length ? fs[fs.length - 1].f : null, hoy = new Date(), dsem = hoy.getDay(), lun = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - ((dsem + 6) % 7));
@@ -440,7 +443,7 @@ body.f-sug .sug{border-color:#facc15}
   var sugs = C.sug.map(function (s) { var d = document.createElement(s[2] ? 'a' : 'div'); if (s[2]) { d.className = 'sugl'; d.href = s[2]; d.target = '_top'; } d.innerHTML = '<span>' + (ICOS_SUG[s[0]] || s[0]) + '</span><span>' + s[1] + '</span>'; $('sug').appendChild(d); return d; });
   /* (12-nov, Iago) para sumar: cuánto vale cada área (la más floja, más) · Entonación = Entonación + Intervalia (con micrófono) · Dictado = Dictado + Predict */
   if (C.areas) { var dA = document.createElement('div'); dA.className = 'areas';
-    dA.innerHTML = '<b>Para sumar, donde más puntúas</b><span class="chips">' + C.areas.map(function (a, k) { return '<i style="--c:' + a[2] + '"' + (k === 0 && a[1] !== '×1' ? ' class="top"' : '') + (a[3] ? ' title="' + a[3] + '"' : '') + (a[4] ? ' data-a="' + k + '" role="button" tabindex="0"' : '') + '>' + a[0] + ' ' + a[1] + '</i>'; }).join('') + '</span><small>Entonación + Intervalia, con micrófono · Dictado + Predict</small>';
+    dA.innerHTML = '<b>Para sumar, donde más puntúas</b><span class="chips">' + C.areas.map(function (a, k) { return '<i style="--c:' + a[2] + '"' + (k === 0 && a[1] !== '×1' ? ' class="top"' : '') + (a[3] ? ' title="' + a[3] + '"' : '') + (a[4] ? ' data-a="' + k + '" role="button" tabindex="0"' : '') + '>' + a[0] + ' ' + a[1] + '</i>'; }).join('') + '</span><small>' + (C.gp ? 'Intervalia, con micrófono · Dictado + Predict' : 'Entonación + Intervalia, con micrófono · Dictado + Predict') + '</small>';
     $('sug').appendChild(dA); sugs.push(dA);
     if (REAL) dA.querySelectorAll('i[data-a]').forEach(function (el) { el.onclick = function () { abrePop(C.areas[+el.getAttribute('data-a')]); }; });
     if (REAL) dA.querySelector('small').textContent = 'Pulsa un área para ir a practicar'; }
