@@ -43,7 +43,12 @@
     var dia = dd === 0 ? 'hoy' : dd === 1 ? 'mañana' : (dd > 6 ? 'el ' + d.getDate() + '/' + (d.getMonth() + 1) : 'el ' + d.toLocaleDateString('es-ES', { weekday: 'long' }));
     return dia + ' a las ' + hh;
   }
+  function confirmados(p) { var n = Math.max(0, (p.apuntados || 0) - 1); return n === 0 ? 'sin confirmados' : n + (n === 1 ? ' confirmado' : ' confirmados'); }
   function texto(p) {
+    if (p.soy_creador) {
+      if (p.lobby_abierto) return '¡Tu carrusel está abierto! · ' + confirmados(p);
+      return 'Tu carrusel ' + cuando(p.programada) + ' · ' + confirmados(p);
+    }
     if (p.lobby_abierto) return '¡Carrusel abierto! Entra';
     var min = Math.round((new Date(p.programada).getTime() - Date.now()) / 6e4);
     if (min <= 1) return 'Carrusel: empieza ya';
@@ -82,14 +87,15 @@
       '@media (prefers-reduced-motion:reduce){#lm-carr-btn.mov .fx,#lm-carr-btn.mov svg{animation:none}}' +
       /* el cartelito: una franja por partida; la más próxima a la vista y las demás debajo, tras la flechita */
       '#lm-incid-btn{order:-6!important}' +
-      '#lm-carr-aviso{order:-7;display:inline-flex;align-items:center;gap:4px}' +
+      '#lm-carr-aviso{order:-7;z-index:2147480400;display:inline-flex;align-items:center;gap:4px}' +
       '.lm-fr{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;height:var(--lm-ctl,34px);padding:0 12px 0 9px;border-radius:10px;color:#fff;font:800 13px/1 inherit;font-family:inherit;letter-spacing:.01em;white-space:nowrap;max-width:390px;overflow:hidden;text-decoration:none;cursor:pointer;' +
       'background:' + TEX_MULTI + ';box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);text-shadow:0 1px 6px rgba(0,0,0,.55);border:0}' +
+      '.lm-fr.mia{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.92)}.lm-fr.mia svg{color:#fff}' +
       '.lm-fr:hover{filter:brightness(1.12)}.lm-fr svg{width:17px;height:17px;flex:none;color:#fff}' +
       '.lm-fr.vivo{animation:lmCarrA 1.4s ease-in-out infinite}@keyframes lmCarrA{50%{filter:brightness(1.35)}}' +
       '#lm-carr-aviso .mas{display:inline-flex;align-items:center;gap:3px;height:var(--lm-ctl,34px);padding:0 8px;border:0;border-radius:10px;cursor:pointer;color:#fff;font:800 12px/1 inherit;font-family:inherit;background:rgba(10,7,30,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}' +
       '#lm-carr-aviso .mas svg{width:12px;height:12px;transition:transform .15s}#lm-carr-aviso .mas.abierto svg{transform:rotate(180deg)}' +
-      '#lm-carr-aviso .resto{position:absolute;left:0;top:calc(100% + 5px);display:flex;flex-direction:column;gap:5px;z-index:60}' +
+      '#lm-carr-aviso .resto{position:absolute;left:0;top:calc(100% + 5px);display:flex;flex-direction:column;gap:5px;z-index:2147480400}' +
       '#lm-carr-aviso .resto[hidden]{display:none}' +
       '#lm-carr-btn[hidden],#lm-carr-aviso[hidden]{display:none!important}' +
       /* el panel de partidas: la piel del portal (cristal oscuro traslúcido, borde claro, botones como Incidencias) */
@@ -113,6 +119,7 @@
       '#lm-carr-pan svg.sv{width:16px;height:16px;vertical-align:-3px;margin-right:6px}#lm-carr-pan .bt.ico svg.sv,#lm-carr-pan .cab .x svg.sv{margin:0;width:15px;height:15px;vertical-align:-2px}' +
       '#lm-carr-pan .cab .x{padding:0}' +
       '#lm-carr-pan .sq{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px;vertical-align:0}#lm-carr-pan .sq.v{background:#34d399}#lm-carr-pan .sq.a{background:#f59e0b}' +
+      '#lm-carr-pan .cor svg{width:16px;height:16px;vertical-align:-2px;margin-right:6px}' +
       '#lm-carr-pan .vacio{color:#94a3b8;padding:6px 0 10px}' +
       '#lm-carr-pan input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.28);border-radius:10px;color:#fff;padding:8px 10px;font:inherit;color-scheme:dark;max-width:100%}' +
       '#lm-carr-pan .conf{position:sticky;bottom:0;margin:10px 0 0;padding:12px;border-radius:12px;background:rgba(18,24,38,.98);border:1.5px solid #e2e8f0}' +
@@ -124,13 +131,21 @@
   var ESP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>';
   function SVI(d) { return '<svg class="sv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
   var I_PLAY = SVI('<path d="M8 5.5v13l10-6.5z"/>'), I_CAL = SVI('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'), I_OK = SVI('<path d="M5 12.5l4.5 4.5L19 7.5"/>'), I_X = SVI('<path d="M6 6l12 12M18 6L6 18"/>');
+  var CORONA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-7 4 7 4-4-2 11H6z"/></svg>';
   var FLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 
   /* ---- cartelito ---- */
   function franja(p) {
-    var f = document.createElement('a'); f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : ''); f.href = URL_CARR; f.target = 'lm-carrusel-online';
-    f.title = 'PreDict Carrusel online · ' + (p.creador ? 'partida de ' + p.creador : 'tu partida');
-    f.innerHTML = ESP + '<span>' + esc(texto(p)) + '</span>'; return f;
+    var f = document.createElement('button'); f.type = 'button';
+    f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '');
+    f.title = p.soy_creador ? 'Eres el anfitrión de este carrusel' : 'PreDict Carrusel online · partida de ' + (p.creador || '');
+    f.innerHTML = (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>';
+    f.onclick = function (e) {
+      e.stopPropagation();
+      if (p.lobby_abierto) abrirCarrusel(p.id, !(p.soy_creador || p.yo_dentro));
+      else { if (PAN && !PAN.hidden) cerrarPanel(); else abrirPanel(); }
+    };
+    return f;
   }
   function pintaAviso(host, mias) {
     var a = document.getElementById('lm-carr-aviso');
@@ -155,14 +170,14 @@
   /* ---- panel de partidas ---- */
   var PAN = null, FORM = false, CONF = null, MSG = '';
   function filaPartida(p) {
-    var quien = esc(p.creador) + ' <span class="c">(' + esc(grupoTxt(p.grupo)) + ')</span>';
+    var quien = p.soy_creador ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="c">(' + esc(grupoTxt(p.grupo)) + ')</span>';
     var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora' : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
     var bs;
     if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (p.soy_creador || p.yo_dentro ? '' : '1') + '">Entrar</button>';
-    else if (p.soy_creador) bs = '<span class="c">Eres el anfitrión</span><button class="bt" data-go="' + p.id + '" data-e="">Gestionar</button>';
+    else if (p.soy_creador) bs = p.anfitrion_cancelo ? '<span class="c">La cancelaste</span>' : '<button class="bt" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
     else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? I_OK + 'Me apunto' : 'Me apunto') + '</button>' +
       (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
-    return '<div class="pt"><div class="q">' + quien + '</div><div class="c">' + cab + ' · ' + p.apuntados + ' apuntado' + (p.apuntados == 1 ? '' : 's') + '</div><div class="bs">' + bs + '</div></div>';
+    return '<div class="pt"><div class="q">' + quien + '</div><div class="c">' + cab + ' · ' + (p.soy_creador ? confirmados(p) : p.apuntados + ' apuntado' + (p.apuntados == 1 ? '' : 's')) + '</div><div class="bs">' + bs + '</div></div>';
   }
   function pintaPanel() {
     if (!PAN || PAN.hidden) return;
@@ -180,7 +195,7 @@
     var ok = PAN.querySelector('#lm-carr-ok');
     if (ok) ok.onclick = function () {
       var v = PAN.querySelector('#lm-carr-hora').value; if (!v) return; var f = new Date(v);
-      pedirConf('¿Anunciar esta partida?', 'Serás el anfitrión. Si no asistes al carrusel, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar').then(function (si) {
+      pedirConf('¿Anunciar esta partida?', 'Serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar').then(function (si) {
         if (!si) return;
         rpcA('suite_cr_crear', { p_cuenta: cuenta().id, p_programada: f.toISOString() }).then(function (r) {
           MSG = r && r.ok ? 'Partida anunciada para ' + cuando(f.toISOString()) + '. Te has apuntado automáticamente.' : (r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 14 días desde ahora.' : 'No he podido anunciar la partida.');
@@ -188,10 +203,19 @@
         });
       });
     };
+    PAN.querySelectorAll('button[data-cancel]').forEach(function (bt) {
+      bt.onclick = async function () {
+        var P = LISTA.filter(function (x) { return x.id === bt.dataset.cancel; })[0]; if (!P) return;
+        var pen = tarde(P) && (P.apuntados || 0) > 1;
+        if (!await pedirConf(pen ? 'Cancelar ahora cuenta como no asistir' : '¿Cancelar tu partida?', pen ? 'Hay gente apuntada y faltan menos de 5 minutos: perderás 0,25 de actitud. ¿Cancelar igualmente?' : (tarde(P)?'No pierdes actitud porque no hay nadie apuntado.':'No pierdes actitud porque faltan más de 5 minutos.'), 'Sí, cancelar', 'No, la mantengo')) return;
+        bt.disabled = true; var r = await rpcA('suite_cr_cancelar', { p_cuenta: cuenta().id, p_partida: P.id });
+        MSG = r && r.ok ? 'Has cancelado la partida.' : 'No he podido cancelar la partida.'; refrescar();
+      };
+    });
     PAN.querySelectorAll('button[data-go]').forEach(function (bt) { bt.onclick = function () { abrirCarrusel(bt.dataset.go, bt.dataset.e === '1'); }; });
     var ya = PAN.querySelector('#lm-carr-ya');
     if (ya) ya.onclick = async function () {
-      ya.disabled = true; MSG = ''; var w = window.open('about:blank', 'lm-carrusel-online');
+      ya.disabled = true; MSG = ''; var w = window.open('about:blank', '_blank');
       var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id });
       if (r && r.ok && r.id) { abrirCarrusel(r.id, false, w); MSG = ''; refrescar(); }
       else { if (w) { try { w.close(); } catch (e) {} } MSG = r && r.error === 'ya_tienes_una' ? 'Ya tienes un lobby abierto: pulsa «Gestionar» en tu partida.' : 'No he podido abrir el lobby.'; ya.disabled = false; pintaPanel(); }
@@ -208,7 +232,7 @@
   }
   function abrirCarrusel(id, entrar, w) {
     var u = URL_CARR + '?p=' + encodeURIComponent(id) + (entrar ? '&e=1' : '');
-    try { w = w || window.open('about:blank', 'lm-carrusel-online'); if (w) w.location.href = u; else location.href = u; } catch (e) { location.href = u; }
+    try { w = w || window.open('about:blank', '_blank'); if (w) w.location.href = u; else location.href = u; } catch (e) { location.href = u; }
   }
   function pedirConf(t, x, si, no) {
     return new Promise(function (res) {
@@ -259,7 +283,7 @@
     b.classList.toggle('mov', n > 0);
     b.title = abiertas.length ? 'PreDict Carrusel online · hay un lobby abierto ahora' : (nuevas.length ? 'PreDict Carrusel online · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : 'PreDict Carrusel online');
     /* el cartelito: las partidas a las que te has apuntado («Me apunto»), la más próxima primero; «visto» no cuenta */
-    var mias = LISTA.filter(function (p) { return p.yo === 'si'; }).sort(function (x, y) { return new Date(x.programada) - new Date(y.programada); });
+    var mias = LISTA.filter(function (p) { return p.yo === 'si' && !(p.soy_creador && p.anfitrion_cancelo); }).sort(function (x, y) { return new Date(x.programada) - new Date(y.programada); });
     pintaAviso(host, mias);
   }
   async function refrescar() {
