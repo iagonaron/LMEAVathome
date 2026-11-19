@@ -9,7 +9,7 @@
    · Cartelito a la izquierda de «?» (Incidencias): una franja con la partida más próxima a la que te has apuntado; si hay más,
      una flechita despliega las demás hacia abajo. («Tienes un carrusel mañana a las 17:00», «… en 3 h», «… en 25 min»).
      No es una notificación. «Marcar como visto» no lo muestra.
-   · Solo GE (el portal de profesional no lo lleva todavía). Lee `suite_cr_lista` (sus datos son del curso de la cuenta).
+   · GE y, desde el 20-nov-2026, también GP (Carrusel PRO Online, predict.gp.lmathome.es; sesión lmpro_session). Lee `suite_cr_lista` (sus datos son del curso de la cuenta).
    · No toca nada de lo demás: si algo falla, no sale y ya.
    Quitarlo: borrar la línea <script … carrusel-aviso.js> de index.html.
    ============================================================================================================ */
@@ -17,17 +17,20 @@
   'use strict';
   if (window.__lmCarrAviso) return; window.__lmCarrAviso = 1;
   var GP = /(^|\.)gp\.lmathome\.es$/i.test(location.hostname) || /lmpro/i.test(location.pathname);
-  if (GP) return;
+  /* (20-nov-2026, C1) también en el portal GP: «Carrusel PRO Online» (se abre el martes 24-nov a las 20:00) */
+  var NOMBRE = GP ? 'Carrusel PRO Online' : 'Carrusel Online', SESION = GP ? 'lmpro_session' : 'lmeav_session';
+  /* en GP, hasta que Iago diga «Publica el Carrusel PRO», el botón solo lo ve el Protester (para probarlo); para todos: true */
+  var GP_PUBLICO = false;
   var SBU = 'https://woiptkyrxkbpnvioypit.supabase.co';
   var SBK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
-  var URL_CARR = 'https://predict.ge.lmathome.es/carrusel-online/';
+  var URL_CARR = GP ? 'https://predict.gp.lmathome.es/carrusel-online/' : 'https://predict.ge.lmathome.es/carrusel-online/';
   var LISTA = [], OK = false, ABIERTO = null;   /* ABIERTO: lo decide el servidor (Tester incluido) */
   /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00 (lo explica en clase ese día). El servidor también lo
      impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
-  var ABRE = Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT = 'el viernes 20 de noviembre a las 19:00';
+  var ABRE = GP ? Date.parse('2026-11-24T20:00:00+01:00') : Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT = GP ? 'el martes 24 de noviembre a las 20:00' : 'el viernes 20 de noviembre a las 19:00';
   var VIDEO_URL = '';   /* vídeo retirado hasta que Iago apruebe las pantallas (19-nov 15:25); estaba en piel/carrusel/carrusel-online-ge.mp4 */
 
-  function ses() { try { return JSON.parse(localStorage.getItem('lmeav_session') || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
+  function ses() { try { return JSON.parse(localStorage.getItem(SESION) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
   function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
   function esTester() { var s = ses(); return !!(s && /tester/.test(norm(s.nombre))); }
@@ -137,6 +140,7 @@
       '#lm-carr-pan .tt{display:flex;align-items:baseline;gap:10px;line-height:1;text-shadow:0 6px 26px rgba(0,0,0,.5)}' +
       '#lm-carr-pan .pre{font-size:38px;font-weight:800;letter-spacing:-.03em}#lm-carr-pan .dict{font-size:38px;font-weight:300;color:#e2ddff;letter-spacing:-.03em;margin-left:-8px}' +
       '#lm-carr-pan .car{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:27px;display:inline-block;transform:rotate(-8deg) translateY(-4px);padding:0 .1em;background:linear-gradient(100deg,#5bd0ff 8%,#ffd23f 40%,#ff9a3c 60%,#bd92ff 92%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}' +
+      '#lm-carr-pan .tt .pro{font-family:"Helvetica Neue",Arial,sans-serif;font-weight:900;letter-spacing:.05em;font-size:26px;margin:0 6px 0 4px;background:linear-gradient(180deg,#fff3c2,#f5d061 45%,#c99a1e);-webkit-background-clip:text;background-clip:text;color:transparent}' +
       '#lm-carr-pan .tt .car{font-size:40px;font-style:normal;font-weight:700;transform:none;padding:0 .02em;letter-spacing:-.01em}#lm-carr-pan .meg{display:inline-flex;vertical-align:-3px;margin-left:7px}#lm-carr-pan .meg svg{width:19px;height:19px}#lm-carr-pan .card .row:has(.fh){flex-wrap:nowrap}#lm-carr-pan .fh{flex:1;min-width:0}#lm-carr-pan .fh input{width:100%;min-width:0;box-sizing:border-box}#lm-carr-pan .card .row:has(.fh) .bt{flex:none}#lm-carr-pan .onl{font-size:38px;font-weight:300;color:#e2ddff;letter-spacing:-.02em}' +   /* (19-nov 21:46, Iago) «Carrusel Online», ya no PreDict */
       '#lm-carr-pan .kick{margin-top:10px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f1eeff}' +
       '#lm-carr-pan .x.vv + .x{margin-left:8px}#lm-carr-pan .x svg.sv{width:16px;height:16px}#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
@@ -201,7 +205,7 @@
   function franja(p) {
     var f = document.createElement('button'); f.type = 'button';
     f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '');
-    f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : 'Carrusel Online · partida de ' + (p.creador || '');
+    f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : NOMBRE + ' · partida de ' + (p.creador || '');
     f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1), p.confirmados, 3) : '');
     f.onclick = function (e) {
       e.stopPropagation();
@@ -257,7 +261,7 @@
     var h = PAN.querySelector('#lm-carr-hora'); if (h) HORA = h.value;
     var sc = PAN.querySelector('.caja'), top = sc ? sc.scrollTop : 0;
     PAN.innerHTML = '<div class="marco"><div class="cl"><div class="gi"><div class="fx"></div></div></div><div class="caja">' +
-      '<div class="top"><div class="lg">' + LOGO + '</div><div><div class="tt"><span class="car">Carrusel</span><span class="onl">Online</span></div><div class="kick">Grado Elemental</div></div>' +
+      '<div class="top"><div class="lg">' + LOGO + '</div><div><div class="tt"><span class="car">Carrusel</span>' + (GP ? '<span class="pro">PRO</span>' : '') + '<span class="onl">Online</span></div><div class="kick">' + (GP ? 'Grado Profesional' : 'Grado Elemental') + '</div></div>' +
       (!cerrado() && VIDEO_URL ? '<button class="x vv" type="button" title="Ver el vídeo">' + I_PLAY + '</button>' : '') + '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (VID && !cerrado() ? '<div class="card" style="margin-bottom:14px">' + videoHTML(VIDEO_URL) + '</div>' : '') +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
@@ -333,11 +337,11 @@
   function pintar() {
     var host = document.querySelector('.topbar .topbar-right');
     var b = document.getElementById('lm-carr-btn'), a = document.getElementById('lm-carr-aviso');
-    if (!host || !cuenta() || !OK) { if (b) b.hidden = true; if (a) a.hidden = true; cerrarPanel(); return; }
+    if (!host || !cuenta() || !OK || (GP && !GP_PUBLICO && !esTester())) { if (b) b.hidden = true; if (a) a.hidden = true; cerrarPanel(); return; }
     css();
     if (!b) {
       b = document.createElement('button'); b.type = 'button'; b.id = 'lm-carr-btn';
-      b.title = 'Carrusel Online'; b.setAttribute('aria-label', 'Carrusel Online');
+      b.title = NOMBRE; b.setAttribute('aria-label', NOMBRE);
       b.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + ESP + '<span class="pto"></span>';
       b.addEventListener('click', function () { if (PAN && !PAN.hidden) cerrarPanel(); else abrirPanel(); });
     }
@@ -348,7 +352,7 @@
     var pto = b.querySelector('.pto'), n = abiertas.length + nuevas.length;
     pto.className = 'pto' + (n ? ' on' : ''); pto.textContent = n ? String(n) : '';
     b.classList.toggle('mov', n > 0);
-    b.title = abiertas.length ? 'Carrusel Online · hay un lobby abierto ahora' : (nuevas.length ? 'Carrusel Online · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : 'Carrusel Online');
+    b.title = abiertas.length ? NOMBRE + ' · hay un lobby abierto ahora' : (nuevas.length ? NOMBRE + ' · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : NOMBRE);
     /* el cartelito: las partidas a las que te has apuntado («Me apunto»), la más próxima primero; «visto» no cuenta */
     var mias = LISTA.filter(function (p) { return p.yo === 'si' && !(p.soy_creador && p.anfitrion_cancelo); }).sort(function (x, y) { return new Date(x.programada) - new Date(y.programada); });
     pintaAviso(host, mias);
