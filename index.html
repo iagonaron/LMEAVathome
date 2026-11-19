@@ -9184,14 +9184,15 @@ document.addEventListener('click', function(ev){
    Para quitarlo: borrar estos estilos y el script de debajo (hasta «fin de la ESPIRAL»).
    ====================================================================================================== */
 #ge-espiral{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:34px;height:34px;min-width:34px;
-  padding:0;margin:0;border:0;border-radius:10px;background:#ea580c;color:#fff;text-decoration:none;flex:0 0 auto;cursor:pointer;
+  padding:0;margin:0;border:0;border-radius:10px;background:repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 0 2px,rgba(255,255,255,.14) 2px 3.5px),conic-gradient(from 200deg at 50% 50%,#1e3a8a,#2563eb,#38bdf8,#6366f1,#0ea5e9,#1e40af,#22d3ee,#1e3a8a);color:#ff9a3c;text-decoration:none;flex:0 0 auto;cursor:pointer;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);
   transition:filter .15s}
 #ge-espiral:hover{filter:brightness(1.08)}
 #ge-espiral:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #ge-espiral svg{width:17px;height:17px;display:block;pointer-events:none}
 body.tester-sin-by .topbar-right #ge-espiral{order:-2}
 html.lm-fam-portal .topbar-right > #ge-espiral{order:-3 !important;width:var(--lm-ctl) !important;height:var(--lm-ctl) !important;
-  min-width:var(--lm-ctl) !important;background:var(--lm-naranja-f,#ea580c) !important}
+  min-width:var(--lm-ctl) !important;background:repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 0 2px,rgba(255,255,255,.14) 2px 3.5px),conic-gradient(from 200deg at 50% 50%,#1e3a8a,#2563eb,#38bdf8,#6366f1,#0ea5e9,#1e40af,#22d3ee,#1e3a8a) !important;color:#ff9a3c !important}
+#ge-espiral::after{content:"aula";position:absolute;right:-3px;bottom:-4px;font:800 7px/1 system-ui,sans-serif;letter-spacing:.03em;color:#fff;background:#0f172a;border-radius:3px;padding:2px 3px;pointer-events:none}
 /* en pantallas estrechas (el iPad en vertical) no cabe sin pisar «Formato digital»; la espiral es para la pantalla de clase */
 @media (max-width: 900px){ #ge-espiral{display:none !important} }
 </style>
@@ -9230,6 +9231,8 @@ html.lm-fam-portal .topbar-right > #ge-espiral{order:-3 !important;width:var(--l
 <!-- (28-sep-2026, Iago) fin de la ESPIRAL -->
 <!-- (12-nov-2026, Iago) INCIDENCIAS: botón «?» junto a Mis resultados (no sale en Tester/Protester). Quitar: borrar esta línea. -->
 <script src="https://ge.lmathome.es/piel/incidencias.js?v=1" defer></script>
+<!-- (19-nov-2026, C1 · Carrusel online) botón azul del PreDict Carrusel online + cartelito «Tienes un carrusel…» a la izquierda de «?». Quitarlo: borrar esta línea. -->
+<script src="https://ge.lmathome.es/piel/carrusel-aviso.js?v=1" defer></script>
 <!-- (19-nov-2026, Iago) PULSO · lo que tu grupo trabaja por libre (piel/pulso.js). Quitarlo: borrar esta línea. -->
 <script src="https://ge.lmathome.es/piel/pulso.js?v=2" defer></script>
 <script src="https://ge.lmathome.es/piel/avisos/actitud/mg-anim.js?v=2" defer></script><!-- (13-nov-2026, C0) animación del 👍 y el sello la primera vez -->
