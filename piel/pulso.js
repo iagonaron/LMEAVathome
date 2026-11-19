@@ -82,8 +82,49 @@
   var D = null, abierto = false, cargando = false, ajustes = false;
   /* (19-nov 13:02, Iago) vídeo breve (1 min, con su voz) que explica el Pulso: botón discreto «Ver vídeo» en el panel,
      solo cuando el vídeo esté subido a piel/pulso/pulso-video.mp4 (hasta entonces no sale nada) */
-  var VIDEO_URL = 'https://ge.lmathome.es/piel/pulso/pulso-video.mp4', VIDEO_OK = !!window.__lmPulsoVideo, viendoVideo = false;
-  try { fetch(VIDEO_URL, { method: 'HEAD', cache: 'no-store' }).then(function (r) { if (r.ok) { VIDEO_OK = true; if (abierto) pintar(); } }).catch(function () {}); } catch (e) {}
+  /* (19-nov 13:52, Iago) un vídeo para GE y otro para GP, HORIZONTAL, 4K a 60 fps, que se descargue entero antes de verse (sin tirones).
+     Va en trozos que dice piel/pulso/pulso-ge.json o pulso-gp.json (como el vídeo de «Mi actitud»): 1080p60 por defecto, 4K si el equipo
+     lo decodifica fluido por hardware, 1080p30 en la pantalla del aula (Chrome 94). Se abre en una ventana grande encima del portal. */
+  var VBASE = 'https://ge.lmathome.es/piel/pulso/', VNOM = 'pulso-' + (GP ? 'gp' : 'ge'), VMAN = null, VBLOB = null, VIDEO_OK = false, viendoVideo = false;
+  try { fetch(VBASE + VNOM + '.json?nc=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (m) { if (m && m.trozos && m.trozos.length) { VMAN = m; VIDEO_OK = true; if (abierto) pintar(); } }).catch(function () {}); } catch (e) {}
+  function cerrarVideo() { var o = document.getElementById('lm-pulso-vid'); if (!o) return; var v = o.querySelector('video'); try { v.pause(); } catch (e) {} o.remove(); }
+  function verVideo() {
+    if (!VMAN || document.getElementById('lm-pulso-vid')) return;
+    var o = document.createElement('div'); o.id = 'lm-pulso-vid';
+    o.innerHTML = '<div class="lpv-caja"><button type="button" class="lpv-x" aria-label="Cerrar">✕</button><div class="lpv-marco"><video playsinline controls preload="auto"></video>' +
+      '<div class="lpv-carga"><div class="lpv-ic">' + ICO + '</div><div class="lpv-t">Cargando el vídeo…</div><div class="lpv-barra"><i></i></div><div class="lpv-pc">0 %</div></div></div></div>';
+    o.addEventListener('click', function (ev) { ev.stopPropagation(); if (ev.target === o) cerrarVideo(); });
+    o.querySelector('.lpv-x').addEventListener('click', cerrarVideo);
+    document.body.appendChild(o);
+    var V = o.querySelector('video'), barra = o.querySelector('.lpv-barra i'), pc = o.querySelector('.lpv-pc'), carga = o.querySelector('.lpv-carga');
+    function listo(url) { V.src = url; carga.style.display = 'none'; var pr = V.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    if (VBLOB) { listo(VBLOB); return; }
+    (async function () {
+      try {
+        var man = VMAN, puede = async function (w, h, fps, br, hw) { try { var r = await navigator.mediaCapabilities.decodingInfo({ type: 'file', video: { contentType: 'video/mp4; codecs="avc1.640033"', width: w, height: h, framerate: fps, bitrate: br } });
+          return !!(r.supported && r.smooth && (!hw || r.powerEfficient)); } catch (e) { return false; } };
+        var cv = +((/Chrome\/(\d+)/.exec(navigator.userAgent) || [])[1] || 0), aula = /Linux/.test(navigator.userAgent) && !/Android|CrOS/.test(navigator.userAgent) && cv && cv < 110;
+        var v4 = man.k4 && man.k4.trozos && man.k4.trozos.length, v30 = man.t30 && man.t30.trozos && man.t30.trozos.length, Q = man;
+        if (aula && v30) Q = man.t30; else if (v4 && await puede(3840, 2160, 60, 3e6, true)) Q = man.k4; else if (v30 && !(await puede(1920, 1080, 60, 1e6, false))) Q = man.t30;
+        var tot = Q.bytes || 0, rec = 0, partes = [], CA = null;
+        try { if (window.caches) CA = await caches.open('lm-pulso-video'); } catch (e) { CA = null; }
+        if (CA) try { (await CA.keys()).forEach(function (rq) { var u = new URL(rq.url); if (u.pathname.indexOf(VNOM) >= 0 && u.searchParams.get('v') !== String(man.v)) CA.delete(rq); }); } catch (e) {}
+        for (var k = 0; k < Q.trozos.length; k++) {
+          var url = VBASE + Q.trozos[k] + '?v=' + man.v, r = null, deCa = false, mios = [];
+          if (CA) try { r = await CA.match(url); deCa = !!(r && r.body); } catch (e) { r = null; }
+          if (!deCa) { r = await fetch(url); if (!r.ok || !r.body) throw new Error('http ' + r.status); }
+          var rd = r.body.getReader();
+          for (;;) { var x = await rd.read(); if (x.done) break; partes.push(x.value); mios.push(x.value); rec += x.value.length;
+            if (tot) { var q = Math.min(100, 100 * rec / tot); barra.style.width = q.toFixed(1) + '%'; pc.textContent = Math.floor(q) + ' %'; } }
+          if (CA && !deCa) try { await CA.put(url, new Response(new Blob(mios, { type: 'application/octet-stream' }))); } catch (e) {}
+          if (!document.getElementById('lm-pulso-vid')) return;   // lo cerró mientras cargaba (lo ya bajado queda en la caché)
+        }
+        VBLOB = URL.createObjectURL(new Blob(partes, { type: 'video/mp4' }));
+        if (document.getElementById('lm-pulso-vid')) listo(VBLOB);
+      } catch (e) { o.querySelector('.lpv-t').textContent = 'No se ha podido cargar el vídeo. Prueba otra vez en un rato.'; pc.textContent = ''; }
+    })();
+  }
 
   function ses() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
@@ -117,7 +158,12 @@
       '#lm-pulso-btn.nuevo .lp-l{stroke:' + AC + ';opacity:.55}#lm-pulso-btn.nuevo .lp-h{stroke:' + AC + ';filter:drop-shadow(0 0 3px ' + AC + ')}' +
       '@keyframes lpTrazo{0%{stroke-dashoffset:26;opacity:1}55%{stroke-dashoffset:-100;opacity:1}62%{stroke-dashoffset:-100;opacity:0}100%{stroke-dashoffset:-100;opacity:0}}' +
       '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-h{animation:none;opacity:0}#lm-pulso-btn .lp-l{opacity:.9}}' +
-      '#lm-pulso-btn .lp-n{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:5px;background:' + AC + ';color:#0b1020;font:800 10.5px/17px system-ui,sans-serif;text-align:center}' +
+      /* (19-nov 14:00, Iago) sin circulito de notificaciones: «más misterioso», el número de novedades se revela grande, por detrás,
+         justo cuando el trazo iluminado pasa por el centro de la línea */
+      '#lm-pulso-btn svg{position:relative;z-index:1}' +
+      '#lm-pulso-btn .lp-nb{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:' + AC + ';font:900 22px/1 system-ui,sans-serif;letter-spacing:-.04em;text-shadow:0 0 10px ' + AC + ';opacity:0;animation:lpNum 2.8s linear infinite}' +
+      '@keyframes lpNum{0%,15%{opacity:0;transform:scale(.82)}27%{opacity:.62;transform:scale(1)}41%,100%{opacity:0;transform:scale(1.1)}}' +
+      '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-nb{animation:none;opacity:.35}}' +
       '#lm-pulso{position:fixed;z-index:2147480000;width:min(396px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
       '#lm-pulso[hidden]{display:none}' +
       '#lm-pulso .lp-h{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:13px 14px 9px}' +
@@ -180,7 +226,16 @@
       '#lm-pulso .lp-pv2{font-size:11px;font-weight:600;color:#94a3b8;font-style:italic}' +
       '#lm-pulso .lp-vid{height:28px;padding:0 9px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#aab4d6;font:700 11.5px/1 system-ui,sans-serif;cursor:pointer;white-space:nowrap}' +
       '@media (hover:hover){#lm-pulso .lp-vid:hover{color:#fff;border-color:rgba(255,255,255,.4)}}' +
-      '#lm-pulso .lp-video{padding:0 14px 10px}#lm-pulso .lp-video video{display:block;width:100%;border-radius:10px;background:#000}' +
+      '#lm-pulso-vid{position:fixed;inset:0;z-index:2147483000;background:rgba(3,5,12,.84);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}' +
+      '#lm-pulso-vid .lpv-caja{position:relative;width:min(94vw,calc((100vh - 70px) * 16 / 9))}' +
+      '#lm-pulso-vid .lpv-marco{position:relative;width:100%;padding-top:56.25%;background:#05070f;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.6)}' +
+      '#lm-pulso-vid video{position:absolute;inset:0;width:100%;height:100%;background:#000}' +
+      '#lm-pulso-vid .lpv-carga{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#05070f;color:#e6ebff;font:700 15px/1.3 system-ui,sans-serif;text-align:center;padding:20px}' +
+      '#lm-pulso-vid .lpv-ic{width:64px;height:64px;color:' + AC + '}#lm-pulso-vid .lpv-ic svg{width:100%;height:100%}' +
+      '#lm-pulso-vid .lpv-ic .lp-h{stroke:' + AC + ';stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 3px ' + AC + ');animation:lpTrazo 2.8s linear infinite}#lm-pulso-vid .lpv-ic .lp-l{opacity:.3}' +
+      '#lm-pulso-vid .lpv-barra{width:min(320px,70%);height:6px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}#lm-pulso-vid .lpv-barra i{display:block;height:100%;width:0;background:' + AC + ';border-radius:4px}' +
+      '#lm-pulso-vid .lpv-pc{font-size:12.5px;color:#aab4d6;font-variant-numeric:tabular-nums}' +
+      '#lm-pulso-vid .lpv-x{position:absolute;right:0;top:-40px;width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(10,14,28,.9);color:#fff;font:700 15px/1 system-ui,sans-serif;cursor:pointer}' +
       '#lm-pulso .lp-vacio{padding:18px 6px;text-align:center;color:#94a3b8;font-size:12.5px;line-height:1.45}' +
       '#lm-pulso .lp-pie{padding:8px 14px 12px;font-size:11px;color:#7480a8;line-height:1.4;border-top:1px solid rgba(255,255,255,.07)}';
     document.head.appendChild(st);
@@ -212,9 +267,11 @@
   function nuevos() { return D && D.entradas ? grupos(D.entradas).filter(function (g) { return g.nuevo && !g.yo; }).length : 0; }
   function contador() {
     var b = document.getElementById('lm-pulso-btn'); if (!b) return;
-    var n = abierto ? 0 : nuevos(), el = b.querySelector('.lp-n');
+    var n = abierto ? 0 : nuevos(), el = b.querySelector('.lp-nb');
     b.classList.toggle('nuevo', n > 0);
-    if (n > 0) { if (!el) { el = document.createElement('span'); el.className = 'lp-n'; b.appendChild(el); } el.textContent = n > 9 ? '9+' : String(n); }
+    if (n > 0) { if (!el) { el = document.createElement('span'); el.className = 'lp-nb'; el.setAttribute('aria-hidden', 'true'); b.insertBefore(el, b.firstChild);
+        try { var ah = b.querySelector('.lp-h').getAnimations()[0], an = el.getAnimations()[0]; if (ah && an) an.currentTime = ah.currentTime; } catch (e) {} }
+      el.textContent = n > 9 ? '9+' : String(n); }
     else if (el) el.remove();
     b.title = n > 0 ? 'Pulso · ' + n + (n === 1 ? ' novedad' : ' novedades') : 'Pulso';
   }
@@ -248,7 +305,7 @@
       m.addEventListener('click', function (ev) { ev.stopPropagation(); });
       document.body.appendChild(m);
       document.addEventListener('click', function () { if (abierto) cerrar(); });
-      document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && abierto) cerrar(); });
+      document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { if (document.getElementById('lm-pulso-vid')) cerrarVideo(); else if (abierto) cerrar(); } });
       window.addEventListener('resize', colocar);
     }
     return m;
@@ -274,7 +331,7 @@
     var g = D && D.entradas ? grupos(D.entradas) : null;
     var h = '<div class="lp-h"><div><div class="lp-t">Pulso de este grupo' + (D && D.grupo ? ' · <b>' + esc(D.grupo) + '</b>' : '') + '</div>' +
       '<div class="lp-s">Lo que tu grupo trabaja por libre, al momento</div></div>' +
-      '<div class="lp-bts">' + (VIDEO_OK ? '<button type="button" class="lp-vid" title="Cómo funciona el Pulso">' + (viendoVideo ? '✕ Cerrar vídeo' : '▶ Ver vídeo') + '</button>' : '') +
+      '<div class="lp-bts">' + (VIDEO_OK ? '<button type="button" class="lp-vid" title="Cómo funciona el Pulso">▶ Ver vídeo</button>' : '') +
       '<button type="button" class="lp-cfg" title="Ajustes del Pulso" aria-label="Ajustes">' + GEAR + '</button>' +
       '<button type="button" class="lp-x" title="Cerrar" aria-label="Cerrar">✕</button></div></div>';
     if (ajustes) {
@@ -283,9 +340,7 @@
                                       : 'Si prefieres, puedes <b>no salir</b> en el Pulso de tu grupo. Tu trabajo por libre cuenta igual en tu actitud.') +
            '<br><button type="button" class="lp-oc">' + (oc ? 'Volver a salir en el Pulso' : 'No salir en el Pulso') + '</button></div>';
     }
-    if (viendoVideo) {
-      h += '<div class="lp-video"><video src="' + VIDEO_URL + '" controls autoplay playsinline preload="auto"></video></div>';
-    } else {
+    {
     /* (19-nov 11:03, Iago) sensación de equipo, no de competición: el tiempo extra de TODO el grupo este trimestre */
     if (D && D.grupo_min != null) {
       var tm = Number(D.grupo_min) || 0, hh = Math.floor(tm / 60), mm = tm % 60;
@@ -301,7 +356,7 @@
     h += '<div class="lp-pie">Con sello: ya lo ha validado Iago y ha sumado. Sin sello: pendiente de validar.</div>';
     m.innerHTML = h;
     m.querySelector('.lp-x').addEventListener('click', cerrar);
-    var bv = m.querySelector('.lp-vid'); if (bv) bv.addEventListener('click', function () { viendoVideo = !viendoVideo; pintar(); });
+    var bv = m.querySelector('.lp-vid'); if (bv) bv.addEventListener('click', verVideo);
     m.querySelector('.lp-cfg').addEventListener('click', function () { ajustes = !ajustes; pintar(); });
     var oc = m.querySelector('.lp-oc'); if (oc) oc.addEventListener('click', function () {
       var s = cuenta(); if (!s) return; oc.disabled = true;
