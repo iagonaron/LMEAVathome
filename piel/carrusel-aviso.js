@@ -44,12 +44,10 @@
     return dia + ' a las ' + hh;
   }
   function texto(p) {
-    if (p.lobby_abierto) return '¡Tu carrusel está abierto! Entra';
+    if (p.lobby_abierto) return '¡Carrusel abierto! Entra';
     var min = Math.round((new Date(p.programada).getTime() - Date.now()) / 6e4);
-    if (min <= 1) return 'Tu carrusel empieza ya';
-    if (min < 60) return 'Tienes un carrusel en ' + min + ' min';
-    if (min < 360) return 'Tienes un carrusel en ' + Math.round(min / 60) + ' h';
-    return 'Tienes un carrusel ' + cuando(p.programada);
+    if (min <= 1) return 'Carrusel: empieza ya';
+    return 'Carrusel ' + cuando(p.programada);
   }
 
   /* ---- red ---- */
@@ -71,14 +69,17 @@
     var st = document.createElement('style'); st.id = 'lm-carr-css';
     st.textContent =
       '#lm-carr-btn,#lm-carr-aviso{box-sizing:border-box;flex:0 0 auto;align-self:center;position:relative;margin:0;font-family:inherit}' +
-      /* el botón: azules psicodélicos con la textura de anillos del carrusel; el caracol, naranja */
-      '#lm-carr-btn{order:-5;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:0;padding:0;width:var(--lm-ctl,34px);height:var(--lm-ctl,34px);min-width:var(--lm-ctl,34px);border-radius:10px;color:#ff9a3c;' +
-      'background:' + TEX_AZUL + ';box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);transition:filter .15s}' +
+      /* el botón: la misma textura multicolor de las franjas; quieto si no hay nada que mirar, en movimiento si lo hay */
+      '#lm-carr-btn{order:-5;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:0;padding:0;width:var(--lm-ctl,34px);height:var(--lm-ctl,34px);min-width:var(--lm-ctl,34px);border-radius:10px;color:#ff9a3c;background:#0a071e;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);transition:filter .15s}' +
+      '#lm-carr-btn .cl{position:absolute;inset:0;overflow:hidden;border-radius:10px;pointer-events:none}#lm-carr-btn .fx{position:absolute;inset:-40%;background:' + TEX_MULTI + ';pointer-events:none}' +
+      '#lm-carr-btn.mov .fx{animation:lmCarrZoom 3.2s ease-in-out infinite}' +
+      '@keyframes lmCarrZoom{0%{transform:scale(.7) rotate(0deg)}50%{transform:scale(1.35) rotate(120deg)}100%{transform:scale(.7) rotate(240deg)}}' +
       '#lm-carr-btn:hover,#lm-carr-btn.abierto{filter:brightness(1.14)}#lm-carr-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}' +
-      '#lm-carr-btn svg{width:62%;height:62%;display:block;pointer-events:none;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45))}' +
-      '#lm-carr-btn .pto{position:absolute;right:-3px;top:-3px;width:11px;height:11px;border-radius:50%;border:2px solid #0f172a;background:#ff9a3c;display:none}' +
-      '#lm-carr-btn .pto.on{display:block}#lm-carr-btn .pto.vivo{background:#34d399;animation:lmCarrP 1.1s infinite}' +
-      '@keyframes lmCarrP{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.8)}50%{box-shadow:0 0 0 6px rgba(52,211,153,0)}}' +
+      '#lm-carr-btn svg{position:relative;width:70%;height:70%;display:block;pointer-events:none;stroke-width:2.8;filter:drop-shadow(0 0 2px rgba(10,7,30,.95)) drop-shadow(0 0 5px rgba(10,7,30,.7))}' +
+      '#lm-carr-btn.mov svg{animation:lmCarrGira 4s linear infinite}@keyframes lmCarrGira{to{transform:rotate(360deg)}}' +
+      '#lm-carr-btn .pto{position:absolute;right:-1px;top:-1px;min-width:15px;height:15px;padding:0 3px;box-sizing:border-box;border-radius:8px;border:2px solid #0f172a;background:#34d399;color:#05261a;font:900 9px/11px system-ui,sans-serif;text-align:center;display:none}' +
+      '#lm-carr-btn .pto.on{display:block}' +
+      '@media (prefers-reduced-motion:reduce){#lm-carr-btn.mov .fx,#lm-carr-btn.mov svg{animation:none}}' +
       /* el cartelito: una franja por partida; la más próxima a la vista y las demás debajo, tras la flechita */
       '#lm-carr-aviso{order:-6;display:inline-flex;align-items:center;gap:4px}' +
       '.lm-fr{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;height:var(--lm-ctl,34px);padding:0 12px 0 9px;border-radius:10px;color:#fff;font:800 13px/1 inherit;font-family:inherit;letter-spacing:.01em;white-space:nowrap;max-width:390px;overflow:hidden;text-decoration:none;cursor:pointer;' +
@@ -90,26 +91,29 @@
       '#lm-carr-aviso .resto{position:absolute;left:0;top:calc(100% + 5px);display:flex;flex-direction:column;gap:5px;z-index:60}' +
       '#lm-carr-aviso .resto[hidden]{display:none}' +
       '#lm-carr-btn[hidden],#lm-carr-aviso[hidden]{display:none!important}' +
-      /* el panel de partidas */
-      '#lm-carr-pan{position:fixed;z-index:2147480500;width:min(420px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;border-radius:16px;color:#fff;font-family:inherit;font-size:14px;line-height:1.35;' +
-      'background:rgba(14,10,42,.94);border:1.5px solid rgba(255,255,255,.28);box-shadow:0 20px 60px rgba(0,0,0,.55);backdrop-filter:blur(8px)}' +
+      /* el panel de partidas: la piel del portal (cristal oscuro traslúcido, borde claro, botones como Incidencias) */
+      '#lm-carr-pan{position:fixed;z-index:2147480500;width:min(400px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;border-radius:16px;color:#f1f5f9;font-family:inherit;font-size:14px;line-height:1.35;box-sizing:border-box;' +
+      'background:rgba(12,16,26,.88);border:1.5px solid rgba(255,255,255,.22);box-shadow:0 18px 50px rgba(0,0,0,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}' +
       '#lm-carr-pan[hidden]{display:none}' +
-      '#lm-carr-pan .cab{display:flex;align-items:center;gap:10px;padding:12px 14px;background:' + TEX_MULTI + ';border-radius:14px 14px 0 0}' +
-      '#lm-carr-pan .cab svg{width:26px;height:26px;color:#ff9a3c;flex:none}#lm-carr-pan .cab b{font-size:16px;font-weight:900;text-shadow:0 1px 8px rgba(0,0,0,.6)}' +
-      '#lm-carr-pan .cab .x{margin-left:auto;background:rgba(10,7,30,.55);border:0;color:#fff;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:16px}' +
-      '#lm-carr-pan .cu{padding:10px 14px 14px}#lm-carr-pan h4{margin:6px 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#d9d3ff}' +
-      '#lm-carr-pan .pt{padding:10px 0;border-top:1px solid rgba(255,255,255,.16)}#lm-carr-pan .pt:first-of-type{border-top:0}' +
-      '#lm-carr-pan .q{font-weight:800;font-size:15px}#lm-carr-pan .c{color:#d9d3ff;font-size:13px}' +
-      '#lm-carr-pan .bs{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}' +
-      '#lm-carr-pan .bt{font:800 13px/1 inherit;font-family:inherit;color:#fff;background:rgba(10,8,30,.5);border:1.5px solid rgba(255,255,255,.42);border-radius:999px;padding:8px 14px;cursor:pointer;text-decoration:none;display:inline-block}' +
-      '#lm-carr-pan .bt:hover{background:rgba(255,255,255,.16)}#lm-carr-pan .bt.pri{background:#fff;border-color:#fff;color:#1a1238}' +
-      '#lm-carr-pan .bt.sel{background:rgba(52,211,153,.25);border-color:#34d399}#lm-carr-pan .bt.pri.sel{background:#34d399;color:#06281c}' +
+      '#lm-carr-pan .cab{display:flex;align-items:center;gap:10px;padding:12px 14px 10px}' +
+      '#lm-carr-pan .cab .ic{position:relative;flex:none;width:30px;height:30px;border-radius:9px;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;color:#ff9a3c;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}' +
+      '#lm-carr-pan .cab .ic .fx{position:absolute;inset:0;background:' + TEX_MULTI + '}#lm-carr-pan .cab .ic svg{position:relative;width:72%;height:72%;stroke-width:2.8;filter:drop-shadow(0 0 2px rgba(10,7,30,.95))}' +
+      '#lm-carr-pan .cab b{font-size:16px;font-weight:900;color:#fff}' +
+      '#lm-carr-pan .cab .x{margin-left:auto;width:30px;height:30px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:14px;cursor:pointer}' +
+      '#lm-carr-pan .cu{padding:0 14px 14px}#lm-carr-pan h4{margin:8px 0 4px;font:800 11px/1 inherit;font-family:inherit;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}' +
+      '#lm-carr-pan .pt{padding:10px 0;border-top:1px solid rgba(255,255,255,.12)}#lm-carr-pan h4 + .pt{border-top:0}' +
+      '#lm-carr-pan .q{font-weight:800;font-size:15px;color:#fff}#lm-carr-pan .c{color:#94a3b8;font-size:12.5px}' +
+      '#lm-carr-pan .bs{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;align-items:center}' +
+      '#lm-carr-pan .bt{font:700 13px/1 inherit;font-family:inherit;color:#f1f5f9;background:transparent;border:1.5px solid rgba(255,255,255,.28);border-radius:10px;padding:9px 13px;cursor:pointer;text-decoration:none;display:inline-block}' +
+      '#lm-carr-pan .bt.ico{width:34px;padding:9px 0;text-align:center}' +
+      '@media (hover:hover){#lm-carr-pan .bt:hover{border-color:#e2e8f0;background:rgba(226,232,240,.1)}}#lm-carr-pan .bt.pri{background:#e2e8f0;border-color:#e2e8f0;color:#111;font-weight:800}' +
+      '#lm-carr-pan .bt.sel{border-color:#34d399;background:rgba(52,211,153,.18);color:#fff}#lm-carr-pan .bt.pri.sel{background:#34d399;border-color:#34d399;color:#06281c}' +
       '#lm-carr-pan .bt:disabled{opacity:.5;cursor:default}' +
-      '#lm-carr-pan .vacio{color:#d9d3ff;padding:6px 0 10px}' +
-      '#lm-carr-pan input{background:rgba(10,8,30,.5);border:1.5px solid rgba(255,255,255,.42);border-radius:12px;color:#fff;padding:8px 10px;font:inherit;color-scheme:dark;max-width:100%}' +
-      '#lm-carr-pan .conf{position:sticky;bottom:0;margin:10px 0 0;padding:12px;border-radius:12px;background:rgba(40,28,96,.98);border:1.5px solid #ffd23f}' +
-      '#lm-carr-pan .conf b{display:block;margin-bottom:4px;font-size:15px}' +
-      '#lm-carr-pan .msg{margin:8px 0 0;color:#ffd23f}' +
+      '#lm-carr-pan .vacio{color:#94a3b8;padding:6px 0 10px}' +
+      '#lm-carr-pan input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.28);border-radius:10px;color:#fff;padding:8px 10px;font:inherit;color-scheme:dark;max-width:100%}' +
+      '#lm-carr-pan .conf{position:sticky;bottom:0;margin:10px 0 0;padding:12px;border-radius:12px;background:rgba(18,24,38,.98);border:1.5px solid #e2e8f0}' +
+      '#lm-carr-pan .conf b{display:block;margin-bottom:4px;font-size:15px;color:#fff}' +
+      '#lm-carr-pan .msg{margin:8px 0 0;color:#facc15;font-size:13px}' +
       '@media (max-width:900px){#lm-carr-btn,#lm-carr-aviso,#lm-carr-pan{display:none!important}}';
     document.head.appendChild(st);
   }
@@ -151,15 +155,14 @@
     if (p.lobby_abierto) bs = '<a class="bt pri" href="' + URL_CARR + '" target="lm-carrusel-online">Entrar</a>';
     else if (p.soy_creador) bs = '<span class="c">Eres el anfitrión · ' + '<a class="bt" style="padding:5px 10px" href="' + URL_CARR + '" target="lm-carrusel-online">Gestionar</a></span>';
     else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? '✓ Me apunto' : 'Me apunto') + '</button>' +
-      '<button class="bt' + (p.yo === 'quiza' ? ' sel' : '') + '" data-a="quiza" data-id="' + p.id + '">' + (p.yo === 'quiza' ? '✓ Visto' : 'Marcar como visto') + '</button>' +
-      (p.yo ? '<button class="bt" data-a="no" data-id="' + p.id + '" title="Quitarme de la lista">✕</button>' : '');
+      (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">✕</button>');
     return '<div class="pt"><div class="q">' + quien + '</div><div class="c">' + cab + ' · ' + p.apuntados + ' apuntado' + (p.apuntados == 1 ? '' : 's') + '</div><div class="bs">' + bs + '</div></div>';
   }
   function pintaPanel() {
     if (!PAN || PAN.hidden) return;
     var d = new Date(Date.now() + 864e5); d.setHours(17, 0, 0, 0);
     var prev = PAN.querySelector('#lm-carr-hora'), valor = prev ? prev.value : new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16);
-    PAN.innerHTML = '<div class="cab">' + ESP + '<b>PreDict Carrusel online</b><button class="x" type="button" title="Cerrar">✕</button></div><div class="cu">' +
+    PAN.innerHTML = '<div class="cab"><span class="ic"><span class="fx"></span>' + ESP + '</span><b>PreDict Carrusel online</b><button class="x" type="button" title="Cerrar">✕</button></div><div class="cu">' +
       '<h4>Partidas activas</h4>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna partida abierta ni anunciada.</div>') +
       '<h4>Organizar</h4><div class="bs" style="margin-top:0"><button class="bt pri" id="lm-carr-anun" type="button">📣 Anunciar carrusel</button><a class="bt" href="' + URL_CARR + '" target="lm-carrusel-online">▶ Jugar ahora</a></div>' +
       (FORM ? '<div class="bs"><input type="datetime-local" id="lm-carr-hora" value="' + valor + '"><button class="bt pri" id="lm-carr-ok" type="button">Anunciar</button></div>' : '') +
@@ -226,16 +229,17 @@
     if (!b) {
       b = document.createElement('button'); b.type = 'button'; b.id = 'lm-carr-btn';
       b.title = 'PreDict Carrusel online'; b.setAttribute('aria-label', 'PreDict Carrusel online');
-      b.innerHTML = ESP + '<span class="pto"></span>';
+      b.innerHTML = '<span class="cl"><span class="fx"></span></span>' + ESP + '<span class="pto"></span>';
       b.addEventListener('click', function () { if (PAN && !PAN.hidden) cerrarPanel(); else abrirPanel(); });
     }
     if (b.parentNode !== host) host.insertBefore(b, host.firstChild);
     b.hidden = false;
     var abiertas = LISTA.filter(function (p) { return p.lobby_abierto; });
     var nuevas = LISTA.filter(function (p) { return !p.lobby_abierto && !p.yo; });
-    var pto = b.querySelector('.pto');
-    pto.className = 'pto' + (abiertas.length ? ' on vivo' : (nuevas.length ? ' on' : ''));
-    b.title = abiertas.length ? 'PreDict Carrusel online · hay un lobby abierto ahora' : (nuevas.length ? 'PreDict Carrusel online · hay ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : 'PreDict Carrusel online');
+    var pto = b.querySelector('.pto'), n = abiertas.length + nuevas.length;
+    pto.className = 'pto' + (n ? ' on' : ''); pto.textContent = n ? String(n) : '';
+    b.classList.toggle('mov', n > 0);
+    b.title = abiertas.length ? 'PreDict Carrusel online · hay un lobby abierto ahora' : (nuevas.length ? 'PreDict Carrusel online · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : 'PreDict Carrusel online');
     /* el cartelito: las partidas a las que te has apuntado («Me apunto»), la más próxima primero; «visto» no cuenta */
     var mias = LISTA.filter(function (p) { return p.yo === 'si'; }).sort(function (x, y) { return new Date(x.programada) - new Date(y.programada); });
     pintaAviso(host, mias);
