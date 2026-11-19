@@ -34,7 +34,44 @@
       '<circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2.4"/>' +
       '<text font-size="9.4" font-weight="800" fill="currentColor"><textPath href="#' + id + '" textLength="219.9" lengthAdjust="spacing">VERIFICADO · VERIFICADO · </textPath></text>' +
       '<path d="M30 52 44 66 71 36" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
-  var MODO_SELLO = window.__lmPulsoSello || 'A';   /* (19-nov 10:53, Iago) opción A: sello entero, pequeño */
+  var MODO_SELLO = window.__lmPulsoSello || 'A';
+  /* (19-nov 11:07, Iago) minutos verificados del trimestre por área, discreto, para fomentar que lo equilibren:
+     verde ritmo · azul entonación · naranja audición · rosa teoría */
+  var AREAS = [['ritmo', '#22c55e', 'Ritmo'], ['entonacion', '#3b82f6', 'Entonación'], ['audicion', '#f97316', 'Audición'], ['teoria', '#ec4899', 'Teoría']];
+  var MODO_AREAS = window.__lmPulsoAreas || 'A';
+  var COMBO = window.__lmPulsoCombo || '4';   /* (19-nov 11:19, Iago) la 3 con cambios: dentro del círculo, los minutos de ESTA actividad */
+  /* anillo del trimestre por áreas alrededor del avatar (círculo con la inicial en el color del área de ESTA actividad) */
+  function anillo(a, size, rr, sw) {
+    var vals = AREAS.map(function (x) { return Number((a || {})[x[0]]) || 0; }), sum = vals.reduce(function (p, v) { return p + v; }, 0), C = 2 * Math.PI * rr, off = 0, h = size / 2;
+    var o = '<circle cx="' + h + '" cy="' + h + '" r="' + rr + '" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="' + sw + '"/>';
+    if (sum > 0) AREAS.forEach(function (x, i) { var L = C * vals[i] / sum; if (L > 0) o += '<circle cx="' + h + '" cy="' + h + '" r="' + rr + '" fill="none" stroke="' + x[1] + '" stroke-width="' + sw + '" stroke-dasharray="' + Math.max(0, L - (vals.filter(Boolean).length > 1 ? 1.2 : 0)).toFixed(2) + ' ' + (C - L + (vals.filter(Boolean).length > 1 ? 1.2 : 0)).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 ' + h + ' ' + h + ')"/>'; off += L; });
+    return o;
+  }
+  function avatar(e, c) {
+    var t = 'Minutos verificados este trimestre: ' + AREAS.map(function (x) { return x[2] + ' ' + ((e.areas || {})[x[0]] || 0); }).join(' · ');
+    if (COMBO === '2') {   // anillo con el TOTAL dentro
+      return '<div class="lp-av" title="' + esc(t) + '"><svg viewBox="0 0 46 46">' + anillo(e.areas, 46, 20, 4) + '</svg><span class="lp-av-tot"><b>' + (e.tot || 0) + '</b><i>min</i></span></div>';
+    }
+    var dentro = COMBO === '4' ? '<span class="lp-av-tot lp-av-act"><b>' + (e.min || 0) + '</b><i>min</i></span>' : '<span class="lp-av-ini">' + esc(e.ini || '·') + '</span>';
+    var av = '<div class="lp-av" title="' + esc(t) + '"><svg viewBox="0 0 46 46">' + anillo(e.areas, 46, 21, 3.5) + '<circle cx="23" cy="23" r="16.5" fill="' + c + '"/></svg>' + dentro +
+             (COMBO === '3' && e.tot > 0 ? '<span class="lp-av-badge">' + e.tot + '′</span>' : '') + '</div>';
+    return av;
+  }
+  function areasHTML(a, tot) {
+    if (!a || !(tot > 0)) return '';
+    var t = AREAS.map(function (x) { return x[2] + ' ' + (a[x[0]] || 0) + ' min'; }).join(' · ');
+    var vals = AREAS.map(function (x) { return Number(a[x[0]]) || 0; }), sum = vals.reduce(function (p, v) { return p + v; }, 0) || 1, mx = Math.max.apply(null, vals) || 1, g = '';
+    if (MODO_AREAS === 'A') {   // anillo
+      var r = 8, C = 2 * Math.PI * r, off = 0;
+      g = '<svg class="lp-ar-anillo" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="4"/>' +
+        AREAS.map(function (x, i) { var L = C * vals[i] / sum; var c = L > 0 ? '<circle cx="11" cy="11" r="8" fill="none" stroke="' + x[1] + '" stroke-width="4" stroke-dasharray="' + L.toFixed(2) + ' ' + (C - L).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 11 11)"/>' : ''; off += L; return c; }).join('') + '</svg>';
+    } else if (MODO_AREAS === 'B') {   // una barra partida en 4
+      g = '<span class="lp-ar-barra">' + AREAS.map(function (x, i) { return vals[i] > 0 ? '<i style="flex:' + vals[i] + ';background:' + x[1] + '"></i>' : ''; }).join('') + '</span>';
+    } else {   // 4 barritas verticales
+      g = '<span class="lp-ar-ecu">' + AREAS.map(function (x, i) { return '<i style="height:' + Math.max(2, Math.round(14 * vals[i] / mx)) + 'px;background:' + (vals[i] > 0 ? x[1] : 'rgba(255,255,255,.14)') + '"></i>'; }).join('') + '</span>';
+    }
+    return '<span class="lp-ar" title="Minutos verificados este trimestre: ' + t + '">' + g + '<span class="lp-ar-n">' + tot + ' min</span></span>';
+  }   /* (19-nov 10:53, Iago) opción A: sello entero, pequeño */
   var D = null, abierto = false, cargando = false, ajustes = false;
 
   function ses() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
@@ -67,7 +104,7 @@
       '@keyframes lpTrazo{0%{stroke-dashoffset:26;opacity:1}55%{stroke-dashoffset:-100;opacity:1}62%{stroke-dashoffset:-100;opacity:0}100%{stroke-dashoffset:-100;opacity:0}}' +
       '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-h{animation:none;opacity:0}#lm-pulso-btn .lp-l{opacity:.9}}' +
       '#lm-pulso-btn .lp-n{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:5px;background:' + AC + ';color:#0b1020;font:800 10.5px/17px system-ui,sans-serif;text-align:center}' +
-      '#lm-pulso{position:fixed;z-index:2147480000;width:min(360px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
+      '#lm-pulso{position:fixed;z-index:2147480000;width:min(396px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
       '#lm-pulso[hidden]{display:none}' +
       '#lm-pulso .lp-h{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:13px 14px 9px}' +
       '#lm-pulso .lp-t{font:800 11px/1.2 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#fff}#lm-pulso .lp-t b{color:' + AC + ';text-transform:none;letter-spacing:.06em}' +
@@ -91,10 +128,15 @@
       '#lm-pulso .lp-like{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#c9d3f5;font:700 11.5px/1 system-ui,sans-serif;cursor:pointer}' +
       '#lm-pulso .lp-like.on{border-color:#f472b6;color:#f9a8d4}#lm-pulso .lp-like.on svg{fill:#f472b6;stroke:#f472b6}' +
       '#lm-pulso .lp-like.mio{cursor:default;border-style:dashed}' +
-      '#lm-pulso .lp-e{grid-template-columns:32px 1fr auto}' +
+      '#lm-pulso .lp-e{grid-template-columns:46px 1fr auto}' +
+      '#lm-pulso .lp-av{position:relative;width:46px;height:46px}#lm-pulso .lp-av svg{position:absolute;inset:0;width:46px;height:46px}' +
+      '#lm-pulso .lp-av-ini{position:absolute;inset:0;display:grid;place-items:center;font:800 15px/1 system-ui,sans-serif;color:#fff}' +
+      '#lm-pulso .lp-av-tot{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}#lm-pulso .lp-av-tot b{font:800 14px/1 system-ui,sans-serif;color:#fff}#lm-pulso .lp-av-tot i{font-style:normal;font-size:8.5px;color:#94a3b8;margin-top:1px}#lm-pulso .lp-av-act i{color:rgba(255,255,255,.85)}#lm-pulso .lp-av-act b{font-size:13px}' +
+      '#lm-pulso .lp-av-badge{position:absolute;right:-6px;bottom:-4px;font:800 9.5px/1 system-ui,sans-serif;color:#e2e8f0;background:#0a0e1c;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:2px 3px}' +
+      '#lm-pulso .lp-app{font-weight:700}' +
       '#lm-pulso .lp-val{display:flex;align-items:center;gap:8px;padding-left:10px;border-left:1px solid rgba(255,255,255,.1)}' +
       '#lm-pulso .lp-num{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15}' +
-      '#lm-pulso .lp-num b{font-size:16px;font-weight:800;color:#4ade80;font-variant-numeric:tabular-nums}' +
+      '#lm-pulso .lp-num b{font-size:16px;font-weight:800;color:#4ade80;font-variant-numeric:tabular-nums;white-space:nowrap}' +
       '#lm-pulso .lp-num span{font-size:11.5px;color:#cbd5e1;font-variant-numeric:tabular-nums}' +
       '#lm-pulso .lp-num b small{font-size:10.5px;font-weight:600;color:#94a3b8}' +
       '#lm-pulso .lp-val.pend .lp-num b{color:#94a3b8}#lm-pulso .lp-val.pend .lp-num span{color:#94a3b8}' +
@@ -107,9 +149,16 @@
       '#lm-pulso.sB .lp-val,#lm-pulso.sC .lp-val{padding-right:34px}' +
       '#lm-pulso.sC .lp-sellog{width:84px;height:84px;right:-42px;top:50%;margin-top:-42px;opacity:.45}' +
       '#lm-pulso .lp-pv{width:50px;flex:none;text-align:center;font:700 9.5px/1.15 system-ui,sans-serif;color:#94a3b8;border:1px dashed rgba(148,163,184,.45);border-radius:6px;padding:4px 2px}' +
-      '#lm-pulso .lp-eq{margin:0 14px 10px;padding:10px 12px;border-radius:12px;border:1.5px solid ' + AC + '66;background:' + AC + '14;display:flex;align-items:center;gap:12px}' +
+      '#lm-pulso .lp-eq{margin:0 14px 10px;padding:10px 12px;border-radius:12px;border:1.5px solid ' + AC + '66;background:' + AC + '14;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 12px}' +
+      '#lm-pulso .lp-eq-b{grid-column:1/-1;font:800 13px/1.2 system-ui,sans-serif;color:' + AC + '}' +
       '#lm-pulso .lp-eq-n{font:800 26px/1 system-ui,sans-serif;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}#lm-pulso .lp-eq-n small{font-size:13px;font-weight:700;color:#cbd5e1}' +
       '#lm-pulso .lp-eq-t{font-size:12px;line-height:1.35;color:#cbd5e1}#lm-pulso .lp-eq-t b{color:' + AC + ';font-size:13px}' +
+      '#lm-pulso .lp-ar{display:inline-flex;align-items:center;gap:5px;margin-left:6px;vertical-align:middle}' +
+      '#lm-pulso .lp-ar-n{font-size:10.5px;font-weight:600;color:#7480a8}' +
+      '#lm-pulso .lp-ar-anillo{width:16px;height:16px}' +
+      '#lm-pulso .lp-ar-barra{display:inline-flex;width:44px;height:5px;border-radius:3px;overflow:hidden;gap:1px;background:rgba(255,255,255,.08)}#lm-pulso .lp-ar-barra i{display:block;height:100%}' +
+      '#lm-pulso .lp-ar-ecu{display:inline-flex;align-items:flex-end;gap:2px;height:14px}#lm-pulso .lp-ar-ecu i{display:block;width:4px;border-radius:1px}' +
+      '#lm-pulso .lp-pv2{font-size:11px;font-weight:600;color:#94a3b8;font-style:italic}' +
       '#lm-pulso .lp-vacio{padding:18px 6px;text-align:center;color:#94a3b8;font-size:12.5px;line-height:1.45}' +
       '#lm-pulso .lp-pie{padding:8px 14px 12px;font-size:11px;color:#7480a8;line-height:1.4;border-top:1px solid rgba(255,255,255,.07)}';
     document.head.appendChild(st);
@@ -162,7 +211,7 @@
     es.forEach(function (e) {
       var k = e.nombre + '|' + e.app + '|' + diaDe(e.fin);
       if (!m[k]) { m[k] = { k: k, sid: e.sid, yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, area: e.area, mult: e.mult, fin: e.fin,
-                             min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [] }; out.push(m[k]); }
+                             min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [], tot: e.tot_min || 0, areas: e.areas || null }; out.push(m[k]); }
       var g = m[k]; g.min += e.min || 0; g.pts += Number(e.pts) || 0; g.verificado = g.verificado && !!e.verificado;
       g.nuevo = g.nuevo || !!e.nuevo; g.likes += e.likes || 0; g.megusta = g.megusta || !!e.megusta; g.sids.push(e.sid);
     });
@@ -214,8 +263,9 @@
     /* (19-nov 11:03, Iago) sensación de equipo, no de competición: el tiempo extra de TODO el grupo este trimestre */
     if (D && D.grupo_min != null) {
       var tm = Number(D.grupo_min) || 0, hh = Math.floor(tm / 60), mm = tm % 60;
-      h += '<div class="lp-eq"><div class="lp-eq-n">' + (hh ? hh + '<small> h </small>' : '') + (hh && !mm ? '' : mm + '<small> min</small>') + '</div>' +
-           '<div class="lp-eq-t">de trabajo extra este trimestre' + (D.trimestre ? ' (' + esc(D.trimestre) + ')' : '') + ', entre todo el grupo<br><b>¡Sois un gran equipo!</b></div></div>';
+      h += '<div class="lp-eq"><div class="lp-eq-t">El pulso de trabajo de este grupo<br>este trimestre' + (D.trimestre ? ' (' + esc(D.trimestre) + ')' : '') + ' es de</div>' +
+           '<div class="lp-eq-n">' + (hh ? hh + '<small> h </small>' : '') + (hh && !mm ? '' : mm + '<small> min</small>') + '</div>' +
+           '<div class="lp-eq-b">¡Menudo equipazo!</div></div>';
     }
     if (!g) h += '<div class="lp-list"><div class="lp-vacio">Cargando…</div></div>';
     else if (!g.length) h += '<div class="lp-list"><div class="lp-vacio">Esta semana todavía no hay actividad por libre en tu grupo.<br>¿Empiezas tú? Lo que hagas por tu cuenta aparecerá aquí.</div></div>';
@@ -235,11 +285,12 @@
     var pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
     /* (19-nov 10:43, Iago) a la derecha, lo mismo que ven en el aviso de la campana: minutos, lo que sube de actitud y el sello (si lo tiene) */
     var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num"><b>+' + num(pts, 2) + '<small> actitud</small></b>' +
-              '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span></div>' +
-              (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : (e.verificado ? '' : '<span class="lp-pv">Pendiente<br>de validar</span>')) + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
-    return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + '"><div class="lp-a" style="background:' + c + '">' + esc(e.ini || '·') + '</div>' +
-      '<div style="min-width:0"><div class="lp-nm">' + esc(e.nombre) + '</div>' +
-      '<div class="lp-d">' + mx + esc(app) + '</div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + '</div></div>' + val + '</div>';
+              (COMBO === '4' ? (e.verificado ? '' : '<span class="lp-pv2">pendiente de validar</span>') : '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span>') + '</div>' +
+              (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : (e.verificado || COMBO === '4' ? '' : '<span class="lp-pv">Pendiente<br>de validar</span>')) + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
+    var totTxt = (COMBO === '1' && e.tot > 0) ? '<span class="lp-ar-n" style="margin-left:6px">' + e.tot + ' min este trimestre</span>' : '';
+    return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + '">' + avatar(e, c) +
+      '<div><div class="lp-nm">' + esc(e.nombre) + totTxt + '</div>' +
+      '<div class="lp-d">' + mx + '<span class="lp-app" style="color:' + c + '">' + esc(app) + '</span></div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + (COMBO === '4' && e.tot > 0 ? ' · <b style="color:#aab4d6;font-weight:700">' + e.tot + ' min</b> ' + (D && D.trimestre ? 'en el ' + esc(D.trimestre) : 'este trimestre') : '') + '</div></div>' + val + '</div>';
   }
   function like(k) {
     var s = cuenta(); if (!s || !D) return;
