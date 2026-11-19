@@ -167,7 +167,7 @@
       'background:rgba(5,8,20,.42);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);font-family:' + F + ';color:#fff;' +
       '-webkit-font-smoothing:antialiased;text-align:left;opacity:0;transition:opacity .16s ease}' +
     '#lmm.on{opacity:1}' +
-    '#lmm.lmm-visor{padding-top:46px}' +
+    '#lmm.lmm-visor{padding-bottom:46px}' +
     C + '*{box-sizing:border-box;margin:0;padding:0}' +
     C + '.lmm-v{position:relative;display:flex;flex-direction:column;width:min(1040px,100%);max-height:100%;overflow:hidden;' +
       'background:rgba(11,19,32,.95);border:1px solid rgba(255,255,255,.12);' +
@@ -238,7 +238,7 @@
       C + '.lmm-mapa{row-gap:8px}' + C + '.lmm-cab{padding-top:12px;padding-bottom:6px}' + C + '.lmm-ley{padding-bottom:9px}' + C + '.lmm-prac{height:20px}}' +
     '@media (max-width:560px){' + C + '.lmm-ley .lmm-nota{margin-left:0;flex-basis:100%}' + C + '.lmm-cab{padding:14px 12px 8px 16px}' + C + '.lmm-ley{padding:0 16px 10px;gap:6px 12px}' + C + '.lmm-cuerpo{padding:2px 12px 14px}' +
       '#lmm{padding:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}' +
-      '#lmm.lmm-visor{padding-top:42px}}' +
+      '#lmm.lmm-visor{padding-bottom:42px}}' +
     /* la ventanita de «Practicar» */
     C + '.lmm-menu{position:fixed;z-index:5;width:292px;max-width:calc(100vw - 24px);padding:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);' +
       'background:#111a2c;box-shadow:0 16px 44px rgba(0,0,0,.6);opacity:0;transform:translateY(-4px);transition:opacity .12s ease,transform .12s ease}' +
