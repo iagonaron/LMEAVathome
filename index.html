@@ -2019,9 +2019,11 @@ function showEnig(kind){
       var T=(typeof HITO_TEMAS!=='undefined' && HITO_TEMAS[portal])||null, n=parseInt(String(pj.parte||'').replace(/^.*?(\d+)\D*$/,'$1'),10)||1;
       var sid='mgs'+String(o.id).replace(/[^a-z0-9]/gi,'');
       c=Object.assign({},c); c.cls=(c.cls||'')+' mgv'+(pj.verificado?'':' mgv-no');
+      /* (19-nov-2026, Iago) las partidas del carrusel online no son «PreDict»: se rotulan «CARRUSEL at home» */
+      var CARR=(pj.origen==='carrusel-online'), TXT=CARR&&pj.texto?String(pj.texto).replace('un ejercicio de PreDict','una partida de CARRUSEL at home'):pj.texto;
       if(T){ if(!T.partes[n]) n=1; hitoCSS(); c.cls+=' cv2-hito hito-'+hitoTema(portal,n).tema; c.attrs=' data-portal="'+esc(portal)+'" data-n="'+n+'"'; c.sub=esc(T.nombre+(T.parte?' · '+T.parte+' '+n:'')); }
-      else { c.col=MGV_AREA[pj.area]||c.col; if(MGV_APP[k]) c.sub=esc(MGV_APP[k]); }
-      if(pj.texto) c.cuerpo='<div class="alu-item-cuerpo">'+esc(pj.texto)+'</div>';
+      else { c.col=MGV_AREA[pj.area]||c.col; if(CARR) c.sub=esc('CARRUSEL at home'); else if(MGV_APP[k]) c.sub=esc(MGV_APP[k]); }
+      if(TXT) c.cuerpo='<div class="alu-item-cuerpo">'+esc(TXT)+'</div>';
       var ver='<svg class="mgv-sello" viewBox="0 0 100 100" aria-hidden="true"><defs><path id="'+sid+'" d="M50,50 m-35,0 a35,35 0 1,1 70,0 a35,35 0 1,1 -70,0"/></defs><circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2.4"/><text font-size="9.4" font-weight="800" fill="currentColor"><textPath href="#'+sid+'" textLength="219.9" lengthAdjust="spacing">VERIFICADO · VERIFICADO · </textPath></text><path d="M30 52 44 66 71 36" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       /* (19-nov-2026 11:22, Iago) como en el Pulso: a la izquierda, círculo del color del área con los minutos de ESTA actividad
          y alrededor el anillo del trimestre por áreas (verde ritmo, azul entonación, naranja audición, rosa teoría); a la derecha,
@@ -2032,7 +2034,7 @@ function showEnig(kind){
         var vals=AR.map(function(a){return +pj.areas_min[a]||0;}), sum=vals.reduce(function(p,v){return p+v;},0), off=0, gp=vals.filter(Boolean).length>1?0.8:0;
         var ring='<rect x="1.75" y="1.75" width="42.5" height="42.5" rx="12" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="3.5"/>';
         if(sum>0) AR.forEach(function(a,i){ var L=100*vals[i]/sum; if(L>0) ring+='<rect x="1.75" y="1.75" width="42.5" height="42.5" rx="12" pathLength="100" fill="none" stroke="'+ACOL[a]+'" stroke-width="3.5" stroke-dasharray="'+Math.max(0,L-gp).toFixed(2)+' '+(100-L+gp).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'"/>'; off+=L; });
-        var areaHex=ACOL[pj.area]||'#64748b';
+        var areaHex=(pj.area==='audicion'?'#ea580c':ACOL[pj.area])||'#64748b';   /* (19-nov, Iago) el naranja del recuadro, un punto más oscuro (se lee mejor el número blanco) */
         c.tileHTML='<span class="mgv-av"><svg viewBox="0 0 46 46">'+ring+'<rect x="6.5" y="6.5" width="33" height="33" rx="8" fill="'+areaHex+'"/></svg><span class="mgv-av-n"><b>'+mins+'</b><i>min</i></span></span>';
         c.cls+=' mgv-con-av'; }
       var num='';
@@ -9232,7 +9234,7 @@ html.lm-fam-portal .topbar-right > #ge-espiral{order:-3 !important;width:var(--l
 <!-- (12-nov-2026, Iago) INCIDENCIAS: botón «?» junto a Mis resultados (no sale en Tester/Protester). Quitar: borrar esta línea. -->
 <script src="https://ge.lmathome.es/piel/incidencias.js?v=1" defer></script>
 <!-- (19-nov-2026, C1 · Carrusel online) botón azul del PreDict Carrusel online + cartelito «Tienes un carrusel…» a la izquierda de «?». Quitarlo: borrar esta línea. -->
-<script src="https://ge.lmathome.es/piel/carrusel-aviso.js?v=20261119e" defer></script>
+<script src="https://ge.lmathome.es/piel/carrusel-aviso.js?v=20261119f" defer></script>
 <!-- (19-nov-2026, Iago) PULSO · lo que tu grupo trabaja por libre (piel/pulso.js). Quitarlo: borrar esta línea. -->
 <script src="https://ge.lmathome.es/piel/pulso.js?v=2" defer></script>
 <script src="https://ge.lmathome.es/piel/avisos/actitud/mg-anim.js?v=2" defer></script><!-- (13-nov-2026, C0) animación del 👍 y el sello la primera vez -->

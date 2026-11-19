@@ -21,7 +21,7 @@
   var SBU = 'https://woiptkyrxkbpnvioypit.supabase.co';
   var SBK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
   var URL_CARR = 'https://predict.ge.lmathome.es/carrusel-online/';
-  var LISTA = [], OK = false;
+  var LISTA = [], OK = false, ABIERTO = null;   /* ABIERTO: lo decide el servidor (Tester incluido) */
   /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00 (lo explica en clase ese día). El servidor también lo
      impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
   var ABRE = Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT = 'el viernes 20 de noviembre a las 19:00';
@@ -31,7 +31,7 @@
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
   function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
   function esTester() { var s = ses(); return !!(s && /tester/.test(norm(s.nombre))); }
-  function cerrado() { return Date.now() < ABRE && !esTester(); }
+  function cerrado() { if (ABIERTO === true) return false; return Date.now() < ABRE && !esTester(); }
   function videoHTML(u) {
     if (!u) return '<div class="vacio">El vídeo de presentación estará aquí muy pronto.</div>';
     var y = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
@@ -42,7 +42,7 @@
     var c = cuenta(); if (!c) return null;
     try {
       var r = await fetch(SBU + '/rest/v1/rpc/suite_cr_lista', { method: 'POST', headers: { 'apikey': SBK, 'Authorization': 'Bearer ' + SBK, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_cuenta: c.id }) });
-      if (!r.ok) return null; var j = await r.json(); return (j && j.ok) ? (j.partidas || []) : null;
+      if (!r.ok) return null; var j = await r.json(); if (j && j.ok && typeof j.abierto === 'boolean') ABIERTO = j.abierto; return (j && j.ok) ? (j.partidas || []) : null;
     } catch (e) { return null; }
   }
 
@@ -80,6 +80,8 @@
   /* ---- estilos ---- */
   var TEX_AZUL = 'repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,0) 0 2px,rgba(255,255,255,.14) 2px 3.5px),conic-gradient(from 200deg at 50% 50%,#1e3a8a,#2563eb,#38bdf8,#6366f1,#0ea5e9,#1e40af,#22d3ee,#1e3a8a)';
   var TEX_MULTI = 'repeating-radial-gradient(circle at 50% 50%,rgba(10,7,30,0) 0 5px,rgba(10,7,30,.22) 5px 10px),radial-gradient(ellipse at 50% 50%,rgba(10,7,30,.50),rgba(10,7,30,.78)),conic-gradient(from 0deg at 50% 50%,#5bd0ff,#bd92ff,#ff5fa2,#fff,#ffd23f,#34d399,#5bd0ff)';
+  /* (19-nov, Iago) el botón, con colores más vivos: velo oscuro intermedio (antes ,50→,78) */
+  var TEX_BTN = TEX_MULTI.replace('rgba(10,7,30,.22) 5px 10px','rgba(10,7,30,.14) 5px 10px').replace('rgba(10,7,30,.50),rgba(10,7,30,.78)','rgba(10,7,30,.22),rgba(10,7,30,.50)');
   function css() {
     if (document.getElementById('lm-carr-css')) return;
     var st = document.createElement('style'); st.id = 'lm-carr-css';
@@ -105,6 +107,7 @@
       '.lm-fr .gi,#lm-carr-btn .gi{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;margin:0;transform:translate(-50%,-50%);will-change:transform}' +
       '#lm-carr-btn .gi{width:200%}' +
       '.lm-fr .fx,#lm-carr-btn .fx{position:absolute;inset:0;background:' + TEX_MULTI.replace('ellipse','circle') + ';will-change:transform;backface-visibility:hidden}' +
+      '#lm-carr-btn .fx{background:' + TEX_BTN.replace('ellipse','circle') + '}' +
       '.lm-fr .gi,#lm-carr-btn.mov .gi{animation:lmCarrRot 9.6s linear infinite}' +
       '.lm-fr .fx,#lm-carr-btn.mov .fx{animation:lmCarrRes 3.2s ease-in-out infinite alternate}' +
       '@keyframes lmCarrRot{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}' +
