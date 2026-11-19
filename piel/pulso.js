@@ -27,6 +27,14 @@
   var HEART = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.6-9C.9 8.3 2.8 4.8 6.3 4.8c2.2 0 3.8 1.3 4.6 2.6.8-1.3 2.4-2.6 4.6-2.6 3.5 0 5.4 3.5 3.9 6.7-2.1 4.4-7.4 9-7.4 9z"/></svg>';
   var GEAR = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-1.7-1L15 3.4h-4L10.6 6a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.7 1.7 1l.4 2.6h4l.4-2.6c.6-.3 1.2-.6 1.7-1l2.4 1 2-3.4z"/></svg>';
 
+  /* el MISMO sello circular del aviso «A Iago le ha gustado» de la campana (VERIFICADO · VERIFICADO · con el check) */
+  var SELLO_N = 0;
+  function selloGrande(col) { var id = 'lps' + (++SELLO_N);
+    return '<svg class="lp-sellog" viewBox="0 0 100 100" aria-hidden="true" style="color:' + col + '"><defs><path id="' + id + '" d="M50,50 m-35,0 a35,35 0 1,1 70,0 a35,35 0 1,1 -70,0"/></defs>' +
+      '<circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2.4"/>' +
+      '<text font-size="9.4" font-weight="800" fill="currentColor"><textPath href="#' + id + '" textLength="219.9" lengthAdjust="spacing">VERIFICADO · VERIFICADO · </textPath></text>' +
+      '<path d="M30 52 44 66 71 36" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  var MODO_SELLO = window.__lmPulsoSello || 'A';   /* (19-nov 10:53, Iago) opción A: sello entero, pequeño */
   var D = null, abierto = false, cargando = false, ajustes = false;
 
   function ses() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
@@ -57,7 +65,7 @@
       '@keyframes lpLat{0%,100%{opacity:.55;filter:none}8%{opacity:1;filter:drop-shadow(0 0 3px ' + AC + ')}16%{opacity:.6;filter:none}24%{opacity:1;filter:drop-shadow(0 0 4px ' + AC + ')}34%{opacity:.55;filter:none}}' +
       '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-l{animation:none;opacity:.9}}' +
       '#lm-pulso-btn .lp-n{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:5px;background:' + AC + ';color:#0b1020;font:800 10.5px/17px system-ui,sans-serif;text-align:center}' +
-      '#lm-pulso{position:fixed;z-index:2147480000;width:min(360px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:rgba(10,14,28,.97);border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
+      '#lm-pulso{position:fixed;z-index:2147480000;width:min(360px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
       '#lm-pulso[hidden]{display:none}' +
       '#lm-pulso .lp-h{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:13px 14px 9px}' +
       '#lm-pulso .lp-t{font:800 11px/1.2 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#fff}#lm-pulso .lp-t b{color:' + AC + ';text-transform:none;letter-spacing:.06em}' +
@@ -81,6 +89,21 @@
       '#lm-pulso .lp-like{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#c9d3f5;font:700 11.5px/1 system-ui,sans-serif;cursor:pointer}' +
       '#lm-pulso .lp-like.on{border-color:#f472b6;color:#f9a8d4}#lm-pulso .lp-like.on svg{fill:#f472b6;stroke:#f472b6}' +
       '#lm-pulso .lp-like.mio{cursor:default;border-style:dashed}' +
+      '#lm-pulso .lp-e{grid-template-columns:32px 1fr auto}' +
+      '#lm-pulso .lp-val{display:flex;align-items:center;gap:8px;padding-left:10px;border-left:1px solid rgba(255,255,255,.1)}' +
+      '#lm-pulso .lp-num{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15}' +
+      '#lm-pulso .lp-num b{font-size:16px;font-weight:800;color:#4ade80;font-variant-numeric:tabular-nums}' +
+      '#lm-pulso .lp-num span{font-size:11.5px;color:#cbd5e1;font-variant-numeric:tabular-nums}' +
+      '#lm-pulso .lp-num b small{font-size:10.5px;font-weight:600;color:#94a3b8}' +
+      '#lm-pulso .lp-val.pend .lp-num b{color:#94a3b8}#lm-pulso .lp-val.pend .lp-num span{color:#94a3b8}' +
+      '#lm-pulso .lp-sg{width:24px;height:24px;flex:none;display:grid;place-items:center}#lm-pulso .lp-sg svg{width:24px;height:24px}' +
+      '#lm-pulso .lp-sg.vacio{border:1.5px dashed rgba(148,163,184,.5);border-radius:50%;width:20px;height:20px;margin:2px}' +
+      '#lm-pulso .lp-e{position:relative;overflow:hidden;flex:none}' +
+      '#lm-pulso .lp-sellog{position:absolute;pointer-events:none;transform:rotate(-12deg)}' +
+      '#lm-pulso.sA .lp-sellog{position:static;width:40px;height:40px;opacity:.7;flex:none}' +
+      '#lm-pulso.sB .lp-sellog{width:84px;height:84px;right:-42px;bottom:-42px;opacity:.5}' +
+      '#lm-pulso.sB .lp-val,#lm-pulso.sC .lp-val{padding-right:34px}' +
+      '#lm-pulso.sC .lp-sellog{width:84px;height:84px;right:-42px;top:50%;margin-top:-42px;opacity:.45}' +
       '#lm-pulso .lp-vacio{padding:18px 6px;text-align:center;color:#94a3b8;font-size:12.5px;line-height:1.45}' +
       '#lm-pulso .lp-pie{padding:8px 14px 12px;font-size:11px;color:#7480a8;line-height:1.4;border-top:1px solid rgba(255,255,255,.07)}';
     document.head.appendChild(st);
@@ -144,7 +167,7 @@
   function caja() {
     var m = document.getElementById('lm-pulso');
     if (!m) {
-      m = document.createElement('div'); m.id = 'lm-pulso'; m.hidden = true; m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', 'Pulso');
+      m = document.createElement('div'); m.id = 'lm-pulso'; m.className = 's' + MODO_SELLO; m.hidden = true; m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', 'Pulso');
       m.addEventListener('click', function (ev) { ev.stopPropagation(); });
       document.body.appendChild(m);
       document.addEventListener('click', function () { if (abierto) cerrar(); });
@@ -185,7 +208,7 @@
     if (!g) h += '<div class="lp-list"><div class="lp-vacio">Cargando…</div></div>';
     else if (!g.length) h += '<div class="lp-list"><div class="lp-vacio">Esta semana todavía no hay actividad por libre en tu grupo.<br>¿Empiezas tú? Lo que hagas por tu cuenta aparecerá aquí.</div></div>';
     else h += '<div class="lp-list">' + g.slice(0, 25).map(fila).join('') + '</div>';
-    h += '<div class="lp-pie">Con sello azul: ya lo ha verificado Iago. «Pendiente»: todavía no.</div>';
+    h += '<div class="lp-pie">Con sello: ya lo ha verificado Iago y ha sumado. Sin sello: pendiente de verificar.</div>';
     m.innerHTML = h;
     m.querySelector('.lp-x').addEventListener('click', cerrar);
     m.querySelector('.lp-cfg').addEventListener('click', function () { ajustes = !ajustes; pintar(); });
@@ -198,12 +221,13 @@
   function fila(e) {
     var c = COL[e.area] || '#64748b', k = String(e.app || '').replace(/-(ge|gp)$/, ''), app = APP[k] || k;
     var pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
-    var lin2 = e.verificado ? (pts > 0 ? mx + '<span class="lp-pt">+' + num(pts, 2) + '</span> de actitud' : (mx ? mx + 'verificado' : ''))
-                            : mx + '<span class="lp-pt gris">+' + num(pts, 2) + '</span> si Iago lo verifica';
+    /* (19-nov 10:43, Iago) a la derecha, lo mismo que ven en el aviso de la campana: minutos, lo que sube de actitud y el sello (si lo tiene) */
+    var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num"><b>+' + num(pts, 2) + '<small> actitud</small></b>' +
+              '<span>' + e.min + ' min ' + (e.verificado ? 'validados' : '· pendiente') + '</span></div>' +
+              (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : '') + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
     return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + '"><div class="lp-a" style="background:' + c + '">' + esc(e.ini || '·') + '</div>' +
-      '<div style="min-width:0"><div class="lp-nm">' + esc(e.nombre) + ' ' + (e.verificado ? SELLO : '<span class="lp-pend">pendiente</span>') + '</div>' +
-      '<div class="lp-d">' + esc(app) + ' · ' + e.min + ' min</div>' + (lin2 ? '<div class="lp-d">' + lin2 + '</div>' : '') + '</div>' +
-      '<div class="lp-r"><span class="lp-w">' + hace(e.fin) + '</span></div></div>';
+      '<div style="min-width:0"><div class="lp-nm">' + esc(e.nombre) + '</div>' +
+      '<div class="lp-d">' + mx + esc(app) + '</div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + '</div></div>' + val + '</div>';
   }
   function like(k) {
     var s = cuenta(); if (!s || !D) return;
