@@ -25,7 +25,7 @@
   /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00 (lo explica en clase ese día). El servidor también lo
      impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
   var ABRE = Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT = 'el viernes 20 de noviembre a las 19:00';
-  var VIDEO_URL = 'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge.mp4';
+  var VIDEO_URL = '';   /* vídeo retirado hasta que Iago apruebe las pantallas (19-nov 15:25); estaba en piel/carrusel/carrusel-online-ge.mp4 */
 
   function ses() { try { return JSON.parse(localStorage.getItem('lmeav_session') || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
