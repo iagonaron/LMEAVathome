@@ -161,9 +161,11 @@
       /* (19-nov 14:00, Iago) sin circulito de notificaciones: «más misterioso», el número de novedades se revela grande, por detrás,
          justo cuando el trazo iluminado pasa por el centro de la línea */
       '#lm-pulso-btn svg{position:relative;z-index:1}' +
-      '#lm-pulso-btn .lp-nb{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:' + AC + ';font:900 22px/1 system-ui,sans-serif;letter-spacing:-.04em;text-shadow:0 0 10px ' + AC + ';opacity:0;animation:lpNum 2.8s linear infinite}' +
-      '@keyframes lpNum{0%,15%{opacity:0;transform:scale(.82)}27%{opacity:.62;transform:scale(1)}41%,100%{opacity:0;transform:scale(1.1)}}' +
-      '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-nb{animation:none;opacity:.35}}' +
+      /* (19-nov 14:13, Iago) más sutil: como una habitación a oscuras; el número casi no se nota y la luz del trazo, al pasar por el centro, lo deja entrever */
+      '#lm-pulso-btn .lp-nb{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#c7d2fe;font:800 16px/1 system-ui,sans-serif;letter-spacing:-.03em;opacity:.07;filter:blur(.7px);animation:lpNum 2.8s linear infinite}' +
+      '#lm-pulso-btn .lp-nb.n2{font-size:13.5px}#lm-pulso-btn .lp-nb.n3{font-size:11px}' +
+      '@keyframes lpNum{0%,14%{opacity:.07;filter:blur(.7px)}27%{opacity:.36;filter:blur(0)}44%,100%{opacity:.07;filter:blur(.7px)}}' +
+      '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-nb{animation:none;opacity:.2;filter:none}}' +
       '#lm-pulso{position:fixed;z-index:2147480000;width:min(396px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
       '#lm-pulso[hidden]{display:none}' +
       '#lm-pulso .lp-h{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:13px 14px 9px}' +
@@ -271,7 +273,7 @@
     b.classList.toggle('nuevo', n > 0);
     if (n > 0) { if (!el) { el = document.createElement('span'); el.className = 'lp-nb'; el.setAttribute('aria-hidden', 'true'); b.insertBefore(el, b.firstChild);
         try { var ah = b.querySelector('.lp-h').getAnimations()[0], an = el.getAnimations()[0]; if (ah && an) an.currentTime = ah.currentTime; } catch (e) {} }
-      el.textContent = n > 9 ? '9+' : String(n); }
+      el.textContent = String(n); el.className = 'lp-nb' + (n > 99 ? ' n3' : n > 9 ? ' n2' : ''); }
     else if (el) el.remove();
     b.title = n > 0 ? 'Pulso · ' + n + (n === 1 ? ' novedad' : ' novedades') : 'Pulso';
   }
