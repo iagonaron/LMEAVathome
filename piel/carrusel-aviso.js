@@ -100,7 +100,7 @@
       'background:#140f33;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);text-shadow:0 1px 6px rgba(0,0,0,.55);border:0;position:relative;isolation:isolate}' +
       '.lm-fr > svg,.lm-fr > span:not(.cl){position:relative;z-index:1}' +
       '.lm-fr::after,#lm-carr-btn::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);pointer-events:none;z-index:2}' +
-      '.lm-fr.mia::after{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.95)}.lm-fr.vivo::after{box-shadow:inset 0 0 0 1.5px #34d399}' +
+      '.lm-fr.mia::after{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.95)}.lm-fr.vivo::after{box-shadow:inset 0 0 0 1.5px #22c55e}' +
       '.lm-fr .cl,#lm-carr-btn .cl{position:absolute;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none;z-index:0}' +
       '.lm-fr .gi,#lm-carr-btn .gi{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;margin:0;transform:translate(-50%,-50%);will-change:transform}' +
       '#lm-carr-btn .gi{width:200%}' +
@@ -113,18 +113,22 @@
       
       '.lm-fr:hover{filter:brightness(1.12)}.lm-fr svg{width:17px;height:17px;flex:none;color:#fff}' +
       
-      '#lm-carr-aviso .mas{display:inline-flex;align-items:center;gap:3px;height:var(--lm-ctl,34px);padding:0 8px;border:0;border-radius:10px;cursor:pointer;color:#fff;font:800 12px/1 inherit;font-family:inherit;background:rgba(10,7,30,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}' +
-      '#lm-carr-aviso .mas svg{width:12px;height:12px;transition:transform .15s}#lm-carr-aviso .mas.abierto svg{transform:rotate(180deg)}' +
+      '#lm-carr-aviso .mas{position:relative;display:inline-flex;align-items:center;justify-content:center;width:var(--lm-ctl,34px);height:var(--lm-ctl,34px);min-width:var(--lm-ctl,34px);padding:0;border:0;border-radius:10px;cursor:pointer;color:#fff;background:rgba(10,7,30,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}' +
+      '#lm-carr-aviso .mas .n{position:absolute;right:-4px;top:-4px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;border:2px solid #0f172a;background:#e2e8f0;color:#0f172a;font:900 10px/1 system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center}' +
+      '#lm-carr-aviso .mas svg{width:15px;height:15px;transition:transform .15s}#lm-carr-aviso .mas.abierto svg{transform:rotate(180deg)}' +
       '#lm-carr-aviso .resto{position:absolute;left:0;top:calc(100% + 5px);display:flex;flex-direction:column;gap:5px;z-index:2147480400}' +
       '#lm-carr-aviso .resto[hidden]{display:none}' +
       '#lm-carr-btn[hidden],#lm-carr-aviso[hidden]{display:none!important}' +
       /* monigotes de confirmados (en la franja del anfitrión) */
-      '.lm-fr .mon{display:inline-flex;align-items:center;gap:0;margin-left:2px}.lm-fr .mon svg{width:13px;height:13px;margin-left:-1px}.lm-fr .mon i{font-style:normal;font-size:11px;margin-left:2px}' +
+      '.lm-fr .mon{display:inline-flex;align-items:center;gap:6px;margin-left:4px}.lm-fr .mon .m{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}.lm-fr .mon svg{width:13px;height:13px;flex:none}.lm-fr .mon b{font-weight:600;font-size:10px;opacity:.92}.lm-fr .mon i{font-style:normal;font-size:11px;margin-left:2px}' +
       /* la ventana emergente: la portada de PreDict Carrusel (remolino multicolor, cristal oscuro, botones blancos) */
       '#lm-carr-pan{position:fixed;inset:0;z-index:2147480500;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:rgba(3,6,12,.62);font-family:"Helvetica Neue",Arial,system-ui,sans-serif;color:#fff}' +
       '#lm-carr-pan[hidden]{display:none}#lm-carr-pan *{box-sizing:border-box}' +
-      '#lm-carr-pan .caja{position:relative;width:min(980px,100%);max-height:min(86vh,860px);overflow:auto;border-radius:16px;border:1.5px solid rgba(255,255,255,.26);box-shadow:0 30px 90px rgba(0,0,0,.6);padding:22px 26px 24px;' +
-      'background:repeating-radial-gradient(circle at 50% 62%,rgba(10,7,30,0) 0 26px,rgba(10,7,30,.38) 26px 52px),radial-gradient(ellipse at 50% 62%,rgba(10,7,30,.40),rgba(10,7,30,.84) 75%),conic-gradient(from 0deg at 50% 62%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff);background-color:#120d34}' +
+      '#lm-carr-pan .marco{position:relative;width:min(980px,100%);max-height:min(86vh,860px);display:flex;border-radius:16px;border:1.5px solid rgba(255,255,255,.26);box-shadow:0 30px 90px rgba(0,0,0,.6);overflow:hidden;background:#120d34;isolation:isolate}' +
+      '#lm-carr-pan .marco > .cl{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}' +
+      '#lm-carr-pan .marco .gi{position:absolute;left:50%;top:62%;width:170%;aspect-ratio:1;transform:translate(-50%,-50%);will-change:transform;animation:lmCarrRot 60s linear infinite}' +
+      '#lm-carr-pan .marco .fx{position:absolute;inset:0;will-change:transform;backface-visibility:hidden;animation:lmCarrRes 7s ease-in-out infinite alternate;background:repeating-radial-gradient(circle at 50% 50%,rgba(10,7,30,0) 0 26px,rgba(10,7,30,.38) 26px 52px),radial-gradient(circle at 50% 50%,rgba(10,7,30,.40),rgba(10,7,30,.84) 45%),conic-gradient(from 0deg at 50% 50%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff)}' +
+      '#lm-carr-pan .caja{position:relative;z-index:1;flex:1;width:100%;max-height:min(86vh,860px);overflow:auto;padding:22px 26px 24px;box-sizing:border-box}' +
       '#lm-carr-pan .top{display:flex;align-items:center;gap:16px;margin:0 0 16px}' +
       '#lm-carr-pan .lg{position:relative;width:64px;height:64px;flex:none}#lm-carr-pan .lg svg{width:100%;height:100%;display:block;animation:lmCarrGira 26s linear infinite;filter:drop-shadow(0 4px 14px rgba(0,0,0,.45))}' +
       '#lm-carr-pan .tt{display:flex;align-items:baseline;gap:10px;line-height:1;text-shadow:0 6px 26px rgba(0,0,0,.5)}' +
@@ -133,7 +137,7 @@
       '#lm-carr-pan .kick{margin-top:6px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f1eeff}' +
       '#lm-carr-pan .x.vv + .x{margin-left:8px}#lm-carr-pan .x svg.sv{width:16px;height:16px}#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
       '#lm-carr-pan .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}' +
-      '#lm-carr-pan .card{background:rgba(14,10,42,.62);border:1.5px solid rgba(255,255,255,.24);border-radius:14px;padding:18px 20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}' +
+      '#lm-carr-pan .card{background:rgba(14,10,42,.74);border:1.5px solid rgba(255,255,255,.24);border-radius:14px;padding:18px 20px;}' +
       '#lm-carr-pan h2{margin:0 0 10px;font-size:14px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}' +
       '#lm-carr-pan h2::after{content:"";display:block;width:36px;height:2px;margin-top:7px;background:linear-gradient(90deg,#5bd0ff,#ffd23f,#ff9a3c,#bd92ff)}' +
       '#lm-carr-pan p{margin:0 0 12px;color:#d9d3ff;font-size:15px;line-height:1.4}#lm-carr-pan p b{color:#fff}' +
@@ -141,8 +145,10 @@
       '#lm-carr-pan .bt{font:700 15px/1 "Helvetica Neue",Arial,sans-serif;color:#fff;background:rgba(10,8,30,.45);border:1.5px solid rgba(255,255,255,.42);border-radius:10px;padding:11px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}' +
       '#lm-carr-pan .bt:hover{background:rgba(255,255,255,.16)}#lm-carr-pan .bt:disabled{opacity:.45;cursor:default}' +
       '#lm-carr-pan .bt.pri{background:#fff;border-color:#fff;color:#1a1238;font-weight:800}#lm-carr-pan .bt.pri:hover{filter:brightness(.94)}' +
-      '#lm-carr-pan .bt.pri.sel{background:#34d399;border-color:#34d399;color:#06281c}' +
-      '#lm-carr-pan .bt.ko{border-color:rgba(255,122,138,.7);color:#ffc2c9}' +
+      '#lm-carr-pan .bt.pri.sel{background:#22c55e;border-color:#22c55e;color:#fff}' +
+      '#lm-carr-pan .bt.ko{background:#ef4444;border-color:#ef4444;color:#fff;font-weight:800}#lm-carr-pan .bt.ko:hover{filter:brightness(.92)}' +
+      /* (19-nov, Iago) «Cancelar partida» ocupa exactamente lo mismo que «Me apunto» + ✕ */
+      '#lm-carr-pan .pt > .row{width:250px;flex:none;flex-wrap:nowrap;justify-content:flex-end}#lm-carr-pan .pt > .row .bt.pri,#lm-carr-pan .pt > .row .bt.ko{flex:1;justify-content:center}' +
       '#lm-carr-pan .bt.ico{width:40px;height:40px;padding:0;justify-content:center}' +
       '#lm-carr-pan svg.sv{width:17px;height:17px;flex:none}' +
       '#lm-carr-pan input{background:rgba(10,8,30,.5);border:1.5px solid rgba(255,255,255,.42);border-radius:10px;color:#fff;padding:10px 12px;font:15px "Helvetica Neue",Arial,sans-serif;color-scheme:dark}' +
@@ -150,23 +156,28 @@
       '#lm-carr-pan .pt .inf{flex:1;min-width:220px}#lm-carr-pan .q{font-weight:800;font-size:18px}#lm-carr-pan .q .g{color:#d9d3ff;font-weight:700}' +
       '#lm-carr-pan .c{color:#d9d3ff;font-size:14px;margin-top:3px}' +
       '#lm-carr-pan .pt.mia{box-shadow:inset 3px 0 0 #fff;padding-left:12px}#lm-carr-pan .cor svg{width:17px;height:17px;vertical-align:-3px;margin-right:6px}' +
-      '#lm-carr-pan .mon svg{width:15px;height:15px;vertical-align:-3px}' +
-      '#lm-carr-pan .sq{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px}#lm-carr-pan .sq.v{background:#34d399}#lm-carr-pan .sq.a{background:#ff9a3c}' +
+      '#lm-carr-pan .mon{display:inline-flex;flex-wrap:wrap;gap:4px 12px;align-items:center}#lm-carr-pan .mon .m{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}#lm-carr-pan .mon svg{width:15px;height:15px;flex:none}#lm-carr-pan .mon b{font-weight:600;font-size:12px}#lm-carr-pan .mon i{font-style:normal;font-size:12px}' +
+      '#lm-carr-pan .sq{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px}#lm-carr-pan .sq.v{background:#22c55e}#lm-carr-pan .sq.a{background:#f97316}' +
       '#lm-carr-pan .vid{position:relative;width:100%;max-width:760px;margin:0 auto;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid rgba(255,255,255,.24)}#lm-carr-pan .vid iframe,#lm-carr-pan .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}' +
       '#lm-carr-pan .vacio{color:#d9d3ff;padding:4px 0}' +
       '#lm-carr-pan .msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}' +
-      '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.5);backdrop-filter:blur(3px)}' +
+      '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.66)}' +
       '#lm-carr-pan .conf .cm{max-width:470px;background:rgba(18,13,52,.97);border:1.5px solid rgba(255,255,255,.34);border-radius:14px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}' +
-      '#lm-carr-pan .conf h3{margin:0 0 10px;font-size:22px;font-weight:900}#lm-carr-pan .conf p{color:#f1eeff;margin:0 0 16px}#lm-carr-pan .conf .row{justify-content:flex-end}' +
+      '#lm-carr-pan .rojo{color:#ef4444;font-weight:800}#lm-carr-pan .conf h3{margin:0 0 10px;font-size:22px;font-weight:900}#lm-carr-pan .conf p{color:#f1eeff;margin:0 0 16px}#lm-carr-pan .conf .row{justify-content:flex-end}' +
       '@media (max-width:900px){#lm-carr-btn,#lm-carr-aviso,#lm-carr-pan{display:none!important}}';
     document.head.appendChild(st);
   }
   var ESP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>';
   function SVI(d) { return '<svg class="sv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
-  var I_PLAY = SVI('<path d="M8 5.5v13l10-6.5z"/>'), I_CAL = SVI('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'), I_OK = SVI('<path d="M5 12.5l4.5 4.5L19 7.5"/>'), I_X = SVI('<path d="M6 6l12 12M18 6L6 18"/>');
-  var CORONA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-7 4 7 4-4-2 11H6z"/></svg>';
+  var I_PLAY = SVI('<path d="M8 5.5v13l10-6.5z"/>'), I_CAL = SVI('<path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'), I_OK = SVI('<path d="M5 12.5l4.5 4.5L19 7.5"/>'), I_X = SVI('<path d="M6 6l12 12M18 6L6 18"/>');
+  var CORONA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>';
   var I_PER = SVI('<circle cx="12" cy="7.5" r="3.6"/><path d="M4.8 20.5c0-4 3.2-7.1 7.2-7.1s7.2 3.1 7.2 7.1"/>');
-  function monigotes(n) { if (n <= 0) return ''; var t = ''; for (var i = 0; i < Math.min(n, 5); i++) t += I_PER; return '<span class="mon" title="' + n + (n === 1 ? ' confirmado' : ' confirmados') + '">' + t + (n > 5 ? '<i>+' + (n - 5) + '</i>' : '') + '</span>'; }
+  /* (19-nov, Iago) cada monigote con el nombre e inicial del primer apellido, en pequeñito y siempre a la vista */
+  function monigotes(n, nombres, max) {
+    if (n <= 0) return ''; max = max || 5; nombres = nombres || []; var t = '';
+    for (var i = 0; i < Math.min(n, max); i++) t += '<span class="m">' + I_PER + (nombres[i] ? '<b>' + esc(nombres[i]) + '</b>' : '') + '</span>';
+    return '<span class="mon" title="' + esc(nombres.join(', ') || (n + (n === 1 ? ' confirmado' : ' confirmados'))) + '">' + t + (n > max ? '<i>+' + (n - max) + '</i>' : '') + '</span>';
+  }
   /* la espiral multicolor de la portada de PreDict Carrusel (la misma que dibuja el carrusel del aula) */
   function logoSVG(id) {
     var d = ''; for (var a = 90; a <= 900; a += 4) { var r = 58 + 27 * (a - 90) / 810, rad = a * Math.PI / 180; d += (d ? ' L ' : 'M ') + (100 + r * Math.cos(rad)).toFixed(2) + ' ' + (100 + r * Math.sin(rad)).toFixed(2); }
@@ -184,8 +195,8 @@
   function franja(p) {
     var f = document.createElement('button'); f.type = 'button';
     f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '');
-    f.title = p.soy_creador ? 'Eres el anfitrión de este carrusel' : 'PreDict Carrusel online · partida de ' + (p.creador || '');
-    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1)) : '');
+    f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : 'PreDict Carrusel online · partida de ' + (p.creador || '');
+    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1), p.confirmados, 3) : '');
     f.onclick = function (e) {
       e.stopPropagation();
       if (p.lobby_abierto) abrirCarrusel(p.id, !(p.soy_creador || p.yo_dentro));
@@ -205,7 +216,7 @@
     a.innerHTML = ''; a.appendChild(franja(mias[0]));
     if (mias.length > 1) {
       var m = document.createElement('button'); m.type = 'button'; m.className = 'mas' + (abierto ? ' abierto' : ''); m.title = 'Ver las otras partidas';
-      m.innerHTML = '+' + (mias.length - 1) + FLE;
+      m.innerHTML = FLE + '<span class="n">' + (mias.length - 1) + '</span>';
       var r = document.createElement('div'); r.className = 'resto'; r.hidden = !abierto;
       mias.slice(1).forEach(function (p) { r.appendChild(franja(p)); });
       m.onclick = function () { var ab = r.hidden; r.hidden = !ab; m.classList.toggle('abierto', ab); };
@@ -223,9 +234,10 @@
   var PAN = null, CONF = null, MSG = '', HORA = '', VID = false;
   function filaPartida(p) {
     var mia = p.soy_creador, conf = Math.max(0, (p.apuntados || 0) - 1);
-    var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
+    var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida · la has anunciado tú' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
     var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora' : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
-    var gente = mia ? (conf ? monigotes(conf) + ' ' + conf + (conf === 1 ? ' confirmado' : ' confirmados') : 'sin confirmados todavía') : p.apuntados + ' apuntado' + (p.apuntados == 1 ? '' : 's');
+    var otros = Math.max(0, (p.apuntados || 0) - 1);
+    var gente = mia ? (conf ? monigotes(conf, p.confirmados, 8) : 'sin confirmados todavía') : (otros ? monigotes(otros, p.confirmados, 8) : 'nadie apuntado todavía');
     var bs;
     if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Entrar</button>';
     else if (mia) bs = p.anfitrion_cancelo ? '<span class="c">La cancelaste</span>' : '<button class="bt ko" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
@@ -238,7 +250,7 @@
     if (!PAN || PAN.hidden) return;
     var h = PAN.querySelector('#lm-carr-hora'); if (h) HORA = h.value;
     var sc = PAN.querySelector('.caja'), top = sc ? sc.scrollTop : 0;
-    PAN.innerHTML = '<div class="caja">' +
+    PAN.innerHTML = '<div class="marco"><div class="cl"><div class="gi"><div class="fx"></div></div></div><div class="caja">' +
       '<div class="top"><div class="lg">' + LOGO + '</div><div><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div>' +
       (!cerrado() && VIDEO_URL ? '<button class="x vv" type="button" title="Ver el vídeo">' + I_PLAY + '</button>' : '') + '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (VID && !cerrado() ? '<div class="card" style="margin-bottom:14px">' + videoHTML(VIDEO_URL) + '</div>' : '') +
@@ -248,8 +260,8 @@
       '<div class="row"><input type="datetime-local" id="lm-carr-hora" min="' + minHora() + '" value="' + esc(HORA) + '"><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
       '<div class="card"><h2>Partida individual</h2><p>Empieza una partida tú solo, ahora mismo.</p><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div></div>' +
       '<div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>') +
-      (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + esc(CONF.x) + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
-      '</div>';
+      (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + rojo(esc(CONF.x)) + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
+      '</div></div>';
     var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
     PAN.querySelector('.x:not(.vv)').onclick = cerrarPanel;
     var vv = PAN.querySelector('.x.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
@@ -288,6 +300,7 @@
   }
   function abrirURL(u) { var w = null; try { w = window.open(u, '_blank'); } catch (e) {} if (!w) location.href = u; }
   function abrirCarrusel(id, entrar) { abrirURL(URL_CARR + '?p=' + encodeURIComponent(id) + (entrar ? '&e=1' : '')); }
+  function rojo(t) { return t.replace(/(perder[áa]s (?:un )?0,\d+ de actitud)/g, '<b class="rojo">$1</b>'); }
   function pedirConf(t, x, si, no) {
     return new Promise(function (res) {
       CONF = { t: t, x: x, si: si, no: no }; pintaPanel();
