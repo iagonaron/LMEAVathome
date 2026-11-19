@@ -137,7 +137,8 @@
       '#lm-carr-pan .tt{display:flex;align-items:baseline;gap:10px;line-height:1;text-shadow:0 6px 26px rgba(0,0,0,.5)}' +
       '#lm-carr-pan .pre{font-size:38px;font-weight:800;letter-spacing:-.03em}#lm-carr-pan .dict{font-size:38px;font-weight:300;color:#e2ddff;letter-spacing:-.03em;margin-left:-8px}' +
       '#lm-carr-pan .car{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:27px;display:inline-block;transform:rotate(-8deg) translateY(-4px);padding:0 .1em;background:linear-gradient(100deg,#5bd0ff 8%,#ffd23f 40%,#ff9a3c 60%,#bd92ff 92%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}' +
-      '#lm-carr-pan .kick{margin-top:6px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f1eeff}' +
+      '#lm-carr-pan .tt .car{font-size:42px;transform:rotate(-6deg) translateY(-2px)}#lm-carr-pan .onl{font-size:38px;font-weight:300;color:#e2ddff;letter-spacing:-.02em}' +   /* (19-nov 21:46, Iago) «Carrusel Online», ya no PreDict */
+      '#lm-carr-pan .kick{margin-top:10px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f1eeff}' +
       '#lm-carr-pan .x.vv + .x{margin-left:8px}#lm-carr-pan .x svg.sv{width:16px;height:16px}#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
       '#lm-carr-pan .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}' +
       '#lm-carr-pan .card{background:rgba(14,10,42,.74);border:1.5px solid rgba(255,255,255,.24);border-radius:14px;padding:18px 20px;}' +
@@ -154,6 +155,8 @@
       '#lm-carr-pan .pt > .row{width:250px;flex:none;flex-wrap:nowrap;justify-content:flex-end}#lm-carr-pan .pt > .row .bt.pri,#lm-carr-pan .pt > .row .bt.ko{flex:1;justify-content:center}' +
       '#lm-carr-pan .bt.ico{width:40px;height:40px;padding:0;justify-content:center}' +
       '#lm-carr-pan svg.sv{width:17px;height:17px;flex:none}' +
+      '#lm-carr-pan .fh{position:relative;display:inline-flex}#lm-carr-pan .fh .ph{position:absolute;inset:0;display:flex;align-items:center;gap:9px;padding:0 14px;pointer-events:none;font:700 15px "Helvetica Neue",Arial,sans-serif;color:#ffd23f;white-space:nowrap}' +
+      '#lm-carr-pan .fh .ph svg{width:19px;height:19px;flex:none}#lm-carr-pan .fh:not(.vacio) .ph{display:none}#lm-carr-pan .fh.vacio input{color:transparent;border-style:dashed;border-color:rgba(255,210,63,.85);cursor:pointer}#lm-carr-pan .fh.vacio input::-webkit-datetime-edit{opacity:0}#lm-carr-pan .fh.vacio input::-webkit-calendar-picker-indicator{opacity:0}#lm-carr-pan .fh.vacio:hover input{background:rgba(255,210,63,.1)}' +
       '#lm-carr-pan input{background:rgba(10,8,30,.5);border:1.5px solid rgba(255,255,255,.42);border-radius:10px;color:#fff;padding:10px 12px;font:15px "Helvetica Neue",Arial,sans-serif;color-scheme:dark}' +
       '#lm-carr-pan .pt{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:13px 0;border-top:1px solid rgba(255,255,255,.18)}#lm-carr-pan h2 + .pt{border-top:0}' +
       '#lm-carr-pan .pt .inf{flex:1;min-width:220px}#lm-carr-pan .q{font-weight:800;font-size:18px}#lm-carr-pan .q .g{color:#d9d3ff;font-weight:700}' +
@@ -198,7 +201,7 @@
   function franja(p) {
     var f = document.createElement('button'); f.type = 'button';
     f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '');
-    f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : 'PreDict Carrusel online · partida de ' + (p.creador || '');
+    f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : 'Carrusel Online · partida de ' + (p.creador || '');
     f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1), p.confirmados, 3) : '');
     f.onclick = function (e) {
       e.stopPropagation();
@@ -254,13 +257,13 @@
     var h = PAN.querySelector('#lm-carr-hora'); if (h) HORA = h.value;
     var sc = PAN.querySelector('.caja'), top = sc ? sc.scrollTop : 0;
     PAN.innerHTML = '<div class="marco"><div class="cl"><div class="gi"><div class="fx"></div></div></div><div class="caja">' +
-      '<div class="top"><div class="lg">' + LOGO + '</div><div><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div>' +
+      '<div class="top"><div class="lg">' + LOGO + '</div><div><div class="tt"><span class="car">Carrusel</span><span class="onl">Online</span></div><div class="kick">Grado Elemental</div></div>' +
       (!cerrado() && VIDEO_URL ? '<button class="x vv" type="button" title="Ver el vídeo">' + I_PLAY + '</button>' : '') + '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (VID && !cerrado() ? '<div class="card" style="margin-bottom:14px">' + videoHTML(VIDEO_URL) + '</div>' : '') +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
 (cerrado() ? '<div class="card"><h2>Muy pronto</h2><p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) + '</div>' : 
       '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p>Elige día y hora. <b>Serás el anfitrión.</b></p>' +
-      '<div class="row"><input type="datetime-local" id="lm-carr-hora" min="' + minHora() + '" value="' + esc(HORA) + '"><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
+      '<div class="row"><label class="fh' + (HORA ? '' : ' vacio') + '"><input type="datetime-local" id="lm-carr-hora" min="' + minHora() + '" value="' + esc(HORA) + '"><span class="ph"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2.5\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg>Pulsa aquí: elige día y hora</span></label><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
       '<div class="card"><h2>Partida individual</h2><p>Empieza una partida tú solo, ahora mismo.</p><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div></div>' +
       '<div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>') +
       (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + rojo(esc(CONF.x)) + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
@@ -270,7 +273,8 @@
     var vv = PAN.querySelector('.x.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
-    hi.oninput = hi.onchange = function () { HORA = hi.value; ok.disabled = !hi.value; };
+    hi.oninput = hi.onchange = function () { HORA = hi.value; ok.disabled = !hi.value; hi.parentNode.classList.toggle('vacio', !hi.value); };
+    hi.onclick = function () { try { if (hi.showPicker) hi.showPicker(); } catch (e) {} };   /* (19-nov 21:47, Iago) que el hueco vacío invite a pulsar */
     ok.onclick = async function () {
       if (!hi.value) return; var f = new Date(hi.value);
       if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar')) return;
@@ -333,7 +337,7 @@
     css();
     if (!b) {
       b = document.createElement('button'); b.type = 'button'; b.id = 'lm-carr-btn';
-      b.title = 'PreDict Carrusel online'; b.setAttribute('aria-label', 'PreDict Carrusel online');
+      b.title = 'Carrusel Online'; b.setAttribute('aria-label', 'Carrusel Online');
       b.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + ESP + '<span class="pto"></span>';
       b.addEventListener('click', function () { if (PAN && !PAN.hidden) cerrarPanel(); else abrirPanel(); });
     }
@@ -344,7 +348,7 @@
     var pto = b.querySelector('.pto'), n = abiertas.length + nuevas.length;
     pto.className = 'pto' + (n ? ' on' : ''); pto.textContent = n ? String(n) : '';
     b.classList.toggle('mov', n > 0);
-    b.title = abiertas.length ? 'PreDict Carrusel online · hay un lobby abierto ahora' : (nuevas.length ? 'PreDict Carrusel online · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : 'PreDict Carrusel online');
+    b.title = abiertas.length ? 'Carrusel Online · hay un lobby abierto ahora' : (nuevas.length ? 'Carrusel Online · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : 'Carrusel Online');
     /* el cartelito: las partidas a las que te has apuntado («Me apunto»), la más próxima primero; «visto» no cuenta */
     var mias = LISTA.filter(function (p) { return p.yo === 'si' && !(p.soy_creador && p.anfitrion_cancelo); }).sort(function (x, y) { return new Date(x.programada) - new Date(y.programada); });
     pintaAviso(host, mias);
