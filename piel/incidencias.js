@@ -113,7 +113,9 @@
       b.title = 'Incidencias'; b.setAttribute('aria-label', 'Incidencias'); b.innerHTML = ICO;
       b.addEventListener('click', abrir);
     }
-    if (b.parentNode !== mr.parentNode || b.nextSibling !== mr) mr.parentNode.insertBefore(b, mr);
+    /* (19-nov-2026) si está el botón Pulso, Incidencias va a su izquierda: Incidencias · Pulso · Mis resultados · campana */
+    var pu = document.getElementById('lm-pulso-btn'), ancla = (pu && pu.parentNode === mr.parentNode && pu.nextSibling === mr) ? pu : mr;
+    if (b.parentNode !== mr.parentNode || b.nextSibling !== ancla) mr.parentNode.insertBefore(b, ancla);
     b.hidden = mr.classList.contains('lm-oculto') || mr.style.display === 'none';
     /* (12-nov-2026, Iago: «del mismo tamaño que Mis resultados y la campana») copia el tamaño real de la campana (o de Mis resultados) */
     var ref = document.getElementById('alu-campana-btn'); if (!ref || !ref.offsetHeight) ref = mr;
