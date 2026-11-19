@@ -46,8 +46,8 @@
   function confirmados(p) { var n = Math.max(0, (p.apuntados || 0) - 1); return n === 0 ? 'sin confirmados' : n + (n === 1 ? ' confirmado' : ' confirmados'); }
   function texto(p) {
     if (p.soy_creador) {
-      if (p.lobby_abierto) return '¡Tu carrusel está abierto! · ' + confirmados(p);
-      return 'Tu carrusel ' + cuando(p.programada) + ' · ' + confirmados(p);
+      if (p.lobby_abierto) return '¡Tu carrusel está abierto!';
+      return 'Tu carrusel ' + cuando(p.programada);
     }
     if (p.lobby_abierto) return '¡Carrusel abierto! Entra';
     var min = Math.round((new Date(p.programada).getTime() - Date.now()) / 6e4);
@@ -98,33 +98,45 @@
       '#lm-carr-aviso .resto{position:absolute;left:0;top:calc(100% + 5px);display:flex;flex-direction:column;gap:5px;z-index:2147480400}' +
       '#lm-carr-aviso .resto[hidden]{display:none}' +
       '#lm-carr-btn[hidden],#lm-carr-aviso[hidden]{display:none!important}' +
-      /* el panel de partidas: la piel del portal (cristal oscuro traslúcido, borde claro, botones como Incidencias) */
-      '#lm-carr-pan{position:fixed;z-index:2147480500;width:min(400px,calc(100vw - 24px));max-height:calc(100vh - 90px);overflow:auto;border-radius:16px;color:#f1f5f9;font-family:inherit;font-size:14px;line-height:1.35;box-sizing:border-box;' +
-      'background:rgba(12,16,26,.88);border:1.5px solid rgba(255,255,255,.22);box-shadow:0 18px 50px rgba(0,0,0,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}' +
-      '#lm-carr-pan[hidden]{display:none}' +
-      '#lm-carr-pan .cab{display:flex;align-items:center;gap:10px;padding:12px 14px 10px}' +
-      '#lm-carr-pan .cab .ic{position:relative;flex:none;width:30px;height:30px;border-radius:9px;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}' +
-      '#lm-carr-pan .cab .ic .fx{position:absolute;inset:0;background:' + TEX_MULTI + '}#lm-carr-pan .cab .ic svg{position:relative;width:72%;height:72%;stroke-width:2.1;filter:drop-shadow(0 0 2px rgba(10,7,30,.95))}' +
-      '#lm-carr-pan .cab b{font-size:16px;font-weight:900;color:#fff}' +
-      '#lm-carr-pan .cab .x{margin-left:auto;width:30px;height:30px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:14px;cursor:pointer}' +
-      '#lm-carr-pan .cu{padding:0 14px 14px}#lm-carr-pan h4{margin:8px 0 4px;font:800 11px/1 inherit;font-family:inherit;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}' +
-      '#lm-carr-pan .pt{padding:10px 0;border-top:1px solid rgba(255,255,255,.12)}#lm-carr-pan h4 + .pt{border-top:0}' +
-      '#lm-carr-pan .q{font-weight:800;font-size:15px;color:#fff}#lm-carr-pan .c{color:#94a3b8;font-size:12.5px}' +
-      '#lm-carr-pan .bs{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;align-items:center}' +
-      '#lm-carr-pan .bt{font:700 13px/1 inherit;font-family:inherit;color:#f1f5f9;background:transparent;border:1.5px solid rgba(255,255,255,.28);border-radius:10px;padding:9px 13px;cursor:pointer;text-decoration:none;display:inline-block}' +
-      '#lm-carr-pan .bt.ico{width:34px;padding:9px 0;text-align:center}' +
-      '@media (hover:hover){#lm-carr-pan .bt:hover{border-color:#e2e8f0;background:rgba(226,232,240,.1)}}#lm-carr-pan .bt.pri{background:#e2e8f0;border-color:#e2e8f0;color:#111;font-weight:800}' +
-      '#lm-carr-pan .bt.sel{border-color:#34d399;background:rgba(52,211,153,.18);color:#fff}#lm-carr-pan .bt.pri.sel{background:#34d399;border-color:#34d399;color:#06281c}' +
-      '#lm-carr-pan .bt:disabled{opacity:.5;cursor:default}' +
-      '#lm-carr-pan svg.sv{width:16px;height:16px;vertical-align:-3px;margin-right:6px}#lm-carr-pan .bt.ico svg.sv,#lm-carr-pan .cab .x svg.sv{margin:0;width:15px;height:15px;vertical-align:-2px}' +
-      '#lm-carr-pan .cab .x{padding:0}' +
-      '#lm-carr-pan .sq{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px;vertical-align:0}#lm-carr-pan .sq.v{background:#34d399}#lm-carr-pan .sq.a{background:#f59e0b}' +
-      '#lm-carr-pan .cor svg{width:16px;height:16px;vertical-align:-2px;margin-right:6px}' +
-      '#lm-carr-pan .vacio{color:#94a3b8;padding:6px 0 10px}' +
-      '#lm-carr-pan input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.28);border-radius:10px;color:#fff;padding:8px 10px;font:inherit;color-scheme:dark;max-width:100%}' +
-      '#lm-carr-pan .conf{position:sticky;bottom:0;margin:10px 0 0;padding:12px;border-radius:12px;background:rgba(18,24,38,.98);border:1.5px solid #e2e8f0}' +
-      '#lm-carr-pan .conf b{display:block;margin-bottom:4px;font-size:15px;color:#fff}' +
-      '#lm-carr-pan .msg{margin:8px 0 0;color:#facc15;font-size:13px}' +
+      /* monigotes de confirmados (en la franja del anfitrión) */
+      '.lm-fr .mon{display:inline-flex;align-items:center;gap:0;margin-left:2px}.lm-fr .mon svg{width:13px;height:13px;margin-left:-1px}.lm-fr .mon i{font-style:normal;font-size:11px;margin-left:2px}' +
+      /* la ventana emergente: la portada de PreDict Carrusel (remolino multicolor, cristal oscuro, botones blancos) */
+      '#lm-carr-pan{position:fixed;inset:0;z-index:2147480500;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:rgba(3,6,12,.62);font-family:"Helvetica Neue",Arial,system-ui,sans-serif;color:#fff}' +
+      '#lm-carr-pan[hidden]{display:none}#lm-carr-pan *{box-sizing:border-box}' +
+      '#lm-carr-pan .caja{position:relative;width:min(980px,100%);max-height:min(86vh,860px);overflow:auto;border-radius:16px;border:1.5px solid rgba(255,255,255,.26);box-shadow:0 30px 90px rgba(0,0,0,.6);padding:22px 26px 24px;' +
+      'background:repeating-radial-gradient(circle at 50% 62%,rgba(10,7,30,0) 0 26px,rgba(10,7,30,.38) 26px 52px),radial-gradient(ellipse at 50% 62%,rgba(10,7,30,.40),rgba(10,7,30,.84) 75%),conic-gradient(from 0deg at 50% 62%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff);background-color:#120d34}' +
+      '#lm-carr-pan .top{display:flex;align-items:center;gap:16px;margin:0 0 16px}' +
+      '#lm-carr-pan .lg{position:relative;width:58px;height:58px;flex:none;border-radius:50%;background:conic-gradient(#5bd0ff,#ffd23f,#ff9a3c,#ff5fa2,#bd92ff,#5bd0ff);-webkit-mask:radial-gradient(circle,transparent 60%,#000 62%,#000 70%,transparent 72%);mask:radial-gradient(circle,transparent 60%,#000 62%,#000 70%,transparent 72%);animation:lmCarrGira 26s linear infinite}' +
+      '#lm-carr-pan .tt{display:flex;align-items:baseline;gap:10px;line-height:1;text-shadow:0 6px 26px rgba(0,0,0,.5)}' +
+      '#lm-carr-pan .pre{font-size:38px;font-weight:800;letter-spacing:-.03em}#lm-carr-pan .dict{font-size:38px;font-weight:300;color:#e2ddff;letter-spacing:-.03em;margin-left:-8px}' +
+      '#lm-carr-pan .car{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:27px;display:inline-block;transform:rotate(-8deg) translateY(-4px);padding:0 .1em;background:linear-gradient(100deg,#5bd0ff 8%,#ffd23f 40%,#ff9a3c 60%,#bd92ff 92%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}' +
+      '#lm-carr-pan .kick{margin-top:6px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f1eeff}' +
+      '#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
+      '#lm-carr-pan .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}' +
+      '#lm-carr-pan .card{background:rgba(14,10,42,.62);border:1.5px solid rgba(255,255,255,.24);border-radius:14px;padding:18px 20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}' +
+      '#lm-carr-pan h2{margin:0 0 10px;font-size:14px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}' +
+      '#lm-carr-pan h2::after{content:"";display:block;width:36px;height:2px;margin-top:7px;background:linear-gradient(90deg,#5bd0ff,#ffd23f,#ff9a3c,#bd92ff)}' +
+      '#lm-carr-pan p{margin:0 0 12px;color:#d9d3ff;font-size:15px;line-height:1.4}#lm-carr-pan p b{color:#fff}' +
+      '#lm-carr-pan .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}' +
+      '#lm-carr-pan .bt{font:700 15px/1 "Helvetica Neue",Arial,sans-serif;color:#fff;background:rgba(10,8,30,.45);border:1.5px solid rgba(255,255,255,.42);border-radius:10px;padding:11px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}' +
+      '#lm-carr-pan .bt:hover{background:rgba(255,255,255,.16)}#lm-carr-pan .bt:disabled{opacity:.45;cursor:default}' +
+      '#lm-carr-pan .bt.pri{background:#fff;border-color:#fff;color:#1a1238;font-weight:800}#lm-carr-pan .bt.pri:hover{filter:brightness(.94)}' +
+      '#lm-carr-pan .bt.pri.sel{background:#34d399;border-color:#34d399;color:#06281c}' +
+      '#lm-carr-pan .bt.ko{border-color:rgba(255,122,138,.7);color:#ffc2c9}' +
+      '#lm-carr-pan .bt.ico{width:40px;height:40px;padding:0;justify-content:center}' +
+      '#lm-carr-pan svg.sv{width:17px;height:17px;flex:none}' +
+      '#lm-carr-pan input{background:rgba(10,8,30,.5);border:1.5px solid rgba(255,255,255,.42);border-radius:10px;color:#fff;padding:10px 12px;font:15px "Helvetica Neue",Arial,sans-serif;color-scheme:dark}' +
+      '#lm-carr-pan .pt{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:13px 0;border-top:1px solid rgba(255,255,255,.18)}#lm-carr-pan h2 + .pt{border-top:0}' +
+      '#lm-carr-pan .pt .inf{flex:1;min-width:220px}#lm-carr-pan .q{font-weight:800;font-size:18px}#lm-carr-pan .q .g{color:#d9d3ff;font-weight:700}' +
+      '#lm-carr-pan .c{color:#d9d3ff;font-size:14px;margin-top:3px}' +
+      '#lm-carr-pan .pt.mia{box-shadow:inset 3px 0 0 #fff;padding-left:12px}#lm-carr-pan .cor svg{width:17px;height:17px;vertical-align:-3px;margin-right:6px}' +
+      '#lm-carr-pan .mon svg{width:15px;height:15px;vertical-align:-3px}' +
+      '#lm-carr-pan .sq{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px}#lm-carr-pan .sq.v{background:#34d399}#lm-carr-pan .sq.a{background:#ff9a3c}' +
+      '#lm-carr-pan .vacio{color:#d9d3ff;padding:4px 0}' +
+      '#lm-carr-pan .msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}' +
+      '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.5);backdrop-filter:blur(3px)}' +
+      '#lm-carr-pan .conf .cm{max-width:470px;background:rgba(18,13,52,.97);border:1.5px solid rgba(255,255,255,.34);border-radius:14px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}' +
+      '#lm-carr-pan .conf h3{margin:0 0 10px;font-size:22px;font-weight:900}#lm-carr-pan .conf p{color:#f1eeff;margin:0 0 16px}#lm-carr-pan .conf .row{justify-content:flex-end}' +
       '@media (max-width:900px){#lm-carr-btn,#lm-carr-aviso,#lm-carr-pan{display:none!important}}';
     document.head.appendChild(st);
   }
@@ -132,6 +144,8 @@
   function SVI(d) { return '<svg class="sv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
   var I_PLAY = SVI('<path d="M8 5.5v13l10-6.5z"/>'), I_CAL = SVI('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'), I_OK = SVI('<path d="M5 12.5l4.5 4.5L19 7.5"/>'), I_X = SVI('<path d="M6 6l12 12M18 6L6 18"/>');
   var CORONA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-7 4 7 4-4-2 11H6z"/></svg>';
+  var I_PER = SVI('<circle cx="12" cy="7.5" r="3.6"/><path d="M4.8 20.5c0-4 3.2-7.1 7.2-7.1s7.2 3.1 7.2 7.1"/>');
+  function monigotes(n) { if (n <= 0) return ''; var t = ''; for (var i = 0; i < Math.min(n, 5); i++) t += I_PER; return '<span class="mon" title="' + n + (n === 1 ? ' confirmado' : ' confirmados') + '">' + t + (n > 5 ? '<i>+' + (n - 5) + '</i>' : '') + '</span>'; }
   var FLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 
   /* ---- cartelito ---- */
@@ -139,7 +153,7 @@
     var f = document.createElement('button'); f.type = 'button';
     f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '');
     f.title = p.soy_creador ? 'Eres el anfitrión de este carrusel' : 'PreDict Carrusel online · partida de ' + (p.creador || '');
-    f.innerHTML = (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>';
+    f.innerHTML = (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1)) : '');
     f.onclick = function (e) {
       e.stopPropagation();
       if (p.lobby_abierto) abrirCarrusel(p.id, !(p.soy_creador || p.yo_dentro));
@@ -153,7 +167,7 @@
     if (!a) { a = document.createElement('div'); a.id = 'lm-carr-aviso'; }
     if (a.parentNode !== host) host.insertBefore(a, host.firstChild);
     a.hidden = false;
-    var clave = mias.map(function (p) { return p.id + '|' + texto(p); }).join(';');
+    var clave = mias.map(function (p) { return p.id + '|' + texto(p) + '|' + p.apuntados; }).join(';');
     if (a.getAttribute('data-k') === clave) return; a.setAttribute('data-k', clave);
     var abierto = !!(a.querySelector('.mas.abierto'));
     a.innerHTML = ''; a.appendChild(franja(mias[0]));
@@ -164,76 +178,80 @@
       mias.slice(1).forEach(function (p) { r.appendChild(franja(p)); });
       m.onclick = function () { var ab = r.hidden; r.hidden = !ab; m.classList.toggle('abierto', ab); };
       a.appendChild(m); a.appendChild(r);
+      /* todas las franjas del mismo ancho (la más larga manda), para que la tuya no ocupe más que las demás */
+      var oc = r.hidden; r.style.visibility = 'hidden'; r.hidden = false;
+      var fs = a.querySelectorAll('.lm-fr'), w = 0;
+      fs.forEach(function (x) { x.style.width = ''; w = Math.max(w, x.getBoundingClientRect().width); });
+      fs.forEach(function (x) { x.style.width = Math.ceil(w) + 'px'; });
+      r.hidden = oc; r.style.visibility = '';
     }
   }
 
-  /* ---- panel de partidas ---- */
-  var PAN = null, FORM = false, CONF = null, MSG = '';
+  /* ---- ventana emergente de partidas ---- */
+  var PAN = null, CONF = null, MSG = '', HORA = '';
   function filaPartida(p) {
-    var quien = p.soy_creador ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="c">(' + esc(grupoTxt(p.grupo)) + ')</span>';
+    var mia = p.soy_creador, conf = Math.max(0, (p.apuntados || 0) - 1);
+    var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
     var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora' : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
+    var gente = mia ? (conf ? monigotes(conf) + ' ' + conf + (conf === 1 ? ' confirmado' : ' confirmados') : 'sin confirmados todavía') : p.apuntados + ' apuntado' + (p.apuntados == 1 ? '' : 's');
     var bs;
-    if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (p.soy_creador || p.yo_dentro ? '' : '1') + '">Entrar</button>';
-    else if (p.soy_creador) bs = p.anfitrion_cancelo ? '<span class="c">La cancelaste</span>' : '<button class="bt" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
-    else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? I_OK + 'Me apunto' : 'Me apunto') + '</button>' +
+    if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Entrar</button>';
+    else if (mia) bs = p.anfitrion_cancelo ? '<span class="c">La cancelaste</span>' : '<button class="bt ko" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
+    else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? I_OK : '') + 'Me apunto</button>' +
       (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
-    return '<div class="pt"><div class="q">' + quien + '</div><div class="c">' + cab + ' · ' + (p.soy_creador ? confirmados(p) : p.apuntados + ' apuntado' + (p.apuntados == 1 ? '' : 's')) + '</div><div class="bs">' + bs + '</div></div>';
+    return '<div class="pt' + (mia ? ' mia' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div></div><div class="row">' + bs + '</div></div>';
   }
+  function minHora() { var d = new Date(Date.now() + 11 * 6e4); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); }
   function pintaPanel() {
     if (!PAN || PAN.hidden) return;
-    var d = new Date(Date.now() + 864e5); d.setHours(17, 0, 0, 0);
-    var prev = PAN.querySelector('#lm-carr-hora'), valor = prev ? prev.value : new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16);
-    PAN.innerHTML = '<div class="cab"><span class="ic"><span class="fx"></span>' + ESP + '</span><b>PreDict Carrusel online</b><button class="x" type="button" title="Cerrar">' + I_X + '</button></div><div class="cu">' +
-      '<h4>Partidas activas</h4>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna partida abierta ni anunciada.</div>') +
-      '<h4>Organizar</h4><div class="bs" style="margin-top:0"><button class="bt pri" id="lm-carr-anun" type="button">' + I_CAL + 'Anunciar carrusel</button><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div>' +
-      (FORM ? '<div class="bs"><input type="datetime-local" id="lm-carr-hora" value="' + valor + '"><button class="bt pri" id="lm-carr-ok" type="button">Anunciar</button></div>' : '') +
+    var h = PAN.querySelector('#lm-carr-hora'); if (h) HORA = h.value;
+    var sc = PAN.querySelector('.caja'), top = sc ? sc.scrollTop : 0;
+    PAN.innerHTML = '<div class="caja">' +
+      '<div class="top"><div class="lg"></div><div><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div>' +
+      '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
-      (CONF ? '<div class="conf"><b>' + esc(CONF.t) + '</b>' + esc(CONF.x) + '<div class="bs"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div>' : '') +
+      '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p>Elige día y hora. <b>Serás el anfitrión.</b></p>' +
+      '<div class="row"><input type="datetime-local" id="lm-carr-hora" min="' + minHora() + '" value="' + esc(HORA) + '"><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
+      '<div class="card"><h2>Partida individual</h2><p>Empieza una partida tú solo, ahora mismo.</p><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div></div>' +
+      '<div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>' +
+      (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + esc(CONF.x) + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
       '</div>';
+    var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
     PAN.querySelector('.x').onclick = cerrarPanel;
-    PAN.querySelector('#lm-carr-anun').onclick = function () { FORM = !FORM; MSG = ''; pintaPanel(); };
-    var ok = PAN.querySelector('#lm-carr-ok');
-    if (ok) ok.onclick = function () {
-      var v = PAN.querySelector('#lm-carr-hora').value; if (!v) return; var f = new Date(v);
-      pedirConf('¿Anunciar esta partida?', 'Serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar').then(function (si) {
-        if (!si) return;
-        rpcA('suite_cr_crear', { p_cuenta: cuenta().id, p_programada: f.toISOString() }).then(function (r) {
-          MSG = r && r.ok ? 'Partida anunciada para ' + cuando(f.toISOString()) + '. Te has apuntado automáticamente.' : (r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 14 días desde ahora.' : 'No he podido anunciar la partida.');
-          FORM = !(r && r.ok); refrescar();
-        });
-      });
+    var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
+    hi.oninput = hi.onchange = function () { HORA = hi.value; ok.disabled = !hi.value; };
+    ok.onclick = async function () {
+      if (!hi.value) return; var f = new Date(hi.value);
+      if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar')) return;
+      var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id, p_programada: f.toISOString() });
+      if (r && r.ok) { MSG = 'Partida anunciada para ' + cuando(f.toISOString()) + '.'; HORA = ''; }
+      else MSG = r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 14 días desde ahora.' : 'No he podido anunciar la partida.';
+      refrescar();
     };
+    PAN.querySelector('#lm-carr-ya').onclick = function () { abrirURL(URL_CARR + '?solo=1'); };
+    PAN.querySelectorAll('button[data-go]').forEach(function (bt) { bt.onclick = function () { abrirCarrusel(bt.dataset.go, bt.dataset.e === '1'); }; });
     PAN.querySelectorAll('button[data-cancel]').forEach(function (bt) {
       bt.onclick = async function () {
         var P = LISTA.filter(function (x) { return x.id === bt.dataset.cancel; })[0]; if (!P) return;
         var pen = tarde(P) && (P.apuntados || 0) > 1;
-        if (!await pedirConf(pen ? 'Cancelar ahora cuenta como no asistir' : '¿Cancelar tu partida?', pen ? 'Hay gente apuntada y faltan menos de 5 minutos: perderás 0,25 de actitud. ¿Cancelar igualmente?' : (tarde(P)?'No pierdes actitud porque no hay nadie apuntado.':'No pierdes actitud porque faltan más de 5 minutos.'), 'Sí, cancelar', 'No, la mantengo')) return;
-        bt.disabled = true; var r = await rpcA('suite_cr_cancelar', { p_cuenta: cuenta().id, p_partida: P.id });
+        if (!await pedirConf(pen ? 'Cancelar ahora cuenta como no asistir' : '¿Cancelar tu partida?', pen ? 'Hay gente apuntada y faltan menos de 5 minutos: perderás 0,25 de actitud. ¿Cancelar igualmente?' : (tarde(P) ? 'No pierdes actitud porque no hay nadie apuntado.' : 'No pierdes actitud porque faltan más de 5 minutos.'), 'Sí, cancelar', 'No, la mantengo')) return;
+        var r = await rpcA('suite_cr_cancelar', { p_cuenta: cuenta().id, p_partida: P.id });
         MSG = r && r.ok ? 'Has cancelado la partida.' : 'No he podido cancelar la partida.'; refrescar();
       };
     });
-    PAN.querySelectorAll('button[data-go]').forEach(function (bt) { bt.onclick = function () { abrirCarrusel(bt.dataset.go, bt.dataset.e === '1'); }; });
-    var ya = PAN.querySelector('#lm-carr-ya');
-    if (ya) ya.onclick = async function () {
-      ya.disabled = true; MSG = ''; var w = window.open('about:blank', '_blank');
-      var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id });
-      if (r && r.ok && r.id) { abrirCarrusel(r.id, false, w); MSG = ''; refrescar(); }
-      else { if (w) { try { w.close(); } catch (e) {} } MSG = r && r.error === 'ya_tienes_una' ? 'Ya tienes un lobby abierto: pulsa «Gestionar» en tu partida.' : 'No he podido abrir el lobby.'; ya.disabled = false; pintaPanel(); }
-    };
     PAN.querySelectorAll('button[data-a]').forEach(function (bt) {
       bt.onclick = async function () {
         var a = bt.dataset.a, id = bt.dataset.id, P = LISTA.filter(function (x) { return x.id === id; })[0];
-        if (a === 'si' && P && P.tipo === 'anunciada' && P.yo !== 'si') { if (!await pedirConf('¿Estás seguro?', 'Si luego no asistes, perderás 0,1 de actitud. Puedes evitarlo quitándote de la partida hasta 5 minutos antes de que empiece.', 'Sí, me apunto')) return; }
+        if (a === 'si' && P && P.yo === 'si') return;
+        if (a === 'si' && P && P.tipo === 'anunciada') { if (!await pedirConf('¿Estás seguro?', 'Si luego no asistes, perderás 0,1 de actitud. Puedes evitarlo quitándote de la partida hasta 5 minutos antes de que empiece.', 'Sí, me apunto')) return; }
         if ((a === 'no' || a === 'quiza') && P && P.yo === 'si' && tarde(P)) { if (!await pedirConf('Ya es tarde para quitarte', 'Quitarte ahora cuenta como no asistir: perderás 0,1 de actitud. ¿Quieres quitarte igualmente?', 'Sí, quitarme', 'No, me quedo')) return; }
         bt.disabled = true; MSG = '';
         await rpcA('suite_cr_apuntar', { p_cuenta: cuenta().id, p_partida: id, p_resp: a }); refrescar();
       };
     });
   }
-  function abrirCarrusel(id, entrar, w) {
-    var u = URL_CARR + '?p=' + encodeURIComponent(id) + (entrar ? '&e=1' : '');
-    try { w = w || window.open('about:blank', '_blank'); if (w) w.location.href = u; else location.href = u; } catch (e) { location.href = u; }
-  }
+  function abrirURL(u) { var w = null; try { w = window.open(u, '_blank'); } catch (e) {} if (!w) location.href = u; }
+  function abrirCarrusel(id, entrar) { abrirURL(URL_CARR + '?p=' + encodeURIComponent(id) + (entrar ? '&e=1' : '')); }
   function pedirConf(t, x, si, no) {
     return new Promise(function (res) {
       CONF = { t: t, x: x, si: si, no: no }; pintaPanel();
@@ -242,25 +260,18 @@
       PAN.querySelector('#lm-c-no').onclick = function () { fin(false); };
     });
   }
-  function colocaPanel() {
-    var b = document.getElementById('lm-carr-btn'); if (!b || !PAN) return;
-    var r = b.getBoundingClientRect(); PAN.style.top = Math.round(r.bottom + 8) + 'px'; PAN.style.right = Math.max(8, Math.round(innerWidth - r.right)) + 'px';
-  }
   function abrirPanel() {
     css();
-    if (!PAN) { PAN = document.createElement('div'); PAN.id = 'lm-carr-pan'; document.body.appendChild(PAN); }
-    PAN.hidden = false; FORM = false; CONF = null; MSG = ''; colocaPanel(); pintaPanel();
+    if (!PAN) {
+      PAN = document.createElement('div'); PAN.id = 'lm-carr-pan'; document.body.appendChild(PAN);
+      PAN.addEventListener('click', function (e) { if (e.target === PAN && !CONF) cerrarPanel(); });
+    }
+    PAN.hidden = false; CONF = null; MSG = ''; pintaPanel();
     var b = document.getElementById('lm-carr-btn'); if (b) b.classList.add('abierto');
     refrescar();
   }
   function cerrarPanel() { if (PAN) PAN.hidden = true; var b = document.getElementById('lm-carr-btn'); if (b) b.classList.remove('abierto'); }
-  document.addEventListener('click', function (e) {
-    if (!PAN || PAN.hidden) return;
-    if (!e.target.isConnected) return;   /* el panel se repinta al pulsar dentro: no es un clic fuera */
-    if (PAN.contains(e.target) || (e.target.closest && e.target.closest('#lm-carr-btn'))) return; cerrarPanel();
-  });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarPanel(); });
-  window.addEventListener('resize', colocaPanel);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && PAN && !PAN.hidden && !CONF) cerrarPanel(); });
 
   /* ---- pintar ---- */
   function pintar() {
@@ -290,7 +301,7 @@
     try {
       if (!cuenta()) { OK = false; pintar(); return; }
       var l = await lista(); OK = (l !== null); if (OK) LISTA = l; pintar();
-      var f = document.activeElement; if (!(PAN && f && PAN.contains(f) && f.tagName === 'INPUT')) pintaPanel();
+      var f = document.activeElement; if (!(PAN && f && PAN.contains(f) && f.tagName === 'INPUT') && !CONF) pintaPanel();
     } catch (e) { console.warn('[carrusel-aviso]', e); }
   }
   function arrancar() { refrescar(); setInterval(function () { if (!document.hidden) refrescar(); }, 60000); setInterval(function () { try { pintar(); } catch (e) {} }, 5000); }
