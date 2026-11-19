@@ -87,23 +87,32 @@
       '#lm-carr-btn,#lm-carr-aviso{box-sizing:border-box;flex:0 0 auto;align-self:center;position:relative;margin:0;font-family:inherit}' +
       /* el botón: la misma textura multicolor de las franjas; quieto si no hay nada que mirar, en movimiento si lo hay */
       '#lm-carr-btn{order:-5;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:0;padding:0;width:var(--lm-ctl,34px);height:var(--lm-ctl,34px);min-width:var(--lm-ctl,34px);border-radius:10px;color:#fff;background:#0a071e;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);transition:filter .15s}' +
-      '#lm-carr-btn .cl{position:absolute;inset:0;overflow:hidden;border-radius:10px;pointer-events:none}#lm-carr-btn .fx{position:absolute;inset:-40%;background:' + TEX_MULTI + ';pointer-events:none}' +
-      '#lm-carr-btn.mov .fx{animation:lmCarrZoom 3.2s ease-in-out infinite}' +
-      '@keyframes lmCarrZoom{0%{transform:scale(.7) rotate(0deg)}50%{transform:scale(1.35) rotate(120deg)}100%{transform:scale(.7) rotate(240deg)}}' +
       '#lm-carr-btn:hover,#lm-carr-btn.abierto{filter:brightness(1.14)}#lm-carr-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}' +
       '#lm-carr-btn svg{position:relative;width:22px;height:22px;display:block;pointer-events:none;stroke-width:2.1;filter:drop-shadow(0 0 2px rgba(10,7,30,.95)) drop-shadow(0 0 5px rgba(10,7,30,.7))}' +
       '#lm-carr-btn.mov svg{animation:lmCarrGira 4s linear infinite}@keyframes lmCarrGira{to{transform:rotate(360deg)}}' +
-      '#lm-carr-btn .pto{position:absolute;right:-4px;top:-4px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;border:2px solid #0f172a;background:#f97316;color:#fff;font:900 10px/1 system-ui,sans-serif;display:none;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}' +
+      '#lm-carr-btn .pto{z-index:3;position:absolute;right:-4px;top:-4px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;border:2px solid #0f172a;background:#f97316;color:#fff;font:900 10px/1 system-ui,sans-serif;display:none;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}' +
       '#lm-carr-btn .pto.on{display:inline-flex}' +
-      '@media (prefers-reduced-motion:reduce){#lm-carr-btn.mov .fx,#lm-carr-btn.mov svg{animation:none}}' +
+      '@media (prefers-reduced-motion:reduce){#lm-carr-btn.mov svg{animation:none}}' +
       /* el cartelito: una franja por partida; la más próxima a la vista y las demás debajo, tras la flechita */
       '#lm-incid-btn{order:-6!important}' +
       '#lm-carr-aviso{order:-7;z-index:2147480400;display:inline-flex;align-items:center;gap:4px}' +
       '.lm-fr{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;height:var(--lm-ctl,34px);padding:0 12px 0 9px;border-radius:10px;color:#fff;font:800 13px/1 inherit;font-family:inherit;letter-spacing:.01em;white-space:nowrap;max-width:390px;overflow:hidden;text-decoration:none;cursor:pointer;' +
-      'background:' + TEX_MULTI + ';box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);text-shadow:0 1px 6px rgba(0,0,0,.55);border:0}' +
-      '.lm-fr.mia{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.92)}.lm-fr.mia svg{color:#fff}' +
+      'background:#140f33;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);text-shadow:0 1px 6px rgba(0,0,0,.55);border:0;position:relative;isolation:isolate}' +
+      '.lm-fr > svg,.lm-fr > span:not(.cl){position:relative;z-index:1}' +
+      '.lm-fr::after,#lm-carr-btn::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);pointer-events:none;z-index:2}' +
+      '.lm-fr.mia::after{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.95)}.lm-fr.vivo::after{box-shadow:inset 0 0 0 1.5px #34d399}' +
+      '.lm-fr .cl,#lm-carr-btn .cl{position:absolute;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none;z-index:0}' +
+      '.lm-fr .gi,#lm-carr-btn .gi{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;margin:0;transform:translate(-50%,-50%);will-change:transform}' +
+      '#lm-carr-btn .gi{width:200%}' +
+      '.lm-fr .fx,#lm-carr-btn .fx{position:absolute;inset:0;background:' + TEX_MULTI.replace('ellipse','circle') + ';will-change:transform;backface-visibility:hidden}' +
+      '.lm-fr .gi,#lm-carr-btn.mov .gi{animation:lmCarrRot 9s linear infinite}' +
+      '.lm-fr .fx,#lm-carr-btn.mov .fx{animation:lmCarrRes 3.2s ease-in-out infinite alternate}' +
+      '@keyframes lmCarrRot{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}' +
+      '@keyframes lmCarrRes{from{transform:scale(.72)}to{transform:scale(1.18)}}' +
+      '@media (prefers-reduced-motion:reduce){.lm-fr .gi,.lm-fr .fx,#lm-carr-btn .gi,#lm-carr-btn .fx{animation:none!important}}' +
+      
       '.lm-fr:hover{filter:brightness(1.12)}.lm-fr svg{width:17px;height:17px;flex:none;color:#fff}' +
-      '.lm-fr.vivo{animation:lmCarrA 1.4s ease-in-out infinite}@keyframes lmCarrA{50%{filter:brightness(1.35)}}' +
+      
       '#lm-carr-aviso .mas{display:inline-flex;align-items:center;gap:3px;height:var(--lm-ctl,34px);padding:0 8px;border:0;border-radius:10px;cursor:pointer;color:#fff;font:800 12px/1 inherit;font-family:inherit;background:rgba(10,7,30,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}' +
       '#lm-carr-aviso .mas svg{width:12px;height:12px;transition:transform .15s}#lm-carr-aviso .mas.abierto svg{transform:rotate(180deg)}' +
       '#lm-carr-aviso .resto{position:absolute;left:0;top:calc(100% + 5px);display:flex;flex-direction:column;gap:5px;z-index:2147480400}' +
@@ -117,7 +126,7 @@
       '#lm-carr-pan .caja{position:relative;width:min(980px,100%);max-height:min(86vh,860px);overflow:auto;border-radius:16px;border:1.5px solid rgba(255,255,255,.26);box-shadow:0 30px 90px rgba(0,0,0,.6);padding:22px 26px 24px;' +
       'background:repeating-radial-gradient(circle at 50% 62%,rgba(10,7,30,0) 0 26px,rgba(10,7,30,.38) 26px 52px),radial-gradient(ellipse at 50% 62%,rgba(10,7,30,.40),rgba(10,7,30,.84) 75%),conic-gradient(from 0deg at 50% 62%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff);background-color:#120d34}' +
       '#lm-carr-pan .top{display:flex;align-items:center;gap:16px;margin:0 0 16px}' +
-      '#lm-carr-pan .lg{position:relative;width:58px;height:58px;flex:none;border-radius:50%;background:conic-gradient(#5bd0ff,#ffd23f,#ff9a3c,#ff5fa2,#bd92ff,#5bd0ff);-webkit-mask:radial-gradient(circle,transparent 60%,#000 62%,#000 70%,transparent 72%);mask:radial-gradient(circle,transparent 60%,#000 62%,#000 70%,transparent 72%);animation:lmCarrGira 26s linear infinite}' +
+      '#lm-carr-pan .lg{position:relative;width:64px;height:64px;flex:none}#lm-carr-pan .lg svg{width:100%;height:100%;display:block;animation:lmCarrGira 26s linear infinite;filter:drop-shadow(0 4px 14px rgba(0,0,0,.45))}' +
       '#lm-carr-pan .tt{display:flex;align-items:baseline;gap:10px;line-height:1;text-shadow:0 6px 26px rgba(0,0,0,.5)}' +
       '#lm-carr-pan .pre{font-size:38px;font-weight:800;letter-spacing:-.03em}#lm-carr-pan .dict{font-size:38px;font-weight:300;color:#e2ddff;letter-spacing:-.03em;margin-left:-8px}' +
       '#lm-carr-pan .car{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:27px;display:inline-block;transform:rotate(-8deg) translateY(-4px);padding:0 .1em;background:linear-gradient(100deg,#5bd0ff 8%,#ffd23f 40%,#ff9a3c 60%,#bd92ff 92%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}' +
@@ -158,6 +167,17 @@
   var CORONA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-7 4 7 4-4-2 11H6z"/></svg>';
   var I_PER = SVI('<circle cx="12" cy="7.5" r="3.6"/><path d="M4.8 20.5c0-4 3.2-7.1 7.2-7.1s7.2 3.1 7.2 7.1"/>');
   function monigotes(n) { if (n <= 0) return ''; var t = ''; for (var i = 0; i < Math.min(n, 5); i++) t += I_PER; return '<span class="mon" title="' + n + (n === 1 ? ' confirmado' : ' confirmados') + '">' + t + (n > 5 ? '<i>+' + (n - 5) + '</i>' : '') + '</span>'; }
+  /* la espiral multicolor de la portada de PreDict Carrusel (la misma que dibuja el carrusel del aula) */
+  function logoSVG(id) {
+    var d = ''; for (var a = 90; a <= 900; a += 4) { var r = 58 + 27 * (a - 90) / 810, rad = a * Math.PI / 180; d += (d ? ' L ' : 'M ') + (100 + r * Math.cos(rad)).toFixed(2) + ' ' + (100 + r * Math.sin(rad)).toFixed(2); }
+    d += ' L 15.00 100.00';
+    return '<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="#ff5fa2"/><stop offset=".2" stop-color="#ff9a3c"/><stop offset=".4" stop-color="#ffd23f"/><stop offset=".6" stop-color="#34d399"/><stop offset=".8" stop-color="#5bd0ff"/><stop offset="1" stop-color="#bd92ff"/></linearGradient></defs>' +
+      '<path d="' + d + '" fill="none" stroke="url(#' + id + ')" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" opacity=".25"/>' +
+      '<path d="' + d + '" fill="none" stroke="url(#' + id + ')" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle cx="100" cy="158" r="7.5" fill="#fff"/></svg>';
+  }
+  var LOGO = logoSVG('lmCarrLg');
   var FLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 
   /* ---- cartelito ---- */
@@ -165,7 +185,7 @@
     var f = document.createElement('button'); f.type = 'button';
     f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '');
     f.title = p.soy_creador ? 'Eres el anfitrión de este carrusel' : 'PreDict Carrusel online · partida de ' + (p.creador || '');
-    f.innerHTML = (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1)) : '');
+    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1)) : '');
     f.onclick = function (e) {
       e.stopPropagation();
       if (p.lobby_abierto) abrirCarrusel(p.id, !(p.soy_creador || p.yo_dentro));
@@ -219,7 +239,7 @@
     var h = PAN.querySelector('#lm-carr-hora'); if (h) HORA = h.value;
     var sc = PAN.querySelector('.caja'), top = sc ? sc.scrollTop : 0;
     PAN.innerHTML = '<div class="caja">' +
-      '<div class="top"><div class="lg"></div><div><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div>' +
+      '<div class="top"><div class="lg">' + LOGO + '</div><div><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div>' +
       '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
 (cerrado() ? '<div class="card"><h2>Muy pronto</h2><p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) + '</div>' : 
@@ -296,7 +316,7 @@
     if (!b) {
       b = document.createElement('button'); b.type = 'button'; b.id = 'lm-carr-btn';
       b.title = 'PreDict Carrusel online'; b.setAttribute('aria-label', 'PreDict Carrusel online');
-      b.innerHTML = '<span class="cl"><span class="fx"></span></span>' + ESP + '<span class="pto"></span>';
+      b.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + ESP + '<span class="pto"></span>';
       b.addEventListener('click', function () { if (PAN && !PAN.hidden) cerrarPanel(); else abrirPanel(); });
     }
     if (b.parentNode !== host) host.insertBefore(b, host.firstChild);
