@@ -7580,7 +7580,7 @@ window.DictadoClase = (function(){
     if(!cuenta() || !(_estado && _estado.elegido)){
       b.classList.remove('on'); if(caja2) caja2.classList.remove('on'); return;
     }
-    b.innerHTML='<span class="pt"></span> Formato '+esc(_estado.formato);
+    var _fm=String(_estado.formato||''); b.innerHTML='<span class="pt"></span> '+esc(_fm.charAt(0).toUpperCase()+_fm.slice(1));   /* (19-nov-2026 16:06, Iago) solo «Digital» / «Papel», para que quepa con el carrusel activo */
     b.title='Pulsa para cambiar de formato';
     b.classList.add('on'); if(caja2) caja2.classList.add('on');
   }
