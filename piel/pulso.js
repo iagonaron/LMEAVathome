@@ -80,6 +80,10 @@
     return '<span class="lp-ar" title="Minutos verificados este trimestre: ' + t + '">' + g + '<span class="lp-ar-n">' + tot + ' min</span></span>';
   }   /* (19-nov 10:53, Iago) opción A: sello entero, pequeño */
   var D = null, abierto = false, cargando = false, ajustes = false;
+  /* (19-nov 13:02, Iago) vídeo breve (1 min, con su voz) que explica el Pulso: botón discreto «Ver vídeo» en el panel,
+     solo cuando el vídeo esté subido a piel/pulso/pulso-video.mp4 (hasta entonces no sale nada) */
+  var VIDEO_URL = 'https://ge.lmathome.es/piel/pulso/pulso-video.mp4', VIDEO_OK = !!window.__lmPulsoVideo, viendoVideo = false;
+  try { fetch(VIDEO_URL, { method: 'HEAD', cache: 'no-store' }).then(function (r) { if (r.ok) { VIDEO_OK = true; if (abierto) pintar(); } }).catch(function () {}); } catch (e) {}
 
   function ses() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
@@ -166,6 +170,9 @@
       '#lm-pulso .lp-ar-barra{display:inline-flex;width:44px;height:5px;border-radius:3px;overflow:hidden;gap:1px;background:rgba(255,255,255,.08)}#lm-pulso .lp-ar-barra i{display:block;height:100%}' +
       '#lm-pulso .lp-ar-ecu{display:inline-flex;align-items:flex-end;gap:2px;height:14px}#lm-pulso .lp-ar-ecu i{display:block;width:4px;border-radius:1px}' +
       '#lm-pulso .lp-pv2{font-size:11px;font-weight:600;color:#94a3b8;font-style:italic}' +
+      '#lm-pulso .lp-vid{height:28px;padding:0 9px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#aab4d6;font:700 11.5px/1 system-ui,sans-serif;cursor:pointer;white-space:nowrap}' +
+      '@media (hover:hover){#lm-pulso .lp-vid:hover{color:#fff;border-color:rgba(255,255,255,.4)}}' +
+      '#lm-pulso .lp-video{padding:0 14px 10px}#lm-pulso .lp-video video{display:block;width:100%;border-radius:10px;background:#000}' +
       '#lm-pulso .lp-vacio{padding:18px 6px;text-align:center;color:#94a3b8;font-size:12.5px;line-height:1.45}' +
       '#lm-pulso .lp-pie{padding:8px 14px 12px;font-size:11px;color:#7480a8;line-height:1.4;border-top:1px solid rgba(255,255,255,.07)}';
     document.head.appendChild(st);
@@ -259,7 +266,8 @@
     var g = D && D.entradas ? grupos(D.entradas) : null;
     var h = '<div class="lp-h"><div><div class="lp-t">Pulso de este grupo' + (D && D.grupo ? ' · <b>' + esc(D.grupo) + '</b>' : '') + '</div>' +
       '<div class="lp-s">Lo que tu grupo trabaja por libre, al momento</div></div>' +
-      '<div class="lp-bts"><button type="button" class="lp-cfg" title="Ajustes del Pulso" aria-label="Ajustes">' + GEAR + '</button>' +
+      '<div class="lp-bts">' + (VIDEO_OK ? '<button type="button" class="lp-vid" title="Cómo funciona el Pulso">' + (viendoVideo ? '✕ Cerrar vídeo' : '▶ Ver vídeo') + '</button>' : '') +
+      '<button type="button" class="lp-cfg" title="Ajustes del Pulso" aria-label="Ajustes">' + GEAR + '</button>' +
       '<button type="button" class="lp-x" title="Cerrar" aria-label="Cerrar">✕</button></div></div>';
     if (ajustes) {
       var oc = D && D.oculto;
@@ -267,6 +275,9 @@
                                       : 'Si prefieres, puedes <b>no salir</b> en el Pulso de tu grupo. Tu trabajo por libre cuenta igual en tu actitud.') +
            '<br><button type="button" class="lp-oc">' + (oc ? 'Volver a salir en el Pulso' : 'No salir en el Pulso') + '</button></div>';
     }
+    if (viendoVideo) {
+      h += '<div class="lp-video"><video src="' + VIDEO_URL + '" controls autoplay playsinline preload="auto"></video></div>';
+    } else {
     /* (19-nov 11:03, Iago) sensación de equipo, no de competición: el tiempo extra de TODO el grupo este trimestre */
     if (D && D.grupo_min != null) {
       var tm = Number(D.grupo_min) || 0, hh = Math.floor(tm / 60), mm = tm % 60;
@@ -277,9 +288,11 @@
     if (!g) h += '<div class="lp-list"><div class="lp-vacio">Cargando…</div></div>';
     else if (!g.length) h += '<div class="lp-list"><div class="lp-vacio">Esta semana todavía no hay actividad por libre en tu grupo.<br>¿Empiezas tú? Lo que hagas por tu cuenta aparecerá aquí.</div></div>';
     else h += '<div class="lp-list">' + g.slice(0, 25).map(fila).join('') + '</div>';
+    }
     h += '<div class="lp-pie">Con sello: ya lo ha validado Iago y ha sumado. Sin sello: pendiente de validar.</div>';
     m.innerHTML = h;
     m.querySelector('.lp-x').addEventListener('click', cerrar);
+    var bv = m.querySelector('.lp-vid'); if (bv) bv.addEventListener('click', function () { viendoVideo = !viendoVideo; pintar(); });
     m.querySelector('.lp-cfg').addEventListener('click', function () { ajustes = !ajustes; pintar(); });
     var oc = m.querySelector('.lp-oc'); if (oc) oc.addEventListener('click', function () {
       var s = cuenta(); if (!s) return; oc.disabled = true;
