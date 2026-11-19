@@ -3,7 +3,8 @@
    «Que se sienta vivo»: lo que tu grupo está trabajando por libre, al momento, para animar (no para competir).
    · Mismos criterios que lo que le llega a Iago a la campana para el 👍 (mínimo 3 min reales, dictado terminado…).
      Sale al momento como «pendiente»; cuando Iago le da su 👍, lleva el sello azul y los puntos son los oficiales.
-   · Se ve el ×1,5 / ×2 y lo que suma. Nombre + inicial. Solo tu grupo. ♡ de los compañeros (uno por persona).
+   · Se ve el ×1,5 / ×2 y lo que suma. Nombre + inicial. Solo tu grupo. Orden cronológico.
+   · (19-nov 10:31, Iago) SIN «me gusta» de compañeros: «se va a llenar de notificaciones». Solo el pulso de la clase.
    · No se despliega solo: el icono late suave y lleva el número de novedades desde la última vez que lo abriste.
    · ⚙ en el panel: «No salir en el Pulso» (tu trabajo cuenta igual).
    · SQL: suite_pulso_listar / suite_pulso_like / suite_pulso_ajuste (tablas suite_pulso_likes, _ocultos, _visto).
@@ -184,7 +185,7 @@
     if (!g) h += '<div class="lp-list"><div class="lp-vacio">Cargando…</div></div>';
     else if (!g.length) h += '<div class="lp-list"><div class="lp-vacio">Esta semana todavía no hay actividad por libre en tu grupo.<br>¿Empiezas tú? Lo que hagas por tu cuenta aparecerá aquí.</div></div>';
     else h += '<div class="lp-list">' + g.slice(0, 25).map(fila).join('') + '</div>';
-    h += '<div class="lp-pie">Con sello azul: ya lo ha verificado Iago. «Pendiente»: todavía no. ♡ para animar a tus compañeros.</div>';
+    h += '<div class="lp-pie">Con sello azul: ya lo ha verificado Iago. «Pendiente»: todavía no.</div>';
     m.innerHTML = h;
     m.querySelector('.lp-x').addEventListener('click', cerrar);
     m.querySelector('.lp-cfg').addEventListener('click', function () { ajustes = !ajustes; pintar(); });
@@ -192,7 +193,6 @@
       var s = cuenta(); if (!s) return; oc.disabled = true;
       rpc('suite_pulso_ajuste', { p_cuenta_id: s.id, p_ocultar: !(D && D.oculto) }).then(function (r) { if (r && r.ok && D) D.oculto = r.oculto; pintar(); });
     });
-    m.querySelectorAll('.lp-like[data-k]').forEach(function (b) { b.addEventListener('click', function () { like(b.getAttribute('data-k')); }); });
     colocar();
   }
   function fila(e) {
@@ -200,12 +200,10 @@
     var pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
     var lin2 = e.verificado ? (pts > 0 ? mx + '<span class="lp-pt">+' + num(pts, 2) + '</span> de actitud' : (mx ? mx + 'verificado' : ''))
                             : mx + '<span class="lp-pt gris">+' + num(pts, 2) + '</span> si Iago lo verifica';
-    var like = e.yo ? '<span class="lp-like mio" title="Los ♡ que te han dado">' + HEART + e.likes + '</span>'
-                    : '<button type="button" class="lp-like' + (e.megusta ? ' on' : '') + '" data-k="' + esc(e.k) + '" title="' + (e.megusta ? 'Quitar tu ♡' : 'Dale ♡ para animar') + '">' + HEART + e.likes + '</button>';
     return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + '"><div class="lp-a" style="background:' + c + '">' + esc(e.ini || '·') + '</div>' +
       '<div style="min-width:0"><div class="lp-nm">' + esc(e.nombre) + ' ' + (e.verificado ? SELLO : '<span class="lp-pend">pendiente</span>') + '</div>' +
       '<div class="lp-d">' + esc(app) + ' · ' + e.min + ' min</div>' + (lin2 ? '<div class="lp-d">' + lin2 + '</div>' : '') + '</div>' +
-      '<div class="lp-r"><span class="lp-w">' + hace(e.fin) + '</span>' + like + '</div></div>';
+      '<div class="lp-r"><span class="lp-w">' + hace(e.fin) + '</span></div></div>';
   }
   function like(k) {
     var s = cuenta(); if (!s || !D) return;
