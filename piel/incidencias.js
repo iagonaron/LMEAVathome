@@ -45,7 +45,7 @@
   var VERDE = '#22c55e', AZUL = '#3b82f6', NARANJA = '#f97316', ROSA = '#ec4899', GRIS = '#cbd5e1';
   var APPS = GP
     ? [['RITMO ENTONADO', VERDE, 1], ['ENTONACIÓN', AZUL, 1], ['INTERVALIA', AZUL, 1], ['DICTADO', NARANJA, 1], ['PREDICT', NARANJA, 1], ['TEORÍA', ROSA, 1], ['FICHA DE TEORÍA', ROSA, 0], ['PORTALES TEMÁTICOS', GRIS, 0, 'Fonógrafo, Acústica, Atonalidad, Magnetófono…']]
-    : [['RITMO', VERDE, 1], ['ENTONACIÓN', AZUL, 1], ['INTERVALIA', AZUL, 1], ['DICTADO', NARANJA, 1], ['PREDICT', NARANJA, 1], ['TEORÍA', ROSA, 1], ['FICHA DE TEORÍA', ROSA, 0], ['QUIZ DE RITMO', VERDE, 0]];
+    : [['RITMO', VERDE, 1], ['ENTONACIÓN', AZUL, 1], ['INTERVALIA', AZUL, 1], ['DICTADO', NARANJA, 1], ['PREDICT', NARANJA, 1], ['CARRUSEL ONLINE', NARANJA, 0], ['TEORÍA', ROSA, 1], ['FICHA DE TEORÍA', ROSA, 0], ['QUIZ DE RITMO', VERDE, 0]];   /* (19-nov 22:46, Iago) también el Carrusel Online (GE; en GP cuando abra) */
   function nomOp(o) { return Array.isArray(o) ? o[0].charAt(0) + o[0].slice(1).toLowerCase() + (o[2] ? ' at home' : '') : o; }
   var PASO2 = {
     falla: { t: '¿Cuál?', ops: APPS },
