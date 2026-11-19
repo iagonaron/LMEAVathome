@@ -110,6 +110,9 @@
       '@media (hover:hover){#lm-carr-pan .bt:hover{border-color:#e2e8f0;background:rgba(226,232,240,.1)}}#lm-carr-pan .bt.pri{background:#e2e8f0;border-color:#e2e8f0;color:#111;font-weight:800}' +
       '#lm-carr-pan .bt.sel{border-color:#34d399;background:rgba(52,211,153,.18);color:#fff}#lm-carr-pan .bt.pri.sel{background:#34d399;border-color:#34d399;color:#06281c}' +
       '#lm-carr-pan .bt:disabled{opacity:.5;cursor:default}' +
+      '#lm-carr-pan svg.sv{width:16px;height:16px;vertical-align:-3px;margin-right:6px}#lm-carr-pan .bt.ico svg.sv,#lm-carr-pan .cab .x svg.sv{margin:0;width:15px;height:15px;vertical-align:-2px}' +
+      '#lm-carr-pan .cab .x{padding:0}' +
+      '#lm-carr-pan .sq{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px;vertical-align:0}#lm-carr-pan .sq.v{background:#34d399}#lm-carr-pan .sq.a{background:#f59e0b}' +
       '#lm-carr-pan .vacio{color:#94a3b8;padding:6px 0 10px}' +
       '#lm-carr-pan input{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.28);border-radius:10px;color:#fff;padding:8px 10px;font:inherit;color-scheme:dark;max-width:100%}' +
       '#lm-carr-pan .conf{position:sticky;bottom:0;margin:10px 0 0;padding:12px;border-radius:12px;background:rgba(18,24,38,.98);border:1.5px solid #e2e8f0}' +
@@ -119,6 +122,8 @@
     document.head.appendChild(st);
   }
   var ESP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>';
+  function SVI(d) { return '<svg class="sv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
+  var I_PLAY = SVI('<path d="M8 5.5v13l10-6.5z"/>'), I_CAL = SVI('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'), I_OK = SVI('<path d="M5 12.5l4.5 4.5L19 7.5"/>'), I_X = SVI('<path d="M6 6l12 12M18 6L6 18"/>');
   var FLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 
   /* ---- cartelito ---- */
@@ -151,21 +156,21 @@
   var PAN = null, FORM = false, CONF = null, MSG = '';
   function filaPartida(p) {
     var quien = esc(p.creador) + ' <span class="c">(' + esc(grupoTxt(p.grupo)) + ')</span>';
-    var cab = p.lobby_abierto ? '🟢 Abierta ahora' : '🟠 Anunciada · ' + esc(cuando(p.programada));
+    var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora' : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
     var bs;
-    if (p.lobby_abierto) bs = '<a class="bt pri" href="' + URL_CARR + '" target="lm-carrusel-online">Entrar</a>';
-    else if (p.soy_creador) bs = '<span class="c">Eres el anfitrión · ' + '<a class="bt" style="padding:5px 10px" href="' + URL_CARR + '" target="lm-carrusel-online">Gestionar</a></span>';
-    else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? '✓ Me apunto' : 'Me apunto') + '</button>' +
-      (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">✕</button>');
+    if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (p.soy_creador || p.yo_dentro ? '' : '1') + '">Entrar</button>';
+    else if (p.soy_creador) bs = '<span class="c">Eres el anfitrión</span><button class="bt" data-go="' + p.id + '" data-e="">Gestionar</button>';
+    else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? I_OK + 'Me apunto' : 'Me apunto') + '</button>' +
+      (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
     return '<div class="pt"><div class="q">' + quien + '</div><div class="c">' + cab + ' · ' + p.apuntados + ' apuntado' + (p.apuntados == 1 ? '' : 's') + '</div><div class="bs">' + bs + '</div></div>';
   }
   function pintaPanel() {
     if (!PAN || PAN.hidden) return;
     var d = new Date(Date.now() + 864e5); d.setHours(17, 0, 0, 0);
     var prev = PAN.querySelector('#lm-carr-hora'), valor = prev ? prev.value : new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16);
-    PAN.innerHTML = '<div class="cab"><span class="ic"><span class="fx"></span>' + ESP + '</span><b>PreDict Carrusel online</b><button class="x" type="button" title="Cerrar">✕</button></div><div class="cu">' +
+    PAN.innerHTML = '<div class="cab"><span class="ic"><span class="fx"></span>' + ESP + '</span><b>PreDict Carrusel online</b><button class="x" type="button" title="Cerrar">' + I_X + '</button></div><div class="cu">' +
       '<h4>Partidas activas</h4>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna partida abierta ni anunciada.</div>') +
-      '<h4>Organizar</h4><div class="bs" style="margin-top:0"><button class="bt pri" id="lm-carr-anun" type="button">📣 Anunciar carrusel</button><a class="bt" href="' + URL_CARR + '" target="lm-carrusel-online">▶ Jugar ahora</a></div>' +
+      '<h4>Organizar</h4><div class="bs" style="margin-top:0"><button class="bt pri" id="lm-carr-anun" type="button">' + I_CAL + 'Anunciar carrusel</button><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div>' +
       (FORM ? '<div class="bs"><input type="datetime-local" id="lm-carr-hora" value="' + valor + '"><button class="bt pri" id="lm-carr-ok" type="button">Anunciar</button></div>' : '') +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
       (CONF ? '<div class="conf"><b>' + esc(CONF.t) + '</b>' + esc(CONF.x) + '<div class="bs"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div>' : '') +
@@ -183,6 +188,14 @@
         });
       });
     };
+    PAN.querySelectorAll('button[data-go]').forEach(function (bt) { bt.onclick = function () { abrirCarrusel(bt.dataset.go, bt.dataset.e === '1'); }; });
+    var ya = PAN.querySelector('#lm-carr-ya');
+    if (ya) ya.onclick = async function () {
+      ya.disabled = true; MSG = ''; var w = window.open('about:blank', 'lm-carrusel-online');
+      var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id });
+      if (r && r.ok && r.id) { abrirCarrusel(r.id, false, w); MSG = ''; refrescar(); }
+      else { if (w) { try { w.close(); } catch (e) {} } MSG = r && r.error === 'ya_tienes_una' ? 'Ya tienes un lobby abierto: pulsa «Gestionar» en tu partida.' : 'No he podido abrir el lobby.'; ya.disabled = false; pintaPanel(); }
+    };
     PAN.querySelectorAll('button[data-a]').forEach(function (bt) {
       bt.onclick = async function () {
         var a = bt.dataset.a, id = bt.dataset.id, P = LISTA.filter(function (x) { return x.id === id; })[0];
@@ -192,6 +205,10 @@
         await rpcA('suite_cr_apuntar', { p_cuenta: cuenta().id, p_partida: id, p_resp: a }); refrescar();
       };
     });
+  }
+  function abrirCarrusel(id, entrar, w) {
+    var u = URL_CARR + '?p=' + encodeURIComponent(id) + (entrar ? '&e=1' : '');
+    try { w = w || window.open('about:blank', 'lm-carrusel-online'); if (w) w.location.href = u; else location.href = u; } catch (e) { location.href = u; }
   }
   function pedirConf(t, x, si, no) {
     return new Promise(function (res) {
