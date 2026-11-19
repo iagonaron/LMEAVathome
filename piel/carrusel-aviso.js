@@ -25,7 +25,7 @@
   /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00 (lo explica en clase ese día). El servidor también lo
      impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
   var ABRE = Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT = 'el viernes 20 de noviembre a las 19:00';
-  var VIDEO_URL = '';
+  var VIDEO_URL = 'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge.mp4';
 
   function ses() { try { return JSON.parse(localStorage.getItem('lmeav_session') || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
@@ -36,7 +36,7 @@
     if (!u) return '<div class="vacio">El vídeo de presentación estará aquí muy pronto.</div>';
     var y = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
     if (y) return '<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/' + y[1] + '?rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>';
-    return '<div class="vid"><video src="' + esc(u) + '" controls playsinline preload="metadata"></video></div>';
+    return '<div class="vid"><video src="' + esc(u) + '" controls playsinline preload="metadata" poster="' + esc(u.replace(/\.mp4$/, '.jpg')) + '"></video></div>';
   }
   async function lista() {
     var c = cuenta(); if (!c) return null;
@@ -131,7 +131,7 @@
       '#lm-carr-pan .pre{font-size:38px;font-weight:800;letter-spacing:-.03em}#lm-carr-pan .dict{font-size:38px;font-weight:300;color:#e2ddff;letter-spacing:-.03em;margin-left:-8px}' +
       '#lm-carr-pan .car{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:27px;display:inline-block;transform:rotate(-8deg) translateY(-4px);padding:0 .1em;background:linear-gradient(100deg,#5bd0ff 8%,#ffd23f 40%,#ff9a3c 60%,#bd92ff 92%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}' +
       '#lm-carr-pan .kick{margin-top:6px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f1eeff}' +
-      '#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
+      '#lm-carr-pan .x.vv + .x{margin-left:8px}#lm-carr-pan .x svg.sv{width:16px;height:16px}#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
       '#lm-carr-pan .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}' +
       '#lm-carr-pan .card{background:rgba(14,10,42,.62);border:1.5px solid rgba(255,255,255,.24);border-radius:14px;padding:18px 20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}' +
       '#lm-carr-pan h2{margin:0 0 10px;font-size:14px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}' +
@@ -152,7 +152,7 @@
       '#lm-carr-pan .pt.mia{box-shadow:inset 3px 0 0 #fff;padding-left:12px}#lm-carr-pan .cor svg{width:17px;height:17px;vertical-align:-3px;margin-right:6px}' +
       '#lm-carr-pan .mon svg{width:15px;height:15px;vertical-align:-3px}' +
       '#lm-carr-pan .sq{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px}#lm-carr-pan .sq.v{background:#34d399}#lm-carr-pan .sq.a{background:#ff9a3c}' +
-      '#lm-carr-pan .vid{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid rgba(255,255,255,.24)}#lm-carr-pan .vid iframe,#lm-carr-pan .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}' +
+      '#lm-carr-pan .vid{position:relative;width:100%;max-width:760px;margin:0 auto;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid rgba(255,255,255,.24)}#lm-carr-pan .vid iframe,#lm-carr-pan .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}' +
       '#lm-carr-pan .vacio{color:#d9d3ff;padding:4px 0}' +
       '#lm-carr-pan .msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}' +
       '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.5);backdrop-filter:blur(3px)}' +
@@ -220,7 +220,7 @@
   }
 
   /* ---- ventana emergente de partidas ---- */
-  var PAN = null, CONF = null, MSG = '', HORA = '';
+  var PAN = null, CONF = null, MSG = '', HORA = '', VID = false;
   function filaPartida(p) {
     var mia = p.soy_creador, conf = Math.max(0, (p.apuntados || 0) - 1);
     var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
@@ -240,7 +240,8 @@
     var sc = PAN.querySelector('.caja'), top = sc ? sc.scrollTop : 0;
     PAN.innerHTML = '<div class="caja">' +
       '<div class="top"><div class="lg">' + LOGO + '</div><div><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div>' +
-      '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
+      (!cerrado() && VIDEO_URL ? '<button class="x vv" type="button" title="Ver el vídeo">' + I_PLAY + '</button>' : '') + '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
+      (VID && !cerrado() ? '<div class="card" style="margin-bottom:14px">' + videoHTML(VIDEO_URL) + '</div>' : '') +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
 (cerrado() ? '<div class="card"><h2>Muy pronto</h2><p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) + '</div>' : 
       '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p>Elige día y hora. <b>Serás el anfitrión.</b></p>' +
@@ -250,7 +251,8 @@
       (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + esc(CONF.x) + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
       '</div>';
     var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
-    PAN.querySelector('.x').onclick = cerrarPanel;
+    PAN.querySelector('.x:not(.vv)').onclick = cerrarPanel;
+    var vv = PAN.querySelector('.x.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
     hi.oninput = hi.onchange = function () { HORA = hi.value; ok.disabled = !hi.value; };
@@ -300,7 +302,7 @@
       PAN = document.createElement('div'); PAN.id = 'lm-carr-pan'; document.body.appendChild(PAN);
       PAN.addEventListener('click', function (e) { if (e.target === PAN && !CONF) cerrarPanel(); });
     }
-    PAN.hidden = false; CONF = null; MSG = ''; pintaPanel();
+    PAN.hidden = false; CONF = null; MSG = ''; VID = false; pintaPanel();
     var b = document.getElementById('lm-carr-btn'); if (b) b.classList.add('abierto');
     refrescar();
   }
