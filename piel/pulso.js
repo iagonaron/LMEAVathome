@@ -155,7 +155,7 @@
       /* (19-nov 10:59, Iago) como un monitor de pulso: un trazo de luz recorre la línea de izquierda a derecha y deja un rastro que se apaga */
       '#lm-pulso-btn .lp-l{opacity:.38}' +
       '#lm-pulso-btn .lp-h{stroke:#fff;stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 2px ' + AC + ');animation:lpTrazo 2.8s linear infinite}' +
-      '#lm-pulso-btn.nuevo .lp-l{stroke:' + AC + ';opacity:.55}#lm-pulso-btn.nuevo .lp-h{stroke:' + AC + ';filter:drop-shadow(0 0 3px ' + AC + ')}' +
+      '#lm-pulso-btn.nuevo .lp-l{stroke:' + AC + ';opacity:.55}#lm-pulso-btn.nuevo .lp-h{stroke:#fff;filter:drop-shadow(0 0 3px ' + AC + ')}' +
       '@keyframes lpTrazo{0%{stroke-dashoffset:26;opacity:1}55%{stroke-dashoffset:-100;opacity:1}62%{stroke-dashoffset:-100;opacity:0}100%{stroke-dashoffset:-100;opacity:0}}' +
       '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-h{animation:none;opacity:0}#lm-pulso-btn .lp-l{opacity:.9}}' +
       /* (19-nov 14:00, Iago) sin circulito de notificaciones: «más misterioso», el número de novedades se revela grande, por detrás,
@@ -216,7 +216,7 @@
       '#lm-pulso .lp-eq-r{position:relative;display:flex;flex-direction:column;align-items:center;padding:2px 2px 0}' +
       '#lm-pulso .lp-eq-p{position:absolute;left:-4px;top:-8px;width:calc(100% + 8px);height:42px;z-index:0;pointer-events:none;overflow:visible}' +
       '#lm-pulso .lp-eq-p path{fill:none;stroke:' + AC + ';stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}' +
-      '#lm-pulso .lp-eq-p .b{opacity:.3}#lm-pulso .lp-eq-p .t{stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 3px ' + AC + ');animation:lpTrazo 2.8s linear infinite}' +
+      '#lm-pulso .lp-eq-p .b{opacity:.3}#lm-pulso .lp-eq-p .t{stroke:#fff;stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 3px ' + AC + ');animation:lpTrazo 2.8s linear infinite}' +
       '@media (prefers-reduced-motion:reduce){#lm-pulso .lp-eq-p .t{animation:none;opacity:0}}' +
       '#lm-pulso .lp-eq-n{position:relative;z-index:1;text-shadow:0 0 3px #11162b,0 0 6px #11162b,0 0 10px #11162b,0 0 14px #11162b;font:800 26px/1 system-ui,sans-serif;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}#lm-pulso .lp-eq-n small{font-size:13px;font-weight:700;color:#cbd5e1}' +
       '#lm-pulso .lp-eq-t{font-size:12px;line-height:1.35;color:#cbd5e1}#lm-pulso .lp-eq-t b{color:' + AC + ';font-size:13px}' +
@@ -234,7 +234,7 @@
       '#lm-pulso-vid video{position:absolute;inset:0;width:100%;height:100%;background:#000}' +
       '#lm-pulso-vid .lpv-carga{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#05070f;color:#e6ebff;font:700 15px/1.3 system-ui,sans-serif;text-align:center;padding:20px}' +
       '#lm-pulso-vid .lpv-ic{width:64px;height:64px;color:' + AC + '}#lm-pulso-vid .lpv-ic svg{width:100%;height:100%}' +
-      '#lm-pulso-vid .lpv-ic .lp-h{stroke:' + AC + ';stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 3px ' + AC + ');animation:lpTrazo 2.8s linear infinite}#lm-pulso-vid .lpv-ic .lp-l{opacity:.3}' +
+      '#lm-pulso-vid .lpv-ic .lp-h{stroke:#fff;stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 3px ' + AC + ');animation:lpTrazo 2.8s linear infinite}#lm-pulso-vid .lpv-ic .lp-l{opacity:.3}' +
       '#lm-pulso-vid .lpv-barra{width:min(320px,70%);height:6px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}#lm-pulso-vid .lpv-barra i{display:block;height:100%;width:0;background:' + AC + ';border-radius:4px}' +
       '#lm-pulso-vid .lpv-pc{font-size:12.5px;color:#aab4d6;font-variant-numeric:tabular-nums}' +
       '#lm-pulso-vid .lpv-x{position:absolute;right:0;top:-40px;width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(10,14,28,.9);color:#fff;font:700 15px/1 system-ui,sans-serif;cursor:pointer}' +
