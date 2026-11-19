@@ -9184,14 +9184,14 @@ document.addEventListener('click', function(ev){
    Para quitarlo: borrar estos estilos y el script de debajo (hasta «fin de la ESPIRAL»).
    ====================================================================================================== */
 #ge-espiral{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:34px;height:34px;min-width:34px;
-  padding:0;margin:0;border:0;border-radius:10px;background:repeating-radial-gradient(circle at 50% 50%,rgba(10,7,30,0) 0 5px,rgba(10,7,30,.22) 5px 10px),radial-gradient(ellipse at 50% 50%,rgba(10,7,30,.50),rgba(10,7,30,.78)),conic-gradient(from 0deg at 50% 50%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff);color:#ff9a3c;text-decoration:none;flex:0 0 auto;cursor:pointer;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);
+  padding:0;margin:0;border:0;border-radius:10px;background:repeating-radial-gradient(circle at 50% 50%,rgba(10,7,30,0) 0 5px,rgba(10,7,30,.22) 5px 10px),radial-gradient(ellipse at 50% 50%,rgba(10,7,30,.50),rgba(10,7,30,.78)),conic-gradient(from 0deg at 50% 50%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff);color:#fff;text-decoration:none;flex:0 0 auto;cursor:pointer;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);
   transition:filter .15s}
 #ge-espiral:hover{filter:brightness(1.08)}
 #ge-espiral:focus-visible{outline:2px solid #fff;outline-offset:2px}
-#ge-espiral svg{width:20px;height:20px;display:block;pointer-events:none;stroke-width:2.8;filter:drop-shadow(0 0 2px rgba(10,7,30,.95))}
+#ge-espiral svg{width:22px;height:22px;display:block;pointer-events:none;stroke-width:2.1;filter:drop-shadow(0 0 2px rgba(10,7,30,.95))}
 body.tester-sin-by .topbar-right #ge-espiral{order:-2}
 html.lm-fam-portal .topbar-right > #ge-espiral{order:-3 !important;width:var(--lm-ctl) !important;height:var(--lm-ctl) !important;
-  min-width:var(--lm-ctl) !important;background:repeating-radial-gradient(circle at 50% 50%,rgba(10,7,30,0) 0 5px,rgba(10,7,30,.22) 5px 10px),radial-gradient(ellipse at 50% 50%,rgba(10,7,30,.50),rgba(10,7,30,.78)),conic-gradient(from 0deg at 50% 50%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff) !important;color:#ff9a3c !important}
+  min-width:var(--lm-ctl) !important;background:repeating-radial-gradient(circle at 50% 50%,rgba(10,7,30,0) 0 5px,rgba(10,7,30,.22) 5px 10px),radial-gradient(ellipse at 50% 50%,rgba(10,7,30,.50),rgba(10,7,30,.78)),conic-gradient(from 0deg at 50% 50%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff) !important;color:#fff !important}
 #ge-espiral::after{content:"aula";position:absolute;right:-3px;bottom:-4px;font:800 7px/1 system-ui,sans-serif;letter-spacing:.03em;color:#fff;background:#0f172a;border-radius:3px;padding:2px 3px;pointer-events:none}
 /* en pantallas estrechas (el iPad en vertical) no cabe sin pisar «Formato digital»; la espiral es para la pantalla de clase */
 @media (max-width: 900px){ #ge-espiral{display:none !important} }
