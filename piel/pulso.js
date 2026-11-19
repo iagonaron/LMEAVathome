@@ -164,7 +164,7 @@
       /* (19-nov 14:13, Iago) más sutil: como una habitación a oscuras; el número casi no se nota y la luz del trazo, al pasar por el centro, lo deja entrever */
       '#lm-pulso-btn .lp-nb{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#c7d2fe;font:800 31px/1 system-ui,sans-serif;letter-spacing:-.04em;opacity:.07;filter:blur(.7px);animation:lpNum 2.8s linear infinite}' +
       '#lm-pulso-btn .lp-nb.n2{font-size:25px}#lm-pulso-btn .lp-nb.n3{font-size:19px}' +
-      '@keyframes lpNum{0%,6%{opacity:.07;filter:blur(.7px);animation-timing-function:ease-in-out}26%{opacity:.36;filter:blur(0)}40%{opacity:.34;filter:blur(0);animation-timing-function:ease-in-out}88%,100%{opacity:.07;filter:blur(.7px)}}' +   /* 19-nov 14:39, Iago: más rato iluminado y entrada/salida más suaves */
+      '@keyframes lpNum{0%{opacity:.07;filter:blur(.7px);animation-timing-function:ease-in-out}24%{opacity:.36;filter:blur(0)}42%{opacity:.34;filter:blur(0);animation-timing-function:ease-in-out}90%,100%{opacity:.07;filter:blur(.7px)}}' +   /* 19-nov 14:39, Iago: empieza a iluminarse cuando arranca el trazo, más rato iluminado y entrada/salida más suaves */
       '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-nb{animation:none;opacity:.2;filter:none}}' +
       '#lm-pulso{position:fixed;z-index:2147480000;width:min(396px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
       '#lm-pulso[hidden]{display:none}' +
