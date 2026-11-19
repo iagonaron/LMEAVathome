@@ -465,14 +465,14 @@ body.f-sug .sug{border-color:#facc15}
   try { if (REAL && !SIN) localStorage.setItem(KV, String(FIN)); } catch (e) {}
   /* (12-nov, Iago) el balance de fuerzas: lo que se sumará o restará a la nota que él ponga; cerca de 0 ya es un éxito */
   /* (12-nov, Iago) la barra de lo que llevas sumado: se llena con lo extra hasta el tope (+2) y avisa al llegar */
-  $('contN').textContent = '+' + POS.toFixed(2).replace('.', ',') + '/2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : (C.semLlena ? '🛑 Has alcanzado tu tope semanal (30 minutos) · se renueva el lunes ' + ddmm(String(C.renueva)) + '.' : 'Te queda +' + (2 - POS).toFixed(2).replace('.', ',') + ' para el tope del trimestre.') + (C.sinv >= 180 ? ' ⏳ ' + dur(C.sinv) + ' esperando el 👍 de Iago.' : '');
+  $('contN').textContent = '+' + POS.toFixed(2).replace('.', ',') + '/2'; $('contM').textContent = POS >= 2 ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : (C.semLlena ? '🛑 Has alcanzado tu tope semanal (30 minutos) · se renueva el viernes ' + ddmm(String(C.renueva)) + ' a las 19:00.' : 'Te queda +' + (2 - POS).toFixed(2).replace('.', ',') + ' para el tope del trimestre.') + (C.sinv >= 180 ? ' ⏳ ' + dur(C.sinv) + ' esperando el 👍 de Iago.' : '');
   if (POS >= 2) $('cont').classList.add('lleno');
   setTimeout(function () { $('contI').style.width = (Math.min(2, POS - NP) / 2 * 100) + '%'; }, 900);
   if (NP) { ponBarra(POS - NP); $('contI').style.width = '0%'; }
   var DEMO = null;
   function ponBarra(p) { $('contI').style.width = (Math.min(2, p) / 2 * 100) + '%'; $('contN').textContent = '+' + Math.min(2, p).toFixed(2).replace('.', ',') + '/2';
     var lleno = p >= 2; $('cont').classList.toggle('lleno', lleno);
-    $('contM').textContent = lleno ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : (C.semLlena ? '🛑 Has alcanzado tu tope semanal (30 minutos) · se renueva el lunes ' + ddmm(String(C.renueva)) + '.' : 'Te queda +' + Math.max(0, 2 - p).toFixed(2).replace('.', ',') + ' para el tope del trimestre.') + (C.sinv >= 180 ? ' ⏳ ' + dur(C.sinv) + ' esperando el 👍 de Iago.' : ''); }
+    $('contM').textContent = lleno ? '¡Tope del trimestre alcanzado! Lo que hagas de más ya no suma.' : (C.semLlena ? '🛑 Has alcanzado tu tope semanal (30 minutos) · se renueva el viernes ' + ddmm(String(C.renueva)) + ' a las 19:00.' : 'Te queda +' + Math.max(0, 2 - p).toFixed(2).replace('.', ',') + ' para el tope del trimestre.') + (C.sinv >= 180 ? ' ⏳ ' + dur(C.sinv) + ' esperando el 👍 de Iago.' : ''); }
   addEventListener('message', function (e) { var d = e.data || {}; if (d.tipo !== 'foco') return; ['barra', 'sug', 'aguja', 'bal'].forEach(function (k) { document.body.classList.toggle('f-' + k, d.que === k); });
     /* (12-nov, Iago) al explicarla en el vídeo: la barra sigue llenándose hasta el tope y avisa */
     clearInterval(DEMO); if (d.que === 'barra') { var p = POS, t0 = Date.now(); DEMO = setInterval(function () { var q = (Date.now() - t0) / 1000;
