@@ -22,11 +22,22 @@
   var SBK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
   var URL_CARR = 'https://predict.ge.lmathome.es/carrusel-online/';
   var LISTA = [], OK = false;
+  /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00 (lo explica en clase ese día). El servidor también lo
+     impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
+  var ABRE = Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT = 'el viernes 20 de noviembre a las 19:00';
+  var VIDEO_URL = '';
 
   function ses() { try { return JSON.parse(localStorage.getItem('lmeav_session') || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
   function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); }
   function esTester() { var s = ses(); return !!(s && /tester/.test(norm(s.nombre))); }
+  function cerrado() { return Date.now() < ABRE && !esTester(); }
+  function videoHTML(u) {
+    if (!u) return '<div class="vacio">El vídeo de presentación estará aquí muy pronto.</div>';
+    var y = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+    if (y) return '<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/' + y[1] + '?rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>';
+    return '<div class="vid"><video src="' + esc(u) + '" controls playsinline preload="metadata"></video></div>';
+  }
   async function lista() {
     var c = cuenta(); if (!c) return null;
     try {
@@ -82,8 +93,8 @@
       '#lm-carr-btn:hover,#lm-carr-btn.abierto{filter:brightness(1.14)}#lm-carr-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}' +
       '#lm-carr-btn svg{position:relative;width:22px;height:22px;display:block;pointer-events:none;stroke-width:2.1;filter:drop-shadow(0 0 2px rgba(10,7,30,.95)) drop-shadow(0 0 5px rgba(10,7,30,.7))}' +
       '#lm-carr-btn.mov svg{animation:lmCarrGira 4s linear infinite}@keyframes lmCarrGira{to{transform:rotate(360deg)}}' +
-      '#lm-carr-btn .pto{position:absolute;right:-1px;top:-1px;min-width:15px;height:15px;padding:0 3px;box-sizing:border-box;border-radius:8px;border:2px solid #0f172a;background:#34d399;color:#05261a;font:900 9px/11px system-ui,sans-serif;text-align:center;display:none}' +
-      '#lm-carr-btn .pto.on{display:block}' +
+      '#lm-carr-btn .pto{position:absolute;right:-4px;top:-4px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;border:2px solid #0f172a;background:#f97316;color:#fff;font:900 10px/1 system-ui,sans-serif;display:none;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}' +
+      '#lm-carr-btn .pto.on{display:inline-flex}' +
       '@media (prefers-reduced-motion:reduce){#lm-carr-btn.mov .fx,#lm-carr-btn.mov svg{animation:none}}' +
       /* el cartelito: una franja por partida; la más próxima a la vista y las demás debajo, tras la flechita */
       '#lm-incid-btn{order:-6!important}' +
@@ -132,6 +143,7 @@
       '#lm-carr-pan .pt.mia{box-shadow:inset 3px 0 0 #fff;padding-left:12px}#lm-carr-pan .cor svg{width:17px;height:17px;vertical-align:-3px;margin-right:6px}' +
       '#lm-carr-pan .mon svg{width:15px;height:15px;vertical-align:-3px}' +
       '#lm-carr-pan .sq{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px}#lm-carr-pan .sq.v{background:#34d399}#lm-carr-pan .sq.a{background:#ff9a3c}' +
+      '#lm-carr-pan .vid{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid rgba(255,255,255,.24)}#lm-carr-pan .vid iframe,#lm-carr-pan .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}' +
       '#lm-carr-pan .vacio{color:#d9d3ff;padding:4px 0}' +
       '#lm-carr-pan .msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}' +
       '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.5);backdrop-filter:blur(3px)}' +
@@ -210,14 +222,16 @@
       '<div class="top"><div class="lg"></div><div><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div>' +
       '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
+(cerrado() ? '<div class="card"><h2>Muy pronto</h2><p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) + '</div>' : 
       '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p>Elige día y hora. <b>Serás el anfitrión.</b></p>' +
       '<div class="row"><input type="datetime-local" id="lm-carr-hora" min="' + minHora() + '" value="' + esc(HORA) + '"><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
       '<div class="card"><h2>Partida individual</h2><p>Empieza una partida tú solo, ahora mismo.</p><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div></div>' +
-      '<div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>' +
+      '<div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>') +
       (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + esc(CONF.x) + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
       '</div>';
     var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
     PAN.querySelector('.x').onclick = cerrarPanel;
+    if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
     hi.oninput = hi.onchange = function () { HORA = hi.value; ok.disabled = !hi.value; };
     ok.onclick = async function () {
@@ -225,7 +239,7 @@
       if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar')) return;
       var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id, p_programada: f.toISOString() });
       if (r && r.ok) { MSG = 'Partida anunciada para ' + cuando(f.toISOString()) + '.'; HORA = ''; }
-      else MSG = r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 14 días desde ahora.' : 'No he podido anunciar la partida.';
+      else MSG = r && r.error === 'aun_no' ? 'El carrusel online se abre ' + ABRE_TXT + '.' : r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 14 días desde ahora.' : 'No he podido anunciar la partida.';
       refrescar();
     };
     PAN.querySelector('#lm-carr-ya').onclick = function () { abrirURL(URL_CARR + '?solo=1'); };
