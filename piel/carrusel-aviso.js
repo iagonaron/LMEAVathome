@@ -60,7 +60,7 @@
       if (p.lobby_abierto) return '¡Tu carrusel está abierto!';
       return 'Tu carrusel ' + cuando(p.programada);
     }
-    if (p.lobby_abierto) return '¡Carrusel abierto! Entra';
+    if (p.lobby_abierto) return '¡Carrusel abierto! Únete';
     var min = Math.round((new Date(p.programada).getTime() - Date.now()) / 6e4);
     if (min <= 1) return 'Carrusel: empieza ya';
     return 'Carrusel ' + cuando(p.programada);
@@ -245,7 +245,7 @@
     var otros = Math.max(0, (p.apuntados || 0) - 1);
     var gente = mia ? (conf ? monigotes(conf, p.confirmados, 8) : 'sin confirmados todavía') : (otros ? monigotes(otros, p.confirmados, 8) : 'nadie apuntado todavía');
     var bs;
-    if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Entrar</button>';
+    if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Unirme</button>';
     else if (mia) bs = p.anfitrion_cancelo ? '<span class="c">La cancelaste</span>' : '<button class="bt ko" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
     else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? I_OK : '') + 'Me apunto</button>' +
       (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
