@@ -87,6 +87,9 @@
 
   function ses() { try { return JSON.parse(localStorage.getItem(KEY) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
+  /* (19-nov 13:31, Iago) en Tester/Protester no quiere el Pulso: «a mí ya me llega como notificación» */
+  function esTester(s) { try { var n = String((s && s.nombre) || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+    return ['iago gonzalez tester', 'iago gonzalez protester', 'iago gonzalez pro tester'].indexOf(n) >= 0; } catch (e) { return false; } }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function rpc(fn, args) {
     return fetch(SBU + '/rest/v1/rpc/' + fn, { method: 'POST', headers: { 'apikey': SBK, 'Authorization': 'Bearer ' + SBK, 'Content-Type': 'application/json' }, body: JSON.stringify(args || {}) })
@@ -161,8 +164,13 @@
       '#lm-pulso.sC .lp-sellog{width:84px;height:84px;right:-42px;top:50%;margin-top:-42px;opacity:.45}' +
       '#lm-pulso .lp-pv{width:50px;flex:none;text-align:center;font:700 9.5px/1.15 system-ui,sans-serif;color:#94a3b8;border:1px dashed rgba(148,163,184,.45);border-radius:6px;padding:4px 2px}' +
       '#lm-pulso .lp-eq{margin:0 14px 10px;padding:10px 12px;border-radius:12px;border:1.5px solid ' + AC + '66;background:' + AC + '14;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 12px}' +
-      '#lm-pulso .lp-eq-b{grid-column:1/-1;font:800 13px/1.2 system-ui,sans-serif;color:' + AC + '}' +
-      '#lm-pulso .lp-eq-n{font:800 26px/1 system-ui,sans-serif;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}#lm-pulso .lp-eq-n small{font-size:13px;font-weight:700;color:#cbd5e1}' +
+      '#lm-pulso .lp-eq-b{position:relative;z-index:1;margin-top:4px;font:800 12.5px/1.2 system-ui,sans-serif;color:' + AC + ';white-space:nowrap}' +
+      '#lm-pulso .lp-eq-r{position:relative;display:flex;flex-direction:column;align-items:center;padding:2px 2px 0}' +
+      '#lm-pulso .lp-eq-p{position:absolute;left:-4px;top:-8px;width:calc(100% + 8px);height:42px;z-index:0;pointer-events:none;overflow:visible}' +
+      '#lm-pulso .lp-eq-p path{fill:none;stroke:' + AC + ';stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}' +
+      '#lm-pulso .lp-eq-p .b{opacity:.3}#lm-pulso .lp-eq-p .t{stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 3px ' + AC + ');animation:lpTrazo 2.8s linear infinite}' +
+      '@media (prefers-reduced-motion:reduce){#lm-pulso .lp-eq-p .t{animation:none;opacity:0}}' +
+      '#lm-pulso .lp-eq-n{position:relative;z-index:1;text-shadow:0 0 3px #11162b,0 0 6px #11162b,0 0 10px #11162b,0 0 14px #11162b;font:800 26px/1 system-ui,sans-serif;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}#lm-pulso .lp-eq-n small{font-size:13px;font-weight:700;color:#cbd5e1}' +
       '#lm-pulso .lp-eq-t{font-size:12px;line-height:1.35;color:#cbd5e1}#lm-pulso .lp-eq-t b{color:' + AC + ';font-size:13px}' +
       '#lm-pulso .lp-ar{display:inline-flex;align-items:center;gap:5px;margin-left:6px;vertical-align:middle}' +
       '#lm-pulso .lp-ar-n{font-size:10.5px;font-weight:600;color:#7480a8}' +
@@ -182,7 +190,7 @@
   function boton() {
     var mr = document.getElementById('btn-mis-resultados');
     var b = document.getElementById('lm-pulso-btn');
-    var ver = !!(cuenta() && mr && mr.parentNode);
+    var ver = !!(cuenta() && !esTester(cuenta()) && mr && mr.parentNode);
     if (!ver) { if (b) b.hidden = true; return; }
     css();
     if (!b) {
@@ -213,7 +221,7 @@
 
   /* ---- datos ---- */
   function cargar() {
-    var s = cuenta(); if (!s || cargando) return Promise.resolve();
+    var s = cuenta(); if (!s || esTester(s) || cargando) return Promise.resolve();
     cargando = true;
     return rpc('suite_pulso_listar', { p_cuenta_id: s.id }).then(function (r) {
       cargando = false; if (r && r.ok) { D = r; contador(); if (abierto) pintar(); }
@@ -282,8 +290,9 @@
     if (D && D.grupo_min != null) {
       var tm = Number(D.grupo_min) || 0, hh = Math.floor(tm / 60), mm = tm % 60;
       h += '<div class="lp-eq"><div class="lp-eq-t">El pulso de trabajo de este grupo<br>este trimestre' + (D.trimestre ? ' (' + esc(D.trimestre) + ')' : '') + ' es de</div>' +
+           '<div class="lp-eq-r"><svg class="lp-eq-p" viewBox="0 0 60 24" preserveAspectRatio="none" aria-hidden="true"><path class="b" d="M0 12h23l2.5-8 4.5 16 3.5-12 2 4h24.5"/><path class="t" pathLength="100" d="M0 12h23l2.5-8 4.5 16 3.5-12 2 4h24.5"/></svg>' +
            '<div class="lp-eq-n">' + (hh ? hh + '<small> h </small>' : '') + (hh && !mm ? '' : mm + '<small> min</small>') + '</div>' +
-           '<div class="lp-eq-b">¡Menudo equipazo!</div></div>';
+           '<div class="lp-eq-b">¡Menudo equipazo!</div></div></div>';
     }
     if (!g) h += '<div class="lp-list"><div class="lp-vacio">Cargando…</div></div>';
     else if (!g.length) h += '<div class="lp-list"><div class="lp-vacio">Esta semana todavía no hay actividad por libre en tu grupo.<br>¿Empiezas tú? Lo que hagas por tu cuenta aparecerá aquí.</div></div>';
