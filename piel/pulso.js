@@ -22,7 +22,7 @@
   var APP = { teoria: 'Teoría', ritmo: 'Ritmo', desafio: 'Desafío rítmico', acceso: 'Acceso rítmico', entonacion: 'Entonación', intervalia: 'Intervalia',
     dictado: 'Dictado', predict: 'PreDict', acustica: 'Acústica', atonalidad: 'Atonalidad', blues: 'Blues', afrolatin: '4 Sabores',
     modulacion: 'Modulación', transporte: 'Transporte', magnetofono: 'Magnetófono', fonografo: 'Fonógrafo' };
-  var ICO = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="lp-l" d="M2 12h4l2.5-6 4 13 3-9 1.5 2H22"/></svg>';
+  var ICO = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="lp-l" d="M2 12h4l2.5-6 4 13 3-9 1.5 2H22"/><path class="lp-h" pathLength="100" d="M2 12h4l2.5-6 4 13 3-9 1.5 2H22"/></svg>';
   var SELLO = '<svg class="lp-sello" viewBox="0 0 24 24" aria-label="Verificado por Iago"><path fill="#3b82f6" d="M12 1l2.6 2.2 3.4-.4.9 3.3 3 1.7-1.3 3.2 1.3 3.2-3 1.7-.9 3.3-3.4-.4L12 23l-2.6-2.2-3.4.4-.9-3.3-3-1.7L3.4 13 2.1 9.8l3-1.7.9-3.3 3.4.4z"/><path d="M7.5 12.3l3 3 6-6.3" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var HEART = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.6-9C.9 8.3 2.8 4.8 6.3 4.8c2.2 0 3.8 1.3 4.6 2.6.8-1.3 2.4-2.6 4.6-2.6 3.5 0 5.4 3.5 3.9 6.7-2.1 4.4-7.4 9-7.4 9z"/></svg>';
   var GEAR = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-1.7-1L15 3.4h-4L10.6 6a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.7 1.7 1l.4 2.6h4l.4-2.6c.6-.3 1.2-.6 1.7-1l2.4 1 2-3.4z"/></svg>';
@@ -60,10 +60,12 @@
     st.textContent =
       '#lm-pulso-btn{position:relative;width:var(--lm-ctl,34px);height:var(--lm-ctl,34px);min-width:var(--lm-ctl,34px);padding:0;margin:0;border:0;border-radius:10px;background:var(--lm-neutro,#243044);color:#e2e8f0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;align-self:center;flex:0 0 auto}' +
       '@media (hover:hover){#lm-pulso-btn:hover{background:var(--lm-neutro-h,#2d3b52)}}#lm-pulso-btn[hidden]{display:none!important}' +
-      '#lm-pulso-btn .lp-l{animation:lpLat 2.6s ease-in-out infinite}' +
-      '#lm-pulso-btn.nuevo .lp-l{stroke:' + AC + '}' +
-      '@keyframes lpLat{0%,100%{opacity:.55;filter:none}8%{opacity:1;filter:drop-shadow(0 0 3px ' + AC + ')}16%{opacity:.6;filter:none}24%{opacity:1;filter:drop-shadow(0 0 4px ' + AC + ')}34%{opacity:.55;filter:none}}' +
-      '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-l{animation:none;opacity:.9}}' +
+      /* (19-nov 10:59, Iago) como un monitor de pulso: un trazo de luz recorre la línea de izquierda a derecha y deja un rastro que se apaga */
+      '#lm-pulso-btn .lp-l{opacity:.38}' +
+      '#lm-pulso-btn .lp-h{stroke:#fff;stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 2px ' + AC + ');animation:lpTrazo 2.8s linear infinite}' +
+      '#lm-pulso-btn.nuevo .lp-l{stroke:' + AC + ';opacity:.55}#lm-pulso-btn.nuevo .lp-h{stroke:' + AC + ';filter:drop-shadow(0 0 3px ' + AC + ')}' +
+      '@keyframes lpTrazo{0%{stroke-dashoffset:26;opacity:1}55%{stroke-dashoffset:-100;opacity:1}62%{stroke-dashoffset:-100;opacity:0}100%{stroke-dashoffset:-100;opacity:0}}' +
+      '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-h{animation:none;opacity:0}#lm-pulso-btn .lp-l{opacity:.9}}' +
       '#lm-pulso-btn .lp-n{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:5px;background:' + AC + ';color:#0b1020;font:800 10.5px/17px system-ui,sans-serif;text-align:center}' +
       '#lm-pulso{position:fixed;z-index:2147480000;width:min(360px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
       '#lm-pulso[hidden]{display:none}' +
@@ -104,6 +106,7 @@
       '#lm-pulso.sB .lp-sellog{width:84px;height:84px;right:-42px;bottom:-42px;opacity:.5}' +
       '#lm-pulso.sB .lp-val,#lm-pulso.sC .lp-val{padding-right:34px}' +
       '#lm-pulso.sC .lp-sellog{width:84px;height:84px;right:-42px;top:50%;margin-top:-42px;opacity:.45}' +
+      '#lm-pulso .lp-pv{width:44px;flex:none;text-align:center;font:700 9.5px/1.15 system-ui,sans-serif;color:#94a3b8;border:1px dashed rgba(148,163,184,.45);border-radius:6px;padding:4px 2px}' +
       '#lm-pulso .lp-vacio{padding:18px 6px;text-align:center;color:#94a3b8;font-size:12.5px;line-height:1.45}' +
       '#lm-pulso .lp-pie{padding:8px 14px 12px;font-size:11px;color:#7480a8;line-height:1.4;border-top:1px solid rgba(255,255,255,.07)}';
     document.head.appendChild(st);
@@ -208,7 +211,7 @@
     if (!g) h += '<div class="lp-list"><div class="lp-vacio">Cargando…</div></div>';
     else if (!g.length) h += '<div class="lp-list"><div class="lp-vacio">Esta semana todavía no hay actividad por libre en tu grupo.<br>¿Empiezas tú? Lo que hagas por tu cuenta aparecerá aquí.</div></div>';
     else h += '<div class="lp-list">' + g.slice(0, 25).map(fila).join('') + '</div>';
-    h += '<div class="lp-pie">Con sello: ya lo ha verificado Iago y ha sumado. Sin sello: pendiente de verificar.</div>';
+    h += '<div class="lp-pie">Con sello: ya lo ha validado Iago y ha sumado. Sin sello: pendiente de validar.</div>';
     m.innerHTML = h;
     m.querySelector('.lp-x').addEventListener('click', cerrar);
     m.querySelector('.lp-cfg').addEventListener('click', function () { ajustes = !ajustes; pintar(); });
@@ -223,8 +226,8 @@
     var pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
     /* (19-nov 10:43, Iago) a la derecha, lo mismo que ven en el aviso de la campana: minutos, lo que sube de actitud y el sello (si lo tiene) */
     var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num"><b>+' + num(pts, 2) + '<small> actitud</small></b>' +
-              '<span>' + e.min + ' min ' + (e.verificado ? 'validados' : '· pendiente') + '</span></div>' +
-              (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : '') + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
+              '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span></div>' +
+              (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : (e.verificado ? '' : '<span class="lp-pv">Pendiente<br>de validar</span>')) + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
     return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + '"><div class="lp-a" style="background:' + c + '">' + esc(e.ini || '·') + '</div>' +
       '<div style="min-width:0"><div class="lp-nm">' + esc(e.nombre) + '</div>' +
       '<div class="lp-d">' + mx + esc(app) + '</div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + '</div></div>' + val + '</div>';
