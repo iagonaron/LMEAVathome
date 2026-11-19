@@ -47,13 +47,20 @@
     if (sum > 0) AREAS.forEach(function (x, i) { var L = C * vals[i] / sum; if (L > 0) o += '<circle cx="' + h + '" cy="' + h + '" r="' + rr + '" fill="none" stroke="' + x[1] + '" stroke-width="' + sw + '" stroke-dasharray="' + Math.max(0, L - (vals.filter(Boolean).length > 1 ? 1.2 : 0)).toFixed(2) + ' ' + (C - L + (vals.filter(Boolean).length > 1 ? 1.2 : 0)).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 ' + h + ' ' + h + ')"/>'; off += L; });
     return o;
   }
+  /* (19-nov 11:27, Iago) «para respetar la estética del cuadrado»: cuadrado de esquinas suaves cuyo BORDE es el reparto del trimestre por áreas */
+  function marco(a, fill) {
+    var vals = AREAS.map(function (x) { return Number((a || {})[x[0]]) || 0; }), sum = vals.reduce(function (p, v) { return p + v; }, 0), off = 0, gap = vals.filter(Boolean).length > 1 ? 0.8 : 0;
+    var o = '<rect x="1.75" y="1.75" width="42.5" height="42.5" rx="12" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="3.5"/>';
+    if (sum > 0) AREAS.forEach(function (x, i) { var L = 100 * vals[i] / sum; if (L > 0) o += '<rect x="1.75" y="1.75" width="42.5" height="42.5" rx="12" pathLength="100" fill="none" stroke="' + x[1] + '" stroke-width="3.5" stroke-dasharray="' + Math.max(0, L - gap).toFixed(2) + ' ' + (100 - L + gap).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '"/>'; off += L; });
+    return o + '<rect x="6.5" y="6.5" width="33" height="33" rx="8" fill="' + fill + '"/>';
+  }
   function avatar(e, c) {
     var t = 'Minutos verificados este trimestre: ' + AREAS.map(function (x) { return x[2] + ' ' + ((e.areas || {})[x[0]] || 0); }).join(' · ');
     if (COMBO === '2') {   // anillo con el TOTAL dentro
       return '<div class="lp-av" title="' + esc(t) + '"><svg viewBox="0 0 46 46">' + anillo(e.areas, 46, 20, 4) + '</svg><span class="lp-av-tot"><b>' + (e.tot || 0) + '</b><i>min</i></span></div>';
     }
     var dentro = COMBO === '4' ? '<span class="lp-av-tot lp-av-act"><b>' + (e.min || 0) + '</b><i>min</i></span>' : '<span class="lp-av-ini">' + esc(e.ini || '·') + '</span>';
-    var av = '<div class="lp-av" title="' + esc(t) + '"><svg viewBox="0 0 46 46">' + anillo(e.areas, 46, 21, 3.5) + '<circle cx="23" cy="23" r="16.5" fill="' + c + '"/></svg>' + dentro +
+    var av = '<div class="lp-av" title="' + esc(t) + '"><svg viewBox="0 0 46 46">' + (COMBO === '4' ? marco(e.areas, c) : anillo(e.areas, 46, 21, 3.5) + '<circle cx="23" cy="23" r="16.5" fill="' + c + '"/>') + '</svg>' + dentro +
              (COMBO === '3' && e.tot > 0 ? '<span class="lp-av-badge">' + e.tot + '′</span>' : '') + '</div>';
     return av;
   }
