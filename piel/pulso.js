@@ -106,7 +106,10 @@
       '#lm-pulso.sB .lp-sellog{width:84px;height:84px;right:-42px;bottom:-42px;opacity:.5}' +
       '#lm-pulso.sB .lp-val,#lm-pulso.sC .lp-val{padding-right:34px}' +
       '#lm-pulso.sC .lp-sellog{width:84px;height:84px;right:-42px;top:50%;margin-top:-42px;opacity:.45}' +
-      '#lm-pulso .lp-pv{width:44px;flex:none;text-align:center;font:700 9.5px/1.15 system-ui,sans-serif;color:#94a3b8;border:1px dashed rgba(148,163,184,.45);border-radius:6px;padding:4px 2px}' +
+      '#lm-pulso .lp-pv{width:50px;flex:none;text-align:center;font:700 9.5px/1.15 system-ui,sans-serif;color:#94a3b8;border:1px dashed rgba(148,163,184,.45);border-radius:6px;padding:4px 2px}' +
+      '#lm-pulso .lp-eq{margin:0 14px 10px;padding:10px 12px;border-radius:12px;border:1.5px solid ' + AC + '66;background:' + AC + '14;display:flex;align-items:center;gap:12px}' +
+      '#lm-pulso .lp-eq-n{font:800 26px/1 system-ui,sans-serif;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}#lm-pulso .lp-eq-n small{font-size:13px;font-weight:700;color:#cbd5e1}' +
+      '#lm-pulso .lp-eq-t{font-size:12px;line-height:1.35;color:#cbd5e1}#lm-pulso .lp-eq-t b{color:' + AC + ';font-size:13px}' +
       '#lm-pulso .lp-vacio{padding:18px 6px;text-align:center;color:#94a3b8;font-size:12.5px;line-height:1.45}' +
       '#lm-pulso .lp-pie{padding:8px 14px 12px;font-size:11px;color:#7480a8;line-height:1.4;border-top:1px solid rgba(255,255,255,.07)}';
     document.head.appendChild(st);
@@ -198,7 +201,7 @@
   function pintar() {
     var m = caja();
     var g = D && D.entradas ? grupos(D.entradas) : null;
-    var h = '<div class="lp-h"><div><div class="lp-t">Pulso' + (D && D.grupo ? ' · <b>' + esc(D.grupo) + '</b>' : '') + '</div>' +
+    var h = '<div class="lp-h"><div><div class="lp-t">Pulso de este grupo' + (D && D.grupo ? ' · <b>' + esc(D.grupo) + '</b>' : '') + '</div>' +
       '<div class="lp-s">Lo que tu grupo trabaja por libre, al momento</div></div>' +
       '<div class="lp-bts"><button type="button" class="lp-cfg" title="Ajustes del Pulso" aria-label="Ajustes">' + GEAR + '</button>' +
       '<button type="button" class="lp-x" title="Cerrar" aria-label="Cerrar">✕</button></div></div>';
@@ -207,6 +210,12 @@
       h += '<div class="lp-aj">' + (oc ? 'Ahora <b>no sales</b> en el Pulso de tu grupo. Tu trabajo por libre cuenta igual en tu actitud.'
                                       : 'Si prefieres, puedes <b>no salir</b> en el Pulso de tu grupo. Tu trabajo por libre cuenta igual en tu actitud.') +
            '<br><button type="button" class="lp-oc">' + (oc ? 'Volver a salir en el Pulso' : 'No salir en el Pulso') + '</button></div>';
+    }
+    /* (19-nov 11:03, Iago) sensación de equipo, no de competición: el tiempo extra de TODO el grupo este trimestre */
+    if (D && D.grupo_min != null) {
+      var tm = Number(D.grupo_min) || 0, hh = Math.floor(tm / 60), mm = tm % 60;
+      h += '<div class="lp-eq"><div class="lp-eq-n">' + (hh ? hh + '<small> h </small>' : '') + (hh && !mm ? '' : mm + '<small> min</small>') + '</div>' +
+           '<div class="lp-eq-t">de trabajo extra este trimestre' + (D.trimestre ? ' (' + esc(D.trimestre) + ')' : '') + ', entre todo el grupo<br><b>¡Sois un gran equipo!</b></div></div>';
     }
     if (!g) h += '<div class="lp-list"><div class="lp-vacio">Cargando…</div></div>';
     else if (!g.length) h += '<div class="lp-list"><div class="lp-vacio">Esta semana todavía no hay actividad por libre en tu grupo.<br>¿Empiezas tú? Lo que hagas por tu cuenta aparecerá aquí.</div></div>';
