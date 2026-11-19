@@ -22,6 +22,11 @@
   var APP = { teoria: 'Teoría', ritmo: 'Ritmo', desafio: 'Desafío rítmico', acceso: 'Acceso rítmico', entonacion: 'Entonación', intervalia: 'Intervalia',
     dictado: 'Dictado', predict: 'PreDict', acustica: 'Acústica', atonalidad: 'Atonalidad', blues: 'Blues', afrolatin: '4 Sabores',
     modulacion: 'Modulación', transporte: 'Transporte', magnetofono: 'Magnetófono', fonografo: 'Fonógrafo' };
+  /* (19-nov 18:39, Iago) los portales, con su textura y la parte vista al lado del título: «Magnetófono · Bobina 3» */
+  var PORTAL = { acustica: 1, atonalidad: 1, blues: 1, afrolatin: 1, modulacion: 1, transporte: 1, magnetofono: 1, fonografo: 1 };
+  var TEXB = 'https://ge.lmathome.es/piel/avisos/actitud/', TEXP = { magnetofono: 'tex-magnetofono-2.webp', atonalidad: 'tex-atonalidad-2.webp', blues: 'tex-blues-3.webp' };
+  var PARTE = { bobina: 'Bobina', cap: 'Capítulo', dia: 'Día', sabor: 'Sabor', sesion: 'Sesión', acto: 'Acto' };
+  function parte(o) { var m = String(o || '').match(/^([a-z]+)-(\d+)$/); return m ? (PARTE[m[1]] || (m[1].charAt(0).toUpperCase() + m[1].slice(1))) + ' ' + m[2] : ''; }
   var ICO = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="lp-l" d="M2 12h4l2.5-6 4 13 3-9 1.5 2H22"/><path class="lp-h" pathLength="100" d="M2 12h4l2.5-6 4 13 3-9 1.5 2H22"/></svg>';
   var SELLO = '<svg class="lp-sello" viewBox="0 0 24 24" aria-label="Verificado por Iago"><path fill="#3b82f6" d="M12 1l2.6 2.2 3.4-.4.9 3.3 3 1.7-1.3 3.2 1.3 3.2-3 1.7-.9 3.3-3.4-.4L12 23l-2.6-2.2-3.4.4-.9-3.3-3-1.7L3.4 13 2.1 9.8l3-1.7.9-3.3 3.4.4z"/><path d="M7.5 12.3l3 3 6-6.3" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var HEART = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.6-9C.9 8.3 2.8 4.8 6.3 4.8c2.2 0 3.8 1.3 4.6 2.6.8-1.3 2.4-2.6 4.6-2.6 3.5 0 5.4 3.5 3.9 6.7-2.1 4.4-7.4 9-7.4 9z"/></svg>';
@@ -161,7 +166,7 @@
       '#lm-pulso-btn .lp-l{stroke:url(#lpGradPulso);opacity:.5}' +   /* (19-nov 16:07, Iago) línea multicolor y sutil (azul→verde→naranja→rosa), igual en GE y GP */
       '#lm-pulso-btn .lp-h{stroke:#fff;stroke-dasharray:26 100;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 2px rgba(255,255,255,.5));animation:lpTrazo 2.8s linear infinite}' +
       '#lm-pulso-btn.nuevo .lp-l{stroke:url(#lpGradPulso);opacity:.68}#lm-pulso-btn.nuevo .lp-h{stroke:#fff;filter:drop-shadow(0 0 3px rgba(255,255,255,.55))}' +
-      '@keyframes lpTrazo{0%{stroke-dashoffset:26;opacity:1}55%{stroke-dashoffset:-100;opacity:1}62%{stroke-dashoffset:-100;opacity:0}100%{stroke-dashoffset:-100;opacity:0}}' +
+      '@keyframes lpTrazo{0%{stroke-dashoffset:31;opacity:1}55%{stroke-dashoffset:-105;opacity:1}56%,100%{stroke-dashoffset:-105;opacity:0}}' +
       '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-h{animation:none;opacity:0}#lm-pulso-btn .lp-l{opacity:.9}}' +
       /* (19-nov 14:00, Iago) sin circulito de notificaciones: «más misterioso», el número de novedades se revela grande, por detrás,
          justo cuando el trazo iluminado pasa por el centro de la línea */
@@ -171,7 +176,7 @@
       '#lm-pulso-btn .lp-nb.n2{font-size:25px}#lm-pulso-btn .lp-nb.n3{font-size:19px}' +
       '@keyframes lpNum{0%{opacity:.07;filter:blur(.7px);animation-timing-function:ease-in-out}24%{opacity:.36;filter:blur(0)}42%{opacity:.34;filter:blur(0);animation-timing-function:ease-in-out}90%,100%{opacity:.07;filter:blur(.7px)}}' +   /* 19-nov 14:39, Iago: empieza a iluminarse cuando arranca el trazo, más rato iluminado y entrada/salida más suaves */
       '@media (prefers-reduced-motion:reduce){#lm-pulso-btn .lp-nb{animation:none;opacity:.2;filter:none}}' +
-      '#lm-pulso{position:fixed;z-index:2147480000;width:min(396px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
+      '#lm-pulso{position:fixed;z-index:2147480000;width:min(440px,calc(100vw - 24px));max-height:min(72vh,620px);display:flex;flex-direction:column;background:#0a0e1c;border:1.5px solid rgba(255,255,255,.22);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);color:#e6ebff;font-family:inherit;font-size:13px;box-sizing:border-box}' +
       '#lm-pulso[hidden]{display:none}' +
       '#lm-pulso .lp-h{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:13px 14px 9px}' +
       '#lm-pulso .lp-t{font:800 11px/1.2 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#fff}#lm-pulso .lp-t b{color:' + AC + ';text-transform:none;letter-spacing:.06em}' +
@@ -184,7 +189,7 @@
       '#lm-pulso .lp-e{display:grid;grid-template-columns:32px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1)}' +
       '#lm-pulso .lp-e.nuevo{border-color:' + AC + '66}' +
       '#lm-pulso .lp-a{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff}' +
-      '#lm-pulso .lp-nm{font-weight:700;color:#fff;display:flex;align-items:center;gap:5px;white-space:nowrap}#lm-pulso .lp-yo .lp-nm{color:' + AC + '}' +
+      '#lm-pulso .lp-nm{font-weight:700;color:#fff;display:flex;align-items:center;gap:5px;white-space:nowrap}' +   /* 19-nov 18:40, Iago: el alumno se ve con su nombre y en blanco, como los demás */
       '#lm-pulso .lp-sello{width:14px;height:14px;flex:none}' +
       '#lm-pulso .lp-pend{font-size:9.5px;font-weight:700;letter-spacing:.03em;color:#94a3b8;border:1px dashed rgba(148,163,184,.55);border-radius:4px;padding:0 4px;line-height:14px}' +
       '#lm-pulso .lp-d{font-size:12px;color:#aab4d6;white-space:nowrap}' +
@@ -195,12 +200,14 @@
       '#lm-pulso .lp-like{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#c9d3f5;font:700 11.5px/1 system-ui,sans-serif;cursor:pointer}' +
       '#lm-pulso .lp-like.on{border-color:#f472b6;color:#f9a8d4}#lm-pulso .lp-like.on svg{fill:#f472b6;stroke:#f472b6}' +
       '#lm-pulso .lp-like.mio{cursor:default;border-style:dashed}' +
-      '#lm-pulso .lp-e{grid-template-columns:46px 1fr auto}' +
+      '#lm-pulso .lp-e{grid-template-columns:46px minmax(0,1fr) auto}#lm-pulso .lp-e>div:nth-child(2){min-width:0}#lm-pulso .lp-d{white-space:normal}#lm-pulso .lp-tt{white-space:nowrap}'   /* 19-nov 18:31, Iago: el sello, siempre en el mismo sitio (antes el texto largo empujaba la columna y el sello quedaba cortado a la derecha) */ +
       '#lm-pulso .lp-av{position:relative;width:46px;height:46px}#lm-pulso .lp-av svg{position:absolute;inset:0;width:46px;height:46px}' +
       '#lm-pulso .lp-av-ini{position:absolute;inset:0;display:grid;place-items:center;font:800 15px/1 system-ui,sans-serif;color:#fff}' +
       '#lm-pulso .lp-av-tot{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}#lm-pulso .lp-av-tot b{font:800 14px/1 system-ui,sans-serif;color:#fff}#lm-pulso .lp-av-tot i{font-style:normal;font-size:8.5px;color:#94a3b8;margin-top:1px}#lm-pulso .lp-av-act i{color:rgba(255,255,255,.85)}#lm-pulso .lp-av-act b{font-size:13px}' +
       '#lm-pulso .lp-av-badge{position:absolute;right:-6px;bottom:-4px;font:800 9.5px/1 system-ui,sans-serif;color:#e2e8f0;background:#0a0e1c;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:2px 3px}' +
       '#lm-pulso .lp-app{font-weight:700}' +
+      '#lm-pulso .lp-e.lp-tex{background:linear-gradient(90deg,rgba(74,10,48,.95),rgba(74,10,48,.78) 55%,rgba(74,10,48,.5)),var(--tex,none) 50% 35%/cover no-repeat,#3b0a26;border-color:rgba(236,72,153,.6)}' +
+      '#lm-pulso .lp-e.lp-tex .lp-d{color:#f5d0e6}#lm-pulso .lp-e.lp-tex .lp-app{color:#ffb3db!important}' +
       '#lm-pulso .lp-val{display:flex;align-items:center;gap:8px;padding-left:10px;border-left:1px solid rgba(255,255,255,.1)}' +
       '#lm-pulso .lp-num{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15}' +
       '#lm-pulso .lp-num b{font-size:16px;font-weight:800;color:#4ade80;font-variant-numeric:tabular-nums;white-space:nowrap}' +
@@ -295,8 +302,8 @@
   function grupos(es) {
     var m = {}, out = [];
     es.forEach(function (e) {
-      var k = e.nombre + '|' + e.app + '|' + diaDe(e.fin);
-      if (!m[k]) { m[k] = { k: k, sid: e.sid, yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, area: e.area, mult: e.mult, fin: e.fin,
+      var k = e.nombre + '|' + e.app + '|' + (e.parte || '') + '|' + diaDe(e.fin);
+      if (!m[k]) { m[k] = { k: k, sid: e.sid, yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, parte: e.parte || '', area: e.area, mult: e.mult, fin: e.fin,
                              min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [], tot: e.tot_min || 0, areas: e.areas || null }; out.push(m[k]); }
       var g = m[k]; g.min += e.min || 0; g.pts += Number(e.pts) || 0; g.verificado = g.verificado && !!e.verificado;
       g.nuevo = g.nuevo || !!e.nuevo; g.likes += e.likes || 0; g.megusta = g.megusta || !!e.megusta; g.sids.push(e.sid);
@@ -373,15 +380,15 @@
   }
   function fila(e) {
     var c = COL[e.area] || '#64748b', k = String(e.app || '').replace(/-(ge|gp)$/, ''), app = APP[k] || k;
-    var pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
+    var pt = parte(e.parte), tx = TEXP[k], pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
     /* (19-nov 10:43, Iago) a la derecha, lo mismo que ven en el aviso de la campana: minutos, lo que sube de actitud y el sello (si lo tiene) */
     var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num"><b>+' + num(pts, 2) + '<small> actitud</small></b>' +
               (COMBO === '4' ? (e.verificado ? '' : '<span class="lp-pv2">pendiente de validar</span>') : '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span>') + '</div>' +
               (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : (e.verificado || COMBO === '4' ? '' : '<span class="lp-pv">Pendiente<br>de validar</span>')) + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
     var totTxt = (COMBO === '1' && e.tot > 0) ? '<span class="lp-ar-n" style="margin-left:6px">' + e.tot + ' min este trimestre</span>' : '';
-    return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + '">' + avatar(e, c) +
+    return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + (PORTAL[k] ? ' lp-tex' : '') + '"' + (tx ? ' style="--tex:url(' + TEXB + tx + ')"' : '') + '>' + avatar(e, c) +
       '<div><div class="lp-nm">' + esc(e.nombre) + totTxt + '</div>' +
-      '<div class="lp-d">' + mx + '<span class="lp-app" style="color:' + c + '">' + esc(app) + '</span></div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + (COMBO === '4' && e.tot > 0 ? ' · <b style="color:#aab4d6;font-weight:700">' + e.tot + ' min</b> ' + (D && D.trimestre ? 'en el ' + esc(D.trimestre) : 'este trimestre') : '') + '</div></div>' + val + '</div>';
+      '<div class="lp-d">' + mx + '<span class="lp-app" style="color:' + c + '">' + esc(app) + (pt ? ' · <span class="lp-tt">' + esc(pt) + '</span>' : '') + '</span></div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + (COMBO === '4' && e.tot > 0 ? ' · <span class="lp-tt"><b style="color:#aab4d6;font-weight:700">' + e.tot + ' min</b> ' + (D && D.trimestre ? 'en el ' + esc(D.trimestre) : 'este trimestre') + '</span>' : '') + '</div></div>' + val + '</div>';
   }
   function like(k) {
     var s = cuenta(); if (!s || !D) return;
