@@ -243,8 +243,10 @@
 
   /* ---- ventana emergente de partidas ---- */
   /* (20-nov-2026, Iago) Selector propio de DÍA y HORA para anunciar partidas (el mismo en ordenador, iPad y móvil):
-     calendario del mes con los días pasados apagados y HOY marcado, horas y minutos; solo deja elegir desde dentro de
-     10 minutos hasta 14 días (lo mismo que exige el servidor). lmSelFecha(valor 'AAAA-MM-DDTHH:MM' o '', alElegir(valor)) */
+     calendario del mes con los días pasados apagados y HOY marcado; la hora con DOS RUEDAS verticales como en el iPhone
+     (horas 8–22 y minutos de 5 en 5), que se arrastran con el dedo o el ratón, giran con la rueda del ratón o se tocan.
+     Solo deja elegir desde dentro de 10 minutos hasta 14 días (lo mismo que exige el servidor).
+     lmSelFecha(valor 'AAAA-MM-DDTHH:MM' o '', alElegir(valor)) */
   var LMF_MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var LMF_DIA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   function lmfDos(n) { return (n < 10 ? '0' : '') + n; }
@@ -253,12 +255,13 @@
     var d = new Date(v); if (isNaN(d)) return '';
     return LMF_DIA[d.getDay()].slice(0, 3) + ' ' + d.getDate() + ' ' + LMF_MES[d.getMonth()].slice(0, 3) + ' · ' + lmfDos(d.getHours()) + ':' + lmfDos(d.getMinutes());
   }
+  var LMF_IH = 34;   /* alto de cada fila de las ruedas (se ven 5) */
   function lmfCss() {
     if (document.getElementById('lmf-css')) return;
     var s = document.createElement('style'); s.id = 'lmf-css';
     s.textContent =
       '.lmfcapa{position:fixed!important;inset:0!important;z-index:2147483647!important;background:rgba(4,6,14,.55);display:flex;align-items:center;justify-content:center;font-family:"Helvetica Neue",Arial,sans-serif;-webkit-tap-highlight-color:transparent}' +
-      '.lmf{width:min(392px,94vw);box-sizing:border-box;padding:18px 18px 16px;border-radius:16px;background:rgba(22,18,44,.97);border:1px solid rgba(255,255,255,.18);box-shadow:0 24px 70px rgba(0,0,0,.55);color:#fff}' +
+      '.lmf{width:min(392px,94vw);max-height:96vh;overflow:auto;box-sizing:border-box;padding:18px 18px 16px;border-radius:16px;background:#16122c;border:1px solid rgba(255,255,255,.18);box-shadow:0 24px 70px rgba(0,0,0,.55);color:#fff}' +
       '.lmf h3{margin:0 0 12px;font-size:18px;font-weight:800;letter-spacing:.01em}' +
       '.lmf .mes{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.lmf .mes b{font-size:16px;font-weight:800;text-transform:capitalize}' +
       '.lmf .mes button{width:34px;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:18px;cursor:pointer}.lmf .mes button:disabled{opacity:.25;cursor:default}' +
@@ -268,28 +271,106 @@
       '.lmf .dias button.hoy{border-color:#ffd23f}.lmf .dias button.hoy::after{content:"hoy";position:absolute;left:0;right:0;bottom:1px;font-size:9px;font-weight:800;color:#ffd23f;line-height:1}' +
       '.lmf .dias button.sel{background:#ffd23f;color:#1b1406}.lmf .dias button.sel::after{color:#1b1406}' +
       '.lmf .et{margin:14px 0 6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}' +
-      '.lmf .hs{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}.lmf .ms{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}' +
-      '.lmf .hs button,.lmf .ms button{height:34px;border-radius:9px;border:1px solid transparent;background:rgba(255,255,255,.07);color:#fff;font-size:14px;font-weight:700;cursor:pointer;padding:0}' +
-      '.lmf .hs button:disabled,.lmf .ms button:disabled{background:transparent;color:rgba(255,255,255,.22);cursor:default}' +
-      '.lmf .hs button.sel,.lmf .ms button.sel{background:#ffd23f;color:#1b1406}' +
+      /* ruedas */
+      '.lmf .ruedas{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px}' +
+      '.lmf .rd{position:relative;width:96px;height:' + (5 * LMF_IH) + 'px;overflow:hidden;touch-action:none;cursor:grab;outline:none;border-radius:12px;background:rgba(255,255,255,.04);-webkit-user-select:none;user-select:none;' +
+        '-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 34%,#000 66%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 34%,#000 66%,transparent 100%)}' +
+      '.lmf .rd:active{cursor:grabbing}' +
+      '.lmf .rd::before{content:"";position:absolute;left:5px;right:5px;top:' + (2 * LMF_IH) + 'px;height:' + LMF_IH + 'px;box-sizing:border-box;border-radius:9px;background:rgba(255,210,63,.18);border:1px solid rgba(255,210,63,.85);pointer-events:none}' +
+      '.lmf .rd .tira{position:absolute;left:0;right:0;top:0;will-change:transform}' +
+      '.lmf .rd .it{height:' + LMF_IH + 'px;line-height:' + LMF_IH + 'px;text-align:center;font-size:21px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;transform-origin:50% 50%}' +
+      '.lmf .rd .it.no{color:rgba(255,255,255,.28)}.lmf .rd .it.c{color:#ffe28a;font-weight:800}' +
+      '.lmf .dp{font-size:24px;font-weight:800;color:#ffe28a;margin-top:-3px}' +
+      '.lmf .rdl{display:flex;justify-content:center;gap:8px;margin-top:4px}.lmf .rdl span{width:96px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.45)}.lmf .rdl i{width:10px}' +
       '.lmf .pie{display:flex;align-items:center;gap:10px;margin-top:16px}.lmf .pie .res{flex:1;font-size:14px;font-weight:700;color:#ffe28a;min-width:0}' +
       '.lmf .pie button{height:38px;padding:0 16px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff}' +
       '.lmf .pie button.ok{background:#fff;color:#16122c;border-color:#fff}.lmf .pie button.ok:disabled{opacity:.35;cursor:default}' +
-      '@media (hover:hover){.lmf .dias button:not(:disabled):not(.sel):hover,.lmf .hs button:not(:disabled):not(.sel):hover,.lmf .ms button:not(:disabled):not(.sel):hover{background:rgba(255,210,63,.22)}}';
+      '@media (hover:hover){.lmf .dias button:not(:disabled):not(.sel):hover{background:rgba(255,210,63,.22)}}';
     document.head.appendChild(s);
+  }
+  /* una rueda: vals (números), idx inicial, fmt(v), vale(i) → si se puede elegir, alCambiar(i) al encajar */
+  function lmfRueda(el, vals, idx, fmt, vale, alCambiar) {
+    var IH = LMF_IH, pos = idx, n = vals.length, tira = el.querySelector('.tira'), anim = null, its = [];
+    tira.innerHTML = vals.map(function (v, i) { return '<div class="it" data-i="' + i + '">' + fmt(v) + '</div>'; }).join('');
+    its = Array.prototype.slice.call(tira.children);
+    function marca() { its.forEach(function (it, i) { it.classList.toggle('no', !vale(i)); }); }
+    function pinta() {
+      tira.style.transform = 'translateY(' + ((2 - pos) * IH).toFixed(2) + 'px)';
+      for (var i = 0; i < n; i++) {
+        var d = Math.abs(i - pos); if (d > 3.2) continue;
+        its[i].style.transform = 'perspective(260px) rotateX(' + (Math.max(-3, Math.min(3, i - pos)) * -16).toFixed(1) + 'deg) scale(' + (1 - Math.min(d, 2.5) * 0.06).toFixed(3) + ')';
+        its[i].style.opacity = String(Math.max(0.3, 1 - d * 0.22).toFixed(2));
+        its[i].classList.toggle('c', d < 0.5);
+      }
+    }
+    function cerca(i) {   /* el elegible más cercano */
+      i = Math.max(0, Math.min(n - 1, i)); if (vale(i)) return i;
+      for (var k = 1; k < n; k++) { if (i + k < n && vale(i + k)) return i + k; if (i - k >= 0 && vale(i - k)) return i - k; }
+      return i;
+    }
+    function para() { if (anim) { cancelAnimationFrame(anim); anim = null; } }
+    function ir(dest, ms) {
+      para(); dest = cerca(Math.round(dest)); var p0 = pos, t0 = null, dur = ms || Math.min(650, 220 + Math.abs(dest - p0) * 45);
+      function paso(t) { if (t0 === null) t0 = t; var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+        pos = p0 + (dest - p0) * e; pinta(); if (k < 1) anim = requestAnimationFrame(paso); else { anim = null; pos = dest; pinta(); idx = dest; alCambiar(dest); } }
+      anim = requestAnimationFrame(paso);
+    }
+    var arr = null;
+    el.addEventListener('pointerdown', function (e) {
+      para(); try { el.setPointerCapture(e.pointerId); } catch (_) {}
+      arr = { y0: e.clientY, p0: pos, ys: [[e.timeStamp, e.clientY]], mov: 0, sc: el.getBoundingClientRect().height / el.offsetHeight || 1 }; e.preventDefault();
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (!arr) return; var dy = (e.clientY - arr.y0) / arr.sc; arr.mov = Math.max(arr.mov, Math.abs(dy));
+      var p = arr.p0 - dy / IH; if (p < 0) p = p * 0.35; if (p > n - 1) p = n - 1 + (p - n + 1) * 0.35;
+      pos = p; pinta(); arr.ys.push([e.timeStamp, e.clientY]); if (arr.ys.length > 6) arr.ys.shift();
+    });
+    function suelta(e) {
+      if (!arr) return; var a = arr; arr = null;
+      if (a.mov < 5) {   /* toque: va a la fila tocada */
+        var r = el.getBoundingClientRect(), yl = (e.clientY - r.top) / a.sc; ir(pos + (yl - 2.5 * IH) / IH); return;
+      }
+      var f = a.ys[a.ys.length - 1], g = a.ys[0], v = (f[0] > g[0]) ? -((f[1] - g[1]) / a.sc / IH) / (f[0] - g[0]) : 0;   /* filas por ms */
+      ir(pos + v * 180);
+    }
+    el.addEventListener('pointerup', suelta); el.addEventListener('pointercancel', suelta);
+    var acum = 0;
+    el.addEventListener('wheel', function (e) { e.preventDefault(); acum += e.deltaY;
+      var pasos = 0; while (Math.abs(acum) >= 40) { pasos += acum > 0 ? 1 : -1; acum -= (acum > 0 ? 40 : -40); }
+      if (pasos) ir(Math.round(anim ? idx : pos) + pasos, 200); }, { passive: false });
+    el.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); ir(Math.round(pos) + 1, 180); } if (e.key === 'ArrowUp') { e.preventDefault(); ir(Math.round(pos) - 1, 180); } });
+    marca(); pinta();
+    return { marca: function () { marca(); }, ir: ir, idx: function () { return idx; } };
   }
   function lmSelFecha(valor, alElegir) {
     lmfCss();
     var ahora = new Date(), min = new Date(ahora.getTime() + 10 * 6e4), max = new Date(ahora.getTime() + 14 * 864e5);
     var hoy0 = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
-    var dia = null, hora = null, mins = null;
-    if (valor) { var v = new Date(valor); if (!isNaN(v)) { dia = new Date(v.getFullYear(), v.getMonth(), v.getDate()); hora = v.getHours(); mins = v.getMinutes(); } }
+    var HORAS = []; for (var h = 8; h <= 22; h++) HORAS.push(h);
+    var MINS = []; for (var m5 = 0; m5 < 60; m5 += 5) MINS.push(m5);
+    var dia = null, hora, mins;
+    /* de partida, la próxima hora posible (redondeada a 5 minutos) */
+    var sig = new Date(Math.ceil(min.getTime() / 3e5) * 3e5); hora = sig.getHours(); mins = sig.getMinutes();
+    if (hora < 8) { hora = 8; mins = 0; } if (hora > 22) { hora = 22; mins = 55; }
+    if (valor) { var v = new Date(valor); if (!isNaN(v)) { dia = new Date(v.getFullYear(), v.getMonth(), v.getDate()); hora = v.getHours(); mins = v.getMinutes() - v.getMinutes() % 5; } }
     var mes = new Date((dia || hoy0).getFullYear(), (dia || hoy0).getMonth(), 1);
-    var HORAS = []; for (var h = 9; h <= 22; h++) HORAS.push(h); HORAS.unshift(8);
     var velo = document.createElement('div'); velo.className = 'lmfcapa';
     function fecha(d, h, m) { return new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m); }
     function vale(d, h, m) { var f = fecha(d, h, m); return f >= min && f <= max; }
-    function diaVale(d) { for (var i = 0; i < HORAS.length; i++) for (var m = 0; m < 60; m += 15) if (vale(d, HORAS[i], m)) return true; return false; }
+    function horaVale(d, h) { for (var i = 0; i < MINS.length; i++) if (vale(d, h, MINS[i])) return true; return false; }
+    function diaVale(d) { for (var i = 0; i < HORAS.length; i++) if (horaVale(d, HORAS[i])) return true; return false; }
+    var RH = null, RM = null;
+    function pie() {
+      var listo = dia && vale(dia, hora, mins);
+      var res = velo.querySelector('.res'), ok = velo.querySelector('.ok');
+      if (res) res.textContent = listo ? lmfTexto(fecha(dia, hora, mins)) : (dia ? '' : 'Elige un día');
+      if (ok) ok.disabled = !listo;
+    }
+    function ajusta() {   /* si el día elegido no admite la hora o los minutos, la rueda va a lo más cercano posible */
+      if (!dia) return;
+      if (!horaVale(dia, hora)) { var hi = HORAS.indexOf(hora), best = null; for (var k = 0; k < HORAS.length; k++) if (horaVale(dia, HORAS[k]) && (best === null || Math.abs(k - hi) < Math.abs(best - hi))) best = k; if (best !== null) hora = HORAS[best]; }
+      if (!vale(dia, hora, mins)) { var mi = MINS.indexOf(mins), bm = null; for (var j = 0; j < MINS.length; j++) if (vale(dia, hora, MINS[j]) && (bm === null || Math.abs(j - mi) < Math.abs(bm - mi))) bm = j; if (bm !== null) mins = MINS[bm]; }
+    }
     function pinta() {
       var p = new Date(mes), cab = (p.getDay() + 6) % 7, nd = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate(), t = '';
       for (var i = 0; i < cab; i++) t += '<i></i>';
@@ -299,29 +380,29 @@
         if (dia && f.getTime() === dia.getTime()) c += ' sel';
         t += '<button type="button" data-d="' + d + '" class="' + c + '"' + (diaVale(f) ? '' : ' disabled') + '>' + d + '</button>';
       }
-      var hs = HORAS.map(function (h) { var ok = !dia || [0, 15, 30, 45].some(function (m) { return vale(dia, h, m); });
-        return '<button type="button" data-h="' + h + '" class="' + (h === hora ? 'sel' : '') + '"' + (ok ? '' : ' disabled') + '>' + h + '</button>'; }).join('');
-      var ms = [0, 15, 30, 45].map(function (m) { var ok = !dia || hora === null || vale(dia, hora, m);
-        return '<button type="button" data-m="' + m + '" class="' + (m === mins ? 'sel' : '') + '"' + (ok ? '' : ' disabled') + '>:' + lmfDos(m) + '</button>'; }).join('');
-      var listo = dia && hora !== null && mins !== null && vale(dia, hora, mins);
       var prevOk = new Date(mes.getFullYear(), mes.getMonth(), 0) >= hoy0, nextOk = new Date(mes.getFullYear(), mes.getMonth() + 1, 1) <= max;
       velo.innerHTML = '<div class="lmf" role="dialog" aria-label="Elige día y hora"><h3>Elige día y hora</h3>' +
         '<div class="mes"><button type="button" data-nav="-1"' + (prevOk ? '' : ' disabled') + ' aria-label="Mes anterior">‹</button><b>' + LMF_MES[mes.getMonth()] + ' ' + mes.getFullYear() + '</b><button type="button" data-nav="1"' + (nextOk ? '' : ' disabled') + ' aria-label="Mes siguiente">›</button></div>' +
         '<div class="sem"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="dias">' + t + '</div>' +
-        '<div class="et">Hora</div><div class="hs">' + hs + '</div><div class="et">Minutos</div><div class="ms">' + ms + '</div>' +
-        '<div class="pie"><span class="res">' + (listo ? lmfTexto(fecha(dia, hora, mins)) : '') + '</span><button type="button" data-x="1">Cancelar</button><button type="button" class="ok" data-ok="1"' + (listo ? '' : ' disabled') + '>Aceptar</button></div></div>';
+        '<div class="ruedas"><div class="rd" data-r="h" tabindex="0" aria-label="Hora"><div class="tira"></div></div><b class="dp">:</b><div class="rd" data-r="m" tabindex="0" aria-label="Minutos"><div class="tira"></div></div></div>' +
+        '<div class="rdl"><span>hora</span><i></i><span>min</span></div>' +
+        '<div class="pie"><span class="res"></span><button type="button" data-x="1">Cancelar</button><button type="button" class="ok" data-ok="1" disabled>Aceptar</button></div></div>';
+      RH = lmfRueda(velo.querySelector('.rd[data-r="h"]'), HORAS, Math.max(0, HORAS.indexOf(hora)), String,
+        function (i) { return !dia || horaVale(dia, HORAS[i]); },
+        function (i) { hora = HORAS[i]; if (dia && !vale(dia, hora, mins)) { ajusta(); RM.ir(MINS.indexOf(mins)); } RM.marca(); pie(); });
+      RM = lmfRueda(velo.querySelector('.rd[data-r="m"]'), MINS, Math.max(0, MINS.indexOf(mins)), lmfDos,
+        function (i) { return !dia || vale(dia, hora, MINS[i]); },
+        function (i) { mins = MINS[i]; pie(); });
+      pie();
     }
     velo.addEventListener('click', function (e) {
-      var b = e.target.closest ? e.target.closest('button') : null;
       if (e.target === velo) { cerrar(); return; }
+      var b = e.target.closest ? e.target.closest('button') : null;
       if (!b || b.disabled) return;
-      if (b.dataset.nav) { mes = new Date(mes.getFullYear(), mes.getMonth() + Number(b.dataset.nav), 1); }
-      else if (b.dataset.d) { dia = new Date(mes.getFullYear(), mes.getMonth(), Number(b.dataset.d)); if (hora !== null && ![0, 15, 30, 45].some(function (m) { return vale(dia, hora, m); })) { hora = null; mins = null; } }
-      else if (b.dataset.h) { hora = Number(b.dataset.h); if (mins === null || !vale(dia || hoy0, hora, mins)) { mins = null; [0, 15, 30, 45].some(function (m) { if (dia && vale(dia, hora, m)) { mins = m; return true; } return false; }); } }
-      else if (b.dataset.m) { mins = Number(b.dataset.m); }
-      else if (b.dataset.x) { cerrar(); return; }
-      else if (b.dataset.ok) { var f = fecha(dia, hora, mins); cerrar(); alElegir(f.getFullYear() + '-' + lmfDos(f.getMonth() + 1) + '-' + lmfDos(f.getDate()) + 'T' + lmfDos(f.getHours()) + ':' + lmfDos(f.getMinutes())); return; }
-      pinta();
+      if (b.dataset.nav) { mes = new Date(mes.getFullYear(), mes.getMonth() + Number(b.dataset.nav), 1); pinta(); }
+      else if (b.dataset.d) { dia = new Date(mes.getFullYear(), mes.getMonth(), Number(b.dataset.d)); ajusta(); pinta(); }
+      else if (b.dataset.x) { cerrar(); }
+      else if (b.dataset.ok) { var f = fecha(dia, hora, mins); cerrar(); alElegir(f.getFullYear() + '-' + lmfDos(f.getMonth() + 1) + '-' + lmfDos(f.getDate()) + 'T' + lmfDos(f.getHours()) + ':' + lmfDos(f.getMinutes())); }
     });
     function cerrar() { if (velo.parentNode) velo.parentNode.removeChild(velo); document.removeEventListener('keydown', tecla, true); }
     function tecla(e) { if (e.key === 'Escape') { e.stopPropagation(); cerrar(); } }
