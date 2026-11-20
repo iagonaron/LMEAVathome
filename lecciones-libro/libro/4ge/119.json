@@ -1,0 +1,43 @@
+{
+ "v": 1, "libro": "Ritmo 4.º GE", "curso": "4Ge", "grado": "ge", "n": 119, "titulo": "119",
+ "titulo_estilo": {"fuente": "sans", "x": 46, "y": 167, "px": 43},
+ "numeros_x": 44,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/119.png",
+ "tonalidad": "Fa mayor", "modo": "mayor", "armadura": "F", "clave": "bass",
+ "pagina": {"ancho": 1680, "alto": 1055, "interlinea": 16.4},
+ "sistemas": [
+  {"y": 117, "x0": 155, "barras": [724, 1224, 1636], "compases": [1,2,3]},
+  {"y": 369, "x0": 40, "barras": [522, 1092, 1580], "compases": [4,5,6], "final": "doble", "cortesia": {"x1": 1637, "compas": "3/4"}},
+  {"y": 621, "x0": 40, "barras": [687, 1205, 1637], "compases": [7,8,9], "clave": "treble"},
+  {"y": 873, "x0": 40, "barras": [648, 1150, 1637], "compases": [10,11,12], "clave": "treble", "final": "fin"}
+ ],
+ "compases": [
+  {"c": 1, "compas": "9/8", "m": "v 4:f3 | ^ 8:c3 | v 4:f3 | v 8:g3 | v 4.:a3"},
+  {"c": 2, "m": "v 16:bb3 16:a3 16:g3 16:f3 16:e3 | v 4.:d3 | v 8:bb3 8:a3 8:g3"},
+  {"c": 3, "m": "^ 4:c3 | v 16:e3 16:d3 | ^ 4.:c3 | ^ 4.:r"},
+  {"c": 4, "m": "v 8:f3 | ^ 4:c3 | v 8:f3 | v 4:a3 | v 8:g3 8:a3 8:bb3"},
+  {"c": 5, "m": "v 16:d4 16:c4 16:bb3 16:a3 16:g3 16:a3 | v 16:bb3 16:a3 16:g3 16:f3 16:e3 16:d3 | v 4.:e3"},
+  {"c": 6, "barra_fin": "doble", "m": "^ 16:c3 16:d3 16:e3 16:d3 16:c3 | ^ 4.:bb2 | v 8.:c3 16:d3 8:e3"},
+  {"c": 7, "compas": "3/4", "m": "^ 8:f4 8:c4 | ^ 8:f4 16:r 16:a4 | ^ 16:g4 16:a4 16:bb4 16:c5"},
+  {"c": 8, "m": "^ 16:a4 8:f4 16:a4 | v 4:c5 | ^ 16:c5 16:bb4 16:a4 16:g4 16:f4"},
+  {"c": 9, "m": "^ 4:e4 | v 4:c5! | ^ 8:r | ^ 16:c4 16:d4 16:e4"},
+  {"c": 10, "m": "^ 8:f4 8:d4 | ^ 8.:f4 16:bb4 | v 16:d5 16:c5 16:bb4 16:d5"},
+  {"c": 11, "m": "v 4:c5 | v 16:d5 16:c5 16:bb4 16:a4 16:bb4 | v 4:c5"},
+  {"c": 12, "m": "^ 16:f4 16:f4 16:r 16:a4 | ^ 8:f4 | ^ 8:r | ^ 4:r"}
+ ],
+ "ligaduras": ["1.1-1.5 arriba","2.1-2.6 arriba","2.7-3.4 arriba",
+  "4.1-4.2 arriba","4.3-4.4 arriba","4.5-5.13 arriba","6.1-6.6 abajo","6.7-7.3 arriba",
+  "7.6-8.4 arriba","8.5-9.1 abajo","9.4-9.6 abajo","10.1-11.1 arriba","11.2-11.7 arriba","12.4-12.5 abajo"],
+ "tresillos": [
+  {"notas":"2.1-2.5","r":"5:6","abajo":true},
+  {"notas":"6.1-6.5","r":"5:6"},
+  {"notas":"8.5-8.9","r":"5:4"},
+  "9.4-9.6",
+  {"notas":"11.2-11.6","r":"5:4","abajo":true}
+ ],
+ "notas_libro": [
+  {"lineas": [{"x0": 1600, "x1": 1619, "y": 337, "partes": ["="]}],
+   "ritmos": [{"figs": "4.", "xs": [1576], "y": 337, "yb": 304}, {"figs": "4", "xs": [1634], "y": 337, "yb": 304}]}
+ ],
+ "pendiente": []
+}

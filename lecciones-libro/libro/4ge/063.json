@@ -1,0 +1,162 @@
+{
+ "v": 1,
+ "libro": "Ritmo 4.º GE",
+ "curso": "4Ge",
+ "grado": "ge",
+ "n": 63,
+ "titulo": "63",
+ "titulo_estilo": {
+  "fuente": "sans",
+  "x": 45,
+  "y": 166,
+  "px": 43
+ },
+ "numeros_x": 44,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/063.png",
+ "tonalidad": "Fa# menor",
+ "modo": "menor",
+ "armadura": "A",
+ "clave": "bass",
+ "pagina": {
+  "ancho": 1680,
+  "alto": 548,
+  "interlinea": 16.4
+ },
+ "sistemas": [
+  {
+   "y": 116,
+   "x0": 156,
+   "barras": [
+    507,
+    661,
+    844,
+    974,
+    1151,
+    1327,
+    1461,
+    1640
+   ],
+   "compases": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ]
+  },
+  {
+   "y": 384,
+   "x0": 39,
+   "barras": [
+    389,
+    551,
+    745,
+    898,
+    1106,
+    1342,
+    1510,
+    1639
+   ],
+   "compases": [
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+   ],
+   "final": "fin"
+  }
+ ],
+ "compases": [
+  {
+   "c": 1,
+   "compas": "2/8",
+   "m": "v 8.:f#3 16:c#3"
+  },
+  {
+   "c": 2,
+   "m": "v 8:f#3 8:g#3"
+  },
+  {
+   "c": 3,
+   "m": "v 8:a3 8:a3 8:g#3"
+  },
+  {
+   "c": 4,
+   "m": "v 4:f#3"
+  },
+  {
+   "c": 5,
+   "m": "v 8:a3- 8:r 8:g#3"
+  },
+  {
+   "c": 6,
+   "m": "v 8:f#3 8:r 8:e3"
+  },
+  {
+   "c": 7,
+   "m": "v 4:d3"
+  },
+  {
+   "c": 8,
+   "m": "^ 8:c#3 | v 8:c#4"
+  },
+  {
+   "c": 9,
+   "m": "v 8:f#3 8:r 8:g#3"
+  },
+  {
+   "c": 10,
+   "m": "v 8:a3 8:b3"
+  },
+  {
+   "c": 11,
+   "m": "v 8:c#4 8:r 8:b3"
+  },
+  {
+   "c": 12,
+   "m": "v 8:a3 8:c#4"
+  },
+  {
+   "c": 13,
+   "m": "v 8:d4 16:d4 16:c#4"
+  },
+  {
+   "c": 14,
+   "m": "v 16:b3 16:c#4 16:b3 16:a3"
+  },
+  {
+   "c": 15,
+   "m": "v 8.:g#3 16:e#3"
+  },
+  {
+   "c": 16,
+   "m": "v 4:f#3"
+  }
+ ],
+ "ligaduras": [
+  "1.1-2.2 arriba",
+  "3.1-4.1 arriba",
+  "5.3-6.1 arriba",
+  "6.3-8.1 arriba",
+  "8.2-9.1 arriba",
+  "9.3-11.1 arriba",
+  "11.3-13.1 arriba",
+  "13.2-15.1 arriba",
+  "15.2-16.1 arriba"
+ ],
+ "tresillos": [
+  "3.1-3.3",
+  "5.1-5.3",
+  "6.1-6.3",
+  "9.1-9.3",
+  "11.1-11.3"
+ ],
+ "pendiente": []
+}

@@ -1,0 +1,231 @@
+{
+ "v": 1,
+ "libro": "Ritmo 4.º GE",
+ "curso": "4Ge",
+ "grado": "ge",
+ "n": 73,
+ "titulo": "73",
+ "titulo_estilo": {
+  "fuente": "sans",
+  "x": 49,
+  "y": 170,
+  "px": 41
+ },
+ "numeros_x": 45,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/073.png",
+ "tonalidad": "Fa# menor",
+ "modo": "menor",
+ "armadura": "A",
+ "clave": "bass",
+ "pagina": {
+  "ancho": 1680,
+  "alto": 1053,
+  "interlinea": 16.2
+ },
+ "sistemas": [
+  {
+   "y": 123,
+   "x0": 158,
+   "barras": [
+    489,
+    884,
+    1112,
+    1368,
+    1640
+   ],
+   "compases": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "y": 374,
+   "x0": 40,
+   "barras": [
+    634,
+    972,
+    1289,
+    1639
+   ],
+   "compases": [
+    5,
+    6,
+    7,
+    8
+   ]
+  },
+  {
+   "y": 626,
+   "x0": 40,
+   "barras": [
+    753,
+    1032,
+    1302,
+    1637
+   ],
+   "compases": [
+    9,
+    10,
+    11,
+    12
+   ]
+  },
+  {
+   "y": 878,
+   "x0": 40,
+   "barras": [
+    685,
+    1015,
+    1411,
+    1637
+   ],
+   "compases": [
+    13,
+    14,
+    15,
+    16
+   ],
+   "final": "fin"
+  }
+ ],
+ "compases": [
+  {
+   "c": 0,
+   "compas": "2/4",
+   "anacrusa": true,
+   "m": "^ 8.:c#3 16:c#3"
+  },
+  {
+   "c": 1,
+   "m": "v 4:f#3 | v 16:f#3 16:g#3 16:a3 16:b3 16:c#4 16:d4"
+  },
+  {
+   "c": 2,
+   "m": "v 4:c#4 | ^ 8.:c#3 16:c#3"
+  },
+  {
+   "c": 3,
+   "m": "^ 8:d3 8:b2 | v 8:a3 8:g#3 8:f#3"
+  },
+  {
+   "c": 4,
+   "m": "v 8:e#3 | ^ 8:r | ^ 8.:c#3 16:c#3"
+  },
+  {
+   "c": 5,
+   "m": "v 4:c#4 | v 16:f#3 16:g#3 16:a3 16:b3 16:c#4 16:d4"
+  },
+  {
+   "c": 6,
+   "m": "v 8:c#4 8:a3 | v 8:f#4 16:e4 16:d4"
+  },
+  {
+   "c": 7,
+   "m": "v 8:c#4 8:a3 | v 8.:b3 16:a3 8:g#3"
+  },
+  {
+   "c": 8,
+   "m": "^ 4:c#3 | ^ 16:r | v 16:c#4 16:c#4 16:b3"
+  },
+  {
+   "c": 9,
+   "m": "v 8:a#3 8:f#3 | v 16:e#3 16:f#3 16:g#3 16:a#3 16:b3 16:c#4"
+  },
+  {
+   "c": 10,
+   "m": "v 4.:d4 | v 8:b3"
+  },
+  {
+   "c": 11,
+   "m": "v 8:b3 | v 4:g#3 | v 8:e#3"
+  },
+  {
+   "c": 12,
+   "m": "^ 8:c#3~ | ^ 8:r | v 8.:c#4 16:c#4"
+  },
+  {
+   "c": 13,
+   "m": "v 4:f#3 | v 16:e#3 16:f#3 16:g#3 16:a3 16:g#3 16:e#3"
+  },
+  {
+   "c": 14,
+   "m": "v 8:f#3 8:c#3 | ^ 8.:d3 16:b2"
+  },
+  {
+   "c": 15,
+   "m": "^ 4:c#3 | v 8:c#4 16:b3 16:a3 8:g#3"
+  },
+  {
+   "c": 16,
+   "m": "v 2:f#3"
+  }
+ ],
+ "ligaduras": [
+  "0.1-1.1 arriba",
+  "1.2-2.1 arriba",
+  "2.2-3.2 abajo",
+  "3.3-4.1 arriba",
+  "4.3-4.4 abajo",
+  "5.2-6.2 arriba",
+  "6.3-7.2 arriba",
+  "7.3-8.1 arriba",
+  "8.3-9.1 arriba",
+  "9.1-9.2 arriba",
+  "9.3-12.1 arriba",
+  "12.3-13.1 arriba",
+  "13.2-14.2 arriba",
+  "14.3-15.1 abajo",
+  "15.2-16.1 arriba"
+ ],
+ "uniones": [
+  "10.2-11.1"
+ ],
+ "tresillos": [
+  {
+   "notas": "1.2-1.7",
+   "r": "6:4"
+  },
+  "3.3-3.5",
+  {
+   "notas": "5.2-5.7",
+   "r": "6:4"
+  },
+  "7.3-7.5",
+  {
+   "notas": "9.3-9.8",
+   "r": "6:4"
+  },
+  {
+   "notas": "13.2-13.7",
+   "r": "6:4"
+  },
+  "15.2-15.5"
+ ],
+ "notas_libro": [
+  {
+   "lineas": [
+    {
+     "x0": 1158,
+     "x1": 1442,
+     "y": 809,
+     "partes": [
+      "Otro tresillo irregular."
+     ]
+    }
+   ],
+   "flecha": [
+    1307,
+    815,
+    1286,
+    858
+   ]
+  }
+ ],
+ "pendiente": [
+  "Arco pequeño sobre el do#4 del c5 (ligadura que llega sin origen visible en el libro)",
+  "El texto «Otro tresillo irregular.» es gris en el libro y aquí sale en el color de las notas del libro"
+ ]
+}

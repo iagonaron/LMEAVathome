@@ -1,0 +1,44 @@
+{
+ "v": 1, "libro": "Ritmo 4.º GE", "curso": "4Ge", "grado": "ge", "n": 81, "titulo": "81",
+ "titulo_estilo": {"fuente": "sans", "x": 44, "y": 156, "px": 43},
+ "numeros_x": 45,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/081.png",
+ "tonalidad": "Sol menor", "modo": "menor", "armadura": "Bb", "clave": "treble",
+ "pagina": {"ancho": 1680, "alto": 1059, "interlinea": 16.5},
+ "sistemas": [
+  {"y": 106, "x0": 155, "barras": [401, 792, 1214, 1639], "compases": [0,1,2,3]},
+  {"y": 358, "x0": 40, "barras": [616, 1027, 1637], "compases": [4,5,6]},
+  {"y": 611, "x0": 40, "barras": [626, 1130, 1639], "compases": [7,8,9]},
+  {"y": 863, "x0": 40, "barras": [647, 1282, 1637], "compases": [10,11,12], "final": "fin"}
+ ],
+ "compases": [
+  {"c": 0, "compas": "9/8", "anacrusa": true, "m": "^ 8:d4"},
+  {"c": 1, "m": "^ 4:g4 | v 8:bb4 | ^ 8:g4 | v 4:bb4 | v 8:d5- 8:bb4-"},
+  {"c": 2, "m": "^ 4:g4 | v 8:bb4 | ^ 8:g4 | v 4:bb4 | v 16:eb5 16:d5 16:c5 16:bb4"},
+  {"c": 3, "m": "^ 4:a4 | ^ 8:r | ^ 4:f#4- | ^ 8:r | ^ 8:d4 8:e4 8:f#4"},
+  {"c": 4, "m": "^ 8:g4 8:r 8:bb4 | ^ 8:g4 8:bb4 | ^ 8:r | v 16:d5 16:c5 16:bb4 16:a4"},
+  {"c": 5, "m": "^ 4:g4 | ^ 8:r | ^ 4:eb4- | ^ 8:r | ^ 8.:c4 16:eb4 8:g4"},
+  {"c": 6, "m": "^ 8:f#4 16:f#4 16:e4 8:d4 | ^ 4.:r | ^ 16:d4 16:c#4 16:d4 16:e4 16:f#4 16:a4"},
+  {"c": 7, "m": "^ 4:g4 | ^ 16:g3 16:a3 | ^ 4:bb3 | ^ 16:bb3 16:c4 | ^ 8:d4- 8:bb3-"},
+  {"c": 8, "m": "^ 8:g3 8:g3 8:a3 | ^ 8:bb3 8:bb3 8:c4 | ^ 16:d4 16:c4 16:bb3 16:a3"},
+  {"c": 9, "m": "^ 8:g3 8:g3 8:a3 | ^ 8:bb3 8:bb3 8:c4 | ^ 16:d4 16:e4 16:f#4 16:g4"},
+  {"c": 10, "m": "^ 4:a4 | ^ 8:f#4 | ^ 4:a4 | ^ 8:f#4 | ^ 4.:d4"},
+  {"c": 11, "m": "^ 8:a4 8:f#4 | ^ 8:a4 8:f#4 | v 16:d5 16:eb5 16:d5 16:c5 16:bb4 16:a4"},
+  {"c": 12, "m": "^ 2.:g4 | ^ 4.:r"}
+ ],
+ "ligaduras": ["0.1-1.4 arriba","2.1-2.4 arriba","2.5-3.1 arriba","3.5-4.1 abajo",
+  "4.4-4.5 abajo","4.7-5.1 arriba","5.5-6.4 abajo","6.6-7.6 abajo",
+  "8.1-8.6 abajo","8.7-8.10 abajo","9.1-9.6 abajo","9.7-10.5 abajo",
+  "11.1-11.2 abajo","11.3-11.4 abajo","11.5-12.1 arriba"],
+ "tresillos": [
+  {"notas":"1.5-1.6","r":"2:3","abajo":true},
+  {"notas":"2.5-2.8","r":"4:6","abajo":true},
+  {"notas":"4.7-4.10","r":"4:6","abajo":true},
+  {"notas":"7.7-7.8","r":"2:3"},
+  {"notas":"8.7-8.10","r":"4:6"},
+  {"notas":"9.7-9.10","r":"4:6"},
+  {"notas":"11.1-11.2","r":"2:3"},
+  {"notas":"11.3-11.4","r":"2:3"}
+ ],
+ "pendiente": []
+}
