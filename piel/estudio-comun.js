@@ -21,6 +21,22 @@
 
   /* ---- dónde está la partitura y lo anotado (Ritmo / Ritmo entonado: #score + RP_ANOT; Entonación at home: #epScore) ---- */
   var ENT=false; try{ ENT=(typeof window.resolveNoteResults==='function' && !!document.getElementById('epScore')); }catch(e){}
+  window.lbColocaPads = window.lbColocaPads || function(observa){
+    var D=document, R=D.documentElement, hay=false;
+    function borde(id, lado){ var e=D.querySelector(id); if(!e) return null; var r=e.getBoundingClientRect(); if(!r.width || getComputedStyle(e).visibility==='hidden' || getComputedStyle(e).display==='none') return null; return lado==='d'?r.right:r.left; }
+    function coloca(){ var sw=D.getElementById('scoreWrap'); if(!sw) return;
+      var W=innerWidth, l=(borde('#rpAnotBar .rpv-col-l','d')||0)+10, r=W-((borde('#rpAnotBar .rpv-col-r','i')||W))+10;
+      R.style.setProperty('--lbPadL', l+'px'); R.style.setProperty('--lbPadR', r+'px');
+      sw.style.removeProperty('padding-left'); sw.style.removeProperty('padding-right');
+      var b=sw.getBoundingClientRect(), cs=getComputedStyle(sw);
+      var pl=Math.max(parseFloat(cs.paddingLeft)||0, l+80+10-b.left), pr=Math.max(parseFloat(cs.paddingRight)||0, b.right-(W-r-80-10));
+      sw.style.setProperty('padding-left', pl+'px','important'); sw.style.setProperty('padding-right', pr+'px','important'); sw.style.setProperty('box-sizing','border-box','important'); }
+    function quita(){ var sw=D.getElementById('scoreWrap'); if(sw){ sw.style.removeProperty('padding-left'); sw.style.removeProperty('padding-right'); } }
+    function mira(){ var h=!!D.querySelector('.rhythm-pads'); if(h===hay) return; hay=h; D.body.classList.toggle('lb-pads',h);
+      if(h) coloca(); else quita();
+      setTimeout(function(){ try{ window.dispatchEvent(new Event('resize')); }catch(e){} },30); }
+    if(observa){ try{ new MutationObserver(mira).observe(D.body,{childList:true,subtree:true}); }catch(e){} }
+  };
   function scoreEl(){ return document.getElementById(ENT?'epScore':'score'); }
   var _anotSt=null;
   function anotStore(){ try{ if(!ENT && typeof RP_ANOT!=='undefined' && typeof currentLesson!=='undefined') return RP_ANOT.get(currentLesson); }catch(e){} return _anotSt; }
@@ -222,17 +238,16 @@
   /* (20-nov 17:24, Iago) los pads verdes de la tablet (cuando no hay barra espaciadora) tapaban la partitura: van a los LADOS de
      la pantalla, centrados en alto, en el sitio de las columnas de anotar (que se esconden mientras tocas). */
   function pads(){
+    /* (17:41, Iago) las columnas de anotar SIGUEN a la vista en la percusión: los pads van por dentro de ellas, centrados en
+       alto, y la partitura se aparta lo justo para que no la tapen. */
     var st=document.createElement('style'); st.id='lbPadsCss';
     st.textContent='.rhythm-pads{position:fixed!important;left:0!important;top:0!important;right:0!important;bottom:0!important;z-index:60!important;pointer-events:none}'
-      +'.rhythm-pads .rpad{position:fixed!important;bottom:auto!important;top:calc(50% - 46px)!important}.rhythm-pads .rpad.l{left:10px!important}.rhythm-pads .rpad.r{right:10px!important}'
-      +'body.lb-pads #rpAnotBar,body.lb-pads #rpTonRow{visibility:hidden!important}'   /* mientras tocas, los pads ocupan el sitio de las columnas de anotar */
-      +'body.lb-pads #scoreWrap{padding-left:112px!important;padding-right:112px!important;box-sizing:border-box}';
+      +'.rhythm-pads .rpad{position:fixed!important;bottom:auto!important;top:calc(50% - 40px)!important;width:80px!important;height:80px!important}'
+      +'.rhythm-pads .rpad.l{left:var(--lbPadL,10px)!important}.rhythm-pads .rpad.r{right:var(--lbPadR,10px)!important}';
     document.head.appendChild(st);
-    var hay=false, mira=function(){ var h=!!document.querySelector('.rhythm-pads'); if(h===hay) return; hay=h; document.body.classList.toggle('lb-pads',h);
-      setTimeout(function(){ try{ window.dispatchEvent(new Event('resize')); }catch(e){} },30); };
-    try{ new MutationObserver(mira).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+    window.lbColocaPads(true);
   }
-  /* (20-nov, tareas P2 · 5 y 8) Carteles y ventanas en CRISTAL: se intuye el fondo del conservatorio (desenfocado, la lección no
+    /* (20-nov, tareas P2 · 5 y 8) Carteles y ventanas en CRISTAL: se intuye el fondo del conservatorio (desenfocado, la lección no
      se lee) en vez del negro opaco. «Iniciar estudio» centrado arriba (verde en ritmo; azul en entonación). */
   function cristal(){
     var st=document.createElement('style'); st.id='lbCristalCss';
