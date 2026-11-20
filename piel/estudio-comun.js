@@ -294,6 +294,23 @@
       return _c.call(this,t0,accent,(vol==null?1:vol)*(est?1.6:1)); };
     window.click.__lbFuerte=1;
   }
+  function azules(){
+  /* (20-nov 17:51, Iago) fase 3 de entonación: al reproducir con el acompañamiento, las notas AZULES (pistas elegidas y ayuda del
+     piano) suenan en el piano en su momento, todas igual. */
+    (function(){ if(typeof window.play!=='function' || window.play.__lbAzules) return; var _pl=window.play;
+    window.play=function(opts){
+      try{ var ph=(typeof phaseList!=='undefined' && typeof phaseIdx!=='undefined') ? phaseList[phaseIdx] : null;
+        if(opts && opts.schedule && typeof studyMode!=='undefined' && studyMode && ph && ph.kind==='entonacion' && !(typeof PR!=='undefined' && PR.on)){
+          var notas=opts.schedule.notes||[], els=(typeof collectNoteEls==='function')?collectNoteEls():[], fijas={};
+          try{ if(typeof rpPistasState==='function') fijas=rpPistasState().fijas||{}; }catch(e){}
+          var set=new Set(opts.refSet?Array.from(opts.refSet):[]), n=0;
+          notas.forEach(function(nt,i){ if(!nt || nt.tied || nt.midi==null) return; var g=els[i];
+            if((i in fijas) || (g && g.classList && g.classList.contains('rp-va'))){ set.add(nt.onsetQ); n++; } });
+          if(n){ opts.refSet=set; opts.pianoHelp='none'; }
+        } }catch(e){}
+      return _pl.apply(this,arguments); };
+    window.play.__lbAzules=1; })();
+  }
   function arranca(){
     try{ ajustes(); }catch(e){ console.warn('[estudio-comun] ajustes',e); }
     try{ octArranca(); }catch(e){ console.warn('[estudio-comun] octava',e); }
@@ -307,6 +324,7 @@
     try{ carteles(); }catch(e){ console.warn('[estudio-comun] carteles',e); }
     try{ cabezasX(); }catch(e){ console.warn('[estudio-comun] cabezasX',e); }
     try{ claquetaFuerte(); }catch(e){ console.warn('[estudio-comun] claqueta',e); }
+    try{ azules(); }catch(e){ console.warn('[estudio-comun] azules',e); }
     try{ var sb=document.getElementById('studyBtn'); if(sb){ var svg=sb.querySelector('svg'); sb.innerHTML=''; if(svg) sb.appendChild(svg); sb.appendChild(document.createTextNode(' Iniciar estudio')); } }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',arranca); else arranca();
