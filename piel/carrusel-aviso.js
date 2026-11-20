@@ -64,7 +64,7 @@
       return 'Tu carrusel ' + cuando(p.programada);
     }
     if (sinAnf(p)) return '¡El anfitrión ha cancelado!';
-    if (p.lobby_abierto) return '¡Carrusel abierto! Únete';
+    if (p.lobby_abierto) return '¡Carrusel abierto!';   /* (20-nov 18:25) + botón «Entrar al lobby» en la propia franja */
     var min = Math.round((new Date(p.programada).getTime() - Date.now()) / 6e4);
     if (min <= 1) return 'Carrusel: empieza ya';
     return 'Carrusel ' + cuando(p.programada);
@@ -105,7 +105,7 @@
       /* el cartelito: una franja por partida; la más próxima a la vista y las demás debajo, tras la flechita */
       '#lm-incid-btn{order:-6!important}' +
       '#lm-carr-aviso{order:-7;z-index:2147480400;display:inline-flex;align-items:center;gap:4px}' +
-      '.lm-fr{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;height:var(--lm-ctl,34px);padding:0 12px 0 9px;border-radius:10px;color:#fff;font:800 13px/1 inherit;font-family:inherit;letter-spacing:.01em;white-space:nowrap;max-width:390px;overflow:hidden;text-decoration:none;cursor:pointer;' +
+      '.lm-fr{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;height:var(--lm-ctl,34px);padding:0 12px 0 9px;border-radius:10px;color:#fff;font:800 13px/1 inherit;font-family:inherit;letter-spacing:.01em;white-space:nowrap;max-width:470px;overflow:hidden;text-decoration:none;cursor:pointer;' +
       'background:#140f33;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);text-shadow:0 1px 6px rgba(0,0,0,.55);border:0;position:relative;isolation:isolate}' +
       '.lm-fr > svg,.lm-fr > span:not(.cl){position:relative;z-index:1}' +
       '.lm-fr::after,#lm-carr-btn::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);pointer-events:none;z-index:2}' +
@@ -134,6 +134,7 @@
       '#lm-iconos>#lm-carr-btn{order:0!important}' +
       /* monigotes de confirmados (en la franja del anfitrión) */
       '.lm-fr .nap{font-weight:800;margin-left:2px;white-space:nowrap}' +
+      '.lm-fr .ent{background:#fff;color:#14112b;border-radius:6px;padding:5px 9px;font-weight:900;margin-left:3px;white-space:nowrap}' +
       '.lm-fr .mon{display:inline-flex;align-items:center;gap:6px;margin-left:4px}.lm-fr .mon .m{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}.lm-fr .mon svg{width:13px;height:13px;flex:none}.lm-fr .mon b{font-weight:600;font-size:10px;opacity:.92}.lm-fr .mon i{font-style:normal;font-size:11px;margin-left:2px}' +
       /* la ventana emergente: la portada de PreDict Carrusel (remolino multicolor, cristal oscuro, botones blancos) */
       '#lm-carr-pan{position:fixed;inset:0;z-index:2147480500;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:rgba(3,6,12,.62);font-family:"Helvetica Neue",Arial,system-ui,sans-serif;color:#fff}' +
@@ -213,11 +214,17 @@
   /* ---- cartelito ---- */
   /* (20-nov-2026 18:14, Iago) en la franja del anfitrión, que se vea claro que ya tiene gente: «· 3 apuntados» + sus monigotes */
   function apuntadosTxt(p) { var n = Math.max(0, (p.apuntados || 0) - 1); return n ? '<span class="nap">· ' + n + (n === 1 ? ' apuntado' : ' apuntados') + '</span>' : ''; }
+  /* en la franja, un monigote por apuntado (sin nombres, para que quepa; los nombres, al pasar el ratón) */
+  function monisFranja(n, nombres) {
+    if (n <= 0) return ''; var t = '', max = 6;
+    for (var i = 0; i < Math.min(n, max); i++) t += '<span class="m">' + I_PER + '</span>';
+    return '<span class="mon" title="' + esc((nombres || []).join(', ')) + '">' + t + (n > max ? '<i>+' + (n - max) + '</i>' : '') + '</span>';
+  }
   function franja(p) {
     var f = document.createElement('button'); f.type = 'button';
     f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '') + (sinAnf(p) ? ' alerta' : '');
     f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : NOMBRE + ' · partida de ' + (p.creador || '');
-    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (sinAnf(p) ? '<b class="ex">!</b>' : (p.soy_creador ? CORONA : ESP)) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? apuntadosTxt(p) + monigotes(Math.max(0, (p.apuntados || 0) - 1), p.confirmados, 3) : '');
+    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (sinAnf(p) ? '<b class="ex">!</b>' : (p.soy_creador ? CORONA : ESP)) + '<span>' + esc(texto(p)) + '</span>' + (p.lobby_abierto ? '<span class="ent">Entrar al lobby</span>' : (p.soy_creador ? apuntadosTxt(p) + monisFranja(Math.max(0, (p.apuntados || 0) - 1), p.confirmados) : ''));
     f.onclick = function (e) {
       e.stopPropagation();
       if (p.lobby_abierto) abrirCarrusel(p.id, !(p.soy_creador || p.yo_dentro));
@@ -425,11 +432,11 @@
   function filaPartida(p) {
     var mia = soyAnf(p), cancelada = p.soy_creador && p.anfitrion_cancelo && !mia, conf = Math.max(0, (p.apuntados || 0) - 1);
     var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
-    var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora' : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
+    var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora · empieza a las ' + esc(new Date(p.programada).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })) : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
     var otros = Math.max(0, (p.apuntados || 0) - 1);
     var gente = mia ? (conf ? monigotes(conf, p.confirmados, 8) : 'sin confirmados todavía') : (otros ? monigotes(otros, p.confirmados, 8) : 'nadie apuntado todavía');
     var bs, aviso = '';
-    if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Unirme</button>';
+    if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Entrar al lobby</button>';
     else if (cancelada) bs = '<span class="c">La cancelaste</span>';
     else if (mia) bs = '<button class="bt ko" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
     else if (sinAnf(p)) {
