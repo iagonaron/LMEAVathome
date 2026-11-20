@@ -1,0 +1,32 @@
+{
+ "v": 1,
+ "libro": "Ritmo 4.º GE",
+ "curso": "4Ge",
+ "grado": "ge",
+ "n": 108,
+ "titulo": "108",
+ "titulo_estilo": {"fuente": "sans", "x": 45, "y": 167, "px": 44},
+ "numeros_x": 44,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/108.png",
+ "tonalidad": "Si menor",
+ "modo": "menor",
+ "armadura": "D",
+ "clave": "treble",
+ "pagina": {"ancho": 1680, "alto": 544, "interlinea": 16.4},
+ "sistemas": [
+  {"y": 124, "x0": 151, "barras": [602, 935, 1327, 1640], "compases": [1,2,3,4], "numero": null},
+  {"y": 376, "x0": 35, "barras": [585, 1063, 1427, 1635], "compases": [5,6,7,8], "final": "fin"}
+ ],
+ "compases": [
+  {"c": 1, "compas": "6/8", "barra_fin": "doble", "m": "v 8:b4 16:d5 16:c#5 16:b4 16:a#4 | v 8:b4 | ^ 4:f#4"},
+  {"c": 2, "m": "v 16:b4 8:d5 16:c#5 16:b4 16:d5 | v 4.:c#5"},
+  {"c": 3, "m": "v 16:e5 8:d5 16:e5 16:d5 16:c#5 | ^ 16:b4 8:g4 16:b4 16:a#4 16:b4"},
+  {"c": 4, "m": "v 4.:c#5 | v 16:r | v 16:e5 16:d5 16:e5 16:d5 16:c#5"},
+  {"c": 5, "m": "v 16:b4 8:d5 16:c#5 16:b4 16:a#4 | v 8:b4 | v 4:f#5>"},
+  {"c": 6, "m": "v 8:g5! 16:f#5 16:g5 16:f#5 16:e5 8:d5 16:e5 16:d5 16:c#5 16:b4"},
+  {"c": 7, "m": "v 4.:c#5 | v 16:e5 8:f#5 16:e5 16:d5 16:c#5"},
+  {"c": 8, "m": "v 2.:b4"}
+ ],
+ "ligaduras": ["1.1-1.7 arriba","2.1-2.6 arriba","3.1-4.1 arriba","4.3-4.7 arriba","5.1-5.6 arriba","6.2-6.6 arriba","6.7-7.1 arriba","7.2-8.1 arriba"],
+ "pendiente": ["Doble barra separada tras el compás 1 (en el libro dos barras finas a ~50 px) dibujada como doble normal."]
+}

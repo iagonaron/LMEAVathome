@@ -1,0 +1,236 @@
+{
+ "v": 1,
+ "libro": "Ritmo 4.º GE",
+ "curso": "4Ge",
+ "grado": "ge",
+ "n": 148,
+ "titulo": "148",
+ "titulo_estilo": {
+  "fuente": "sans",
+  "x": 42,
+  "y": 167,
+  "px": 44
+ },
+ "numeros_x": 44,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/148.png",
+ "tonalidad": "Sol menor",
+ "modo": "menor",
+ "armadura": "Bb",
+ "clave": "treble",
+ "pagina": {
+  "ancho": 1680,
+  "alto": 1059,
+  "interlinea": 16.5
+ },
+ "sistemas": [
+  {
+   "y": 134,
+   "x0": 152,
+   "barras": [
+    651,
+    1004,
+    1334,
+    1639
+   ],
+   "compases": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "numero": null
+  },
+  {
+   "y": 386,
+   "x0": 34,
+   "barras": [
+    465,
+    773,
+    1080,
+    1378,
+    1638
+   ],
+   "compases": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ]
+  },
+  {
+   "y": 638,
+   "x0": 34,
+   "barras": [
+    495,
+    802,
+    1239,
+    1633
+   ],
+   "compases": [
+    10,
+    11,
+    12,
+    13
+   ]
+  },
+  {
+   "y": 898,
+   "x0": 34,
+   "barras": [
+    540,
+    911,
+    1300,
+    1635
+   ],
+   "compases": [
+    14,
+    15,
+    16,
+    17
+   ],
+   "final": "fin"
+  }
+ ],
+ "compases": [
+  {
+   "c": 1,
+   "compas": "5/8",
+   "m": "^ 8:g4 8:a4 8:bb4 | ^ 4:g4"
+  },
+  {
+   "c": 2,
+   "m": "^ 8:g4 8:a4 8:bb4 | v 8:d5 | 8:r"
+  },
+  {
+   "c": 3,
+   "m": "v 4:c5 | v 8:d5 | v 8:eb5 8:c5"
+  },
+  {
+   "c": 4,
+   "m": "v 4:bb4 | 8:r | v 4:d5>"
+  },
+  {
+   "c": 5,
+   "m": "^ 8:g4 8:r 8:bb4 | ^ 8:g4 8:bb4"
+  },
+  {
+   "c": 6,
+   "m": "v 8:eb5 8:d5 8:c5 | 8:r | v 8:eb5"
+  },
+  {
+   "c": 7,
+   "m": "v 8:d5 8:c5 8:bb4 | 8:r | v 8:d5"
+  },
+  {
+   "c": 8,
+   "barra_fin": "repeticion",
+   "m": "^ 4.:a4 | 8:r | ^ 8:d4"
+  },
+  {
+   "c": 9,
+   "m": "^ 4.:a4 | ^ 8:g4 8:a4"
+  },
+  {
+   "c": 10,
+   "barra_ini": "repeticion",
+   "m": "v 4.:bb4 | 4:r"
+  },
+  {
+   "c": 11,
+   "m": "v 4.:c5- | 4:r"
+  },
+  {
+   "c": 12,
+   "m": "^ 8:a4 8:g4 8:f#4 | 8:r | ^ 8:a4"
+  },
+  {
+   "c": 13,
+   "barra_fin": "repeticion",
+   "m": "v 8:bb4 | 4:r | ^ 8:g4 8:a4"
+  },
+  {
+   "c": 14,
+   "m": "v 4:bb4 | v 8:eb5 | v 4:bb4"
+  },
+  {
+   "c": 15,
+   "m": "4.:r | v 8:c5 8:a4"
+  },
+  {
+   "c": 16,
+   "m": "4.:r | 8:r | ^ 8:d4"
+  },
+  {
+   "c": 17,
+   "m": "^ 4.:g4 | ^ 4:g4>!"
+  }
+ ],
+ "casillas": [
+  {
+   "compases": [
+    8
+   ],
+   "texto": "1."
+  },
+  {
+   "compases": [
+    9
+   ],
+   "texto": "2."
+  }
+ ],
+ "ligaduras": [
+  "1.1-1.4 abajo",
+  "2.1-2.4 arriba",
+  "3.1-4.1 arriba",
+  "4.3-5.1 arriba",
+  "5.3-5.5 abajo",
+  "6.1-6.3 arriba",
+  "6.5-7.3 arriba",
+  "7.5-8.1 arriba",
+  "9.2-10.1 arriba",
+  "12.1-12.3 abajo",
+  "12.5-13.1 arriba",
+  "13.3-13.4 arriba",
+  "14.1-14.3 arriba",
+  "15.2-15.3 arriba",
+  "16.3-17.1 abajo"
+ ],
+ "notas_libro": [
+  {
+   "lineas": [
+    {
+     "x0": 236,
+     "x1": 244,
+     "y": 96,
+     "partes": [
+      "("
+     ]
+    },
+    {
+     "x0": 289,
+     "x1": 298,
+     "y": 96,
+     "partes": [
+      ")"
+     ]
+    }
+   ],
+   "ritmos": [
+    {
+     "figs": "4. 4",
+     "xs": [
+      255,
+      277
+     ],
+     "y": 88,
+     "yb": 43
+    }
+   ]
+  }
+ ],
+ "pendiente": [
+  "Ligadura corta bajo re4 del c.8 (1.ª vez) hacia la repetición: no representable, omitida."
+ ]
+}
