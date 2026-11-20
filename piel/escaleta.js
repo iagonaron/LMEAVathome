@@ -1951,6 +1951,11 @@
     if (!PORTAL) return null;
     var t = String(b.t || ''), s = String(b.s || ''), m, el;
     if (b.vid) return { t: b.vid.tema ? 'Abrir ' + String(b.vid.t).split(' · ')[0] : '▶ ' + b.vid.t, fn: function () { abrirVideo(b.vid); } };
+    /* (20-nov 15:46, Iago) evaluación de ritmo / ritmo entonado: «Abrir» lleva a las lecciones en digital, solo para mirar, con los apuntes de clase de ese grupo */
+    if ((t === 'Evaluación de ritmo' || t === 'Evaluación') && W.LMLibroDigital && W.LMLibroDigital.abreEvaluar) {
+      var nEv = W.LMLibroDigital.digitales((b.lecs && b.lecs.length) ? b.lecs : (s.match(/\d+/g) || []));
+      if (nEv.length) return { t: 'Abrir ' + (nEv.length > 1 ? 'las lecciones ' : 'la lección ') + listaY(nEv), fn: function () { W.LMLibroDigital.abreEvaluar(nEv); } };
+    }
     if (b.lecs && b.lecs.length && $('alu-campana-btn')) return { t: 'Abrir la lección ' + listaY(b.lecs), fn: function () { leccionIr(b.lecs); } };
     if (t === 'Ritmo' && (m = /^Carta\s+(\d+(?:\.\d+)?)/.exec(s))) {
       el = D.querySelector('#ri-mini .da-btn[data-carta="' + m[1] + '"]');

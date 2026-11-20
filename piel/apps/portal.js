@@ -265,6 +265,9 @@
         ops.push({ t: 'Ver intro activa · ' + carta + (curso ? ' · ' + curso : ''), s: nombre, fn: function () { pulsa(x); } });
       });
       else ops.push({ t: 'Sin intro activa esta semana', off: true });
+      /* (20-nov 15:54, Iago) tercera opción: las lecciones a evaluar, sin pasar por la escaleta */
+      try { var LD = window.LMLibroDigital, ev = (LD && LD.aEvaluar) ? LD.aEvaluar() : [];
+        if (ev.length) ops.push({ t: 'Lecciones a evaluar', s: 'Lección ' + ev.join(' · '), fn: function () { LD.abreEvaluar(ev); } }); } catch (e) {}
       var rr = q('#rs-mini .rs-btn.verde') || q('#rs-mini .rs-btn.violeta');
       if (rr) ops.push({ t: 'Resultados', s: GP ? 'Ritmo entonado · pantalla de corrección' : 'Pantalla de corrección de ritmo', fn: function () { pulsa(q('#rs-mini .rs-btn.verde') || q('#rs-mini .rs-btn.violeta')); } });
       abrirMenu(b, ops);

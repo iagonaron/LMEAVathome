@@ -55,5 +55,17 @@
     try{ if(typeof alAbrir==='function') alAbrir(); }catch(e){}
     return true;
   }
-  window.LMLibroDigital = { abre:abre, url:url, DIGITAL:DIGITAL };
+  /* (20-nov 16:30, Iago) LECCIONES A EVALUAR: en la clase de evaluación, las lecciones de ritmo (GE) o ritmo entonado (GP) a
+     pantalla completa, solo para mirar, con los apuntes que Iago hizo en clase con ESE grupo; un botón por lección abajo. */
+  function digitales(nums){ var d=DIGITAL[portal()]; return (nums||[]).map(function(x){ return parseInt(x,10); }).filter(function(n,i,a){ return n>0 && a.indexOf(n)===i && d && d.n.indexOf(n)>=0; }); }
+  function abreEvaluar(nums){ nums=digitales(nums); if(!nums.length) return false;
+    var s=ses(), d=DIGITAL[portal()];
+    var u=d.base+nums[0]+'&evaluar='+nums.join(',')+(s&&s.id?'&cuenta='+encodeURIComponent(s.id):'');
+    var real=url; url=function(){ return u; }; try{ return abre(null,'leccion_'+nums[0],'Lecciones a evaluar'); } finally { url=real; } }
+  function aEvaluar(){ var out=[];
+    try{ var E=window.LMEscaleta; if(E && E.vista && E.formatea){ var v=E.vista(); (v.bloques||[]).forEach(function(b){ var f=E.formatea(b, v.grupo)||{};
+        if(/^Evaluaci/.test(f.t||'')){ var L=(b.lecs&&b.lecs.length)?b.lecs:(String(f.s||'').match(/\d+/g)||[]); L.forEach(function(n){ out.push(parseInt(n,10)); }); } }); } }catch(e){}
+    if(!out.length){ try{ document.querySelectorAll('[data-parte^="leccion_"]').forEach(function(el){ var n=numDe(el.getAttribute('data-parte')); if(n) out.push(n); }); }catch(e){} }
+    return digitales(out); }
+  window.LMLibroDigital = { abre:abre, url:url, DIGITAL:DIGITAL, abreEvaluar:abreEvaluar, aEvaluar:aEvaluar, digitales:digitales };
 })();
