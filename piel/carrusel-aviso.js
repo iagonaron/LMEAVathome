@@ -28,7 +28,7 @@
   /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 17:30 (antes 19:00; cambiado el 20-nov 08:40). El servidor también lo
      impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
   var ABRE = GP ? Date.parse('2026-11-24T20:00:00+01:00') : Date.parse('2026-11-20T17:30:00+01:00'), ABRE_TXT = GP ? 'el martes 24 de noviembre a las 20:00' : 'hoy viernes a las 17:30';
-  var VIDEO_URL = '';   /* vídeo retirado hasta que Iago apruebe las pantallas (19-nov 15:25); estaba en piel/carrusel/carrusel-online-ge.mp4 */
+  var VIDEO_URL = GP ? '' : 'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge.mp4?v=4';   /* (20-nov-2026 12:58, Iago) el tráiler v4, con un botón discreto «Ver vídeo» */
 
   function ses() { try { return JSON.parse(localStorage.getItem(SESION) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
@@ -143,7 +143,7 @@
       '#lm-carr-pan .tt .pro{font-family:"Helvetica Neue",Arial,sans-serif;font-weight:900;letter-spacing:.05em;font-size:26px;margin:0 6px 0 4px;background:linear-gradient(180deg,#fff3c2,#f5d061 45%,#c99a1e);-webkit-background-clip:text;background-clip:text;color:transparent}' +
       '#lm-carr-pan .tt .car{font-size:40px;font-style:normal;font-weight:700;transform:none;padding:0 .02em;letter-spacing:-.01em}#lm-carr-pan .meg{display:inline-flex;vertical-align:-3px;margin-left:7px}#lm-carr-pan .meg svg{width:19px;height:19px}#lm-carr-pan .card .row:has(.fh){flex-wrap:nowrap}#lm-carr-pan .fh{flex:1;min-width:0}#lm-carr-pan .fh input{width:100%;min-width:0;box-sizing:border-box}#lm-carr-pan .card .row:has(.fh) .bt{flex:none}#lm-carr-pan .onl{font-size:38px;font-weight:300;color:#e2ddff;letter-spacing:-.02em}' +   /* (19-nov 21:46, Iago) «Carrusel Online», ya no PreDict */
       '#lm-carr-pan .kick{margin-top:10px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f1eeff}' +
-      '#lm-carr-pan .x.vv + .x{margin-left:8px}#lm-carr-pan .x svg.sv{width:16px;height:16px}#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
+      '#lm-carr-pan .vv{margin-left:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 13px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);color:rgba(255,255,255,.88);font:800 13px/1 inherit;font-family:inherit;cursor:pointer}#lm-carr-pan .vv:hover{background:rgba(255,255,255,.14);color:#fff}#lm-carr-pan .vv svg.sv{width:14px;height:14px}#lm-carr-pan .vv + .x{margin-left:8px}#lm-carr-pan .x svg.sv{width:16px;height:16px}#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
       '#lm-carr-pan .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}' +
       '#lm-carr-pan .card{background:rgba(14,10,42,.74);border:1.5px solid rgba(255,255,255,.24);border-radius:14px;padding:18px 20px;}' +
       '#lm-carr-pan h2{margin:0 0 10px;font-size:14px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}' +
@@ -432,7 +432,7 @@
     var sc = PAN.querySelector('.caja'), top = sc ? sc.scrollTop : 0;
     PAN.innerHTML = '<div class="marco"><div class="cl"><div class="gi"><div class="fx"></div></div></div><div class="caja">' +
       '<div class="top"><div class="lg">' + LOGO + '</div><div><div class="tt"><span class="car">Carrusel</span>' + (GP ? '<span class="pro">PRO</span>' : '') + '<span class="onl">Online</span></div><div class="kick">' + (GP ? 'Grado Profesional' : 'Grado Elemental') + '</div></div>' +
-      (!cerrado() && VIDEO_URL ? '<button class="x vv" type="button" title="Ver el vídeo">' + I_PLAY + '</button>' : '') + '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
+      (!cerrado() && VIDEO_URL ? '<button class="vv" type="button" title="Ver el vídeo de presentación">' + I_PLAY + (VID ? 'Ocultar vídeo' : 'Ver vídeo') + '</button>' : '') + '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (VID && !cerrado() ? '<div class="card" style="margin-bottom:14px">' + videoHTML(VIDEO_URL) + '</div>' : '') +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
 (cerrado() ? '<div class="card"><h2>Muy pronto</h2><p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) + '</div>' : 
@@ -444,7 +444,7 @@
       '</div></div>';
     var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
     PAN.querySelector('.x:not(.vv)').onclick = cerrarPanel;
-    var vv = PAN.querySelector('.x.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
+    var vv = PAN.querySelector('.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
     PAN.querySelector('#lm-carr-fh').onclick = function () { lmSelFecha(HORA, function (v) { var hh = PAN.querySelector('#lm-carr-hora'); if (hh) hh.value = v; HORA = v; pintaPanel(); }); };   /* (20-nov, Iago) selector propio: el mismo en todos los navegadores */
