@@ -207,6 +207,18 @@
             a.textContent='✋ Marca el pulso con la mano'; if(getComputedStyle(ov).position==='static') ov.style.position='fixed'; ov.appendChild(a); } }catch(e){}
         return r; }; }
   }
+
+  /* (16:21, Iago) al empezar el estudio, la página vuelve arriba: si estaba bajada, con el «sin scroll» se quedaban ocultos el reloj y las fases */
+  function arriba(){
+    var sube=function(){ try{ window.scrollTo(0,0); document.documentElement.scrollTop=0; document.body.scrollTop=0; }catch(e){} };
+    ['openStudy','openAccompaniment','showPhase','rpEncaja'].forEach(function(fn){ if(typeof window[fn]==='function'){ var o=window[fn]; window[fn]=function(){ sube(); var r=o.apply(this,arguments); sube(); setTimeout(sube,60); return r; }; } });
+    /* (16:21, Iago) a los alumnos solo «Iniciar estudio»: «Prueba directa» y el dado, solo en las cuentas de Iago */
+    if(!ENT && document.getElementById('studyBtn')){
+      var st=document.createElement('style'); st.textContent='body:not(.lb-profe) #accompBtn,body:not(.lb-profe) #genBtn{display:none!important}'; document.head.appendChild(st);
+      var mira=function(){ try{ if(typeof rpEsTesterCuenta==='function' && rpEsTesterCuenta()) document.body.classList.add('lb-profe'); }catch(e){} };
+      mira(); setTimeout(mira,1500); setTimeout(mira,4000);
+    }
+  }
   function arranca(){
     try{ ajustes(); }catch(e){ console.warn('[estudio-comun] ajustes',e); }
     try{ octArranca(); }catch(e){ console.warn('[estudio-comun] octava',e); }
@@ -214,6 +226,7 @@
     try{ resultado(); }catch(e){ console.warn('[estudio-comun] resultado',e); }
     try{ mano(); }catch(e){ console.warn('[estudio-comun] mano',e); }
     try{ entonacion(); }catch(e){ console.warn('[estudio-comun] entonación',e); }
+    try{ arriba(); }catch(e){ console.warn('[estudio-comun] arriba',e); }
     try{ var sb=document.getElementById('studyBtn'); if(sb){ var svg=sb.querySelector('svg'); sb.innerHTML=''; if(svg) sb.appendChild(svg); sb.appendChild(document.createTextNode(' Iniciar estudio')); } }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',arranca); else arranca();
