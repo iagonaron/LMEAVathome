@@ -17,6 +17,7 @@
   'use strict';
   if (window.__lmCarrAviso) return; window.__lmCarrAviso = 1;
   var GP = /(^|\.)gp\.lmathome\.es$/i.test(location.hostname) || /lmpro/i.test(location.pathname);
+  var MI_SRC = (document.currentScript && document.currentScript.src) || '';   /* (20-nov 23:10) para cargar avatar3.js de la misma carpeta */
   /* (20-nov-2026, C1) también en el portal GP: «Carrusel PRO Online» (se abre el martes 24-nov a las 20:00) */
   var NOMBRE = GP ? 'Carrusel PRO Online' : 'Carrusel Online', SESION = GP ? 'lmpro_session' : 'lmeav_session';
   /* (20-nov-2026 20:36, Iago) en GP el botón ya lo ven todos, con «Disponible a partir del martes 24 a las 20:00»; se abre solo
@@ -58,7 +59,10 @@
     var dia = dd === 0 ? 'hoy' : dd === 1 ? 'mañana' : (dd > 6 ? 'el ' + d.getDate() + '/' + (d.getMonth() + 1) : 'el ' + d.toLocaleDateString('es-ES', { weekday: 'long' }));
     return dia + ' a las ' + hh;
   }
-  function confirmados(p) { var n = Math.max(0, (p.apuntados || 0) - 1); return n === 0 ? 'sin confirmados' : n + (n === 1 ? ' confirmado' : ' confirmados'); }
+  /* (20-nov 23:08, Iago) «son 4 jugadores realmente»: el anfitrión cuenta y su monigote también sale (el primero) */
+  function jugadores(p) { return Math.max(1, p.apuntados || 0); }
+  function nombresJug(p) { var an = p.anfitrion || p.creador, l = (p.confirmados || []).slice(); if (an && l.indexOf(an) < 0) l.unshift(an); return l; }
+  function confirmados(p) { var n = jugadores(p); return n + (n === 1 ? ' jugador' : ' jugadores'); }
   function texto(p) {
     if (p.soy_creador) {
       if (p.lobby_abierto) return '¡Tu carrusel está abierto!';
@@ -166,6 +170,11 @@
       '#lm-carr-pan .vv{margin-left:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 13px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);color:rgba(255,255,255,.88);font:800 13px/1 inherit;font-family:inherit;cursor:pointer}#lm-carr-pan .vv:hover{background:rgba(255,255,255,.14);color:#fff}#lm-carr-pan .vv svg.sv{width:14px;height:14px}#lm-carr-pan .vv + .x{margin-left:8px}#lm-carr-pan .x svg.sv{width:16px;height:16px}#lm-carr-pan .x{margin-left:auto;align-self:flex-start;width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.45);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
       '#lm-carr-pan .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}' +
       '#lm-carr-pan .card{background:rgba(14,10,42,.74);border:1.5px solid rgba(255,255,255,.24);border-radius:14px;padding:18px 20px;}' +
+      /* (20-nov 23:10, Iago) «Tu avatar»: 25 % abajo a la derecha, cuadrado */
+      '#lm-carr-pan .fila2{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);gap:14px;align-items:start}#lm-carr-pan .fila2>.card{min-width:0;box-sizing:border-box}' +
+      '#lm-carr-pan .card.yo{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;width:100%;aspect-ratio:1/1;padding:12px;text-align:center;overflow:hidden}' +
+      '#lm-carr-pan .card.yo h2{align-self:flex-start;margin:0}#lm-carr-pan .card.yo .avw{flex:1 1 0;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}#lm-carr-pan .card.yo .avw svg{height:100%;width:auto;max-width:100%;max-height:160px;display:block}' +
+      '#lm-carr-pan .card.yo .nm{font-weight:800;font-size:15px}#lm-carr-pan .card.yo .bt{padding:7px 11px;font-size:13.5px}#lm-carr-pan .card.yo .cg{color:rgba(255,255,255,.55);font-size:13px}' +
       '#lm-carr-pan h2{margin:0 0 10px;font-size:14px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}' +
       '#lm-carr-pan h2::after{content:"";display:block;width:36px;height:2px;margin-top:7px;background:linear-gradient(90deg,#5bd0ff,#ffd23f,#ff9a3c,#bd92ff)}' +
       '#lm-carr-pan p{margin:0 0 12px;color:#d9d3ff;font-size:15px;line-height:1.4}#lm-carr-pan p b{color:#fff}' +
@@ -232,7 +241,7 @@
 
   /* ---- cartelito ---- */
   /* (20-nov-2026 18:14, Iago) en la franja del anfitrión, que se vea claro que ya tiene gente: «· 3 apuntados» + sus monigotes */
-  function apuntadosTxt(p) { var n = Math.max(0, (p.apuntados || 0) - 1); return n ? '<span class="nap">· ' + n + (n === 1 ? ' apuntado' : ' apuntados') + '</span>' : ''; }
+  function apuntadosTxt(p) { var n = jugadores(p); return '<span class="nap">· ' + n + (n === 1 ? ' jugador' : ' jugadores') + '</span>'; }
   /* en la franja, un monigote por apuntado (sin nombres, para que quepa; los nombres, al pasar el ratón) */
   function monisFranja(n, nombres) {
     if (n <= 0) return ''; var t = '', max = 6;
@@ -242,8 +251,8 @@
   /* (20-nov-2026 20:55, Iago) franja más compacta: un solo monigote con el número de apuntados en un globito arriba a la
      derecha (dentro de la franja); lo ve el anfitrión y también los que se han apuntado. Nombres al pasar el ratón. */
   function numFranja(p) {
-    var n = Math.max(0, (p.apuntados || 0) - 1); if (!n) return '';
-    return '<span class="num" title="' + esc(n + (n === 1 ? ' apuntado' : ' apuntados') + ((p.confirmados || []).length ? ': ' + p.confirmados.join(', ') : '')) + '">' + I_PER + '<b>' + n + '</b></span>';
+    var n = jugadores(p), l = nombresJug(p);
+    return '<span class="num" title="' + esc(n + (n === 1 ? ' jugador' : ' jugadores') + (l.length ? ': ' + l.join(', ') : '')) + '">' + I_PER + '<b>' + n + '</b></span>';
   }
   function franja(p) {
     var f = document.createElement('button'); f.type = 'button';
@@ -459,7 +468,7 @@
     var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
     var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora · empieza a las ' + esc(new Date(p.programada).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })) : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
     var otros = Math.max(0, (p.apuntados || 0) - 1);
-    var gente = mia ? (conf ? monigotes(conf, p.confirmados, 8) : 'sin confirmados todavía') : (otros ? monigotes(otros, p.confirmados, 8) : 'nadie apuntado todavía');
+    var gente = monigotes(jugadores(p), nombresJug(p), 8);   /* (23:08) con el anfitrión */
     var bs, aviso = '';
     if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Entrar al lobby</button>';
     else if (cancelada) bs = '<span class="c">La cancelaste</span>';
@@ -492,11 +501,13 @@
       '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p>Elige día y hora. <b>Serás el anfitrión</b><span class="meg">' + I_CAL + '</span></p>' +
       '<div class="row"><button type="button" class="fh' + (HORA ? '' : ' vacio') + '" id="lm-carr-fh"><input type="hidden" id="lm-carr-hora" value="' + esc(HORA) + '"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2.5\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg><span class="ph">Elige día y hora</span><span class="vl">' + esc(lmfTexto(HORA)) + '</span></button><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
       '<div class="card"><h2>Partida individual</h2><p>Empieza una partida tú solo, ahora mismo.</p><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div></div>' +
-      '<div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>') +
+      '<div class="fila2"><div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>' +
+      '<div class="card yo" id="lm-carr-yo">' + yoHTML() + '</div></div>') +
       (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + rojo(esc(CONF.x)) + (CONF.d ? '</p><p class="disp">' + I_DISP + '<span>' + esc(CONF.d) + '</span>' : '') + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
       '</div></div>';
     var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
     PAN.querySelector('.x:not(.vv)').onclick = cerrarPanel;
+    var pe = PAN.querySelector('#lm-carr-pers'); if (pe) pe.onclick = abreEditor;
     var vv = PAN.querySelector('.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
@@ -573,6 +584,31 @@
       PAN.querySelector('#lm-c-no').onclick = function () { fin(false); };
     });
   }
+  /* ---- (20-nov 23:10, Iago) tu avatar en la ventana del carrusel: vivo, con tu instrumento y «Personalizar» ---- */
+  var MIAV = null, AVCARGA = null;
+  function cargaAv() {
+    if (AVCARGA) return AVCARGA;
+    AVCARGA = new Promise(function (res) {
+      if (window.AV3) return res();
+      var sc = document.createElement('script'); sc.src = (MI_SRC ? MI_SRC.replace(/carrusel-aviso\.js.*$/, '') : '/piel/') + 'avatar3.js?v=20261120a';
+      sc.onload = function () { res(); }; sc.onerror = function () { res(); }; document.head.appendChild(sc);
+    }).then(async function () { var c = cuenta(); if (!c) return; var r = await rpcA('suite_cr_mi_avatar', { p_cuenta: c.id }); if (r && r.ok) MIAV = r; });
+    return AVCARGA;
+  }
+  function yoHTML() {
+    if (!window.AV3 || !MIAV) return '<h2>Tu avatar</h2><div class="cg">Cargando…</div>';
+    var c = cuenta() || {}, ins = (window.AV_INSTR && AV_INSTR[MIAV.ins]) || null;
+    var svg = MIAV.profe ? avatarProfeSimple('sonrisa') : AV3.render(MIAV.cfg || AV3.porDefecto(c.id), { ins: ins, vivoFondo: true });
+    return '<h2>Tu avatar</h2><div class="avw">' + svg + '</div><div class="nm">' + esc(String(MIAV.nombre || '').split(' ')[0]) + '</div>' +
+      (MIAV.profe ? '' : '<button type="button" class="bt" id="lm-carr-pers">✏️ Personalizar</button>');
+  }
+  function abreEditor() {
+    var c = cuenta(); if (!c || !window.AV3 || !MIAV) return;
+    AV3.editor({ cfg: MIAV.cfg || AV3.porDefecto(c.id), nombre: MIAV.nombre || '', ins: (window.AV_INSTR && AV_INSTR[MIAV.ins]) || null,
+      onGuardar: async function (cfg) { var r = await rpcA('suite_cr_avatar_guardar', { p_cuenta: c.id, p_cfg: cfg });
+        if (r && r.ok) { MIAV.cfg = r.cfg; try { localStorage.setItem('co_avatar', JSON.stringify(r.cfg)); } catch (e) {} pintaPanel(); return true; }
+        return false; } });
+  }
   function abrirPanel() {
     css();
     if (!PAN) {
@@ -580,6 +616,7 @@
       PAN.addEventListener('click', function (e) { if (e.target === PAN && !CONF) cerrarPanel(); });
     }
     PAN.hidden = false; CONF = null; MSG = ''; VID = false; pintaPanel(); marcaVistas();
+    cargaAv().then(function () { if (PAN && !PAN.hidden) pintaPanel(); });
     var b = document.getElementById('lm-carr-btn'); if (b) b.classList.add('abierto');
     refrescar();
   }
@@ -665,7 +702,7 @@
     var otros = Math.max(0, (p.apuntados || 0) - 1);
     return '<div class="pc"><div class="cu">' + esc(cuando(p.programada).replace(/^./, function (c) { return c.toUpperCase(); })) + '</div>' +
       '<div class="an">' + CORONA + esc(p.anfitrion || p.creador || '') + ' <small>' + esc(grupoTxt(p.grupo)) + '</small></div>' +
-      (otros ? monigotes(otros, p.confirmados, 12) : '<div class="na">Nadie apuntado todavía</div>') + '</div>';
+      monigotes(jugadores(p), nombresJug(p), 12) + '</div>';
   }
   function pintaClase(el, curso) {
     var L = CLASE.lista.filter(function (p) { return !p.anfitrion_cancelo; });
