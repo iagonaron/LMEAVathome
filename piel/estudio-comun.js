@@ -287,6 +287,13 @@
     /* el círculo de antes (contorno #15324a) ya no hace falta */
     try{ var S=VF.SVGContext&&VF.SVGContext.prototype; if(S && S.arc){ var _a=S.arc; S.arc=function(){ try{ if(this.attributes && String(this.attributes.stroke).toLowerCase()==='#15324a' && String(this.attributes['stroke-width'])==='1.7') return this; }catch(e){} return _a.apply(this,arguments); }; } }catch(e){}
   }
+  /* (20-nov 17:44, Iago) claqueta (pulso y subdivisión) más fuerte en las fases de estudio: «le he tenido que subir el altavoz al máximo» */
+  function claquetaFuerte(){
+    if(typeof window.click!=='function' || window.click.__lbFuerte) return; var _c=window.click;
+    window.click=function(t0,accent,vol){ var est=false; try{ est=(typeof studyMode!=='undefined' && studyMode); }catch(e){}
+      return _c.call(this,t0,accent,(vol==null?1:vol)*(est?1.6:1)); };
+    window.click.__lbFuerte=1;
+  }
   function arranca(){
     try{ ajustes(); }catch(e){ console.warn('[estudio-comun] ajustes',e); }
     try{ octArranca(); }catch(e){ console.warn('[estudio-comun] octava',e); }
@@ -299,6 +306,7 @@
     try{ cristal(); }catch(e){ console.warn('[estudio-comun] cristal',e); }
     try{ carteles(); }catch(e){ console.warn('[estudio-comun] carteles',e); }
     try{ cabezasX(); }catch(e){ console.warn('[estudio-comun] cabezasX',e); }
+    try{ claquetaFuerte(); }catch(e){ console.warn('[estudio-comun] claqueta',e); }
     try{ var sb=document.getElementById('studyBtn'); if(sb){ var svg=sb.querySelector('svg'); sb.innerHTML=''; if(svg) sb.appendChild(svg); sb.appendChild(document.createTextNode(' Iniciar estudio')); } }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',arranca); else arranca();
