@@ -232,6 +232,33 @@
       setTimeout(function(){ try{ window.dispatchEvent(new Event('resize')); }catch(e){} },30); };
     try{ new MutationObserver(mira).observe(document.body,{childList:true,subtree:true}); }catch(e){}
   }
+  /* (20-nov, tareas P2 · 5 y 8) Carteles y ventanas en CRISTAL: se intuye el fondo del conservatorio (desenfocado, la lección no
+     se lee) en vez del negro opaco. «Iniciar estudio» centrado arriba (verde en ritmo; azul en entonación). */
+  function cristal(){
+    var st=document.createElement('style'); st.id='lbCristalCss';
+    st.textContent='.rp-cartel,#phaseBannerHost .phase-cardscrim.rp-cartel{background:rgba(6,10,18,.46)!important;-webkit-backdrop-filter:blur(22px) saturate(1.1)!important;backdrop-filter:blur(22px) saturate(1.1)!important}'
+      +'.rp-cartel .phase-banner{background:rgba(12,18,30,.66)!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-color:rgba(255,255,255,.18)!important;box-shadow:0 18px 50px rgba(0,0,0,.35)!important}'
+      +'.modal-bg,.cell-modal-bg{background:rgba(6,10,24,.4)!important;-webkit-backdrop-filter:blur(18px)!important;backdrop-filter:blur(18px)!important}'
+      +'.modal,.cell-modal{background:rgba(12,18,30,.7)!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}'
+      +'body:not(.rp-estudio) .topbar:has(> #barActions){justify-content:center!important}body:not(.rp-estudio) .topbar > #barActions{margin-left:auto!important;margin-right:auto!important}'
+      +'body.rp-ent #studyBtn{background:#2563eb!important;border-color:#60a5fa!important;color:#fff!important}';
+    document.head.appendChild(st);
+  }
+  /* (20-nov, tareas P2 · 9 y P3 · 14) Cada cartel recuerda que puedes bajar la velocidad y elegir la subdivisión; y en los
+     carteles con tiempo el botón dice «Entendido e iniciar tiempo». */
+  function carteles(){
+    if(typeof window.rpVelAviso==='function'){ var _va=window.rpVelAviso;
+      window.rpVelAviso=function(extra){ var d=_va.apply(this,arguments);
+        try{ var t=d.querySelector('.rp-va-t'); if(t && !/subdivisi/i.test(t.textContent)) t.insertAdjacentHTML('beforeend',' Si te ayuda, elige también la <b>subdivisión</b> (corcheas o semicorcheas) en la claqueta.'); }catch(e){}
+        return d; }; }
+    var pon=function(){ document.querySelectorAll('.rp-cartel').forEach(function(c){
+      if(c.__lbHecho) return; c.__lbHecho=1;
+      if(!/minutos?\b/i.test(c.textContent||'')) return;
+      var b=c.querySelector('.pb-go'); if(!b || /iniciar tiempo/i.test(b.textContent)) return;
+      if(/^\s*Entendido\s*$/i.test(b.textContent)){ var svg=b.querySelector('svg'); b.textContent=''; if(svg) b.appendChild(svg); b.appendChild(document.createTextNode('Entendido e iniciar tiempo')); }
+    }); };
+    try{ new MutationObserver(pon).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  }
   function arranca(){
     try{ ajustes(); }catch(e){ console.warn('[estudio-comun] ajustes',e); }
     try{ octArranca(); }catch(e){ console.warn('[estudio-comun] octava',e); }
@@ -241,6 +268,8 @@
     try{ entonacion(); }catch(e){ console.warn('[estudio-comun] entonación',e); }
     try{ arriba(); }catch(e){ console.warn('[estudio-comun] arriba',e); }
     try{ pads(); }catch(e){ console.warn('[estudio-comun] pads',e); }
+    try{ cristal(); }catch(e){ console.warn('[estudio-comun] cristal',e); }
+    try{ carteles(); }catch(e){ console.warn('[estudio-comun] carteles',e); }
     try{ var sb=document.getElementById('studyBtn'); if(sb){ var svg=sb.querySelector('svg'); sb.innerHTML=''; if(svg) sb.appendChild(svg); sb.appendChild(document.createTextNode(' Iniciar estudio')); } }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',arranca); else arranca();
