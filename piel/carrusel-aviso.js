@@ -481,10 +481,11 @@
     PAN.querySelectorAll('button[data-cancel]').forEach(function (bt) {
       bt.onclick = async function () {
         var P = LISTA.filter(function (x) { return x.id === bt.dataset.cancel; })[0]; if (!P) return;
-        var pen = tarde(P) && (P.apuntados || 0) > 1;
-        if (!await pedirConf(pen ? 'Cancelar ahora cuenta como no asistir' : '¿Cancelar tu partida?', pen ? 'Hay gente apuntada y faltan menos de 5 minutos: perderás 0,5 de actitud. ¿Cancelar igualmente?' : (tarde(P) ? 'No pierdes actitud porque no hay nadie apuntado.' : 'No pierdes actitud porque faltan más de 5 minutos.'), 'Sí, cancelar', 'No, la mantengo')) return;
+        /* (20-nov 13:58, Iago) sin nadie apuntado, la partida desaparece; con gente, los apuntados reciben el aviso «!» para quedarse de anfitrión (×1,5) */
+        var otros = Math.max(0, (P.apuntados || 0) - 1), pen = tarde(P) && otros > 0, AV = 'Avisaremos a los apuntados para que uno se quede de anfitrión (sus minutos cuentan ×1,5).';
+        if (!await pedirConf(pen ? 'Cancelar ahora cuenta como no asistir' : '¿Cancelar tu partida?', !otros ? 'No hay nadie apuntado: la partida desaparece. No pierdes actitud.' : (pen ? 'Hay gente apuntada y faltan menos de 5 minutos: perderás 0,5 de actitud. ' + AV + ' ¿Cancelar igualmente?' : 'No pierdes actitud porque faltan más de 5 minutos. ' + AV), 'Sí, cancelar', 'No, la mantengo')) return;
         var r = await rpcA('suite_cr_cancelar', { p_cuenta: cuenta().id, p_partida: P.id });
-        MSG = r && r.ok ? 'Has cancelado la partida.' : 'No he podido cancelar la partida.'; refrescar();
+        MSG = r && r.ok ? (r.quitada ? 'Partida cancelada. Como no había nadie apuntado, ya no aparece.' : 'Has cancelado la partida. Los apuntados ya tienen el aviso para quedarse de anfitrión.') : 'No he podido cancelar la partida.'; refrescar();
       };
     });
     PAN.querySelectorAll('button[data-a]').forEach(function (bt) {
