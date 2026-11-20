@@ -102,6 +102,14 @@
       '#lm-carr-btn svg{animation:none}@keyframes lmCarrGira{to{transform:rotate(360deg)}}' +
       '#lm-carr-btn .pto{z-index:3;position:absolute;right:-4px;top:-4px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;border:2px solid #0f172a;background:#f97316;color:#fff;font:900 10px/1 system-ui,sans-serif;display:none;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}' +
       '#lm-carr-btn .pto.on{display:inline-flex}' +
+      /* (20-nov-2026 22:00, Iago) «que haya algún tipo de pulsión para que no se les escape apuntarse»: el botón late (onda naranja)
+         SOLO mientras hay algo nuevo que aún no has visto; al abrir el panel deja de latir. El número sigue hasta que respondes
+         («Me apunto» o «Marcar como visto»); al marcar como visto desaparece también el número. */
+      '#lm-carr-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;opacity:0}' +
+      '#lm-carr-btn.pulsa::before{animation:lmCarrOnda 1.7s ease-out infinite}#lm-carr-btn.pulsa .pto{animation:lmCarrLate 1.7s ease-in-out infinite}' +
+      '@keyframes lmCarrOnda{0%{opacity:1;box-shadow:0 0 0 0 rgba(249,115,22,.85)}75%{opacity:1;box-shadow:0 0 0 12px rgba(249,115,22,0)}100%{opacity:0;box-shadow:0 0 0 12px rgba(249,115,22,0)}}' +
+      '@keyframes lmCarrLate{0%,40%,100%{transform:scale(1)}15%{transform:scale(1.3)}}' +
+      '@media (prefers-reduced-motion:reduce){#lm-carr-btn.pulsa::before{animation:none;opacity:1;box-shadow:0 0 0 3px rgba(249,115,22,.9)}#lm-carr-btn.pulsa .pto{animation:none}}' +
       '@media (prefers-reduced-motion:reduce){#lm-carr-btn.mov svg{animation:none}}' +
       /* el cartelito: una franja por partida; la más próxima a la vista y las demás debajo, tras la flechita */
       '#lm-incid-btn{order:-6!important}' +
@@ -279,7 +287,7 @@
   /* (20-nov-2026, Iago) Selector propio de DÍA y HORA para anunciar partidas (el mismo en ordenador, iPad y móvil):
      calendario del mes con los días pasados apagados y HOY marcado; la hora con DOS RUEDAS verticales como en el iPhone
      (horas 8–22 y minutos de 5 en 5), que se arrastran con el dedo o el ratón, giran con la rueda del ratón o se tocan.
-     Solo deja elegir desde dentro de 10 minutos hasta 14 días (lo mismo que exige el servidor).
+     Solo deja elegir desde dentro de 10 minutos hasta 7 días (lo mismo que exige el servidor; 20-nov 22:00, Iago: antes 14).
      lmSelFecha(valor 'AAAA-MM-DDTHH:MM' o '', alElegir(valor)) */
   var LMF_MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   var LMF_DIA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
@@ -378,7 +386,7 @@
   }
   function lmSelFecha(valor, alElegir) {
     lmfCss();
-    var ahora = new Date(), min = new Date(ahora.getTime() + 10 * 6e4), max = new Date(ahora.getTime() + 14 * 864e5);
+    var ahora = new Date(), min = new Date(ahora.getTime() + 10 * 6e4), max = new Date(ahora.getTime() + 7 * 864e5);
     var hoy0 = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
     var HORAS = []; for (var h = 8; h <= 22; h++) HORAS.push(h);
     var MINS = []; for (var m5 = 0; m5 < 60; m5 += 5) MINS.push(m5);
@@ -498,7 +506,7 @@
       if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,5 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar', null, DISP)) return;
       var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id, p_programada: f.toISOString() });
       if (r && r.ok) { MSG = 'Partida anunciada para ' + cuando(f.toISOString()) + '.'; HORA = ''; }
-      else MSG = r && r.error === 'aun_no' ? 'El carrusel online se abre ' + ABRE_TXT + '.' : r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 14 días desde ahora.' : 'No he podido anunciar la partida.';
+      else MSG = r && r.error === 'aun_no' ? 'El carrusel online se abre ' + ABRE_TXT + '.' : r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 7 días desde ahora.' : 'No he podido anunciar la partida.';
       refrescar();
     };
     PAN.querySelector('#lm-carr-ya').onclick = function () { abrirURL(URL_CARR + '?solo=1'); };
@@ -571,7 +579,7 @@
       PAN = document.createElement('div'); PAN.id = 'lm-carr-pan'; document.body.appendChild(PAN);
       PAN.addEventListener('click', function (e) { if (e.target === PAN && !CONF) cerrarPanel(); });
     }
-    PAN.hidden = false; CONF = null; MSG = ''; VID = false; pintaPanel();
+    PAN.hidden = false; CONF = null; MSG = ''; VID = false; pintaPanel(); marcaVistas();
     var b = document.getElementById('lm-carr-btn'); if (b) b.classList.add('abierto');
     refrescar();
   }
@@ -728,6 +736,18 @@
     VIGIA.observe(host, { childList: true, subtree: true });
   }
 
+  /* ---- (20-nov 22:00, Iago) lo ya visto (abrir el panel): deja de latir; se guarda en este aparato, por cuenta, y se limpia solo a los 7 días ---- */
+  function claveVista(p) { return (sinAnf(p) ? 'x:' : p.lobby_abierto ? 'a:' : 'n:') + p.id; }
+  function vistasK() { var c = cuenta(); return 'lm_carr_vistas_' + (c ? c.id : ''); }
+  function vistas() { try { var o = JSON.parse(localStorage.getItem(vistasK()) || '{}'); return new Set(Object.keys(o)); } catch (e) { return new Set(); } }
+  function marcaVistas() {
+    try { var o = JSON.parse(localStorage.getItem(vistasK()) || '{}'), t = Date.now();
+      Object.keys(o).forEach(function (k) { if (t - o[k] > 7 * 864e5) delete o[k]; });
+      LISTA.forEach(function (p) { if (p.lobby_abierto || !p.yo || sinAnf(p)) { var k = claveVista(p); if (!o[k]) o[k] = t; } });
+      localStorage.setItem(vistasK(), JSON.stringify(o)); } catch (e) {}
+    var b = document.getElementById('lm-carr-btn'); if (b) b.classList.remove('pulsa');
+  }
+
   /* ---- pintar ---- */
   function pintar() {
     var host = document.querySelector('.topbar .topbar-right');
@@ -748,6 +768,9 @@
     var pto = b.querySelector('.pto'), n = abiertas.length + nuevas.length, alerta = LISTA.some(sinAnf);
     pto.className = 'pto' + (n || alerta ? ' on' : '') + (alerta ? ' ex' : ''); pto.textContent = alerta ? '!' : (n ? String(n) : '');
     b.classList.toggle('mov', n > 0 || alerta);
+    if (PAN && !PAN.hidden) marcaVistas();   /* con el panel abierto, lo que llega ya se está viendo */
+    var vv = vistas();
+    b.classList.toggle('pulsa', abiertas.concat(nuevas, LISTA.filter(sinAnf)).some(function (p) { return !vv.has(claveVista(p)); }));   /* (20-nov 22:00) late solo si hay algo sin ver */
     if (alerta) b.title = NOMBRE + ' · el anfitrión de una partida a la que te apuntaste ha cancelado'; else b.title = abiertas.length ? NOMBRE + ' · hay un lobby abierto ahora' : (nuevas.length ? NOMBRE + ' · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : NOMBRE);
     /* el cartelito: las partidas a las que te has apuntado («Me apunto»), la más próxima primero; «visto» no cuenta */
     var mias = LISTA.filter(function (p) { return p.yo === 'si' && !(p.soy_creador && p.anfitrion_cancelo); }).sort(function (x, y) { return new Date(x.programada) - new Date(y.programada); });
