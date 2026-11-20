@@ -454,3 +454,13 @@
   else window.LMPiel = { activo: false, app: app, grado: grado, familia: familia };
   /* (28-sep-2026, noche) ya no hace falta vigilar qué cuenta entra: la piel es para todas */
 })();
+
+/* (20-nov-2026, Iago 14:07: «que todas estas cosas se apliquen también a los distintos apartados») ajustes comunes del
+   estudio por fases (piel/estudio-comun.js) en Ritmo at home, Entonación at home y Ritmo entonado at home. Se cargan desde
+   aquí porque esas apps ya traen la piel; Ritmo entonado at home además lo carga en su propio index.html (no se duplica).
+   Deshacer: borrar este bloque. */
+(function(){ try{
+  if(!/^(ritmo\.ge|entonacion\.ge|ritmoentonado\.gp)\.lmathome\.es$/i.test(location.hostname) || window.__ESTUDIO_COMUN) return;
+  var carga=function(){ if(window.__ESTUDIO_COMUN || document.getElementById('lmEstudioComun')) return; var s=document.createElement('script'); s.id='lmEstudioComun'; s.src='https://ge.lmathome.es/piel/estudio-comun.js?v=1'; document.body.appendChild(s); };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(carga,0); }); else setTimeout(carga,0);
+}catch(e){} })();
