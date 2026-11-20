@@ -192,10 +192,18 @@
             document.addEventListener('pointerdown',f,true); } }catch(e){}
         return r; }; }
     if(typeof window.padPlayChord==='function'){ var _pp=window.padPlayChord; window.padPlayChord=function(ctx,dest,voices,t,d,g){ return _pp.call(this,ctx,dest,voices,t,d,(g||0.03)*1.8); }; }
+
+    /* (15:25, Iago) el arpegio de Entonación at home se quedaba enganchado en la nota aguda: mismo pulso que la escala */
+    if(typeof window.epOido==='function'){ var _eo=window.epOido; window.epOido=function(o){ if(o!=='a') return _eo.apply(this,arguments);
+        try{ ensureAudioEngine(); ensureSoundfont().then(function(sf){ if(!sf) return; try{ sf.stop(); }catch(e){}
+            var ctx=EDIT.ac; if(ctx && ctx.state==='suspended'){ try{ ctx.resume(); }catch(e){} }
+            var L=STU.lesson, base=L.key.tonicMidi, isMin=L.key.mode==='minor', st=0.4, t=ctx.currentTime+0.12;
+            (isMin?[0,3,7,12,7,3,0]:[0,4,7,12,7,4,0]).forEach(function(x,i,arr){ try{ sf.play(base+x,t,{duration:(i===arr.length-1?st*1.6:st*0.9)}); }catch(e){} t+=st; }); });
+        }catch(e){ return _eo.apply(this,arguments); } }; }
     /* «Marca el pulso con la mano» en la cuenta atrás */
     if(typeof window.showClack==='function'){ var _sc=window.showClack; window.showClack=function(n){ var r=_sc.apply(this,arguments);
         try{ var ov=document.getElementById('clackOverlay'); if(ov && !ov.querySelector('.lb-mano')){ var a=document.createElement('div'); a.className='lb-mano';
-            a.style.cssText='position:absolute;left:50%;top:calc(50% + 100px);transform:translateX(-50%);padding:9px 18px;border-radius:10px;background:rgba(22,163,74,.95);border:1px solid #4ade80;color:#fff;font:800 17px/1.2 var(--lm-fuente,"Helvetica Neue",Helvetica,Arial,sans-serif);white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.4)';
+            a.style.cssText='position:absolute;left:50%;top:calc(50% + 100px);transform:translateX(-50%);padding:9px 18px;border-radius:10px;background:rgba(37,99,235,.95);border:1px solid #93c5fd;color:#fff;font:800 17px/1.2 var(--lm-fuente,"Helvetica Neue",Helvetica,Arial,sans-serif);white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.4)';
             a.textContent='✋ Marca el pulso con la mano'; if(getComputedStyle(ov).position==='static') ov.style.position='fixed'; ov.appendChild(a); } }catch(e){}
         return r; }; }
   }
