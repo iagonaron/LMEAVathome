@@ -265,7 +265,7 @@
   function boton() {
     var mr = document.getElementById('btn-mis-resultados');
     var b = document.getElementById('lm-pulso-btn');
-    var ver = !!(cuenta() && !esTester(cuenta()) && mr && mr.parentNode);
+    var ver = !!(cuenta() && mr && mr.parentNode);   /* (20-nov 17:14, Iago) ahora SÍ en Tester/Protester */
     if (!ver) { if (b) b.hidden = true; return; }
     css();
     if (!b) {
@@ -298,7 +298,7 @@
 
   /* ---- datos ---- */
   function cargar() {
-    var s = cuenta(); if (!s || esTester(s) || cargando) return Promise.resolve();
+    var s = cuenta(); if (!s || cargando) return Promise.resolve();
     cargando = true;
     return rpc('suite_pulso_listar', { p_cuenta_id: s.id }).then(function (r) {
       cargando = false; if (r && r.ok) { D = r; contador(); if (abierto) pintar(); }
