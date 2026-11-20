@@ -274,6 +274,19 @@
     }); };
     try{ new MutationObserver(pon).observe(document.body,{childList:true,subtree:true}); }catch(e){}
   }
+  /* (17:38–17:40, Iago) Ritmo at home (GE): en la percusión, blancas y redondas con la X DENTRO de su cabeza sin rellenar.
+     Su index.html no se puede subir desde aquí, así que se hace al dibujar cada nota (en ritmopro y en el visor ya va en el motor). */
+  function cabezasX(){
+    if(!/(^|\.)ritmo\.ge\.|:8831$/.test(location.host) || typeof VF==='undefined' || !VF.StaveNote) return;
+    var P=VF.StaveNote.prototype, _d=P.draw;
+    P.draw=function(){ var r=_d.apply(this,arguments);
+      try{ var k=(this.keys||[]).join(' '), d=String(this.duration||(this.getDuration&&this.getDuration())||'');
+        if(/\/x2/.test(k) && /^(h|w|2|1)$/.test(d) && !this.isRest()){ var w=/^(w|1)$/.test(d), g=new VF.Glyph(w?'noteheadWhole':'noteheadHalf',(VF.Tables&&VF.Tables.NOTATION_FONT_SCALE)||39), gw=g.getMetrics().width||12;
+          var ctx=this.checkContext(), bx=this.getNoteHeadBeginX(), ex=this.getNoteHeadEndX(), ys=this.getYs(); ctx.save(); ctx.setFillStyle('#111'); g.render(ctx,(bx+ex)/2-gw/2,ys[0]); ctx.restore(); } }catch(e){}
+      return r; };
+    /* el círculo de antes (contorno #15324a) ya no hace falta */
+    try{ var S=VF.SVGContext&&VF.SVGContext.prototype; if(S && S.arc){ var _a=S.arc; S.arc=function(){ try{ if(this.attributes && String(this.attributes.stroke).toLowerCase()==='#15324a' && String(this.attributes['stroke-width'])==='1.7') return this; }catch(e){} return _a.apply(this,arguments); }; } }catch(e){}
+  }
   function arranca(){
     try{ ajustes(); }catch(e){ console.warn('[estudio-comun] ajustes',e); }
     try{ octArranca(); }catch(e){ console.warn('[estudio-comun] octava',e); }
@@ -285,6 +298,7 @@
     try{ pads(); }catch(e){ console.warn('[estudio-comun] pads',e); }
     try{ cristal(); }catch(e){ console.warn('[estudio-comun] cristal',e); }
     try{ carteles(); }catch(e){ console.warn('[estudio-comun] carteles',e); }
+    try{ cabezasX(); }catch(e){ console.warn('[estudio-comun] cabezasX',e); }
     try{ var sb=document.getElementById('studyBtn'); if(sb){ var svg=sb.querySelector('svg'); sb.innerHTML=''; if(svg) sb.appendChild(svg); sb.appendChild(document.createTextNode(' Iniciar estudio')); } }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',arranca); else arranca();
