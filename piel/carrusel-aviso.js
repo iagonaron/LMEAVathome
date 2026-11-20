@@ -63,6 +63,7 @@
       if (p.lobby_abierto) return '¡Tu carrusel está abierto!';
       return 'Tu carrusel ' + cuando(p.programada);
     }
+    if (sinAnf(p)) return '¡El anfitrión ha cancelado!';
     if (p.lobby_abierto) return '¡Carrusel abierto! Únete';
     var min = Math.round((new Date(p.programada).getTime() - Date.now()) / 6e4);
     if (min <= 1) return 'Carrusel: empieza ya';
@@ -78,6 +79,9 @@
   }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function grupoTxt(g) { return g ? String(g).replace(/ge$/i, '').toUpperCase().replace(/^(\d)([A-Z])/, '$1.º $2') : ''; }
+  /* (20-nov-2026 12:55, Iago) si el anfitrión cancela, aviso con «!» a los apuntados: pueden heredar la partida (sus minutos ×1,5) */
+  function sinAnf(p) { return !!(p && p.yo === 'si' && p.anfitrion_cancelo && !p.anfitrion && !p.soy_creador && !p.lobby_abierto); }
+  function soyAnf(p) { return p.soy_anfitrion === true || (p.soy_anfitrion === undefined && p.soy_creador && !p.anfitrion_cancelo); }
   function tarde(p) { return p && p.tipo === 'anunciada' && Date.now() > new Date(p.programada).getTime() - 5 * 60e3; }
 
   /* ---- estilos ---- */
@@ -105,6 +109,8 @@
       'background:#140f33;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);text-shadow:0 1px 6px rgba(0,0,0,.55);border:0;position:relative;isolation:isolate}' +
       '.lm-fr > svg,.lm-fr > span:not(.cl){position:relative;z-index:1}' +
       '.lm-fr::after,#lm-carr-btn::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);pointer-events:none;z-index:2}' +
+      '.lm-fr.alerta::after{box-shadow:inset 0 0 0 2px #ff9a3c}.lm-fr .ex,#lm-carr-btn .pto.ex{font-weight:900}.lm-fr .ex{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;background:#ff9a3c;color:#1b1406;font-size:13px;line-height:1}' +
+      '#lm-carr-pan .pt .alerta{display:flex;gap:9px;align-items:flex-start;margin-top:8px;padding:9px 11px;border-radius:10px;background:rgba(255,154,60,.14);border:1.5px solid #ff9a3c;font-size:13.5px;line-height:1.4}#lm-carr-pan .pt .alerta .ex{flex:none;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:#ff9a3c;color:#1b1406;font-weight:900;font-size:14px}' +
       '.lm-fr.mia::after{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.95)}.lm-fr.vivo::after{box-shadow:inset 0 0 0 1.5px #22c55e}' +
       '.lm-fr .cl,#lm-carr-btn .cl{position:absolute;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none;z-index:0}' +
       '.lm-fr .gi,#lm-carr-btn .gi{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;margin:0;transform:translate(-50%,-50%);will-change:transform}' +
@@ -205,9 +211,9 @@
   /* ---- cartelito ---- */
   function franja(p) {
     var f = document.createElement('button'); f.type = 'button';
-    f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '');
+    f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '') + (sinAnf(p) ? ' alerta' : '');
     f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : NOMBRE + ' · partida de ' + (p.creador || '');
-    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (p.soy_creador ? CORONA : ESP) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1), p.confirmados, 3) : '');
+    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (sinAnf(p) ? '<b class="ex">!</b>' : (p.soy_creador ? CORONA : ESP)) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1), p.confirmados, 3) : '');
     f.onclick = function (e) {
       e.stopPropagation();
       if (p.lobby_abierto) abrirCarrusel(p.id, !(p.soy_creador || p.yo_dentro));
@@ -413,17 +419,22 @@
 
   var PAN = null, CONF = null, MSG = '', HORA = '', VID = false;
   function filaPartida(p) {
-    var mia = p.soy_creador, conf = Math.max(0, (p.apuntados || 0) - 1);
+    var mia = soyAnf(p), cancelada = p.soy_creador && p.anfitrion_cancelo && !mia, conf = Math.max(0, (p.apuntados || 0) - 1);
     var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
     var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora' : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
     var otros = Math.max(0, (p.apuntados || 0) - 1);
     var gente = mia ? (conf ? monigotes(conf, p.confirmados, 8) : 'sin confirmados todavía') : (otros ? monigotes(otros, p.confirmados, 8) : 'nadie apuntado todavía');
-    var bs;
+    var bs, aviso = '';
     if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Unirme</button>';
-    else if (mia) bs = p.anfitrion_cancelo ? '<span class="c">La cancelaste</span>' : '<button class="bt ko" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
+    else if (cancelada) bs = '<span class="c">La cancelaste</span>';
+    else if (mia) bs = '<button class="bt ko" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
+    else if (sinAnf(p)) {
+      bs = '<button class="bt pri" data-heredar="' + p.id + '">' + I_CAL + 'Ser el anfitrión</button><button class="bt ico" data-a="no" data-id="' + p.id + '" title="Quitarme de la partida">' + I_X + '</button>';
+      aviso = '<div class="alerta"><span class="ex">!</span><span><b>El anfitrión ha cancelado.</b> Si heredas tú la partida y te haces anfitrión, los minutos que practiques contarán ×1,5: es el premio por mantenerla viva.</span></div>';
+    }
     else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? I_OK : '') + 'Me apunto</button>' +
       (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
-    return '<div class="pt' + (mia ? ' mia' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div></div><div class="row">' + bs + '</div></div>';
+    return '<div class="pt' + (mia ? ' mia' : '') + (aviso ? ' sinanf' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div>' + aviso + '</div><div class="row">' + bs + '</div></div>';
   }
   function minHora() { var d = new Date(Date.now() + 11 * 6e4); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); }
   function pintaPanel() {
@@ -458,6 +469,14 @@
     };
     PAN.querySelector('#lm-carr-ya').onclick = function () { abrirURL(URL_CARR + '?solo=1'); };
     PAN.querySelectorAll('button[data-go]').forEach(function (bt) { bt.onclick = function () { abrirCarrusel(bt.dataset.go, bt.dataset.e === '1'); }; });
+    PAN.querySelectorAll('button[data-heredar]').forEach(function (bt) {
+      bt.onclick = async function () {
+        if (!await pedirConf('¿Quieres ser el anfitrión?', 'La partida será tuya: la empiezas tú. Los minutos que practiques en ella contarán ×1,5. Si luego no asistes, perderás 0,5 de actitud.', 'Sí, seré el anfitrión')) return;
+        bt.disabled = true;
+        var r = await rpcA('suite_cr_heredar', { p_cuenta: cuenta().id, p_partida: bt.dataset.heredar });
+        MSG = r && r.ok ? 'Ahora eres el anfitrión. Tus minutos en esta partida contarán ×1,5.' : 'No he podido hacerte anfitrión (puede que otro se haya adelantado).'; refrescar();
+      };
+    });
     PAN.querySelectorAll('button[data-cancel]').forEach(function (bt) {
       bt.onclick = async function () {
         var P = LISTA.filter(function (x) { return x.id === bt.dataset.cancel; })[0]; if (!P) return;
@@ -502,26 +521,140 @@
   function cerrarPanel() { if (PAN) PAN.hidden = true; var b = document.getElementById('lm-carr-btn'); if (b) b.classList.remove('abierto'); }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && PAN && !PAN.hidden && !CONF) cerrarPanel(); });
 
+
+  /* ---- (20-nov-2026 12:38, Iago) CUENTAS DE PROFE (Tester/Protester) ----
+     1) UN SOLO ICONO de carrusel en la barra: se oculta el de clase («aula» en GE, «Carrusel PRO» en GP) y este, al
+        pulsarlo, ofrece «Partidas anunciadas» y «Trabajo en clase» (lo que abría el otro).
+     2) EN LA PANTALLA DE CLASE: cuando se abre la ventana de morosos, a su izquierda y del mismo tamaño, otra con las
+        partidas anunciadas de ese curso (fondo psicodélico quieto, megáfono con el anfitrión y cabecitas con nombre).
+     Para quitarlo: borrar este bloque y las dos líneas marcadas «(menú profe)» en pintar(). */
+  var URL_CLASE_GE = 'https://iagonaron.github.io/PredictCarrusel/?pantalla=1';
+  var I_AULA = SVI('<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20l4-4 4 4M7 8h6M7 11h9"/>');
+  function cssProfe() {
+    if (document.getElementById('lm-carr-css-profe')) return;
+    var st = document.createElement('style'); st.id = 'lm-carr-css-profe';
+    st.textContent =
+      'html.lm-carr-profe #ge-espiral,html.lm-carr-profe .topbar .topbar-right>a.carrusel-btn{display:none!important}' +
+      '#lm-carr-menu{position:fixed;z-index:100030;width:290px;box-sizing:border-box;padding:6px;border-radius:12px;background:rgba(16,14,34,.97);border:1px solid rgba(255,255,255,.18);box-shadow:0 18px 50px rgba(0,0,0,.5);font-family:inherit}' +
+      '#lm-carr-menu button{display:flex;align-items:center;gap:11px;width:100%;box-sizing:border-box;padding:8px 9px;border:0;border-radius:9px;background:transparent;color:#fff;text-align:left;cursor:pointer;font:inherit}' +
+      '#lm-carr-menu button:hover,#lm-carr-menu button:focus-visible{background:rgba(255,255,255,.09);outline:none}' +
+      '#lm-carr-menu .mi{position:relative;flex:none;width:34px;height:34px;border-radius:9px;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}' +
+      '#lm-carr-menu .mi.mp{background:' + TEX_BTN.replace('ellipse', 'circle') + '}' +
+      '#lm-carr-menu .mi.mc{overflow:visible;color:#fff;background:' + (GP ? 'var(--lm-naranja-f,#f97316)' : 'repeating-radial-gradient(circle at 50% 50%,rgba(10,7,30,0) 0 5px,rgba(10,7,30,.22) 5px 10px),radial-gradient(ellipse at 50% 50%,rgba(10,7,30,.50),rgba(10,7,30,.78)),conic-gradient(from 0deg at 50% 50%,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399,#5bd0ff)') + ';box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}' +
+      (GP ? '' : '#lm-carr-menu .mi.mc::after{content:"aula";position:absolute;right:-3px;bottom:-4px;font:800 7px/1 system-ui,sans-serif;letter-spacing:.03em;color:#fff;background:#0f172a;border-radius:3px;padding:2px 3px;pointer-events:none}') +
+      '#lm-carr-menu .mi svg{width:20px;height:20px;position:relative;filter:drop-shadow(0 0 2px rgba(10,7,30,.9))}' +
+      '#lm-carr-menu .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}#lm-carr-menu .tx b{font-size:14px;font-weight:800}#lm-carr-menu .tx i{font-style:normal;font-size:11.5px;color:rgba(255,255,255,.6)}' +
+      '#lm-carr-menu em{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:#ff9a3c;color:#1b1406;font-size:10px;font-weight:800;line-height:1;font-style:normal}#lm-carr-menu em.ex{font-size:11px;font-weight:900}' +
+      /* la ventana de clase */
+      '#lm-carr-clase{position:fixed;z-index:4999;box-sizing:border-box;border-radius:12px;overflow:hidden;color:#fff;border:1px solid rgba(255,255,255,.22);font:500 13px/1.35 var(--lm-fuente,inherit);text-align:left}' +
+      '#lm-carr-clase .fd{position:absolute;inset:0;background:' + TEX_MULTI.replace('ellipse', 'circle') + ';background-size:200% 200%;background-position:50% 50%}' +
+      '#lm-carr-clase .fd::after{content:"";position:absolute;inset:0;background:rgba(14,11,30,.5)}' +
+      '#lm-carr-clase .in{position:relative;height:100%;overflow:auto;box-sizing:border-box;padding:10px 12px 12px}' +
+      '#lm-carr-clase .ti{display:flex;align-items:center;gap:7px;margin:2px 2px 9px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.78)}' +
+      '#lm-carr-clase .ti svg{width:15px;height:15px}#lm-carr-clase .ti span{margin-left:auto;letter-spacing:.04em;color:rgba(255,255,255,.55)}' +
+      '#lm-carr-clase .pc{padding:8px 10px;border-radius:10px;background:rgba(10,8,24,.55);border:1px solid rgba(255,255,255,.16)}#lm-carr-clase .pc+.pc{margin-top:6px}' +
+      '#lm-carr-clase .cu{font-size:12.5px;font-weight:800;color:#ffd23f}' +
+      '#lm-carr-clase .an{display:flex;align-items:center;gap:6px;margin-top:3px;font-size:14px;font-weight:800}#lm-carr-clase .an svg{width:16px;height:16px;flex:none;color:#ffb86b}#lm-carr-clase .an small{font-size:11px;font-weight:700;color:rgba(255,255,255,.6)}' +
+      '#lm-carr-clase .mon{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px}#lm-carr-clase .mon .m{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}#lm-carr-clase .mon svg{width:14px;height:14px;flex:none}#lm-carr-clase .mon b{font-size:11.5px;font-weight:700}#lm-carr-clase .mon i{font-style:normal;font-size:11.5px}' +
+      '#lm-carr-clase .na{margin-top:5px;font-size:12px;color:rgba(255,255,255,.62)}' +
+      '#lm-carr-clase .vacio{padding:4px 2px;font-size:12.5px;color:rgba(255,255,255,.75)}';
+    document.head.appendChild(st);
+  }
+  function abrirClase() {
+    if (GP) { var a = document.querySelector('.topbar a.carrusel-btn'); location.href = (a && a.href) || 'https://iagonaron.github.io/PreDictPROCarrusel/?piel=1'; return; }
+    var w = null; try { w = window.open(URL_CLASE_GE + '&t=' + Date.now(), 'lm-carrusel-pantalla'); } catch (e) {}
+    if (!w) location.href = URL_CLASE_GE;
+  }
+  function cerrarMenuProfe() { var m = document.getElementById('lm-carr-menu'); if (m) m.remove(); var b = document.getElementById('lm-carr-btn'); if (b && (!PAN || PAN.hidden)) b.classList.remove('abierto'); }
+  function menuProfe(b) {
+    if (document.getElementById('lm-carr-menu')) { cerrarMenuProfe(); return; }
+    cssProfe();
+    var n = LISTA.filter(function (p) { return p.lobby_abierto || !p.yo; }).length, al = LISTA.some(sinAnf);
+    var m = document.createElement('div'); m.id = 'lm-carr-menu'; m.setAttribute('role', 'menu');
+    m.innerHTML = '<button type="button" role="menuitem" data-m="p"><span class="mi mp">' + ESP + '</span><span class="tx"><b>Partidas anunciadas</b><i>Anunciar, apuntarte o jugar</i></span>' + (al ? '<em class="ex">!</em>' : (n ? '<em>' + n + '</em>' : '')) + '</button>' +
+      '<button type="button" role="menuitem" data-m="c"><span class="mi mc">' + ESP + '</span><span class="tx"><b>Trabajo en clase</b><i>El carrusel del aula, en esta pantalla</i></span></button>';
+    document.body.appendChild(m);
+    var r = b.getBoundingClientRect();
+    m.style.top = Math.round(r.bottom + 8) + 'px';
+    m.style.left = Math.round(Math.max(10, Math.min(r.left, window.innerWidth - m.offsetWidth - 10))) + 'px';
+    b.classList.add('abierto');
+    m.addEventListener('click', function (e) {
+      var x = e.target.closest ? e.target.closest('button[data-m]') : null; if (!x) return;
+      cerrarMenuProfe(); if (x.dataset.m === 'p') abrirPanel(); else abrirClase();
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var m = document.getElementById('lm-carr-menu'); if (!m) return;
+    if (m.contains(e.target) || (e.target.closest && e.target.closest('#lm-carr-btn'))) return;
+    cerrarMenuProfe();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarMenuProfe(); });
+  /* la ventana de clase, a la izquierda de la de morosos */
+  var CLASE = { curso: null, t: 0, lista: [], pidiendo: false };
+  function grupoMorosos(mp) {
+    var g = mp.querySelector('.lm-mor-ahora'); g = g ? g.parentNode : mp.querySelector('.lm-mor-g'); if (!g) return '';
+    for (var i = 0; i < g.childNodes.length; i++) if (g.childNodes[i].nodeType === 3 && g.childNodes[i].nodeValue.trim()) return g.childNodes[i].nodeValue.trim();
+    return (g.textContent || '').replace(/en clase/i, '').trim();
+  }
+  function filaClase(p) {
+    var otros = Math.max(0, (p.apuntados || 0) - 1);
+    return '<div class="pc"><div class="cu">' + esc(cuando(p.programada).replace(/^./, function (c) { return c.toUpperCase(); })) + '</div>' +
+      '<div class="an">' + CORONA + esc(p.anfitrion || p.creador || '') + ' <small>' + esc(grupoTxt(p.grupo)) + '</small></div>' +
+      (otros ? monigotes(otros, p.confirmados, 12) : '<div class="na">Nadie apuntado todavía</div>') + '</div>';
+  }
+  function pintaClase(el, curso) {
+    var L = CLASE.lista.filter(function (p) { return !p.anfitrion_cancelo; });
+    var cab = curso ? curso + '.º ' + (GP ? 'GP' : 'GE') : '';
+    el.querySelector('.in').innerHTML = '<div class="ti">' + CORONA + 'Partidas anunciadas<span>' + esc(cab) + '</span></div>' +
+      (L.length ? L.map(filaClase).join('') : '<div class="vacio">Ninguna anunciada todavía.<br>Desde el icono del carrusel, en el portal, puedes anunciar la primera.</div>');
+  }
+  async function pideClase(curso) {
+    if (CLASE.pidiendo || !cuenta()) return; CLASE.pidiendo = true;
+    try {
+      var j = await rpcA('suite_cr_lista', { p_cuenta: cuenta().id, p_curso: curso });
+      if (!j || !j.ok) j = await rpcA('suite_cr_lista', { p_cuenta: cuenta().id });   /* servidor sin p_curso: las de su curso */
+      if (j && j.ok) { CLASE.lista = (j.partidas || []).filter(function (p) { return !curso || !p.curso || String(p.curso) === String(curso); }); CLASE.curso = curso; CLASE.t = Date.now(); }
+    } finally { CLASE.pidiendo = false; }
+  }
+  function quitaClase() { var c = document.getElementById('lm-carr-clase'); if (c) c.remove(); }
+  async function vigilaClase() {
+    if (!esTester()) { quitaClase(); return; }
+    var mp = document.querySelector('.lm-mor-panel');
+    if (!mp || !mp.offsetWidth) { quitaClase(); return; }
+    cssProfe();
+    var curso = grupoMorosos(mp).replace(/\D/g, '');
+    var c = document.getElementById('lm-carr-clase');
+    if (!c) { c = document.createElement('div'); c.id = 'lm-carr-clase'; c.setAttribute('role', 'region'); c.setAttribute('aria-label', 'Partidas anunciadas'); c.innerHTML = '<div class="fd"></div><div class="in"></div>'; document.body.appendChild(c); pintaClase(c, curso); }
+    var r = mp.getBoundingClientRect();
+    c.style.width = Math.round(r.width) + 'px'; c.style.height = Math.round(r.height) + 'px'; c.style.top = Math.round(r.top) + 'px';
+    var der = r.left - 10, fr = document.querySelector('#lm-carr-aviso .lm-fr');   /* (20-nov, Iago) alineada con la franja «Carrusel …» si la hay */
+    if (fr && fr.offsetWidth) { var fb = fr.getBoundingClientRect(); if (fb.right <= r.left - 4 && fb.right > r.left - 140) der = fb.right; }
+    c.style.left = Math.round(Math.max(10, der - r.width)) + 'px';
+    if (CLASE.curso !== curso || Date.now() - CLASE.t > 60000) { await pideClase(curso); if (document.getElementById('lm-carr-clase')) pintaClase(document.getElementById('lm-carr-clase'), curso); }
+  }
+  setInterval(function () { try { vigilaClase(); } catch (e) {} }, 700);
+
   /* ---- pintar ---- */
   function pintar() {
     var host = document.querySelector('.topbar .topbar-right');
     var b = document.getElementById('lm-carr-btn'), a = document.getElementById('lm-carr-aviso');
     if (!host || !cuenta() || !OK || (GP && !GP_PUBLICO && !esTester())) { if (b) b.hidden = true; if (a) a.hidden = true; cerrarPanel(); return; }
     css();
+    document.documentElement.classList.toggle('lm-carr-profe', esTester()); if (esTester()) cssProfe();   /* (menú profe) */
     if (!b) {
       b = document.createElement('button'); b.type = 'button'; b.id = 'lm-carr-btn';
       b.title = NOMBRE; b.setAttribute('aria-label', NOMBRE);
       b.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + ESP + '<span class="pto"></span>';
-      b.addEventListener('click', function () { if (PAN && !PAN.hidden) cerrarPanel(); else abrirPanel(); });
+      b.addEventListener('click', function () { if (PAN && !PAN.hidden) { cerrarPanel(); return; } if (esTester()) { menuProfe(b); return; } abrirPanel(); });   /* (menú profe) */
     }
     if (b.parentNode !== host) host.insertBefore(b, host.firstChild);
     b.hidden = false;
     var abiertas = LISTA.filter(function (p) { return p.lobby_abierto; });
     var nuevas = LISTA.filter(function (p) { return !p.lobby_abierto && !p.yo; });
-    var pto = b.querySelector('.pto'), n = abiertas.length + nuevas.length;
-    pto.className = 'pto' + (n ? ' on' : ''); pto.textContent = n ? String(n) : '';
-    b.classList.toggle('mov', n > 0);
-    b.title = abiertas.length ? NOMBRE + ' · hay un lobby abierto ahora' : (nuevas.length ? NOMBRE + ' · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : NOMBRE);
+    var pto = b.querySelector('.pto'), n = abiertas.length + nuevas.length, alerta = LISTA.some(sinAnf);
+    pto.className = 'pto' + (n || alerta ? ' on' : '') + (alerta ? ' ex' : ''); pto.textContent = alerta ? '!' : (n ? String(n) : '');
+    b.classList.toggle('mov', n > 0 || alerta);
+    if (alerta) b.title = NOMBRE + ' · el anfitrión de una partida a la que te apuntaste ha cancelado'; else b.title = abiertas.length ? NOMBRE + ' · hay un lobby abierto ahora' : (nuevas.length ? NOMBRE + ' · ' + (nuevas.length === 1 ? 'una partida anunciada' : nuevas.length + ' partidas anunciadas') : NOMBRE);
     /* el cartelito: las partidas a las que te has apuntado («Me apunto»), la más próxima primero; «visto» no cuenta */
     var mias = LISTA.filter(function (p) { return p.yo === 'si' && !(p.soy_creador && p.anfitrion_cancelo); }).sort(function (x, y) { return new Date(x.programada) - new Date(y.programada); });
     pintaAviso(host, mias);
