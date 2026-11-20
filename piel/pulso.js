@@ -370,7 +370,7 @@
     var m = caja();
     var g = D && D.entradas ? grupos(expande(D.entradas)) : null;
     var h = '<div class="lp-h"><div><div class="lp-t">Pulso de este grupo' + (D && D.grupo ? ' · <b>' + esc(D.grupo) + '</b>' : '') + '</div>' +
-      '<div class="lp-s">Lo que tu grupo trabaja por libre, al momento</div></div>' +
+      '</div>' +   /* (20-nov 12:25, Iago) sin subtítulo: era redundante con la frase del total */
       '<div class="lp-bts">' + (VIDEO_OK ? '<button type="button" class="lp-vid" title="Cómo funciona el Pulso">▶ Ver vídeo</button>' : '') +
       '<button type="button" class="lp-cfg" title="Ajustes del Pulso" aria-label="Ajustes">' + GEAR + '</button>' +
       '<button type="button" class="lp-x" title="Cerrar" aria-label="Cerrar">✕</button></div></div>';
@@ -384,7 +384,7 @@
     /* (19-nov 11:03, Iago) sensación de equipo, no de competición: el tiempo extra de TODO el grupo este trimestre */
     if (D && D.grupo_min != null) {
       var tm = Number(D.grupo_min) || 0, hh = Math.floor(tm / 60), mm = tm % 60;
-      h += '<div class="lp-eq"><div class="lp-eq-t">El pulso de trabajo de este grupo<br>este trimestre' + (D.trimestre ? ' (' + esc(D.trimestre) + ')' : '') + ' es de</div>' +
+      h += '<div class="lp-eq"><div class="lp-eq-t">Lo que tu grupo lleva trabajado<br>por libre este trimestre' + (D.trimestre ? ' (' + esc(D.trimestre) + ')' : '') + '</div>' +
            '<div class="lp-eq-r"><svg class="lp-eq-p" viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true"><path class="b" d="M1 12h33l2.5-8 4.5 16 3.5-12 2 4h33"/><path class="t" pathLength="100" d="M1 12h33l2.5-8 4.5 16 3.5-12 2 4h33"/></svg>' +
            '<div class="lp-eq-n">' + (hh ? hh + '<small> h </small>' : '') + (hh && !mm ? '' : mm + '<small> min</small>') + '</div>' +
            '<div class="lp-eq-b">¡Menudo equipazo!</div></div></div>';
