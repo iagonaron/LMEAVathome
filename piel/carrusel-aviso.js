@@ -25,9 +25,9 @@
   var SBK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
   var URL_CARR = GP ? 'https://predict.gp.lmathome.es/carrusel-online/' : 'https://predict.ge.lmathome.es/carrusel-online/';
   var LISTA = [], OK = false, ABIERTO = null;   /* ABIERTO: lo decide el servidor (Tester incluido) */
-  /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00 (lo explica en clase ese día). El servidor también lo
+  /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 17:30 (antes 19:00; cambiado el 20-nov 08:40). El servidor también lo
      impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
-  var ABRE = GP ? Date.parse('2026-11-24T20:00:00+01:00') : Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT = GP ? 'el martes 24 de noviembre a las 20:00' : 'el viernes 20 de noviembre a las 19:00';
+  var ABRE = GP ? Date.parse('2026-11-24T20:00:00+01:00') : Date.parse('2026-11-20T17:30:00+01:00'), ABRE_TXT = GP ? 'el martes 24 de noviembre a las 20:00' : 'hoy viernes a las 17:30';
   var VIDEO_URL = '';   /* vídeo retirado hasta que Iago apruebe las pantallas (19-nov 15:25); estaba en piel/carrusel/carrusel-online-ge.mp4 */
 
   function ses() { try { return JSON.parse(localStorage.getItem(SESION) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
@@ -165,7 +165,7 @@
       '#lm-carr-pan .pt{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:13px 0;border-top:1px solid rgba(255,255,255,.18)}#lm-carr-pan h2 + .pt{border-top:0}' +
       '#lm-carr-pan .pt .inf{flex:1;min-width:220px}#lm-carr-pan .q{font-weight:800;font-size:18px}#lm-carr-pan .q .g{color:#d9d3ff;font-weight:700}' +
       '#lm-carr-pan .c{color:#d9d3ff;font-size:14px;margin-top:3px}' +
-      '#lm-carr-pan .pt.mia{box-shadow:inset 3px 0 0 #fff;padding-left:12px}#lm-carr-pan .cor svg{width:17px;height:17px;vertical-align:-3px;margin-right:6px}' +
+      /* (20-nov, Iago) «Tu partida» más destacada: tarjeta dorada propia */ '#lm-carr-pan .pt.mia{border:2px solid rgba(255,210,63,.9);border-radius:12px;padding:12px 14px;margin:6px 0;background:linear-gradient(135deg,rgba(255,210,63,.22),rgba(255,122,192,.10));box-shadow:0 0 0 4px rgba(255,210,63,.14),0 8px 24px rgba(0,0,0,.35)}#lm-carr-pan .pt.mia + .pt{border-top:0}#lm-carr-pan .pt.mia .q{color:#ffe28a;font-weight:800}#lm-carr-pan .cor svg{width:17px;height:17px;vertical-align:-3px;margin-right:6px}' +
       '#lm-carr-pan .mon{display:inline-flex;flex-wrap:wrap;gap:4px 12px;align-items:center}#lm-carr-pan .mon .m{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}#lm-carr-pan .mon svg{width:15px;height:15px;flex:none}#lm-carr-pan .mon b{font-weight:600;font-size:12px}#lm-carr-pan .mon i{font-style:normal;font-size:12px}' +
       '#lm-carr-pan .sq{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px}#lm-carr-pan .sq.v{background:#22c55e}#lm-carr-pan .sq.a{background:#f97316}' +
       '#lm-carr-pan .vid{position:relative;width:100%;max-width:760px;margin:0 auto;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid rgba(255,255,255,.24)}#lm-carr-pan .vid iframe,#lm-carr-pan .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}' +
@@ -244,7 +244,7 @@
   var PAN = null, CONF = null, MSG = '', HORA = '', VID = false;
   function filaPartida(p) {
     var mia = p.soy_creador, conf = Math.max(0, (p.apuntados || 0) - 1);
-    var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida · la has anunciado tú' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
+    var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
     var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora' : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
     var otros = Math.max(0, (p.apuntados || 0) - 1);
     var gente = mia ? (conf ? monigotes(conf, p.confirmados, 8) : 'sin confirmados todavía') : (otros ? monigotes(otros, p.confirmados, 8) : 'nadie apuntado todavía');
