@@ -24,6 +24,9 @@ const PELO_C=['#1f1a17','#6b3f1d','#a0522d','#f2c14e','#d4541c','#f1f5f9','#3b82
 const GOR_C=['#111827','#ef4444','#2563eb','#16a34a','#f8fafc','#facc15','#7c3aed','#f97316'];
 const ROPA_C=['#2a3052','#111827','#f8fafc','#ef4444','#2563eb','#16a34a','#facc15','#7c3aed','#f97316','#0ea5e9'];
 const FONDO_C=['#1b2038','#2a1a45','#10294a','#12312b','#3a1622','#24262e','#3b2a14','#0f3b3a'];
+/* (20-nov 23:25, Iago) su barba: verticales del bigote hacia abajo, mosca y un pelín de perilla */
+const BARBA_PROFE=P=>'<path d="M88 101 C86 108 86 115 89 122" stroke="'+P+'" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M112 101 C114 108 114 115 111 122" stroke="'+P+'" stroke-width="5" fill="none" stroke-linecap="round"/>'+
+  '<path d="M96 117 Q100 115 104 117 L102 123 Q100 125 98 123 Z" fill="'+P+'"/><path d="M92 137 Q100 149 108 137 Z" fill="'+P+'"/>';
 const BARBA=P=>'<path d="M54 94 A46 46 0 0 0 146 94 L136 96 C134 116 118 126 100 126 C82 126 66 116 64 96 Z" fill="'+P+'"/><path d="M86 101 q14 -7 28 0" stroke="'+P+'" stroke-width="6" fill="none" stroke-linecap="round"/>';
 /* ---------------- FONDOS (22:47, Iago): indeterminados, como nebulosas de colores o fondos de iPhone; por defecto, liso ---------------- */
 const FONDOS=[['liso','Liso'],['nebulosa','Nebulosa'],['aurora','Aurora'],['atardecer','Atardecer'],['oceano','Océano'],['lavanda','Lavanda'],['menta','Menta'],['lava','Lava'],['galaxia','Galaxia'],['bokeh','Bokeh'],['seda','Seda']];
@@ -202,7 +205,7 @@ function render(cfg,op){ op=op||{}; const o=Object.assign(norm(cfg),cfg&&cfg.__r
   const badge=op.profe?BADGE_PROFE:(op.bot?badgeBot(c):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):''));
   return '<svg class="av av3 '+(op.quieto?'quieto ':'')+(op.vivoFondo?'mueve ':'')+g0+(op.dir<0?' izq':'')+'" viewBox="-16 -16 232 232"><defs><clipPath id="v3c'+id+'"><circle cx="100" cy="100" r="96"/></clipPath></defs>'+
     '<g clip-path="url(#v3c'+id+')">'+fondo(o.fondo,o.fondoC,o.color,id)+'<g class="resp"><g class="cab">'+esc+peloAt+gr.at+'</g>'+cp.at+'</g>'+rp.at+rp.de+cp.cu+
-    '<g class="cab">'+cabeza+cp.de+(o.compCara==='barba'?BARBA(o.peloC):'')+cara(o.cara,g0,op.dir)+gafas(o.gafas)+esc+peloDe+gr.de+'</g></g>'+(g0==='llorar'?'':brazos(g0,R,o.color))+'</g></g>'+
+    '<g class="cab">'+cabeza+cp.de+(o.compCara==='barba'?BARBA(o.peloC)+(op.profe?BARBA_PROFE(o.peloC):''):'')+cara(o.cara,g0,op.dir)+gafas(o.gafas)+esc+peloDe+gr.de+'</g></g>'+(g0==='llorar'?'':brazos(g0,R,o.color))+'</g></g>'+
     '<circle cx="100" cy="100" r="95" fill="none" stroke="'+c+'" stroke-width="7"/>'+badge+'</svg>'; }
 /* ---------------- CSS (una vez) ---------------- */
 function css(){ if(document.getElementById('av3-css')) return; const s=document.createElement('style'); s.id='av3-css'; s.textContent=
