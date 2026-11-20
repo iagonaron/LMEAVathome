@@ -212,6 +212,7 @@
       '#lm-pulso .lp-rp i{display:inline-block;width:8px;height:8px;border-radius:2px}' +
       '#lm-pulso .lp-rp .lp-x2{margin:0}' +
       '#lm-pulso .lp-e.lp-tex{background:linear-gradient(90deg,rgba(8,11,22,.86),rgba(8,11,22,.62) 55%,rgba(8,11,22,.3)),var(--tex,none) 50% 35%/cover no-repeat,#11162b}' +   /* 19-nov 21:18, Iago: la piel en su tono original, sin teñir de rosa */
+      '#lm-pulso .lp-e.lp-tex.lp-carr{background:linear-gradient(90deg,rgba(8,11,22,.86),rgba(8,11,22,.62) 55%,rgba(8,11,22,.25)),repeating-radial-gradient(circle at 82% 50%,rgba(0,0,0,.34) 0 7px,rgba(0,0,0,0) 7px 15px),conic-gradient(from 210deg at 82% 50%,#5b3fd6,#a43fc9,#e0567a,#d38a2e,#2ea37a,#2f7fd6,#5b3fd6);border-color:rgba(196,181,253,.6)}' +   /* (20-nov-2026) carrusel online */
       '#lm-pulso .lp-e.lp-tex .lp-d{text-shadow:0 1px 3px rgba(0,0,0,.85)}#lm-pulso .lp-e.lp-tex .lp-nm{text-shadow:0 1px 3px rgba(0,0,0,.85)}' +
       '#lm-pulso .lp-val{display:flex;align-items:center;gap:8px;padding-left:10px;border-left:1px solid rgba(255,255,255,.1)}' +
       '#lm-pulso .lp-num{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15}' +
@@ -406,6 +407,8 @@
   }
   function fila(e) {
     var c = COL[e.area] || '#64748b', k = String(e.app || '').replace(/-(ge|gp)$/, ''), app = (e.app === 'ritmo-gp') ? 'Ritmo entonado' : (APP[k] || k);
+    /* (20-nov-2026 22:27, Iago) las partidas del carrusel online no son «PreDict»: «CARRUSEL online», con su textura de círculos */
+    var carr = (e.origen === 'carrusel-online'); if (carr) app = 'CARRUSEL online';
     var pt = parte(e.parte), tx = TEXP[k], pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
     /* (20-nov-2026, Iago) una sesión repartida en dos áreas (Ritmo entonado): «2′ ritmo · 3′ entonación», cada parte en su color */
     var rp = '', ra = (e.reparto && typeof e.reparto === 'object') ? AREAS.filter(function (x) { return (Number(e.reparto[x[0]]) || 0) > 0; }) : [];
@@ -420,7 +423,7 @@
               (COMBO === '4' ? '' : '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span>') + '</div>' +
               (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : (!e.verificado && COMBO === '4' && MODO_SELLO === 'A' ? '<span class="lp-pv3">por<br>validar</span>' : e.verificado || COMBO === '4' ? '' : '<span class="lp-pv">Pendiente<br>de validar</span>')) + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
     var totTxt = (COMBO === '1' && e.tot > 0) ? '<span class="lp-ar-n" style="margin-left:6px">' + e.tot + ' min este trimestre</span>' : '';
-    return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + (PORTAL[k] ? ' lp-tex' : '') + '"' + (tx ? ' style="--tex:url(' + TEXB + tx + ')"' : '') + '>' + avatar(e, c) +
+    return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + (PORTAL[k] ? ' lp-tex' : '') + (carr ? ' lp-tex lp-carr' : '') + '"' + (tx && !carr ? ' style="--tex:url(' + TEXB + tx + ')"' : '') + '>' + avatar(e, c) +
       '<div><div class="lp-nm">' + esc(e.nombre) + totTxt + '</div>' +
       '<div class="lp-d">' + mx + '<span class="lp-app" style="color:' + c + '">' + esc(app) + (pt ? ' · <span class="lp-tt">' + esc(pt) + '</span>' : '') + '</span>' + rp + '</div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + (COMBO === '4' && e.tot > 0 ? ' · <span class="lp-tt"><b style="color:#aab4d6;font-weight:700">' + e.tot + ' min</b> ' + (D && D.trimestre ? 'en el ' + esc(D.trimestre) : 'este trimestre') + '</span>' : '') + '</div></div>' + val + '</div>';
   }
