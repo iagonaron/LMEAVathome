@@ -1,0 +1,207 @@
+{
+ "v": 1,
+ "libro": "Ritmo 4.º GE",
+ "curso": "4Ge",
+ "grado": "ge",
+ "n": 24,
+ "titulo": "24",
+ "titulo_estilo": {
+  "fuente": "sans",
+  "x": 42,
+  "y": 178,
+  "px": 42
+ },
+ "numeros_x": 44,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/024.png",
+ "tonalidad": "Sol mayor",
+ "modo": "mayor",
+ "armadura": "G",
+ "clave": "treble",
+ "pagina": {
+  "ancho": 1680,
+  "alto": 1064,
+  "interlinea": 16.45
+ },
+ "sistemas": [
+  {
+   "y": 127,
+   "x0": 150,
+   "barras": [
+    719,
+    1224,
+    1634
+   ],
+   "compases": [
+    1,
+    2,
+    3
+   ]
+  },
+  {
+   "y": 379,
+   "x0": 40,
+   "barras": [
+    695,
+    1148,
+    1580
+   ],
+   "compases": [
+    4,
+    5,
+    6
+   ],
+   "final": "doble",
+   "cortesia": {
+    "x1": 1635,
+    "compas": "3/4"
+   }
+  },
+  {
+   "y": 631,
+   "x0": 40,
+   "barras": [
+    678,
+    1150,
+    1636
+   ],
+   "compases": [
+    7,
+    8,
+    9
+   ]
+  },
+  {
+   "y": 883,
+   "x0": 40,
+   "barras": [
+    627,
+    1150,
+    1636
+   ],
+   "compases": [
+    10,
+    11,
+    12
+   ],
+   "final": "fin"
+  }
+ ],
+ "compases": [
+  {
+   "c": 1,
+   "compas": "9/8",
+   "m": "^ 4:g4 | v 8:b4 | ^ 8:g4 8:a4 8:b4 | v 4:d5 | v 16:e5 16:d5"
+  },
+  {
+   "c": 2,
+   "m": "v 8:c5 8:r 8:b4 | ^ 8:a4 8:r 8:g4 | ^ 16:f#4 16:g4 16:a4 16:g4 16:f#4 16:e4"
+  },
+  {
+   "c": 3,
+   "m": "^ 4.:d4 | ^ 8:r | ^ 8:d4 8:e4 | ^ 16:f#4 16:g4 8:a4 8:c5"
+  },
+  {
+   "c": 4,
+   "m": "v 16:b4 16:c5 | v 4:d5 | ^ 16:b4 16:a4 | ^ 4:g4 | v 8:d5 8:b4 16:c5 16:d5"
+  },
+  {
+   "c": 5,
+   "m": "v 4:e5 | ^ 8:r | v 8:e5- 8:c5- | v 8:e5 8:f#5 8:e5"
+  },
+  {
+   "c": 6,
+   "m": "v 4.:d5 | ^ 8:r | v 8:d5 8:c5 | ^ 8:b4 8:a4"
+  },
+  {
+   "c": 7,
+   "compas": "3/4",
+   "m": "^ 8.:g4 16:d4 | ^ 4:g4 | ^ 8:r | v 16:d5 16:c5"
+  },
+  {
+   "c": 8,
+   "m": "^ 8.:b4 16:a4 | v 4:b4 | v 8:b4 8:c5 8:d5"
+  },
+  {
+   "c": 9,
+   "m": "v 8.:e5 16:f#5 | v 4:e5 | ^ 8:r | v 16:e5 16:d5"
+  },
+  {
+   "c": 10,
+   "m": "v 8.:c5 16:e5 | v 8:c5 | v 4.:c5-"
+  },
+  {
+   "c": 11,
+   "m": "v 8:d5 | v 4.:d5- | ^ 8:r | v 16:d5 16:c5"
+  },
+  {
+   "c": 12,
+   "m": "v 8:b4 | ^ 4.:g4 | ^ 8:g4>! | ^ 8:r"
+  }
+ ],
+ "ligaduras": [
+  "1.1-2.1 arriba",
+  "2.3-2.4 arriba",
+  "2.6-3.1 abajo",
+  "3.3-4.3 arriba",
+  "4.4-4.6 abajo",
+  "4.7-5.1 arriba",
+  "5.5-6.1 arriba",
+  "6.3-6.6 arriba",
+  "7.1-7.3 arriba",
+  "7.5-8.3 arriba",
+  "8.4-9.3 arriba",
+  "9.5-9.6 arriba",
+  "10.1-10.4 arriba",
+  "11.1-11.2 arriba",
+  "11.4-12.2 arriba"
+ ],
+ "tresillos": [
+  {
+   "notas": "5.3-5.4",
+   "r": "2:3"
+  },
+  {
+   "notas": "6.5-6.6",
+   "r": "2:3"
+  },
+  "8.4-8.6"
+ ],
+ "corchetes": [
+  "10.3-10.4"
+ ],
+ "pendiente": [
+  "Segundo corchete discontinuo del c10 (bajo la duración de la negra con puntillo, tras la nota 4, sin llegar a la barra): no expresable con c.n-c.n (queda en vacío, sin notas debajo); el primero llega en el libro hasta el final de la negra con puntillo y en la copia solo hasta la cabeza."
+ ],
+ "notas_libro": [
+  {
+   "lineas": [
+    {
+     "x0": 1600,
+     "x1": 1620,
+     "y": 349,
+     "partes": [
+      "="
+     ]
+    }
+   ],
+   "ritmos": [
+    {
+     "figs": "4.",
+     "xs": [
+      1578
+     ],
+     "y": 345,
+     "yb": 311
+    },
+    {
+     "figs": "4",
+     "xs": [
+      1636
+     ],
+     "y": 345,
+     "yb": 311
+    }
+   ]
+  }
+ ]
+}

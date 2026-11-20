@@ -1,0 +1,47 @@
+{
+ "v": 1,
+ "libro": "Ritmo 4.º GE",
+ "curso": "4Ge",
+ "grado": "ge",
+ "n": 26,
+ "titulo": "26",
+ "titulo_estilo": { "fuente": "sans", "x": 48, "y": 168, "px": 42 },
+ "numeros_x": 46,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/026.png",
+ "tonalidad": "La mayor",
+ "modo": "mayor",
+ "armadura": "A",
+ "clave": "bass",
+ "pagina": { "ancho": 1680, "alto": 778, "interlinea": 16 },
+ "sistemas": [
+  { "y": 119, "x0": 158, "barras": [662, 966, 1346, 1640], "compases": [1, 2, 3, 4] },
+  { "y": 371, "x0": 40, "barras": [536, 890, 1274, 1640], "compases": [5, 6, 7, 8] },
+  { "y": 622, "x0": 40, "barras": [534, 938, 1318, 1636], "compases": [9, 10, 11, 12], "final": "fin" }
+ ],
+ "compases": [
+  { "c": 1, "compas": "3/4", "m": "^ 8:a2 | ^ 4:a2 | ^ 16:b2 16:c#3 | ^ 4:a2" },
+  { "c": 2, "m": "^ 16:c#3 16:d3 | v 4:e3 | v 8:f#3 | v 4:e3" },
+  { "c": 3, "m": "v 16:a3 16:b3 | v 4:c#4 | v 16:d4 16:c#4 | v 8:b3 8:a3" },
+  { "c": 4, "m": "v 8:g#3 | ^ 8:r | v 8:e3 | ^ 8:r | ^ 4:r" },
+  { "c": 5, "m": "^ 8:a2 | ^ 4:a2 | ^ 8:b2 | ^ 4:c#3" },
+  { "c": 6, "m": "^ 8:a2 | ^ 4:a2 | ^ 4:b2 | ^ 8:c#3" },
+  { "c": 7, "m": "v 8:d3 | ^ 8:r | v 8:f#3 | v 4:e3 | v 8:d3" },
+  { "c": 8, "m": "v 8:d3 8:e3 | ^ 8:c#3 | ^ 8:r | ^ 4:r" },
+  { "c": 9, "m": "^ 8:r | ^ 4:a2 | ^ 8:b2 | ^ 4:c#3" },
+  { "c": 10, "m": "^ 8:r | ^ 4:a2 | ^ 16:b2 16:c#3 | v 8:d3 8:e3" },
+  { "c": 11, "m": "v 8:f#3 | v 4:f#3 | v 4:e3 | v 16:f#3 16:g#3" },
+  { "c": 12, "m": "v 4:a3 | ^ 4:a2> | ^ 4:r" }
+ ],
+ "ligaduras": [
+  "1.1-1.4 abajo",
+  "2.1-2.5 arriba",
+  "3.1-4.1 arriba",
+  "5.1-5.4 abajo",
+  "7.3-8.3 arriba",
+  "10.2-11.1 arriba",
+  "11.2-12.1 arriba"
+ ],
+ "uniones": ["7.5-8.1"],
+ "corchetes": ["6.1-6.2", "6.3-6.3", "6.4-6.4", "7.3-7.4", "7.5-7.5", "9.1-9.2", "9.3-9.3"],
+ "pendiente": ["Corchetes discontinuos de una sola nota (6.3, 6.4, 7.5, 9.3): en el libro son tan anchos como los de dos notas (un pulso); en la copia salen más estrechos."]
+}
