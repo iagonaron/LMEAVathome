@@ -185,7 +185,7 @@
       '#lm-carr-pan .vacio{color:#d9d3ff;padding:4px 0}' +
       '#lm-carr-pan .msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}' +
       '#lm-carr-pan .pt > .row .ap.anf{color:#ffd23f}#lm-carr-pan .pt{position:relative}#lm-carr-pan .pt .nop{position:absolute;right:14px;bottom:8px;border:0;background:none;padding:2px 0;color:#bdb6e6;font:600 12.5px/1.2 inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}#lm-carr-pan .pt .nop:hover{color:#fff}' +
-      '#lm-carr-pan .pt .lob{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:13.5px;color:#d9d3ff}#lm-carr-pan .pt .lob svg{flex:none;color:#ffd23f}' +
+      '#lm-carr-pan .pt .lob{display:inline-flex;align-items:center;gap:7px;margin-top:8px;padding:6px 11px;border-radius:8px;background:#fff;color:#1a1238;font-size:13.5px;font-weight:700}#lm-carr-pan .pt .lob svg{flex:none;color:#f97316}' +   /* (20-nov 21:03, Iago) que destaque: fondo blanco */
       '#lm-carr-pan .conf .disp{display:flex;gap:10px;align-items:center;background:rgba(255,210,63,.14);border:1.5px solid rgba(255,210,63,.55);border-radius:10px;padding:9px 12px;font-weight:700}#lm-carr-pan .conf .disp svg{flex:none;width:34px;height:22px}' +
       '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.66)}' +
       '#lm-carr-pan .conf .cm{max-width:470px;background:rgba(18,13,52,.97);border:1.5px solid rgba(255,255,255,.34);border-radius:14px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}' +
