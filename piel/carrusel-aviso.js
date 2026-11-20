@@ -131,6 +131,7 @@
       '#lm-carr-aviso .resto{position:absolute;left:0;top:calc(100% + 5px);display:flex;flex-direction:column;gap:5px;z-index:2147480400}' +
       '#lm-carr-aviso .resto[hidden]{display:none}' +
       '#lm-carr-btn[hidden],#lm-carr-aviso[hidden]{display:none!important}' +
+      '#lm-iconos>#lm-carr-btn{order:0!important}' +
       /* monigotes de confirmados (en la franja del anfitrión) */
       '.lm-fr .mon{display:inline-flex;align-items:center;gap:6px;margin-left:4px}.lm-fr .mon .m{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}.lm-fr .mon svg{width:13px;height:13px;flex:none}.lm-fr .mon b{font-weight:600;font-size:10px;opacity:.92}.lm-fr .mon i{font-style:normal;font-size:11px;margin-left:2px}' +
       /* la ventana emergente: la portada de PreDict Carrusel (remolino multicolor, cristal oscuro, botones blancos) */
@@ -634,10 +635,42 @@
   }
   setInterval(function () { try { vigilaClase(); } catch (e) {} }, 700);
 
+  /* ---- sitio del icono ----
+     (20-nov-2026 13:27, Iago) «el icono, ponlo entre clave de sol y dictado. No a la izquierda de todo». En las cuentas
+     de profe el icono va DENTRO de la hilera de herramientas (#lm-iconos de piel/apps/portal.js): después de la clave
+     de sol (.lm-ic-ento) y antes del dictado (.lm-ic-dict). Esa hilera se rehace entera cuando cambia lo que hay activo
+     (innerHTML = ''), así que un vigilante lo vuelve a poner en su sitio. Sin hilera (o para los alumnos), donde estaba:
+     el primero de la barra. Deshacer: quitar sitioBtn/vigilaSitio y volver a host.insertBefore(b, host.firstChild). */
+  var BTN = null, VIGIA = null;
+  function sitioBtn(b, host) {
+    var bar = esTester() ? document.getElementById('lm-iconos') : null;
+    if (bar && bar.parentNode === host) {
+      var w = function (sel) { var e = bar.querySelector(sel); return e ? (e.closest('.lm-ic-w') || e) : null; };
+      var dict = w('.lm-ic-dict'), ento = w('.lm-ic-ento');
+      var ref = dict || (ento ? ento.nextSibling : null);
+      if (ref === b || (b.parentNode === bar && b.nextSibling === ref)) return;
+      bar.insertBefore(b, ref); return;
+    }
+    if (b.parentNode !== host) host.insertBefore(b, host.firstChild);
+  }
+  function vigilaSitio(host) {
+    if (VIGIA || !window.MutationObserver || !esTester()) return;
+    var pend = false;
+    VIGIA = new MutationObserver(function () {
+      if (pend) return; pend = true;
+      requestAnimationFrame(function () {
+        pend = false;
+        var h = document.querySelector('.topbar .topbar-right');
+        if (BTN && h && !BTN.hidden) sitioBtn(BTN, h);
+      });
+    });
+    VIGIA.observe(host, { childList: true, subtree: true });
+  }
+
   /* ---- pintar ---- */
   function pintar() {
     var host = document.querySelector('.topbar .topbar-right');
-    var b = document.getElementById('lm-carr-btn'), a = document.getElementById('lm-carr-aviso');
+    var b = BTN || document.getElementById('lm-carr-btn'), a = document.getElementById('lm-carr-aviso');
     if (!host || !cuenta() || !OK || (GP && !GP_PUBLICO && !esTester())) { if (b) b.hidden = true; if (a) a.hidden = true; cerrarPanel(); return; }
     css();
     document.documentElement.classList.toggle('lm-carr-profe', esTester()); if (esTester()) cssProfe();   /* (menú profe) */
@@ -647,7 +680,7 @@
       b.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + ESP + '<span class="pto"></span>';
       b.addEventListener('click', function () { if (PAN && !PAN.hidden) { cerrarPanel(); return; } if (esTester()) { menuProfe(b); return; } abrirPanel(); });   /* (menú profe) */
     }
-    if (b.parentNode !== host) host.insertBefore(b, host.firstChild);
+    BTN = b; sitioBtn(b, host); vigilaSitio(host);
     b.hidden = false;
     var abiertas = LISTA.filter(function (p) { return p.lobby_abierto; });
     var nuevas = LISTA.filter(function (p) { return !p.lobby_abierto && !p.yo; });
