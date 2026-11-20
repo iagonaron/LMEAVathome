@@ -133,6 +133,7 @@
       '#lm-carr-btn[hidden],#lm-carr-aviso[hidden]{display:none!important}' +
       '#lm-iconos>#lm-carr-btn{order:0!important}' +
       /* monigotes de confirmados (en la franja del anfitrión) */
+      '.lm-fr .nap{font-weight:800;margin-left:2px;white-space:nowrap}' +
       '.lm-fr .mon{display:inline-flex;align-items:center;gap:6px;margin-left:4px}.lm-fr .mon .m{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}.lm-fr .mon svg{width:13px;height:13px;flex:none}.lm-fr .mon b{font-weight:600;font-size:10px;opacity:.92}.lm-fr .mon i{font-style:normal;font-size:11px;margin-left:2px}' +
       /* la ventana emergente: la portada de PreDict Carrusel (remolino multicolor, cristal oscuro, botones blancos) */
       '#lm-carr-pan{position:fixed;inset:0;z-index:2147480500;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:rgba(3,6,12,.62);font-family:"Helvetica Neue",Arial,system-ui,sans-serif;color:#fff}' +
@@ -210,11 +211,13 @@
   var FLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 
   /* ---- cartelito ---- */
+  /* (20-nov-2026 18:14, Iago) en la franja del anfitrión, que se vea claro que ya tiene gente: «· 3 apuntados» + sus monigotes */
+  function apuntadosTxt(p) { var n = Math.max(0, (p.apuntados || 0) - 1); return n ? '<span class="nap">· ' + n + (n === 1 ? ' apuntado' : ' apuntados') + '</span>' : ''; }
   function franja(p) {
     var f = document.createElement('button'); f.type = 'button';
     f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '') + (sinAnf(p) ? ' alerta' : '');
     f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : NOMBRE + ' · partida de ' + (p.creador || '');
-    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (sinAnf(p) ? '<b class="ex">!</b>' : (p.soy_creador ? CORONA : ESP)) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? monigotes(Math.max(0, (p.apuntados || 0) - 1), p.confirmados, 3) : '');
+    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (sinAnf(p) ? '<b class="ex">!</b>' : (p.soy_creador ? CORONA : ESP)) + '<span>' + esc(texto(p)) + '</span>' + (p.soy_creador ? apuntadosTxt(p) + monigotes(Math.max(0, (p.apuntados || 0) - 1), p.confirmados, 3) : '');
     f.onclick = function (e) {
       e.stopPropagation();
       if (p.lobby_abierto) abrirCarrusel(p.id, !(p.soy_creador || p.yo_dentro));
