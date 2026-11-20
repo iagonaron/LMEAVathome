@@ -182,6 +182,7 @@
       '#lm-carr-pan .vid{position:relative;width:100%;max-width:760px;margin:0 auto;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid rgba(255,255,255,.24)}#lm-carr-pan .vid iframe,#lm-carr-pan .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}' +
       '#lm-carr-pan .vacio{color:#d9d3ff;padding:4px 0}' +
       '#lm-carr-pan .msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}' +
+      '#lm-carr-pan .conf .disp{display:flex;gap:10px;align-items:center;background:rgba(255,210,63,.14);border:1.5px solid rgba(255,210,63,.55);border-radius:10px;padding:9px 12px;font-weight:700}#lm-carr-pan .conf .disp svg{flex:none;width:34px;height:22px}' +
       '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.66)}' +
       '#lm-carr-pan .conf .cm{max-width:470px;background:rgba(18,13,52,.97);border:1.5px solid rgba(255,255,255,.34);border-radius:14px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}' +
       '#lm-carr-pan .rojo{color:#ef4444;font-weight:800}#lm-carr-pan .conf h3{margin:0 0 10px;font-size:22px;font-weight:900}#lm-carr-pan .conf p{color:#f1eeff;margin:0 0 16px}#lm-carr-pan .conf .row{justify-content:flex-end}' +
@@ -191,6 +192,9 @@
   }
   var ESP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>';
   function SVI(d) { return '<svg class="sv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
+  /* (20-nov-2026 20:51, Iago) al apuntarse/anunciar: «solo ordenador o tablet; con el móvil no te dejará» */
+  var DISP = 'Solo se puede jugar desde un ordenador o una tablet: con el móvil no te dejará entrar.';
+  var I_DISP = '<svg viewBox="0 0 64 40" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="34" height="24" rx="2.5"/><path d="M1 33h40"/><rect x="45" y="6" width="17" height="28" rx="3"/></svg>';
   var I_PLAY = SVI('<path d="M8 5.5v13l10-6.5z"/>'), I_CAL = SVI('<path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'), I_OK = SVI('<path d="M5 12.5l4.5 4.5L19 7.5"/>'), I_X = SVI('<path d="M6 6l12 12M18 6L6 18"/>');
   var CORONA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>';
   var I_PER = SVI('<circle cx="12" cy="7.5" r="3.6"/><path d="M4.8 20.5c0-4 3.2-7.1 7.2-7.1s7.2 3.1 7.2 7.1"/>');
@@ -466,7 +470,7 @@
       '<div class="row"><button type="button" class="fh' + (HORA ? '' : ' vacio') + '" id="lm-carr-fh"><input type="hidden" id="lm-carr-hora" value="' + esc(HORA) + '"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2.5\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg><span class="ph">Elige día y hora</span><span class="vl">' + esc(lmfTexto(HORA)) + '</span></button><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
       '<div class="card"><h2>Partida individual</h2><p>Empieza una partida tú solo, ahora mismo.</p><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div></div>' +
       '<div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>') +
-      (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + rojo(esc(CONF.x)) + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
+      (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + rojo(esc(CONF.x)) + (CONF.d ? '</p><p class="disp">' + I_DISP + '<span>' + esc(CONF.d) + '</span>' : '') + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
       '</div></div>';
     var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
     PAN.querySelector('.x:not(.vv)').onclick = cerrarPanel;
@@ -476,7 +480,7 @@
     PAN.querySelector('#lm-carr-fh').onclick = function () { lmSelFecha(HORA, function (v) { var hh = PAN.querySelector('#lm-carr-hora'); if (hh) hh.value = v; HORA = v; pintaPanel(); }); };   /* (20-nov, Iago) selector propio: el mismo en todos los navegadores */
     ok.onclick = async function () {
       if (!hi.value) return; var f = new Date(hi.value);
-      if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,5 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar')) return;
+      if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,5 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar', null, DISP)) return;
       var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id, p_programada: f.toISOString() });
       if (r && r.ok) { MSG = 'Partida anunciada para ' + cuando(f.toISOString()) + '.'; HORA = ''; }
       else MSG = r && r.error === 'aun_no' ? 'El carrusel online se abre ' + ABRE_TXT + '.' : r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 14 días desde ahora.' : 'No he podido anunciar la partida.';
@@ -486,7 +490,7 @@
     PAN.querySelectorAll('button[data-go]').forEach(function (bt) { bt.onclick = function () { abrirCarrusel(bt.dataset.go, bt.dataset.e === '1'); }; });
     PAN.querySelectorAll('button[data-heredar]').forEach(function (bt) {
       bt.onclick = async function () {
-        if (!await pedirConf('¿Quieres ser el anfitrión?', 'La partida será tuya: la empiezas tú. Los minutos que practiques en ella contarán ×1,5. Si luego no asistes, perderás 0,5 de actitud.', 'Sí, seré el anfitrión')) return;
+        if (!await pedirConf('¿Quieres ser el anfitrión?', 'La partida será tuya: la empiezas tú. Los minutos que practiques en ella contarán ×1,5. Si luego no asistes, perderás 0,5 de actitud.', 'Sí, seré el anfitrión', null, DISP)) return;
         bt.disabled = true;
         var r = await rpcA('suite_cr_heredar', { p_cuenta: cuenta().id, p_partida: bt.dataset.heredar });
         MSG = r && r.ok ? 'Ahora eres el anfitrión. Tus minutos en esta partida contarán ×1,5.' : 'No he podido hacerte anfitrión (puede que otro se haya adelantado).'; refrescar();
@@ -506,7 +510,7 @@
       bt.onclick = async function () {
         var a = bt.dataset.a, id = bt.dataset.id, P = LISTA.filter(function (x) { return x.id === id; })[0];
         if (a === 'si' && P && P.yo === 'si') return;
-        if (a === 'si' && P && P.tipo === 'anunciada') { if (!await pedirConf('¿Estás seguro?', 'Si luego no asistes, perderás 0,25 de actitud. Puedes evitarlo quitándote de la partida hasta 5 minutos antes de que empiece.', 'Sí, me apunto')) return; }
+        if (a === 'si' && P && P.tipo === 'anunciada') { if (!await pedirConf('¿Estás seguro?', 'Si luego no asistes, perderás 0,25 de actitud. Puedes evitarlo quitándote de la partida hasta 5 minutos antes de que empiece.', 'Sí, me apunto', null, DISP)) return; }
         if ((a === 'no' || a === 'quiza') && P && P.yo === 'si' && tarde(P)) { if (!await pedirConf('Ya es tarde para quitarte', 'Quitarte ahora cuenta como no asistir: perderás 0,25 de actitud. ¿Quieres quitarte igualmente?', 'Sí, quitarme', 'No, me quedo')) return; }
         else if (a === 'no' && P && P.yo === 'si') { var an = String(P.anfitrion || P.creador || 'El anfitrión').split(' ')[0];
           if (!await pedirConf('¿Seguro que te desapuntas?', an + ' cuenta con que vas a jugar. Hasta 5 minutos antes de empezar puedes desapuntarte sin perder actitud.', 'Sí, desapuntarme', 'No, me quedo')) return; }
@@ -518,9 +522,9 @@
   function abrirURL(u) { var w = null; try { w = window.open(u, '_blank'); } catch (e) {} if (!w) location.href = u; }
   function abrirCarrusel(id, entrar) { abrirURL(URL_CARR + '?p=' + encodeURIComponent(id) + (entrar ? '&e=1' : '')); }
   function rojo(t) { return t.replace(/(perder[áa]s (?:un )?0,\d+ de actitud)/g, '<b class="rojo">$1</b>'); }
-  function pedirConf(t, x, si, no) {
+  function pedirConf(t, x, si, no, d) {
     return new Promise(function (res) {
-      CONF = { t: t, x: x, si: si, no: no }; pintaPanel();
+      CONF = { t: t, x: x, si: si, no: no, d: d }; pintaPanel();
       var fin = function (v) { CONF = null; pintaPanel(); res(v); };
       PAN.querySelector('#lm-c-si').onclick = function () { fin(true); };
       PAN.querySelector('#lm-c-no').onclick = function () { fin(false); };
