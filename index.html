@@ -5388,6 +5388,10 @@ function showEnig(kind){
 .dc-reps-ojo:active{background:rgba(255,255,255,.14)}
 .dc-ojeada{position:absolute;left:50%;top:100%;transform:translate(-50%,6px);width:170px;background:#fff;border-radius:6px;padding:3px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:5;pointer-events:none}
 .dc-ojeada svg{display:block;width:100%;height:auto}
+/* (20-nov-2026, Iago) GE: el mismo ojo, en la barra de arriba, solo antes de empezar (en GP está en la ventana de repeticiones) */
+.dc-ojo-wrap{position:relative;display:inline-flex}
+.dc-ojo-wrap .dc-icobtn{width:44px;padding-left:0;padding-right:0}
+.dc-ojo-wrap .dc-ojeada{left:auto;right:0;transform:translateY(6px);width:200px}
 .dc-reps-ok{margin-top:18px;border:0;border-radius:12px;padding:13px 30px;font-size:17px;font-weight:800;color:#0b1220;background:linear-gradient(120deg,#fbbf24,#f97316);cursor:pointer;box-shadow:0 8px 24px rgba(249,115,22,.35)}
 /* ===== DICTADO ACTIVO · ajustes portal (Iago 15-jul-2026) ===== */
 #dcOverlay{z-index:99990}
@@ -6352,6 +6356,7 @@ window.DictadoClase = (function(){
     if(!corriendo && !pausado && esGP() && !repsElegidas){ abrirReps(); return; }   // (23-sep-2026) GP: elegir repeticiones
     if(!corriendo && !pausado){                 // primer arranque
       corriendo=true;
+      (function(){ var w=el('dcOjoWrap'); if(w) w.style.display='none'; })();   /* (20-nov-2026) el ojo, solo antes de empezar */
       preSonido(ctx.currentTime+0.05);
       nextTime=ctx.currentTime+1.5;             // (23-sep-2026) margen tras el pre-sonido
       schedTimer=setInterval(schedLoop, 40);
@@ -6815,7 +6820,7 @@ window.DictadoClase = (function(){
   var _ojeadaSvg=null, _ojeadaT=null, _ojeadaDe=null;
   function ojeada(){
     try{
-      var mid=document.querySelector('#dcReps .dc-reps-mid'); if(!mid) return;
+      var mid=document.querySelector('#dcReps.on .dc-reps-mid')||el('dcOjoWrap'); if(!mid) return;   /* (20-nov-2026) GE: el ojo de la barra de arriba */
       if(!_ojeadaSvg || _ojeadaDe!==anim){ _ojeadaSvg=null; _ojeadaDe=anim;
         var tmp=document.createElement('div'); tmp.style.cssText='position:fixed;left:-99999px;top:0;width:1100px';
         document.body.appendChild(tmp);
@@ -6855,6 +6860,7 @@ window.DictadoClase = (function(){
         '<div class="dc-titulo"><span>DIC</span><span class="dc-fina">TADO</span> <span id="dcTituloInfo"></span></div>'+
         '<span id="dcInfoRevel" style="font-size:16px;font-weight:800;color:#fbbf24;margin-left:14px"></span>'+
         '<div class="dc-top-derecha">'+
+          '<span class="dc-ojo-wrap" id="dcOjoWrap"><button class="dc-icobtn" type="button" onclick="DictadoClase.ojeada()" title="Ver el dictado en pequeño 2 segundos (solo antes de empezar)">👁</button></span>'+   /* (20-nov-2026, Iago) GE */
           '<button class="dc-icobtn" id="dcRevTon" onclick="DictadoClase.revTon()" title="Mostrar la armadura en los pentagramas">👁 Tonalidad</button>'+
           '<button class="dc-icobtn" id="dcRevComp" onclick="DictadoClase.revComp()" title="Mostrar el compás en el primer pentagrama">👁 Compás</button>'+
           '<button class="dc-icobtn" onclick="DictadoClase.fs()" title="Pantalla completa">⛶</button>'+
@@ -6923,6 +6929,7 @@ window.DictadoClase = (function(){
     ['dcRevTon','dcRevComp'].forEach(function(id){
       var b=el(id); if(b){ b.disabled=false; b.style.opacity=1; }
     });
+    (function(){ var w=el('dcOjoWrap'); if(w) w.style.display=esGP()?'none':''; })();   /* (20-nov-2026, Iago) GE: ojo arriba; GP lo tiene en la ventana de repeticiones */
     var inf=el('dcInfoRevel'); if(inf) inf.textContent='';
     el('dcRevelar').classList.remove('visible');
     (function(){ var vr=el('dcVerRes'); if(vr) vr.classList.remove('fin'); })();
@@ -9242,7 +9249,7 @@ html.lm-fam-portal .topbar-right > #ge-espiral{order:-3 !important;width:var(--l
 <!-- (19-nov-2026, C1 · Carrusel online) botón azul del PreDict Carrusel online + cartelito «Tienes un carrusel…» a la izquierda de «?». Quitarlo: borrar esta línea. -->
 <script src="https://ge.lmathome.es/piel/carrusel-aviso.js?v=20261120v" defer></script>
 <!-- (19-nov-2026, Iago) PULSO · lo que tu grupo trabaja por libre (piel/pulso.js). Quitarlo: borrar esta línea. -->
-<script src="https://ge.lmathome.es/piel/pulso.js?v=3" defer></script>
+<script src="https://ge.lmathome.es/piel/pulso.js?v=4" defer></script>
 <!-- (20-nov-2026, Iago) LECCIONES DEL LIBRO EN DIGITAL en la campana (piel/libro-digital.js). Quitarlo: borrar esta línea. -->
 <script src="https://ge.lmathome.es/piel/libro-digital.js?v=3" defer></script>
 <script src="https://ge.lmathome.es/piel/avisos/actitud/mg-anim.js?v=2" defer></script><!-- (13-nov-2026, C0) animación del 👍 y el sello la primera vez -->
