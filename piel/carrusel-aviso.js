@@ -174,6 +174,7 @@
       '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.66)}' +
       '#lm-carr-pan .conf .cm{max-width:470px;background:rgba(18,13,52,.97);border:1.5px solid rgba(255,255,255,.34);border-radius:14px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}' +
       '#lm-carr-pan .rojo{color:#ef4444;font-weight:800}#lm-carr-pan .conf h3{margin:0 0 10px;font-size:22px;font-weight:900}#lm-carr-pan .conf p{color:#f1eeff;margin:0 0 16px}#lm-carr-pan .conf .row{justify-content:flex-end}' +
+      /* (20-nov) el campo de la fecha es un botón que abre el selector propio */ '#lm-carr-pan button.fh{display:flex;align-items:center;gap:9px;height:42px;padding:0 14px;box-sizing:border-box;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.5);color:#fff;font:700 15px "Helvetica Neue",Arial,sans-serif;cursor:pointer;white-space:nowrap;text-align:left}#lm-carr-pan button.fh svg{width:19px;height:19px;flex:none}#lm-carr-pan button.fh .ph{position:static;inset:auto;padding:0;display:none;color:inherit;font:inherit}#lm-carr-pan button.fh.vacio{border-style:dashed;border-color:rgba(255,210,63,.85);color:#ffd23f}#lm-carr-pan button.fh.vacio .ph{display:inline}#lm-carr-pan button.fh.vacio .vl{display:none}#lm-carr-pan button.fh:hover{background:rgba(255,210,63,.1)}' +
       '@media (max-width:900px){#lm-carr-btn,#lm-carr-aviso,#lm-carr-pan{display:none!important}}';
     document.head.appendChild(st);
   }
@@ -241,6 +242,94 @@
   }
 
   /* ---- ventana emergente de partidas ---- */
+  /* (20-nov-2026, Iago) Selector propio de DÍA y HORA para anunciar partidas (el mismo en ordenador, iPad y móvil):
+     calendario del mes con los días pasados apagados y HOY marcado, horas y minutos; solo deja elegir desde dentro de
+     10 minutos hasta 14 días (lo mismo que exige el servidor). lmSelFecha(valor 'AAAA-MM-DDTHH:MM' o '', alElegir(valor)) */
+  var LMF_MES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  var LMF_DIA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  function lmfDos(n) { return (n < 10 ? '0' : '') + n; }
+  function lmfTexto(v) {
+    if (!v) return '';
+    var d = new Date(v); if (isNaN(d)) return '';
+    return LMF_DIA[d.getDay()].slice(0, 3) + ' ' + d.getDate() + ' ' + LMF_MES[d.getMonth()].slice(0, 3) + ' · ' + lmfDos(d.getHours()) + ':' + lmfDos(d.getMinutes());
+  }
+  function lmfCss() {
+    if (document.getElementById('lmf-css')) return;
+    var s = document.createElement('style'); s.id = 'lmf-css';
+    s.textContent =
+      '.lmfcapa{position:fixed!important;inset:0!important;z-index:2147483647!important;background:rgba(4,6,14,.55);display:flex;align-items:center;justify-content:center;font-family:"Helvetica Neue",Arial,sans-serif;-webkit-tap-highlight-color:transparent}' +
+      '.lmf{width:min(392px,94vw);box-sizing:border-box;padding:18px 18px 16px;border-radius:16px;background:rgba(22,18,44,.97);border:1px solid rgba(255,255,255,.18);box-shadow:0 24px 70px rgba(0,0,0,.55);color:#fff}' +
+      '.lmf h3{margin:0 0 12px;font-size:18px;font-weight:800;letter-spacing:.01em}' +
+      '.lmf .mes{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.lmf .mes b{font-size:16px;font-weight:800;text-transform:capitalize}' +
+      '.lmf .mes button{width:34px;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:18px;cursor:pointer}.lmf .mes button:disabled{opacity:.25;cursor:default}' +
+      '.lmf .sem,.lmf .dias{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.lmf .sem span{text-align:center;font-size:12px;font-weight:800;color:rgba(255,255,255,.55);padding:2px 0 4px}' +
+      '.lmf .dias button{position:relative;height:38px;border-radius:9px;border:1px solid transparent;background:rgba(255,255,255,.07);color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:0}' +
+      '.lmf .dias button:disabled{background:transparent;color:rgba(255,255,255,.22);cursor:default}.lmf .dias i{visibility:hidden}' +
+      '.lmf .dias button.hoy{border-color:#ffd23f}.lmf .dias button.hoy::after{content:"hoy";position:absolute;left:0;right:0;bottom:1px;font-size:9px;font-weight:800;color:#ffd23f;line-height:1}' +
+      '.lmf .dias button.sel{background:#ffd23f;color:#1b1406}.lmf .dias button.sel::after{color:#1b1406}' +
+      '.lmf .et{margin:14px 0 6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}' +
+      '.lmf .hs{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}.lmf .ms{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}' +
+      '.lmf .hs button,.lmf .ms button{height:34px;border-radius:9px;border:1px solid transparent;background:rgba(255,255,255,.07);color:#fff;font-size:14px;font-weight:700;cursor:pointer;padding:0}' +
+      '.lmf .hs button:disabled,.lmf .ms button:disabled{background:transparent;color:rgba(255,255,255,.22);cursor:default}' +
+      '.lmf .hs button.sel,.lmf .ms button.sel{background:#ffd23f;color:#1b1406}' +
+      '.lmf .pie{display:flex;align-items:center;gap:10px;margin-top:16px}.lmf .pie .res{flex:1;font-size:14px;font-weight:700;color:#ffe28a;min-width:0}' +
+      '.lmf .pie button{height:38px;padding:0 16px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff}' +
+      '.lmf .pie button.ok{background:#fff;color:#16122c;border-color:#fff}.lmf .pie button.ok:disabled{opacity:.35;cursor:default}' +
+      '@media (hover:hover){.lmf .dias button:not(:disabled):not(.sel):hover,.lmf .hs button:not(:disabled):not(.sel):hover,.lmf .ms button:not(:disabled):not(.sel):hover{background:rgba(255,210,63,.22)}}';
+    document.head.appendChild(s);
+  }
+  function lmSelFecha(valor, alElegir) {
+    lmfCss();
+    var ahora = new Date(), min = new Date(ahora.getTime() + 10 * 6e4), max = new Date(ahora.getTime() + 14 * 864e5);
+    var hoy0 = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+    var dia = null, hora = null, mins = null;
+    if (valor) { var v = new Date(valor); if (!isNaN(v)) { dia = new Date(v.getFullYear(), v.getMonth(), v.getDate()); hora = v.getHours(); mins = v.getMinutes(); } }
+    var mes = new Date((dia || hoy0).getFullYear(), (dia || hoy0).getMonth(), 1);
+    var HORAS = []; for (var h = 9; h <= 22; h++) HORAS.push(h); HORAS.unshift(8);
+    var velo = document.createElement('div'); velo.className = 'lmfcapa';
+    function fecha(d, h, m) { return new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m); }
+    function vale(d, h, m) { var f = fecha(d, h, m); return f >= min && f <= max; }
+    function diaVale(d) { for (var i = 0; i < HORAS.length; i++) for (var m = 0; m < 60; m += 15) if (vale(d, HORAS[i], m)) return true; return false; }
+    function pinta() {
+      var p = new Date(mes), cab = (p.getDay() + 6) % 7, nd = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate(), t = '';
+      for (var i = 0; i < cab; i++) t += '<i></i>';
+      for (var d = 1; d <= nd; d++) {
+        var f = new Date(p.getFullYear(), p.getMonth(), d), c = '';
+        if (f.getTime() === hoy0.getTime()) c += ' hoy';
+        if (dia && f.getTime() === dia.getTime()) c += ' sel';
+        t += '<button type="button" data-d="' + d + '" class="' + c + '"' + (diaVale(f) ? '' : ' disabled') + '>' + d + '</button>';
+      }
+      var hs = HORAS.map(function (h) { var ok = !dia || [0, 15, 30, 45].some(function (m) { return vale(dia, h, m); });
+        return '<button type="button" data-h="' + h + '" class="' + (h === hora ? 'sel' : '') + '"' + (ok ? '' : ' disabled') + '>' + h + '</button>'; }).join('');
+      var ms = [0, 15, 30, 45].map(function (m) { var ok = !dia || hora === null || vale(dia, hora, m);
+        return '<button type="button" data-m="' + m + '" class="' + (m === mins ? 'sel' : '') + '"' + (ok ? '' : ' disabled') + '>:' + lmfDos(m) + '</button>'; }).join('');
+      var listo = dia && hora !== null && mins !== null && vale(dia, hora, mins);
+      var prevOk = new Date(mes.getFullYear(), mes.getMonth(), 0) >= hoy0, nextOk = new Date(mes.getFullYear(), mes.getMonth() + 1, 1) <= max;
+      velo.innerHTML = '<div class="lmf" role="dialog" aria-label="Elige día y hora"><h3>Elige día y hora</h3>' +
+        '<div class="mes"><button type="button" data-nav="-1"' + (prevOk ? '' : ' disabled') + ' aria-label="Mes anterior">‹</button><b>' + LMF_MES[mes.getMonth()] + ' ' + mes.getFullYear() + '</b><button type="button" data-nav="1"' + (nextOk ? '' : ' disabled') + ' aria-label="Mes siguiente">›</button></div>' +
+        '<div class="sem"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="dias">' + t + '</div>' +
+        '<div class="et">Hora</div><div class="hs">' + hs + '</div><div class="et">Minutos</div><div class="ms">' + ms + '</div>' +
+        '<div class="pie"><span class="res">' + (listo ? lmfTexto(fecha(dia, hora, mins)) : '') + '</span><button type="button" data-x="1">Cancelar</button><button type="button" class="ok" data-ok="1"' + (listo ? '' : ' disabled') + '>Aceptar</button></div></div>';
+    }
+    velo.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('button') : null;
+      if (e.target === velo) { cerrar(); return; }
+      if (!b || b.disabled) return;
+      if (b.dataset.nav) { mes = new Date(mes.getFullYear(), mes.getMonth() + Number(b.dataset.nav), 1); }
+      else if (b.dataset.d) { dia = new Date(mes.getFullYear(), mes.getMonth(), Number(b.dataset.d)); if (hora !== null && ![0, 15, 30, 45].some(function (m) { return vale(dia, hora, m); })) { hora = null; mins = null; } }
+      else if (b.dataset.h) { hora = Number(b.dataset.h); if (mins === null || !vale(dia || hoy0, hora, mins)) { mins = null; [0, 15, 30, 45].some(function (m) { if (dia && vale(dia, hora, m)) { mins = m; return true; } return false; }); } }
+      else if (b.dataset.m) { mins = Number(b.dataset.m); }
+      else if (b.dataset.x) { cerrar(); return; }
+      else if (b.dataset.ok) { var f = fecha(dia, hora, mins); cerrar(); alElegir(f.getFullYear() + '-' + lmfDos(f.getMonth() + 1) + '-' + lmfDos(f.getDate()) + 'T' + lmfDos(f.getHours()) + ':' + lmfDos(f.getMinutes())); return; }
+      pinta();
+    });
+    function cerrar() { if (velo.parentNode) velo.parentNode.removeChild(velo); document.removeEventListener('keydown', tecla, true); }
+    function tecla(e) { if (e.key === 'Escape') { e.stopPropagation(); cerrar(); } }
+    document.addEventListener('keydown', tecla, true);
+    pinta(); document.documentElement.appendChild(velo);
+    return velo;
+  }
+
   var PAN = null, CONF = null, MSG = '', HORA = '', VID = false;
   function filaPartida(p) {
     var mia = p.soy_creador, conf = Math.max(0, (p.apuntados || 0) - 1);
@@ -267,7 +356,7 @@
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
 (cerrado() ? '<div class="card"><h2>Muy pronto</h2><p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) + '</div>' : 
       '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p>Elige día y hora. <b>Serás el anfitrión</b><span class="meg">' + I_CAL + '</span></p>' +
-      '<div class="row"><label class="fh' + (HORA ? '' : ' vacio') + '"><input type="datetime-local" id="lm-carr-hora" min="' + minHora() + '" value="' + esc(HORA) + '"><span class="ph"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2.5\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg>Elige día y hora</span></label><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
+      '<div class="row"><button type="button" class="fh' + (HORA ? '' : ' vacio') + '" id="lm-carr-fh"><input type="hidden" id="lm-carr-hora" value="' + esc(HORA) + '"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2.5\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg><span class="ph">Elige día y hora</span><span class="vl">' + esc(lmfTexto(HORA)) + '</span></button><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
       '<div class="card"><h2>Partida individual</h2><p>Empieza una partida tú solo, ahora mismo.</p><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div></div>' +
       '<div class="card"><h2>Partidas anunciadas</h2>' + (LISTA.length ? LISTA.map(filaPartida).join('') : '<div class="vacio">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</div>') + '</div>') +
       (CONF ? '<div class="conf"><div class="cm"><h3>' + esc(CONF.t) + '</h3><p>' + rojo(esc(CONF.x)) + '</p><div class="row"><button class="bt" id="lm-c-no" type="button">' + esc(CONF.no || 'Mejor no') + '</button><button class="bt pri" id="lm-c-si" type="button">' + esc(CONF.si) + '</button></div></div></div>' : '') +
@@ -277,8 +366,7 @@
     var vv = PAN.querySelector('.x.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
-    hi.oninput = hi.onchange = function () { HORA = hi.value; ok.disabled = !hi.value; hi.parentNode.classList.toggle('vacio', !hi.value); };
-    hi.onclick = function () { try { if (hi.showPicker) hi.showPicker(); } catch (e) {} };   /* (19-nov 21:47, Iago) que el hueco vacío invite a pulsar */
+    PAN.querySelector('#lm-carr-fh').onclick = function () { lmSelFecha(HORA, function (v) { var hh = PAN.querySelector('#lm-carr-hora'); if (hh) hh.value = v; HORA = v; pintaPanel(); }); };   /* (20-nov, Iago) selector propio: el mismo en todos los navegadores */
     ok.onclick = async function () {
       if (!hi.value) return; var f = new Date(hi.value);
       if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar')) return;
