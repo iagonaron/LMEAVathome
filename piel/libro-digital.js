@@ -15,8 +15,8 @@
   var PROFES = ['iago gonzalez tester','iago gonzalez protester','iago gonzalez pro tester'];
   /* lecciones ya pasadas a digital, por curso del portal */
   var DIGITAL = {
-    GE: { base:'https://ge.lmathome.es/lecciones-libro/?grado=4ge&libro=', n:[46,47] },
-    GP: { base:'https://gp.lmathome.es/lecciones-libro/?grado=2gp&libro=', n:[57] }
+    GE: { base:'https://ge.lmathome.es/lecciones-libro/?grado=4ge&libro=', n:[46,47,50,52] },
+    GP: { base:'https://gp.lmathome.es/lecciones-libro/?grado=2gp&libro=', n:[53,54,57,62,75] }
   };
   function norm(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim().toLowerCase(); }
   function portal(){ return /^ge\./i.test(location.hostname) ? 'GE' : 'GP'; }
