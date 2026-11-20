@@ -67,5 +67,33 @@
         if(/^Evaluaci/.test(f.t||'')){ var L=(b.lecs&&b.lecs.length)?b.lecs:(String(f.s||'').match(/\d+/g)||[]); L.forEach(function(n){ out.push(parseInt(n,10)); }); } }); } }catch(e){}
     if(!out.length){ try{ document.querySelectorAll('[data-parte^="leccion_"]').forEach(function(el){ var n=numDe(el.getAttribute('data-parte')); if(n) out.push(n); }); }catch(e){} }
     return digitales(out); }
-  window.LMLibroDigital = { abre:abre, url:url, DIGITAL:DIGITAL, abreEvaluar:abreEvaluar, aEvaluar:aEvaluar, digitales:digitales };
+  /* (20-nov 17:24, Iago) «que se pueda ver en la ventana… y yo seleccionar las que están»: selector con todas las lecciones en
+     digital (las de la evaluación de hoy ya marcadas); eliges las que quieras y «Abrir». */
+  function elegir(){
+    var d=DIGITAL[portal()]; if(!d) return;
+    var pre=aEvaluar(), sel=pre.slice();
+    var old=document.getElementById('lm-lib-elige'); if(old) old.remove();
+    var ov=document.createElement('div'); ov.id='lm-lib-elige';
+    ov.style.cssText='position:fixed;inset:0;z-index:100004;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);font-family:"Helvetica Neue",Arial,sans-serif';
+    var bx=document.createElement('div');
+    bx.style.cssText='width:min(560px,92vw);max-height:86vh;overflow:auto;padding:18px;border-radius:14px;background:rgba(12,18,30,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);color:#e9edf5';
+    bx.innerHTML='<div style="font-family:inherit;font-weight:800;font-size:17px;line-height:1.2;margin-bottom:4px">Lecciones a evaluar</div><div style="font-family:inherit;font-weight:500;font-size:13px;line-height:1.35;color:#9fb0c8;margin-bottom:12px">Marca las que vas a evaluar. Se ven con tus apuntes de clase de este grupo.</div>';
+    var g=document.createElement('div'); g.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px';
+    function pinta(b,n){ var on=sel.indexOf(n)>=0; b.style.background=on?'#16a34a':'transparent'; b.style.borderColor=on?'#4ade80':'rgba(255,255,255,.25)'; }
+    d.n.slice().sort(function(a,b){return a-b;}).forEach(function(n){ var b=document.createElement('button'); b.type='button'; b.textContent=n;
+      b.style.cssText='height:40px;border-radius:8px;border:1px solid;color:#fff;font-family:inherit;font-weight:800;font-size:15px;line-height:1;cursor:pointer'; pinta(b,n);
+      b.onclick=function(){ var i=sel.indexOf(n); if(i>=0) sel.splice(i,1); else sel.push(n); pinta(b,n); ok.disabled=!sel.length; ok.style.opacity=sel.length?1:.45; };
+      g.appendChild(b); });
+    bx.appendChild(g);
+    var pie=document.createElement('div'); pie.style.cssText='display:flex;justify-content:flex-end;gap:8px;margin-top:14px';
+    var no=document.createElement('button'); no.type='button'; no.textContent='Cancelar';
+    no.style.cssText='height:40px;padding:0 16px;border-radius:9px;border:1px solid rgba(255,255,255,.28);background:transparent;color:#e9edf5;font-family:inherit;font-weight:700;font-size:14px;line-height:1;cursor:pointer';
+    var ok=document.createElement('button'); ok.type='button'; ok.textContent='Abrir';
+    ok.style.cssText='height:40px;padding:0 22px;border-radius:9px;border:1px solid #4ade80;background:#16a34a;color:#fff;font-family:inherit;font-weight:800;font-size:14px;line-height:1;cursor:pointer';
+    ok.disabled=!sel.length; ok.style.opacity=sel.length?1:.45;
+    no.onclick=function(){ ov.remove(); }; ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
+    ok.onclick=function(){ if(!sel.length) return; ov.remove(); abreEvaluar(sel.slice().sort(function(a,b){return a-b;})); };
+    pie.appendChild(no); pie.appendChild(ok); bx.appendChild(pie); ov.appendChild(bx); document.body.appendChild(ov);
+  }
+  window.LMLibroDigital = { abre:abre, url:url, DIGITAL:DIGITAL, abreEvaluar:abreEvaluar, aEvaluar:aEvaluar, digitales:digitales, elegir:elegir };
 })();
