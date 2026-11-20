@@ -19,8 +19,9 @@
   var GP = /(^|\.)gp\.lmathome\.es$/i.test(location.hostname) || /lmpro/i.test(location.pathname);
   /* (20-nov-2026, C1) también en el portal GP: «Carrusel PRO Online» (se abre el martes 24-nov a las 20:00) */
   var NOMBRE = GP ? 'Carrusel PRO Online' : 'Carrusel Online', SESION = GP ? 'lmpro_session' : 'lmeav_session';
-  /* en GP, hasta que Iago diga «Publica el Carrusel PRO», el botón solo lo ve el Protester (para probarlo); para todos: true */
-  var GP_PUBLICO = false;
+  /* (20-nov-2026 20:36, Iago) en GP el botón ya lo ven todos, con «Disponible a partir del martes 24 a las 20:00»; se abre solo
+     a esa hora (ABRE). Deshacer: false (entonces solo lo ve el Protester) */
+  var GP_PUBLICO = true;
   var SBU = 'https://woiptkyrxkbpnvioypit.supabase.co';
   var SBK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
   var URL_CARR = GP ? 'https://predict.gp.lmathome.es/carrusel-online/' : 'https://predict.ge.lmathome.es/carrusel-online/';
@@ -165,7 +166,8 @@
       '#lm-carr-pan .bt.pri.sel{background:#22c55e;border-color:#22c55e;color:#fff}' +
       '#lm-carr-pan .bt.ko{background:#ef4444;border-color:#ef4444;color:#fff;font-weight:800}#lm-carr-pan .bt.ko:hover{filter:brightness(.92)}' +
       /* (19-nov, Iago) «Cancelar partida» ocupa exactamente lo mismo que «Me apunto» + ✕ */
-      '#lm-carr-pan .pt > .row{width:250px;flex:none;flex-wrap:nowrap;justify-content:flex-end}#lm-carr-pan .pt > .row .bt.pri,#lm-carr-pan .pt > .row .bt.ko{flex:1;justify-content:center}' +
+      '#lm-carr-pan .pt > .row .ap{display:inline-flex;align-items:center;gap:6px;color:#4ade80;font-weight:800;white-space:nowrap;padding:0 6px}#lm-carr-pan .pt > .row .ap svg{width:18px;height:18px}' +
+      '#lm-carr-pan .pt > .row{width:290px;flex:none;flex-wrap:nowrap;justify-content:flex-end}#lm-carr-pan .pt > .row .bt.pri,#lm-carr-pan .pt > .row .bt.ko{flex:1;justify-content:center}' +
       '#lm-carr-pan .bt.ico{width:40px;height:40px;padding:0;justify-content:center}' +
       '#lm-carr-pan svg.sv{width:17px;height:17px;flex:none}' +
       '#lm-carr-pan .fh{position:relative;display:inline-flex}#lm-carr-pan .fh .ph{position:absolute;inset:0;display:flex;align-items:center;gap:9px;padding:0 14px;pointer-events:none;font:700 15px "Helvetica Neue",Arial,sans-serif;color:#ffd23f;white-space:nowrap}' +
@@ -443,7 +445,9 @@
       bs = '<button class="bt pri" data-heredar="' + p.id + '">' + I_CAL + 'Ser el anfitrión</button><button class="bt ico" data-a="no" data-id="' + p.id + '" title="Quitarme de la partida">' + I_X + '</button>';
       aviso = '<div class="alerta"><span class="ex">!</span><span><b>El anfitrión ha cancelado.</b> Si heredas tú la partida y te haces anfitrión, los minutos que practiques contarán ×1,5: es el premio por mantenerla viva.</span></div>';
     }
-    else bs = '<button class="bt pri' + (p.yo === 'si' ? ' sel' : '') + '" data-a="si" data-id="' + p.id + '">' + (p.yo === 'si' ? I_OK : '') + 'Me apunto</button>' +
+    /* (20-nov-2026 20:38, Iago) ya apuntado: «✓ Apuntado» y «Desapuntarme» (rojo, con «¿Seguro? X cuenta con que vas a jugar») */
+    else if (p.yo === 'si') bs = '<span class="ap">' + I_OK + 'Apuntado</span><button class="bt ko" data-a="no" data-id="' + p.id + '">Desapuntarme</button>';
+    else bs = '<button class="bt pri" data-a="si" data-id="' + p.id + '">Me apunto</button>' +
       (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
     return '<div class="pt' + (mia ? ' mia' : '') + (aviso ? ' sinanf' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div>' + aviso + '</div><div class="row">' + bs + '</div></div>';
   }
@@ -457,7 +461,7 @@
       (!cerrado() && VIDEO_URL ? '<button class="vv" type="button" title="Ver el vídeo de presentación">' + I_PLAY + (VID ? 'Ocultar vídeo' : 'Ver vídeo') + '</button>' : '') + '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (VID && !cerrado() ? '<div class="card" style="margin-bottom:14px">' + videoHTML(VIDEO_URL) + '</div>' : '') +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
-(cerrado() ? '<div class="card"><h2>Muy pronto</h2><p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) + '</div>' : 
+(cerrado() ? '<div class="card"><h2>Muy pronto</h2><p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase' + (VIDEO_URL ? '; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) : '.</p>') + '</div>' : 
       '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p>Elige día y hora. <b>Serás el anfitrión</b><span class="meg">' + I_CAL + '</span></p>' +
       '<div class="row"><button type="button" class="fh' + (HORA ? '' : ' vacio') + '" id="lm-carr-fh"><input type="hidden" id="lm-carr-hora" value="' + esc(HORA) + '"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2.5\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg><span class="ph">Elige día y hora</span><span class="vl">' + esc(lmfTexto(HORA)) + '</span></button><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
       '<div class="card"><h2>Partida individual</h2><p>Empieza una partida tú solo, ahora mismo.</p><button class="bt" id="lm-carr-ya" type="button">' + I_PLAY + 'Jugar ahora</button></div></div>' +
@@ -504,6 +508,8 @@
         if (a === 'si' && P && P.yo === 'si') return;
         if (a === 'si' && P && P.tipo === 'anunciada') { if (!await pedirConf('¿Estás seguro?', 'Si luego no asistes, perderás 0,25 de actitud. Puedes evitarlo quitándote de la partida hasta 5 minutos antes de que empiece.', 'Sí, me apunto')) return; }
         if ((a === 'no' || a === 'quiza') && P && P.yo === 'si' && tarde(P)) { if (!await pedirConf('Ya es tarde para quitarte', 'Quitarte ahora cuenta como no asistir: perderás 0,25 de actitud. ¿Quieres quitarte igualmente?', 'Sí, quitarme', 'No, me quedo')) return; }
+        else if (a === 'no' && P && P.yo === 'si') { var an = String(P.anfitrion || P.creador || 'El anfitrión').split(' ')[0];
+          if (!await pedirConf('¿Seguro que te desapuntas?', an + ' cuenta con que vas a jugar. Hasta 5 minutos antes de empezar puedes desapuntarte sin perder actitud.', 'Sí, desapuntarme', 'No, me quedo')) return; }
         bt.disabled = true; MSG = '';
         await rpcA('suite_cr_apuntar', { p_cuenta: cuenta().id, p_partida: id, p_resp: a }); refrescar();
       };
@@ -635,14 +641,19 @@
     if (!mp || !mp.offsetWidth) { quitaClase(); return; }
     cssProfe();
     var curso = grupoMorosos(mp).replace(/\D/g, '');
+    /* (20-nov-2026 20:37, Iago) la ventana solo aparece si hay partidas anunciadas de ese curso; si no, ni se ve */
+    var nueva = false;
+    if (CLASE.curso !== curso || Date.now() - CLASE.t > 60000) { await pideClase(curso); nueva = true; }
+    if (!CLASE.lista.filter(function (p) { return !p.anfitrion_cancelo; }).length || CLASE.curso !== curso) { quitaClase(); return; }
+    mp = document.querySelector('.lm-mor-panel'); if (!mp || !mp.offsetWidth) { quitaClase(); return; }
     var c = document.getElementById('lm-carr-clase');
-    if (!c) { c = document.createElement('div'); c.id = 'lm-carr-clase'; c.setAttribute('role', 'region'); c.setAttribute('aria-label', 'Partidas anunciadas'); c.innerHTML = '<div class="fd"></div><div class="in"></div>'; document.body.appendChild(c); pintaClase(c, curso); }
+    if (!c) { c = document.createElement('div'); c.id = 'lm-carr-clase'; c.setAttribute('role', 'region'); c.setAttribute('aria-label', 'Partidas anunciadas'); c.innerHTML = '<div class="fd"></div><div class="in"></div>'; document.body.appendChild(c); nueva = true; }
+    if (nueva) pintaClase(c, curso);
     var r = mp.getBoundingClientRect();
     c.style.width = Math.round(r.width) + 'px'; c.style.height = Math.round(r.height) + 'px'; c.style.top = Math.round(r.top) + 'px';
     var der = r.left - 10, fr = document.querySelector('#lm-carr-aviso .lm-fr');   /* (20-nov, Iago) alineada con la franja «Carrusel …» si la hay */
     if (fr && fr.offsetWidth) { var fb = fr.getBoundingClientRect(); if (fb.right <= r.left - 4 && fb.right > r.left - 140) der = fb.right; }
     c.style.left = Math.round(Math.max(10, der - r.width)) + 'px';
-    if (CLASE.curso !== curso || Date.now() - CLASE.t > 60000) { await pideClase(curso); if (document.getElementById('lm-carr-clase')) pintaClase(document.getElementById('lm-carr-clase'), curso); }
   }
   setInterval(function () { try { vigilaClase(); } catch (e) {} }, 700);
 
