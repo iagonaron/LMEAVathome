@@ -219,6 +219,19 @@
       mira(); setTimeout(mira,1500); setTimeout(mira,4000);
     }
   }
+  /* (20-nov 17:24, Iago) los pads verdes de la tablet (cuando no hay barra espaciadora) tapaban la partitura: van a los LADOS de
+     la pantalla, centrados en alto, en el sitio de las columnas de anotar (que se esconden mientras tocas). */
+  function pads(){
+    var st=document.createElement('style'); st.id='lbPadsCss';
+    st.textContent='.rhythm-pads{position:fixed!important;left:0!important;top:0!important;right:0!important;bottom:0!important;z-index:60!important;pointer-events:none}'
+      +'.rhythm-pads .rpad{position:fixed!important;bottom:auto!important;top:calc(50% - 46px)!important}.rhythm-pads .rpad.l{left:10px!important}.rhythm-pads .rpad.r{right:10px!important}'
+      +'body.lb-pads #rpAnotBar,body.lb-pads #rpTonRow{visibility:hidden!important}'   /* mientras tocas, los pads ocupan el sitio de las columnas de anotar */
+      +'body.lb-pads #scoreWrap{padding-left:112px!important;padding-right:112px!important;box-sizing:border-box}';
+    document.head.appendChild(st);
+    var hay=false, mira=function(){ var h=!!document.querySelector('.rhythm-pads'); if(h===hay) return; hay=h; document.body.classList.toggle('lb-pads',h);
+      setTimeout(function(){ try{ window.dispatchEvent(new Event('resize')); }catch(e){} },30); };
+    try{ new MutationObserver(mira).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  }
   function arranca(){
     try{ ajustes(); }catch(e){ console.warn('[estudio-comun] ajustes',e); }
     try{ octArranca(); }catch(e){ console.warn('[estudio-comun] octava',e); }
@@ -227,6 +240,7 @@
     try{ mano(); }catch(e){ console.warn('[estudio-comun] mano',e); }
     try{ entonacion(); }catch(e){ console.warn('[estudio-comun] entonación',e); }
     try{ arriba(); }catch(e){ console.warn('[estudio-comun] arriba',e); }
+    try{ pads(); }catch(e){ console.warn('[estudio-comun] pads',e); }
     try{ var sb=document.getElementById('studyBtn'); if(sb){ var svg=sb.querySelector('svg'); sb.innerHTML=''; if(svg) sb.appendChild(svg); sb.appendChild(document.createTextNode(' Iniciar estudio')); } }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',arranca); else arranca();

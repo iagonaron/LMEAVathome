@@ -461,6 +461,6 @@
    Deshacer: borrar este bloque. */
 (function(){ try{
   if(!/^(ritmo\.ge|entonacion\.ge|ritmoentonado\.gp)\.lmathome\.es$/i.test(location.hostname) || window.__ESTUDIO_COMUN) return;
-  var carga=function(){ if(window.__ESTUDIO_COMUN || document.getElementById('lmEstudioComun')) return; var s=document.createElement('script'); s.id='lmEstudioComun'; s.src='https://ge.lmathome.es/piel/estudio-comun.js?v=3'; document.body.appendChild(s); };
+  var carga=function(){ if(window.__ESTUDIO_COMUN || document.getElementById('lmEstudioComun')) return; var s=document.createElement('script'); s.id='lmEstudioComun'; s.src='https://ge.lmathome.es/piel/estudio-comun.js?v=4'; document.body.appendChild(s); };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(carga,0); }); else setTimeout(carga,0);
 }catch(e){} })();

@@ -16,7 +16,7 @@
   /* lecciones ya pasadas a digital, por curso del portal */
   var DIGITAL = {
     GE: { base:'https://ge.lmathome.es/lecciones-libro/?grado=4ge&libro=', n:[13,16,17,19,23,24,26,28,31,32,33,34,36,37,38,39,40,41,42,43,46,47,50,52,54,57,63,65,67,73,74,78,79,81,86,87,96,99,104,106,107,119,124] },
-    GP: { base:'https://gp.lmathome.es/lecciones-libro/?grado=2gp&libro=', n:[10,11,12,14,16,17,18,21,22,38,39,46,47,49,51,53,54,57,58,62,67,75,81,82,85,90,93,96,117,127,128] }
+    GP: { base:'https://gp.lmathome.es/lecciones-libro/?grado=2gp&libro=', n:[10,11,12,14,16,17,18,21,22,38,39,46,47,49,51,53,54,57,58,62,67,75,81,82,85,90,93,96,101,102,106,107,108,109,117,127,128,140,141] }
   };
   function norm(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim().toLowerCase(); }
   function portal(){ return /^ge\./i.test(location.hostname) ? 'GE' : 'GP'; }
