@@ -711,6 +711,12 @@
        actualizar, sigue saliendo verde). «La punta fina la primera, después verde, gris y luego las exclamaciones», como en entonación */
     var kNegra = /negra/i.test(titO(o('k'), ''));
     mH.k = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina' + (kNegra ? ' lm-vl-fina-n' : '') + '"><i></i></span>', titO(o('k'), 'Punta fina'), function () { pulsaO(o('k')); }); her.appendChild(mH.k);
+    /* (20-nov-2026, Iago) al lado de la negra, la punta fina VERDE (ritmo) y la AZUL claro (entonación), opacas; solo si la barra del portal las trae */
+    [['kv', '#16a34a', 'Punta fina verde · ritmo'], ['ka', '#0ea5e9', 'Punta fina azul · entonación']].forEach(function (d) {
+      if (!o(d[0])) return;
+      mH[d[0]] = boton('lm-vl-col', '<span class="lm-vl-sw lm-vl-fina"><i style="background:' + d[1] + '"></i></span>', titO(o(d[0]), d[2]), function () { pulsaO(o(d[0])); });
+      her.appendChild(mH[d[0]]);
+    });
     VL_COL.forEach(function (d) {   /* (1-oct-2026) los rotuladores que traiga la barra, con su muestra de color */
       var ob = o(d[0]); if (!ob) return;
       var sw = ob.querySelector('.anot-sw'), col = (sw && sw.style.backgroundColor) || '#888';

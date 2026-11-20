@@ -207,6 +207,10 @@
       '#lm-pulso .lp-av-tot{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}#lm-pulso .lp-av-tot b{font:800 14px/1 system-ui,sans-serif;color:#fff}#lm-pulso .lp-av-tot i{font-style:normal;font-size:8.5px;color:#94a3b8;margin-top:1px}#lm-pulso .lp-av-act i{color:rgba(255,255,255,.85)}#lm-pulso .lp-av-act b{font-size:13px}' +
       '#lm-pulso .lp-av-badge{position:absolute;right:-6px;bottom:-4px;font:800 9.5px/1 system-ui,sans-serif;color:#e2e8f0;background:#0a0e1c;border:1px solid rgba(255,255,255,.3);border-radius:5px;padding:2px 3px}' +
       '#lm-pulso .lp-app{font-weight:700}' +
+      '#lm-pulso .lp-rep{display:inline-flex;flex-wrap:wrap;gap:4px 8px;margin-left:8px;vertical-align:1px}' +
+      '#lm-pulso .lp-rp{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:#cbd3ee;white-space:nowrap}' +
+      '#lm-pulso .lp-rp i{display:inline-block;width:8px;height:8px;border-radius:2px}' +
+      '#lm-pulso .lp-rp .lp-x2{margin:0}' +
       '#lm-pulso .lp-e.lp-tex{background:linear-gradient(90deg,rgba(8,11,22,.86),rgba(8,11,22,.62) 55%,rgba(8,11,22,.3)),var(--tex,none) 50% 35%/cover no-repeat,#11162b}' +   /* 19-nov 21:18, Iago: la piel en su tono original, sin teñir de rosa */
       '#lm-pulso .lp-e.lp-tex .lp-d{text-shadow:0 1px 3px rgba(0,0,0,.85)}#lm-pulso .lp-e.lp-tex .lp-nm{text-shadow:0 1px 3px rgba(0,0,0,.85)}' +
       '#lm-pulso .lp-val{display:flex;align-items:center;gap:8px;padding-left:10px;border-left:1px solid rgba(255,255,255,.1)}' +
@@ -280,7 +284,7 @@
       if (cs.borderRadius && b.style.borderRadius !== cs.borderRadius) b.style.borderRadius = cs.borderRadius; }
     contador();
   }
-  function nuevos() { return D && D.entradas ? grupos(D.entradas).filter(function (g) { return g.nuevo && !g.yo; }).length : 0; }
+  function nuevos() { return D && D.entradas ? grupos(expande(D.entradas)).filter(function (g) { return g.nuevo && !g.yo; }).length : 0; }
   function contador() {
     var b = document.getElementById('lm-pulso-btn'); if (!b) return;
     var n = abierto ? 0 : nuevos(), el = b.querySelector('.lp-nb');
@@ -300,14 +304,34 @@
       cargando = false; if (r && r.ok) { D = r; contador(); if (abierto) pintar(); }
     });
   }
+  /* (20-nov-2026, Iago) «la misma persona dos veces seguidas»: una sesión de Ritmo entonado que tiene ritmo y entonación sale como
+     DOS entradas, una verde con los minutos de ritmo y otra azul con los de entonación (lo que suma se reparte igual) */
+  function expande(es) {
+    var out = [];
+    (es || []).forEach(function (e) {
+      var r = (e && e.reparto && typeof e.reparto === 'object') ? e.reparto : null, ks = r ? Object.keys(r).filter(function (a) { return (Number(r[a]) || 0) > 0; }) : [];
+      if (ks.length < 2) { out.push(e); return; }
+      var rm = e.reparto_mult || {}, peso = 0; ks.forEach(function (a) { peso += (Number(r[a]) || 0) * (Number(rm[a]) || 1); });
+      ks.sort(function (a, b) { return a === 'ritmo' ? -1 : b === 'ritmo' ? 1 : 0; }).forEach(function (a) {
+        var c = {}; Object.keys(e).forEach(function (k) { c[k] = e[k]; });
+        c.area = a; c.sub = a; c.min = Number(r[a]) || 0; c.mult = Number(rm[a]) || 1; c.reparto = null;
+        c.pts = peso > 0 ? (Number(e.pts) || 0) * (c.min * c.mult) / peso : 0;
+        out.push(c);
+      });
+    });
+    return out;
+  }
   /* varias actividades iguales de una persona el mismo día = una entrada */
   function grupos(es) {
     var m = {}, out = [];
     es.forEach(function (e) {
-      var k = e.nombre + '|' + e.app + '|' + (e.parte || '') + '|' + diaDe(e.fin);
-      if (!m[k]) { m[k] = { k: k, sid: e.sid, yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, parte: e.parte || '', area: e.area, mult: e.mult, fin: e.fin,
+      var k = e.nombre + '|' + e.app + '|' + (e.parte || '') + '|' + (e.sub || '') + '|' + diaDe(e.fin);
+      if (!m[k]) { m[k] = { k: k, sid: e.sid, sub: e.sub || '', yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, parte: e.parte || '', area: e.area, mult: e.mult, fin: e.fin,
                              min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [], tot: e.tot_min || 0, areas: e.areas || null }; out.push(m[k]); }
       var g = m[k]; g.min += e.min || 0; g.pts += Number(e.pts) || 0; g.verificado = g.verificado && !!e.verificado;
+      /* (20-nov-2026, Iago) Ritmo entonado: los minutos repartidos en verde (ritmo) y azul (entonación) */
+      if (e.reparto && typeof e.reparto === 'object') { g.reparto = g.reparto || {}; g.reparto_mult = g.reparto_mult || {};
+        Object.keys(e.reparto).forEach(function (a) { g.reparto[a] = (g.reparto[a] || 0) + (Number(e.reparto[a]) || 0); g.reparto_mult[a] = Math.max(g.reparto_mult[a] || 1, Number((e.reparto_mult || {})[a]) || 1); }); }
       g.nuevo = g.nuevo || !!e.nuevo; g.likes += e.likes || 0; g.megusta = g.megusta || !!e.megusta; g.sids.push(e.sid);
     });
     return out;
@@ -344,7 +368,7 @@
   }
   function pintar() {
     var m = caja();
-    var g = D && D.entradas ? grupos(D.entradas) : null;
+    var g = D && D.entradas ? grupos(expande(D.entradas)) : null;
     var h = '<div class="lp-h"><div><div class="lp-t">Pulso de este grupo' + (D && D.grupo ? ' · <b>' + esc(D.grupo) + '</b>' : '') + '</div>' +
       '<div class="lp-s">Lo que tu grupo trabaja por libre, al momento</div></div>' +
       '<div class="lp-bts">' + (VIDEO_OK ? '<button type="button" class="lp-vid" title="Cómo funciona el Pulso">▶ Ver vídeo</button>' : '') +
@@ -381,8 +405,16 @@
     colocar();
   }
   function fila(e) {
-    var c = COL[e.area] || '#64748b', k = String(e.app || '').replace(/-(ge|gp)$/, ''), app = APP[k] || k;
+    var c = COL[e.area] || '#64748b', k = String(e.app || '').replace(/-(ge|gp)$/, ''), app = (e.app === 'ritmo-gp') ? 'Ritmo entonado' : (APP[k] || k);
     var pt = parte(e.parte), tx = TEXP[k], pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
+    /* (20-nov-2026, Iago) una sesión repartida en dos áreas (Ritmo entonado): «2′ ritmo · 3′ entonación», cada parte en su color */
+    var rp = '', ra = (e.reparto && typeof e.reparto === 'object') ? AREAS.filter(function (x) { return (Number(e.reparto[x[0]]) || 0) > 0; }) : [];
+    if (ra.length > 1) {
+      mx = '';
+      rp = '<span class="lp-rep">' + ra.map(function (x) { var mm = Number((e.reparto_mult || {})[x[0]]) || 1;
+        return '<span class="lp-rp"><i style="background:' + x[1] + '"></i>' + Math.round(Number(e.reparto[x[0]])) + '′ ' + esc(x[2].toLowerCase()) +
+               (mm > 1.001 ? ' <span class="lp-x2" style="background:' + x[1] + '">' + mult(mm) + '</span>' : '') + '</span>'; }).join('') + '</span>';
+    }
     /* (19-nov 10:43, Iago) a la derecha, lo mismo que ven en el aviso de la campana: minutos, lo que sube de actitud y el sello (si lo tiene) */
     var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num"><b>+' + num(pts, 2) + '<small> actitud</small></b>' +
               (COMBO === '4' ? '' : '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span>') + '</div>' +
@@ -390,11 +422,11 @@
     var totTxt = (COMBO === '1' && e.tot > 0) ? '<span class="lp-ar-n" style="margin-left:6px">' + e.tot + ' min este trimestre</span>' : '';
     return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + (PORTAL[k] ? ' lp-tex' : '') + '"' + (tx ? ' style="--tex:url(' + TEXB + tx + ')"' : '') + '>' + avatar(e, c) +
       '<div><div class="lp-nm">' + esc(e.nombre) + totTxt + '</div>' +
-      '<div class="lp-d">' + mx + '<span class="lp-app" style="color:' + c + '">' + esc(app) + (pt ? ' · <span class="lp-tt">' + esc(pt) + '</span>' : '') + '</span></div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + (COMBO === '4' && e.tot > 0 ? ' · <span class="lp-tt"><b style="color:#aab4d6;font-weight:700">' + e.tot + ' min</b> ' + (D && D.trimestre ? 'en el ' + esc(D.trimestre) : 'este trimestre') + '</span>' : '') + '</div></div>' + val + '</div>';
+      '<div class="lp-d">' + mx + '<span class="lp-app" style="color:' + c + '">' + esc(app) + (pt ? ' · <span class="lp-tt">' + esc(pt) + '</span>' : '') + '</span>' + rp + '</div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + (COMBO === '4' && e.tot > 0 ? ' · <span class="lp-tt"><b style="color:#aab4d6;font-weight:700">' + e.tot + ' min</b> ' + (D && D.trimestre ? 'en el ' + esc(D.trimestre) : 'este trimestre') + '</span>' : '') + '</div></div>' + val + '</div>';
   }
   function like(k) {
     var s = cuenta(); if (!s || !D) return;
-    var g = grupos(D.entradas).filter(function (x) { return x.k === k; })[0]; if (!g) return;
+    var g = grupos(expande(D.entradas)).filter(function (x) { return x.k === k; })[0]; if (!g) return;
     var on = !g.megusta, sid = g.sids[0];
     D.entradas.forEach(function (e) { if (e.sid === sid) { e.megusta = on; e.likes = Math.max(0, (e.likes || 0) + (on ? 1 : -1)); } });
     if (!on) D.entradas.forEach(function (e) { if (g.sids.indexOf(e.sid) >= 0 && e.sid !== sid && e.megusta) { e.megusta = false; e.likes = Math.max(0, e.likes - 1);

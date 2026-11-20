@@ -268,7 +268,8 @@ body.f-sug .sug{border-color:#facc15}
   function nomPortal(app, n) { var Q = PORT[String(app || '').replace(/-(ge|gp)$/, '')]; return Q ? Q[0] + ', ' + Q[1] + ' ' + n : 'Portal de la clase'; }
   var AREA = { teoria: ['Teoría', '#ec4899'], ritmo: ['Ritmo', '#22c55e'], entonacion: ['Entonación', '#3b82f6'], audicion: ['Dictado', '#f97316'] };
   /* (17-nov-2026, Iago) en profesional: «en vez de Entonación pon Intervalia, y que sea de color azul, y Ritmo pon Ritmo entonado» */
-  function nomArea(a, gp) { return gp ? ({ ritmo: 'Ritmo entonado', entonacion: 'Intervalia' }[a] || AREA[a][0]) : AREA[a][0]; }
+  /* (20-nov-2026, Iago) Ritmo entonado ya también es entonación (lo cantado con el micrófono): en GP el azul vuelve a llamarse «Entonación» */
+  function nomArea(a, gp) { return gp ? ({ ritmo: 'Ritmo entonado', entonacion: 'Entonación' }[a] || AREA[a][0]) : AREA[a][0]; }
   function areaDe(app) { var k = String(app || '').replace(/-(ge|gp)$/, '');
     if (k === 'teoria' || PORT[k]) return 'teoria'; if (k === 'ritmo' || k === 'desafio' || k === 'acceso') return 'ritmo';
     if (k === 'entonacion' || k === 'intervalia') return 'entonacion'; if (k === 'dictado' || k === 'predict') return 'audicion'; return null; }
@@ -361,15 +362,21 @@ body.f-sug .sug{border-color:#facc15}
       if (peor) { mult[peor] = 1.5; por[peor] = 'tu apartado más flojo'; }
     }
     var tm = d.tiempo || {}, apps = tm.apps || {}, det = tm.det || {}, puntos = 0; var EF = {};   /* (13-nov) multiplicador efectivo por área, para el aviso 👍 */
-    Object.keys(apps).map(function (a) { return [a, apps[a]]; }).filter(function (x) { return x[1] >= 60; }).sort(function (a, b) { return b[1] - a[1]; }).forEach(function (x) {
-      var ar = areaDe(x[0]), m = ar ? mult[ar] : 1, v = x[1] / 3600 * m, extra = '';
+    /* (20-nov-2026, Iago) Ritmo entonado se reparte: lo de ritmo (verde) y lo cantado con el micrófono (azul), cada uno con su multiplicador.
+       El mínimo de 1 min sigue siendo por app. tm.areas = { 'ritmo-gp': { ritmo: s, entonacion: s } } (solo las apps repartidas). */
+    var ARp = tm.areas || {}, partes = [];
+    Object.keys(apps).forEach(function (a) { if (apps[a] < 60) return;
+      var rp = ARp[a] && typeof ARp[a] === 'object' ? Object.keys(ARp[a]).filter(function (k) { return ARp[a][k] > 0; }) : [];
+      if (rp.length > 1) rp.forEach(function (k) { partes.push([a, ARp[a][k], k]); }); else partes.push([a, apps[a], null]); });
+    partes.sort(function (a, b) { return b[1] - a[1]; }).forEach(function (x) {
+      var ar = x[2] || areaDe(x[0]), m = ar ? mult[ar] : 1, v = x[1] / 3600 * m, extra = '';
       if (ar === 'teoria' && mp.c.length) { /* teoría: cada rato con el multiplicador de su concepto; los portales y lo demás, ×1 */
         var dd = det[x[0]] || {}, conM = 0, sumM = 0, top = {}; Object.keys(dd).forEach(function (k) { var mm = PORT[String(x[0]).replace(/-(ge|gp)$/, '')] ? 1 : multSub(k, mp); conM += dd[k]; sumM += dd[k] * mm;
           if (mm > 1) { var nk = String(k).replace(/\|.*$/, ''); top[nk] = Math.max(top[nk] || 0, mm); } });
         v = (sumM + Math.max(0, x[1] - conM)) / 3600; m = 1;
         extra = Object.keys(top).slice(0, 2).map(function (k) { return k.charAt(0).toUpperCase() + k.slice(1).replace(/-/g, ' ').replace(/pro$/, '') + ' ×' + String(top[k]).replace('.', ','); }).join(' · '); }
       puntos += v; if (ar && !PORT[String(x[0]).replace(/-(ge|gp)$/, '')]) { EF[ar] = EF[ar] || [0, 0];   /* (14-nov) los portales van ×1: no entran en el multiplicador de teoría */ EF[ar][0] += x[1]; EF[ar][1] += v * 3600; }
-      var k = String(x[0]).replace(/-(ge|gp)$/, ''), o = null, tit = nomApp(x[0], gp);
+      var k = String(x[0]).replace(/-(ge|gp)$/, ''), o = null, tit = nomApp(x[0], gp) + (x[2] ? (x[2] === 'entonacion' ? ' · entonación' : ' · ritmo') : '');
       if (PORT[k]) { var subs = Object.keys(det[x[0]] || {}).map(function (s) { var mm = /-(\d+)$/.exec(s); return [mm ? mm[1] : null, det[x[0]][s]]; }).filter(function (s) { return s[0]; }).sort(function (a, b) { return b[1] - a[1]; });
         var n = subs.length ? subs[0][0] : 1; o = { T: texDe(x[0], n), v: '+' + f2(v) }; if (subs.length === 1) tit = nomPortal(x[0], n); }
       f.push(['f', v, tit, dur(x[1]) + ' por tu cuenta' + (m > 1 ? ' · ' + (AREA[ar] ? nomArea(ar, gp) : '') + ' ×' + String(m).replace('.', ',') : '') + (extra ? ' · ' + extra : ''), null, o || { v: '+' + f2(v) }]);
@@ -384,7 +391,7 @@ body.f-sug .sug{border-color:#facc15}
     /* chips de áreas: la de más valor primero */
     var cu = P.cuenta || '', OPC = {
       ritmo: [[gp ? 'Ritmo entonado at home' : 'Ritmo at home', urlApp(gp, 'ritmo', cu), 'Lecciones y ejercicios de ritmo']],
-      entonacion: gp ? [['Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']]
+      entonacion: gp ? [['Ritmo entonado at home', urlApp(gp, 'ritmo', cu), 'La entonación y la realización final, con micrófono'], ['Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']]
                      : [['Entonación at home', urlApp(gp, 'entonacion', cu), 'Lecciones de entonación'], ['Intervalia at home', urlApp(gp, 'intervalia', cu), 'Con micrófono: cuenta como entonación']],
       audicion: [[gp ? 'Dictados at home' : 'Dictado at home', urlApp(gp, 'dictado', cu), 'Dictados'], [gp ? 'PreDict at home' : 'PreDict at home', urlApp(gp, 'predict', cu), 'Cuenta como dictado']],
       teoria: mp.c.map(function (c) { return [c.nom, c.u || urlApp(gp, 'teoria', cu), c.caja + (c.m === 2 ? ' · en rojo en tu mapa' : ' · en amarillo en tu mapa'), c.m]; })
@@ -695,7 +702,7 @@ body.f-sug .sug{border-color:#facc15}
       + '<li><b>Teoría</b>: hacer ejercicios y <b>corregirlos</b> (botón «Corregir» o «Comprobar»). Como mucho <b>5 min al día por tipo de ejercicio</b> y <b>12 min al día</b> en total.</li>'
       + '<li><b>Dictado</b>: completar un dictado de principio a fin y abrir la solución para corregirte. Como mucho <b>18 min por dictado</b>.</li>'
       + (GP ? '<li><b>Portales de la unidad</b> (Fonógrafo, Magnetófono…): cada capítulo tiene que <b>verse entero</b>. Como mucho <b>18 min por capítulo</b>, aunque lo hagas en varios días.</li>'
-              + '<li><b>Ritmo entonado at home</b>: estudiando por fases, en cada apartado lo que suena + 2 min; como mucho <b>15 min</b> si llegas a la entonación o <b>12 min</b> si te quedas en la lectura; en la prueba directa, lo que suena + 2 min.</li>'
+              + '<li><b>Ritmo entonado at home</b>: el tiempo que estás en cada fase, sin cortesía. En <b>verde</b> (ritmo), la percusión (hasta 3 min) y el ritmo con la mano (hasta 2 min); en <b>azul</b> (entonación), el estudio de entonación (hasta 3 min) y lo que cantas en la realización final, solo si el micrófono te ha oído. Como mucho <b>15 min</b>.</li>'
             : '<li><b>Ritmo at home</b>: estudiando por fases (escucha las cartas, hasta 2 min; ritmo aislado, hasta 2 min; lectura, lo que suena + 2 min; entonación, lo que suena + 1 min), como mucho <b>15 min</b> con las 4 fases o <b>12 min</b> si llegas a la lectura (en 4.º basta con llegar a la lectura); en la prueba directa, lo que suena + 2 min.</li>'
               + '<li><b>Entonación at home</b>: cuenta si pasas el tiempo de estudio y completas <b>al menos un intento</b>: el estudio (hasta lo que dura) más lo que suenan tus intentos, como mucho <b>8 min</b> de intentos.</li>'
               + '<li><b>Acceso rítmico</b>: igual que Entonación: el estudio (hasta 5 min) más lo que suenan tus pruebas, como mucho <b>8 min</b> de pruebas, sin cortesía.</li>'
