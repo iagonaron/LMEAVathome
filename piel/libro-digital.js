@@ -11,7 +11,7 @@
    ===================================================================================== */
 (function(){
   'use strict';
-  var SOLO_PROFE = true;
+  var SOLO_PROFE = false;   /* (20-nov-2026 11:20, Iago: «Abre las lecciones digitales a los alumnos») */
   var PROFES = ['iago gonzalez tester','iago gonzalez protester','iago gonzalez pro tester'];
   /* lecciones ya pasadas a digital, por curso del portal */
   var DIGITAL = {
