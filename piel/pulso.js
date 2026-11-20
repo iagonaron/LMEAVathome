@@ -407,7 +407,7 @@
   function fila(e) {
     var c = COL[e.area] || '#64748b', k = String(e.app || '').replace(/-(ge|gp)$/, ''), app = (e.app === 'ritmo-gp') ? 'Ritmo entonado' : (APP[k] || k);
     /* (20-nov-2026 22:27, Iago) las partidas del carrusel online no son «PreDict»: «CARRUSEL online», con su textura de círculos */
-    var carr = (e.origen === 'carrusel-online'); if (carr) app = 'CARRUSEL online';
+    var carr = (e.origen === 'carrusel-online'); if (carr) app = 'Carrusel';   /* (20-nov 22:49, Iago) «Carrusel», como «PreDict» o «Ritmo» */
     var pt = parte(e.parte), tx = TEXP[k], pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
     /* (20-nov-2026, Iago) una sesión repartida en dos áreas (Ritmo entonado): «2′ ritmo · 3′ entonación», cada parte en su color */
     var rp = '', ra = (e.reparto && typeof e.reparto === 'object') ? AREAS.filter(function (x) { return (Number(e.reparto[x[0]]) || 0) > 0; }) : [];
