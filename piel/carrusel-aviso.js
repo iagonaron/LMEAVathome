@@ -184,6 +184,7 @@
       '#lm-carr-pan .vid{position:relative;width:100%;max-width:760px;margin:0 auto;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid rgba(255,255,255,.24)}#lm-carr-pan .vid iframe,#lm-carr-pan .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}' +
       '#lm-carr-pan .vacio{color:#d9d3ff;padding:4px 0}' +
       '#lm-carr-pan .msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}' +
+      '#lm-carr-pan .pt > .row .ap.anf{color:#ffd23f}#lm-carr-pan .pt{position:relative}#lm-carr-pan .pt .nop{position:absolute;right:14px;bottom:8px;border:0;background:none;padding:2px 0;color:#bdb6e6;font:600 12.5px/1.2 inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}#lm-carr-pan .pt .nop:hover{color:#fff}' +
       '#lm-carr-pan .pt .lob{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:13.5px;color:#d9d3ff}#lm-carr-pan .pt .lob svg{flex:none;color:#ffd23f}' +
       '#lm-carr-pan .conf .disp{display:flex;gap:10px;align-items:center;background:rgba(255,210,63,.14);border:1.5px solid rgba(255,210,63,.55);border-radius:10px;padding:9px 12px;font-weight:700}#lm-carr-pan .conf .disp svg{flex:none;width:34px;height:22px}' +
       '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.66)}' +
@@ -454,17 +455,20 @@
     var bs, aviso = '';
     if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Entrar al lobby</button>';
     else if (cancelada) bs = '<span class="c">La cancelaste</span>';
-    else if (mia) bs = '<button class="bt ko" data-cancel="' + p.id + '">' + I_X + 'Cancelar partida</button>';
+    /* (20-nov-2026 20:58, Iago) nada de botón rojo «tentador»: un texto discreto abajo a la derecha, «¿No vas a poder jugar?»,
+       que abre la ventana para cancelar (anfitrión, −0,5 si no aparece) o desapuntarse (apuntados, −0,25) */
+    else if (mia) bs = '<span class="ap anf">' + CORONA + 'Eres el anfitrión</span>';
     else if (sinAnf(p)) {
       bs = '<button class="bt pri" data-heredar="' + p.id + '">' + I_CAL + 'Ser el anfitrión</button><button class="bt ico" data-a="no" data-id="' + p.id + '" title="Quitarme de la partida">' + I_X + '</button>';
       aviso = '<div class="alerta"><span class="ex">!</span><span><b>El anfitrión ha cancelado.</b> Si heredas tú la partida y te haces anfitrión, los minutos que practiques contarán ×1,5: es el premio por mantenerla viva.</span></div>';
     }
     /* (20-nov-2026 20:38, Iago) ya apuntado: «✓ Apuntado» y «Desapuntarme» (rojo, con «¿Seguro? X cuenta con que vas a jugar») */
-    else if (p.yo === 'si') bs = '<span class="ap">' + I_OK + 'Apuntado</span><button class="bt ko" data-a="no" data-id="' + p.id + '">Desapuntarme</button>';
+    else if (p.yo === 'si') bs = '<span class="ap">' + I_OK + 'Apuntado</span>';
     else bs = '<button class="bt pri" data-a="si" data-id="' + p.id + '">Me apunto</button>' +
       (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
+    var nop = (!p.lobby_abierto && !cancelada && !sinAnf(p) && (mia || p.yo === 'si')) ? '<button type="button" class="nop" data-nop="' + p.id + '">¿No vas a poder jugar?</button>' : '';
     var lob = (!p.lobby_abierto && !cancelada && p.tipo !== 'individual') ? '<div class="lob">' + I_INFO + 'Se habilitará el lobby 5 minutos antes de la hora. Podrás acceder desde aquí.</div>' : '';   /* (20-nov 20:56, Iago) */
-    return '<div class="pt' + (mia ? ' mia' : '') + (aviso ? ' sinanf' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div>' + lob + aviso + '</div><div class="row">' + bs + '</div></div>';
+    return '<div class="pt' + (mia ? ' mia' : '') + (aviso ? ' sinanf' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div>' + lob + aviso + '</div><div class="row">' + bs + '</div>' + nop + '</div>';
   }
   function minHora() { var d = new Date(Date.now() + 11 * 6e4); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); }
   function pintaPanel() {
@@ -515,6 +519,26 @@
         if (!await pedirConf(pen ? 'Cancelar ahora cuenta como no asistir' : '¿Cancelar tu partida?', !otros ? 'No hay nadie apuntado: la partida desaparece. No pierdes actitud.' : (pen ? 'Hay gente apuntada y faltan menos de 5 minutos: perderás 0,5 de actitud. ' + AV + ' ¿Cancelar igualmente?' : 'No pierdes actitud porque faltan más de 5 minutos. ' + AV), 'Sí, cancelar', 'No, la mantengo')) return;
         var r = await rpcA('suite_cr_cancelar', { p_cuenta: cuenta().id, p_partida: P.id });
         MSG = r && r.ok ? (r.quitada ? 'Partida cancelada. Como no había nadie apuntado, ya no aparece.' : 'Has cancelado la partida. Los apuntados ya tienen el aviso para quedarse de anfitrión.') : 'No he podido cancelar la partida.'; refrescar();
+      };
+    });
+    PAN.querySelectorAll('button[data-nop]').forEach(function (bt) {
+      bt.onclick = async function () {
+        var P = LISTA.filter(function (x) { return x.id === bt.dataset.nop; })[0]; if (!P) return; MSG = '';
+        if (soyAnf(P)) {
+          var otros = Math.max(0, (P.apuntados || 0) - 1), pen = tarde(P) && otros > 0, AV = 'Avisaremos a los apuntados para que uno se quede de anfitrión (sus minutos cuentan ×1,5).';
+          var x = !otros ? 'No hay nadie apuntado: si la cancelas, la partida desaparece y no pierdes actitud.'
+            : (pen ? 'Faltan menos de 5 minutos: cancelar ahora cuenta como no asistir y perderás 0,5 de actitud. ' + AV
+                   : 'Cancélala ahora y no pierdes actitud. ' + AV + ' Si no apareces sin haberla cancelado, perderás 0,5 de actitud.');
+          if (!await pedirConf('¿No vas a poder jugar?', x, 'Cancelar la partida', 'Sí que juego')) return;
+          var r = await rpcA('suite_cr_cancelar', { p_cuenta: cuenta().id, p_partida: P.id });
+          MSG = r && r.ok ? (r.quitada ? 'Partida cancelada. Como no había nadie apuntado, ya no aparece.' : 'Has cancelado la partida. Los apuntados ya tienen el aviso para quedarse de anfitrión.') : 'No he podido cancelar la partida.'; refrescar();
+        } else {
+          var an = String(P.anfitrion || P.creador || 'El anfitrión').split(' ')[0];
+          var y = tarde(P) ? 'Faltan menos de 5 minutos: desapuntarte ahora cuenta como no asistir y perderás 0,25 de actitud.'
+            : 'Desapúntate ahora y no pierdes actitud. ' + an + ' cuenta contigo: si no apareces sin haberte desapuntado, perderás 0,25 de actitud.';
+          if (!await pedirConf('¿No vas a poder jugar?', y, 'Desapuntarme', 'Sí que juego')) return;
+          await rpcA('suite_cr_apuntar', { p_cuenta: cuenta().id, p_partida: P.id, p_resp: 'no' }); refrescar();
+        }
       };
     });
     PAN.querySelectorAll('button[data-a]').forEach(function (bt) {
