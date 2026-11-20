@@ -1,0 +1,157 @@
+{
+ "v": 1,
+ "libro": "Ritmo 4.º GE",
+ "curso": "4Ge",
+ "grado": "ge",
+ "n": 37,
+ "titulo": "37",
+ "titulo_estilo": {
+  "fuente": "sans",
+  "x": 45,
+  "y": 167,
+  "px": 43
+ },
+ "numeros_x": 44,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/037.png",
+ "tonalidad": "Re mayor",
+ "modo": "mayor",
+ "armadura": "D",
+ "clave": "treble",
+ "pagina": {
+  "ancho": 1680,
+  "alto": 688,
+  "interlinea": 16.5
+ },
+ "sistemas": [
+  {
+   "y": 114,
+   "x0": 154,
+   "barras": [
+    670,
+    1011,
+    1309,
+    1637
+   ],
+   "compases": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "y": 317,
+   "x0": 40,
+   "barras": [
+    524,
+    876,
+    1224,
+    1637
+   ],
+   "compases": [
+    5,
+    6,
+    7,
+    8
+   ]
+  },
+  {
+   "y": 519,
+   "x0": 40,
+   "barras": [
+    537,
+    922,
+    1322,
+    1635
+   ],
+   "compases": [
+    9,
+    10,
+    11,
+    12
+   ],
+   "final": "fin"
+  }
+ ],
+ "compases": [
+  {
+   "c": 1,
+   "compas": "C|",
+   "m": "^ 4:d4 | ^ 4:r | ^ 8:a4 8:g4 8:f#4 8:e4"
+  },
+  {
+   "c": 2,
+   "m": "^ 4:d4 | ^ 8:d4 8:e4 | ^ 4:f#4 | ^ 8:f#4 8:g4"
+  },
+  {
+   "c": 3,
+   "m": "^ 2:a4 | ^ 4:g4 | ^ 4:a4 | ^ 4:g4"
+  },
+  {
+   "c": 4,
+   "m": "^ 4:f#4 | ^ 4:r | ^ 4:f#4 | ^ 4:g4 | ^ 4:a4"
+  },
+  {
+   "c": 5,
+   "m": "v 4:b4 | v 4:d5 | v 4:c#5 | ^ 4:r"
+  },
+  {
+   "c": 6,
+   "m": "^ 4:a4! | v 2:d5 | v 8:c#5 8:b4"
+  },
+  {
+   "c": 7,
+   "m": "^ 4:a4 | ^ 2:f#4 | ^ 8:g4 8:a4"
+  },
+  {
+   "c": 8,
+   "m": "v 4:b4 | ^ 8:r | v 8:d5 | v 4:b4 | ^ 8:r | ^ 8:g4"
+  },
+  {
+   "c": 9,
+   "m": "^ 2:e4 | ^ 4:e4 | ^ 4:f#4 | ^ 4:g4"
+  },
+  {
+   "c": 10,
+   "m": "^ 4:a4 | ^ 4:g#4 | ^ 4:a4 | ^ 4:r"
+  },
+  {
+   "c": 11,
+   "m": "v 4.:b4 | ^ 8:g4 | ^ 4.:e4 | ^ 8:c#4"
+  },
+  {
+   "c": 12,
+   "m": "^ 2:d4 | ^ 2:r"
+  }
+ ],
+ "ligaduras": [
+  "1.3-2.1 abajo",
+  "2.2-2.4 abajo",
+  "2.5-3.1 abajo",
+  "3.2-4.1 abajo",
+  "4.3-4.5 abajo",
+  "5.1-5.3 arriba",
+  "6.2-7.1 arriba",
+  "7.2-8.1 arriba",
+  "8.3-8.4 arriba",
+  "8.6-9.1 abajo",
+  "9.2-10.3 abajo",
+  "11.1-12.1 arriba"
+ ],
+ "tresillos": [
+  "3.2-3.4",
+  "4.3-4.5",
+  "9.2-9.4"
+ ],
+ "corchetes": [
+  "1.1-1.2",
+  "2.1-2.3 arriba",
+  "6.1-6.2",
+  "6.3-6.4",
+  "8.1-8.3"
+ ],
+ "pendiente": [
+  "El compás del libro es ¢ (alla breve); se escribe 2/2.",
+  "El corchete discontinuo de 2.1-2.3 va ENCIMA de las notas en el libro (el formato solo los dibuja debajo)."
+ ]
+}

@@ -1,0 +1,43 @@
+{
+  "v": 1,
+  "libro": "Ritmo 4.º GE",
+  "curso": "4Ge",
+  "grado": "ge",
+  "n": 33,
+  "titulo": "33",
+  "titulo_estilo": { "fuente": "sans", "x": 45, "y": 160, "px": 43 },
+  "numeros_x": 44,
+  "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/033.png",
+  "tonalidad": "Sol menor",
+  "modo": "menor",
+  "armadura": "Bb",
+  "clave": "treble",
+  "pagina": { "ancho": 1680, "alto": 797, "interlinea": 16.3 },
+  "sistemas": [
+    { "y": 113, "x0": 156, "barras": [626, 992, 1319, 1639], "compases": [1, 2, 3, 4] },
+    { "y": 364, "x0": 40, "barras": [585, 1007, 1375, 1639], "compases": [5, 6, 7, 8] },
+    { "y": 617, "x0": 40, "barras": [627, 1097, 1450, 1635], "compases": [9, 10, 11, 12], "final": "fin" }
+  ],
+  "compases": [
+    { "c": 1, "compas": "3/4", "m": "^ 4.:g4 | ^ 8:a4 | v 16:bb4 16:c5 16:bb4 16:a4" },
+    { "c": 2, "m": "^ 4:g4 | ^ 16:g4 16:a4 16:bb4 16:c5 | ^ 16:bb4 16:a4 16:g4 16:f4" },
+    { "c": 3, "m": "^ 8:eb4 | ^ 4:c4 | ^ 16:eb4 16:f4 | ^ 8:g4 16:a4 16:bb4" },
+    { "c": 4, "m": "^ 4:a4 | ^ 8:r | ^ 8:d4 | v 16:d5 16:c5 16:bb4 16:a4" },
+    { "c": 5, "m": "^ 8:g4 8:g4 | ^ 16:g4 16:a4 16:bb4 16:a4 | ^ 16:g4 16:r 16:a4 16:bb4" },
+    { "c": 6, "m": "^ 8:g4 8:g4 | ^ 16:g4 16:a4 16:bb4 16:a4 | ^ 16:g4 16:r 16:g4 16:f4" },
+    { "c": 7, "m": "^ 8:eb4 | ^ 8:r | ^ 8:c4 8:b3 8:c4 | ^ 8:eb4 8:g4" },
+    { "c": 8, "m": "^ 4:f#4 | ^ 4:r | ^ 4:r" },
+    { "c": 9, "m": "^ 16:g4 16:a4 16:bb4 16:c5 | ^ 16:c5 16:bb4 16:a4 16:g4 | ^ 8:bb4 8:g4!" },
+    { "c": 10, "m": "^ 16:g4 16:a4 16:bb4 16:c5 | v 16:c5 16:d5 16:eb5 16:d5 | ^ 8:c5 8:g4!" },
+    { "c": 11, "m": "^ 4:a4> | ^ 4:r | ^ 8:d4 8:e4 8:f#4" },
+    { "c": 12, "m": "^ 2.:g4" }
+  ],
+  "ligaduras": [
+    "1.1-2.2 arriba", "2.3-3.2 abajo", "3.3-4.1 abajo", "4.3-5.1 arriba",
+    "5.2-5.7 abajo", "5.9-6.1 abajo", "6.2-6.7 abajo", "6.9-7.1 abajo", "7.3-8.1 abajo",
+    "9.1-9.9 abajo", "10.1-10.9 abajo", "11.3-12.1 abajo"
+  ],
+  "uniones": ["2.1-2.2", "5.2-5.3", "6.2-6.3", "9.4-9.5", "10.4-10.5"],
+  "tresillos": ["7.3-7.5", "11.3-11.5"],
+  "pendiente": []
+}

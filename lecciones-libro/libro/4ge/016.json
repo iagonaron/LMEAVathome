@@ -1,0 +1,35 @@
+{
+ "v": 1,
+ "libro": "Ritmo 4.º GE",
+ "curso": "4Ge",
+ "grado": "ge",
+ "n": 16,
+ "titulo": "16",
+ "titulo_estilo": {"fuente": "sans", "x": 46, "y": 182, "px": 41},
+ "numeros_x": 44,
+ "captura": "https://woiptkyrxkbpnvioypit.supabase.co/storage/v1/object/public/diario/libros_lecciones/4Ge/ritmo/full/016.png",
+ "tonalidad": "Sol mayor",
+ "modo": "mayor",
+ "armadura": "G",
+ "clave": "treble",
+ "pagina": {"ancho": 1680, "alto": 1084, "interlinea": 16.4},
+ "sistemas": [
+  {"y": 130, "x0": 150, "barras": [1009, 1639], "compases": [1, 2]},
+  {"y": 382, "x0": 34, "barras": [902, 1639], "compases": [3, 4]},
+  {"y": 634, "x0": 35, "barras": [1030, 1639], "compases": [5, 6]},
+  {"y": 886, "x0": 36, "barras": [1112, 1637], "compases": [7, 8], "final": "fin"}
+ ],
+ "compases": [
+  {"c": 1, "compas": "9/8", "m": "^ 8:g4! 16:g4 16:a4 16:b4 16:a4 | ^ 8:g4 16:g4 16:a4 16:b4 16:c5 | v 8:d5 8:c5 8:b4"},
+  {"c": 2, "m": "^ 8:a4 8:r 8:f#4 | ^ 8:a4 8:r 8:b4 | ^ 16:a4 16:g4 16:f#4 16:e4 8:d4"},
+  {"c": 3, "m": "^ 8:b4! 16:b4 16:a4 16:g4 16:a4 | v 8:b4 16:b4 16:c5 16:d5 16:c5 | ^ 8:b4 8:r 8:g4"},
+  {"c": 4, "m": "v 16:e5 16:d5 16:c5 16:b4 8:c5 | ^ 16:a4 16:g4 16:f#4 16:g4 8:a4 | v 4:d5>! | ^ 8:r"},
+  {"c": 5, "m": "^ 16:g4 16:f#4 8:e4 16:e4 16:f#4 | v 16:g4 16:a4 8:b4 16:c5 16:d5 | v 16:e5 16:f#5 8:e5 8:d5"},
+  {"c": 6, "m": "v 4:c5 | ^ 8:r | ^ 4:a4- | ^ 8:r | v 8:c5 8:d5 8:c5"},
+  {"c": 7, "m": "v 16:b4 16:b4 8:r 16:c5 16:b4 | ^ 16:a4 16:a4 8:r 16:f#4 16:g4 | ^ 16:a4 16:a4 8:r 8:c5"},
+  {"c": 8, "m": "v 4.:b4 | ^ 4.:g4- | ^ 4.:r"}
+ ],
+ "ligaduras": ["1.2-1.6 abajo", "1.7-2.1 arriba", "2.3-2.4 abajo", "2.6-2.11 abajo", "3.2-3.6 arriba", "3.7-3.11 arriba", "3.13-4.5 arriba", "4.6-4.10 abajo", "5.1-5.3 abajo", "5.4-5.8 arriba", "5.9-6.1 arriba", "6.5-7.2 arriba", "7.4-7.7 arriba", "7.9-7.12 abajo", "7.14-8.1 arriba"],
+ "corchetes": ["7.1-7.5"],
+ "pendiente": []
+}
