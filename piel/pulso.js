@@ -325,8 +325,8 @@
   function grupos(es) {
     var m = {}, out = [];
     es.forEach(function (e) {
-      var k = e.nombre + '|' + e.app + '|' + (e.parte || '') + '|' + (e.sub || '') + '|' + diaDe(e.fin);
-      if (!m[k]) { m[k] = { k: k, sid: e.sid, sub: e.sub || '', yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, parte: e.parte || '', area: e.area, mult: e.mult, fin: e.fin,
+      var k = e.nombre + '|' + e.app + '|' + (e.origen === 'carrusel-online' ? 'cr' : '') + '|' + (e.parte || '') + '|' + (e.sub || '') + '|' + diaDe(e.fin);   /* (20-nov) el carrusel, aparte del PreDict */
+      if (!m[k]) { m[k] = { k: k, sid: e.sid, sub: e.sub || '', yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, origen: e.origen || '', parte: e.parte || '', area: e.area, mult: e.mult, fin: e.fin,
                              min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [], tot: e.tot_min || 0, areas: e.areas || null }; out.push(m[k]); }
       var g = m[k]; g.min += e.min || 0; g.pts += Number(e.pts) || 0; g.verificado = g.verificado && !!e.verificado;
       /* (20-nov-2026, Iago) Ritmo entonado: los minutos repartidos en verde (ritmo) y azul (entonación) */
