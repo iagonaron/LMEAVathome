@@ -135,6 +135,8 @@
       '#lm-iconos>#lm-carr-btn{order:0!important}' +
       /* monigotes de confirmados (en la franja del anfitrión) */
       '.lm-fr .nap{font-weight:800;margin-left:2px;white-space:nowrap}' +
+      '.lm-fr .num{position:relative;display:inline-flex;align-items:center;margin:0 10px 0 2px;flex:none}.lm-fr .num svg{width:17px;height:17px}' +
+      '.lm-fr .num b{position:absolute;top:-7px;right:-11px;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:8px;background:#f97316;color:#fff;font:800 10.5px/16px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 1.5px rgba(14,10,42,.85)}' +
       '.lm-fr .ent{background:#fff;color:#14112b;border-radius:6px;padding:5px 9px;font-weight:900;margin-left:3px;white-space:nowrap}' +
       '.lm-fr .mon{display:inline-flex;align-items:center;gap:6px;margin-left:4px}.lm-fr .mon .m{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}.lm-fr .mon svg{width:13px;height:13px;flex:none}.lm-fr .mon b{font-weight:600;font-size:10px;opacity:.92}.lm-fr .mon i{font-style:normal;font-size:11px;margin-left:2px}' +
       /* la ventana emergente: la portada de PreDict Carrusel (remolino multicolor, cristal oscuro, botones blancos) */
@@ -182,6 +184,7 @@
       '#lm-carr-pan .vid{position:relative;width:100%;max-width:760px;margin:0 auto;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid rgba(255,255,255,.24)}#lm-carr-pan .vid iframe,#lm-carr-pan .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}' +
       '#lm-carr-pan .vacio{color:#d9d3ff;padding:4px 0}' +
       '#lm-carr-pan .msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px}' +
+      '#lm-carr-pan .pt .lob{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:13.5px;color:#d9d3ff}#lm-carr-pan .pt .lob svg{flex:none;color:#ffd23f}' +
       '#lm-carr-pan .conf .disp{display:flex;gap:10px;align-items:center;background:rgba(255,210,63,.14);border:1.5px solid rgba(255,210,63,.55);border-radius:10px;padding:9px 12px;font-weight:700}#lm-carr-pan .conf .disp svg{flex:none;width:34px;height:22px}' +
       '#lm-carr-pan .conf{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:rgba(5,3,20,.66)}' +
       '#lm-carr-pan .conf .cm{max-width:470px;background:rgba(18,13,52,.97);border:1.5px solid rgba(255,255,255,.34);border-radius:14px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}' +
@@ -193,6 +196,7 @@
   var ESP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>';
   function SVI(d) { return '<svg class="sv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>'; }
   /* (20-nov-2026 20:51, Iago) al apuntarse/anunciar: «solo ordenador o tablet; con el móvil no te dejará» */
+  var I_INFO = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.2"/></svg>';
   var DISP = 'Solo se puede jugar desde un ordenador o una tablet: con el móvil no te dejará entrar.';
   var I_DISP = '<svg viewBox="0 0 64 40" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="34" height="24" rx="2.5"/><path d="M1 33h40"/><rect x="45" y="6" width="17" height="28" rx="3"/></svg>';
   var I_PLAY = SVI('<path d="M8 5.5v13l10-6.5z"/>'), I_CAL = SVI('<path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'), I_OK = SVI('<path d="M5 12.5l4.5 4.5L19 7.5"/>'), I_X = SVI('<path d="M6 6l12 12M18 6L6 18"/>');
@@ -226,11 +230,17 @@
     for (var i = 0; i < Math.min(n, max); i++) t += '<span class="m">' + I_PER + '</span>';
     return '<span class="mon" title="' + esc((nombres || []).join(', ')) + '">' + t + (n > max ? '<i>+' + (n - max) + '</i>' : '') + '</span>';
   }
+  /* (20-nov-2026 20:55, Iago) franja más compacta: un solo monigote con el número de apuntados en un globito arriba a la
+     derecha (dentro de la franja); lo ve el anfitrión y también los que se han apuntado. Nombres al pasar el ratón. */
+  function numFranja(p) {
+    var n = Math.max(0, (p.apuntados || 0) - 1); if (!n) return '';
+    return '<span class="num" title="' + esc(n + (n === 1 ? ' apuntado' : ' apuntados') + ((p.confirmados || []).length ? ': ' + p.confirmados.join(', ') : '')) + '">' + I_PER + '<b>' + n + '</b></span>';
+  }
   function franja(p) {
     var f = document.createElement('button'); f.type = 'button';
     f.className = 'lm-fr' + (p.lobby_abierto ? ' vivo' : '') + (p.soy_creador ? ' mia' : '') + (sinAnf(p) ? ' alerta' : '');
     f.title = p.soy_creador ? 'Has anunciado este carrusel: eres el anfitrión' : NOMBRE + ' · partida de ' + (p.creador || '');
-    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (sinAnf(p) ? '<b class="ex">!</b>' : (p.soy_creador ? CORONA : ESP)) + '<span>' + esc(texto(p)) + '</span>' + (p.lobby_abierto ? '<span class="ent">Entrar al lobby</span>' : (p.soy_creador ? apuntadosTxt(p) + monisFranja(Math.max(0, (p.apuntados || 0) - 1), p.confirmados) : ''));
+    f.innerHTML = '<span class="cl"><span class="gi"><span class="fx"></span></span></span>' + (sinAnf(p) ? '<b class="ex">!</b>' : (p.soy_creador ? CORONA : ESP)) + '<span>' + esc(texto(p)) + '</span>' + (p.lobby_abierto ? '<span class="ent">Entrar al lobby</span>' : ((p.soy_creador || p.yo === 'si') ? numFranja(p) : ''));
     f.onclick = function (e) {
       e.stopPropagation();
       if (p.lobby_abierto) abrirCarrusel(p.id, !(p.soy_creador || p.yo_dentro));
@@ -453,7 +463,8 @@
     else if (p.yo === 'si') bs = '<span class="ap">' + I_OK + 'Apuntado</span><button class="bt ko" data-a="no" data-id="' + p.id + '">Desapuntarme</button>';
     else bs = '<button class="bt pri" data-a="si" data-id="' + p.id + '">Me apunto</button>' +
       (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
-    return '<div class="pt' + (mia ? ' mia' : '') + (aviso ? ' sinanf' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div>' + aviso + '</div><div class="row">' + bs + '</div></div>';
+    var lob = (!p.lobby_abierto && !cancelada && p.tipo !== 'individual') ? '<div class="lob">' + I_INFO + 'Se habilitará el lobby 5 minutos antes de la hora. Podrás acceder desde aquí.</div>' : '';   /* (20-nov 20:56, Iago) */
+    return '<div class="pt' + (mia ? ' mia' : '') + (aviso ? ' sinanf' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div>' + lob + aviso + '</div><div class="row">' + bs + '</div></div>';
   }
   function minHora() { var d = new Date(Date.now() + 11 * 6e4); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); }
   function pintaPanel() {
