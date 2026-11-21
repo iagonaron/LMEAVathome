@@ -74,6 +74,8 @@
   .compositores .fila{display:flex;justify-content:center;gap:56px}
   .compositores .hueco{position:relative;width:360px}
   .compositores .hueco > i{position:absolute;left:50%;top:0;width:300px;height:300px;margin-left:-150px;border-radius:50%;border:6px dashed rgba(255,255,255,.38);box-sizing:border-box;background:rgba(10,7,30,.35)}
+  .compositores .bocadillo{position:absolute;left:50%;top:408px;transform-origin:50% 0;width:max-content;max-width:470px;background:#fff;color:#1b1340;border-radius:22px;padding:16px 26px;font:900 40px/1.15 var(--fuente);box-shadow:0 18px 50px rgba(0,0,0,.5);opacity:0;z-index:3}
+  .compositores .bocadillo::before{content:"";position:absolute;left:50%;top:-20px;margin-left:-18px;border:18px solid transparent;border-top:0;border-bottom:22px solid #fff}
   .compositores .comp{text-align:center;width:360px;will-change:transform,opacity;transform-origin:50% 150px}
   .compositores .av{width:300px;height:300px;margin:0 auto}
   .compositores .comp > b{display:block;font:900 46px var(--fuente);margin-top:14px;text-shadow:0 6px 24px rgba(0,0,0,.6)}
@@ -153,8 +155,8 @@
   <div id="barra" title="Ir a un momento"><i id="barraTiempo"></i></div>
 </div>
 <audio id="audio" preload="auto"></audio>
-<script src="avatar3.js?v=908d63b1"></script>
-<script src="guion.js?v=908d63b1"></script>
-<script src="motor.js?v=908d63b1"></script>
+<script src="avatar3.js?v=cd20deef"></script>
+<script src="guion.js?v=cd20deef"></script>
+<script src="motor.js?v=cd20deef"></script>
 </body>
 </html>

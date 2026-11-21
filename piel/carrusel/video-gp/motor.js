@@ -221,13 +221,22 @@
       }
     },
     compositores: {
-      init: function (o) { o.raiz.innerHTML = (o.v.titulo ? '<h2>' + o.v.titulo + '</h2>' : '') + '<div class="fila">' + o.v.lista.map(function (c) { return '<div class="hueco"><i></i><div class="comp"><div class="av"></div><b>' + c.n + '</b></div></div>'; }).join('') + '</div>'; },
+      init: function (o) { o.raiz.innerHTML = (o.v.titulo ? '<h2>' + o.v.titulo + '</h2>' : '') + '<div class="fila">' + o.v.lista.map(function (c, i) { return '<div class="hueco"><i></i><div class="comp"><div class="av"></div><b>' + c.n + '</b></div>' + (o.v.gag && o.v.gag.i === i ? '<div class="bocadillo">' + o.v.gag.txt + '</div>' : '') + '</div>'; }).join('') + '</div>'; },
       pinta: function (o, t) { var v = o.v, h2 = o.raiz.querySelector('h2');
         if (h2) { var kh = eo(rampa(t, v.t0, v.t0 + 0.5)); h2.style.opacity = kh; h2.style.transform = 'translateY(' + ((1 - kh) * 30) + 'px)'; }
         [].forEach.call(o.raiz.querySelectorAll('.hueco'), function (hu, i) { var kh = eo(rampa(t, v.t0 + 0.2 + 0.18 * i, v.t0 + 0.55 + 0.18 * i)); hu.querySelector('i').style.opacity = kh * (t < v.lista[i].t ? 1 : 0.0); hu.querySelector('i').style.transform = 'scale(' + (0.6 + 0.4 * kh) + ')'; });
         [].forEach.call(o.raiz.querySelectorAll('.comp'), function (d, i) { var c = v.lista[i], k = rampa(t, c.t, c.t + 0.36); d.style.opacity = t < c.t ? 0 : Math.min(1, (t - c.t) / 0.05); d.style.transform = 'scale(' + (t < c.t ? 0.3 : Math.min(1, 0.3 + 0.7 * k / 0.45) + 0.18 * Math.sin(Math.PI * k)) + ')';
-          muevete(o, 'c' + i, d.querySelector('.av'), t, v.t0, function () { return [c.cfg, { ins: c.ins, bot: true }]; },
-            [[c.t + 0.15, function (r) { r.gesto('saludar'); }], [v.picaro, function (r) { r.cara('picaro'); r.gesto(i === 1 ? 'sospechar' : (i === 0 ? 'pensar' : 'guino')); }]]); }); }
+          if (!o.cache['ev' + i]) { var ev = [], gg = v.gag;
+            /* (21-nov 12:29, Iago) el guiño de Beethoven: los demás lo miran sorprendidos y él se rasca la cabeza: «¡Pero si yo no oigo nada!» */
+            if (gg && i === gg.i) { ev.push([c.t + 0.3, function (r) { r.gesto('rascar'); }]); ev.push([gg.t1 - 1.0, function (r) { r.gesto('noSe'); }]); }
+            else { ev.push([c.t + 0.15, function (r) { r.gesto('saludar'); }]);
+              if (gg && c.t < gg.t0) { ev.push([gg.t0 - 0.35, function (r) { r.miraA(1, 0.05, 2300); r.cara('sorpresa'); }]); ev.push([gg.t0 - 0.3, function (r) { r.gesto('sorpresa'); }]); } }
+            if (!gg) ev.push([v.picaro, function (r) { r.cara('picaro'); r.gesto(i === 1 ? 'sospechar' : (i === 0 ? 'pensar' : 'guino')); }]);
+            else if (i !== gg.i) ev.push([v.picaro + 0.1 * i, function (r) { r.cara('dientes'); r.gesto('reir'); }]);   /* y se ríen */
+            o.cache['ev' + i] = ev.sort(function (x, y) { return x[0] - y[0]; }); }
+          muevete(o, 'c' + i, d.querySelector('.av'), t, v.t0, function () { return [c.cfg, { ins: c.ins, bot: true }]; }, o.cache['ev' + i]); });
+        if (v.gag) { var bo = o.raiz.querySelector('.bocadillo'), kb = rampa(t, v.gag.t0, v.gag.t0 + 0.3), kf = rampa(t, v.gag.t1 - 0.25, v.gag.t1);
+          bo.style.opacity = t < v.gag.t0 ? 0 : Math.min(1, kb * 3) * (1 - kf); bo.style.transform = 'translateX(-50%) scale(' + (0.4 + 0.6 * Math.min(1, kb / 0.6) + 0.12 * Math.sin(Math.PI * kb)) + ')'; } }
     },
     barajar: {   /* las partes del carrusel, en orden sorpresa */
       init: function (o) { o.raiz.innerHTML = o.v.partes.map(function (p) { return '<div class="parte" style="--c:' + p.c + '"><i>' + p.n + '</i><b>' + p.t + '</b></div>'; }).join(''); },
