@@ -125,7 +125,7 @@
       if (d < 0 || d > D || !p) { o.e.style.display = 'none'; return; }
       var s = aEscena(p, t, it.x, it.y), k = d / D;
       o.e.style.display = ''; o.e.style.left = (s[0] + Math.sin(d * 3 + it.x) * 14) + 'px'; o.e.style.top = (s[1] - (it.sube ? 20 : 60) - (it.sube || 230) * eo(k)) + 'px';
-      o.e.style.opacity = k < 0.12 ? k / 0.12 : (k > 0.75 ? (1 - k) / 0.25 : 1); o.e.style.transform = 'translate(-50%,-50%) scale(' + (0.6 + 0.4 * eo(Math.min(1, d / 0.3))) + ')';
+      o.e.style.opacity = (k < 0.12 ? k / 0.12 : (k > 0.75 ? (1 - k) / 0.25 : 1)) * (f.funde ? (PLOP[f.plano] || 0) : 1); o.e.style.transform = 'translate(-50%,-50%) scale(' + (0.6 + 0.4 * eo(Math.min(1, d / 0.3))) + ')';
     });
     pintaFoco(t);
     VIV.forEach(function (o) {
@@ -231,9 +231,10 @@
         [].forEach.call(o.raiz.querySelectorAll('.comp'), function (d, i) { var c = v.lista[i], k = rampa(t, c.t, c.t + 0.36); d.style.opacity = t < c.t ? 0 : Math.min(1, (t - c.t) / 0.05); d.style.transform = 'scale(' + (t < c.t ? 0.3 : Math.min(1, 0.3 + 0.7 * k / 0.45) + 0.18 * Math.sin(Math.PI * k)) + ')';
           if (!o.cache['ev' + i]) { var ev = [], gg = v.gag;
             /* (21-nov 12:29, Iago) el guiño de Beethoven: los demás lo miran sorprendidos y él se rasca la cabeza: «¡Pero si yo no oigo nada!» */
-            if (gg && i === gg.i) { ev.push([c.t + 0.3, function (r) { r.gesto('rascar'); }]); ev.push([gg.t1 - 1.0, function (r) { r.gesto('noSe'); }]); }
+            if (gg && i === gg.i) { ev.push([c.t + 0.15, function (r) { r.gesto('saludar'); }]); ev.push([gg.t0, function (r) { r.gesto('rascar'); }]); ev.push([gg.t1 - 1.0, function (r) { r.gesto('noSe'); }]); }
             else { ev.push([c.t + 0.15, function (r) { r.gesto('saludar'); }]);
-              if (gg && c.t < gg.t0) { ev.push([gg.t0 - 0.35, function (r) { r.miraA(1, 0.05, 2300); r.cara('sorpresa'); }]); ev.push([gg.t0 - 0.3, function (r) { r.gesto('sorpresa'); }]); } }
+              if (gg && c.t < gg.t0) { ev.push([gg.alarma || gg.t0 - 0.35, function (r) { r.cara('sorpresa'); r.gesto('sorpresa'); }]);
+                ev.push([gg.mirar || gg.t0 - 0.3, function (r) { r.miraA(1, 0.05, Math.round((gg.t1 - (gg.mirar || gg.t0)) * 1000)); }]); } }
             if (!gg) ev.push([v.picaro, function (r) { r.cara('picaro'); r.gesto(i === 1 ? 'sospechar' : (i === 0 ? 'pensar' : 'guino')); }]);
             else if (i !== gg.i) ev.push([v.picaro + 0.1 * i, function (r) { r.cara('dientes'); r.gesto('reir'); }]);   /* y se ríen */
             o.cache['ev' + i] = ev.sort(function (x, y) { return x[0] - y[0]; }); }
