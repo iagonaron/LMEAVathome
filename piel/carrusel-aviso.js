@@ -30,7 +30,7 @@
   /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 17:30 (antes 19:00; cambiado el 20-nov 08:40). El servidor también lo
      impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
   var ABRE = GP ? Date.parse('2026-11-24T20:00:00+01:00') : Date.parse('2026-11-20T17:30:00+01:00'), ABRE_TXT = GP ? 'el martes 24 de noviembre a las 20:00' : 'hoy viernes a las 17:30';
-  var VIDEO_URL = GP ? 'https://ge.lmathome.es/piel/carrusel/video-gp/index.html' : 'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge.mp4?v=4';
+  var VIDEO_URL = GP ? 'https://ge.lmathome.es/piel/carrusel/video-gp/index.html' : 'https://ge.lmathome.es/piel/carrusel/video-ge/index.html';   /* (21-nov 14:40, Iago: «puedes publicar») el vídeo nuevo de GE, como el de GP; deshacer: volver a carrusel-online-ge.mp4?v=4 */
   /* (21-nov-2026, Iago) el vídeo nuevo de GP es como las intros de Teoría (página viva a pantalla completa). Hasta que lo revise
      y diga «Publica el vídeo del carrusel GP», solo lo ven sus cuentas Tester/Protester. Deshacer: VIDEO_URL de GP = '' */
   var VIDEO_PRUEBA = false;   /* (21-nov 09:38, Iago) el vídeo se activa con todo lo demás, después de su clase del martes */
