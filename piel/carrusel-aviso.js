@@ -969,6 +969,10 @@
   try { cssNotis(); } catch (e) {}
   document.addEventListener('click', async function (ev) {
     var t = ev.target && ev.target.closest ? ev.target : null; if (!t) return;
+    /* (21-nov 14:41, Iago) «Ver partidas» del aviso de lanzamiento: directo a la ventana del Carrusel multijugador (en las
+       cuentas de prueba el botón de arriba abre antes el menú de profe; aquí no) */
+    var abre = t.closest('[data-carr-abrir]');
+    if (abre) { ev.preventDefault(); ev.stopPropagation(); var xc = document.getElementById('alu-close'); if (xc) xc.click(); if (!OK) await refrescar(); abrirPanel(); return; }
     var ap = t.closest('[data-carr-apunta]'), vi = t.closest('[data-carr-visto]'); if (!ap && !vi) return;
     ev.preventDefault(); ev.stopPropagation(); if (!cuenta()) return;
     var id = (ap || vi).getAttribute(ap ? 'data-carr-apunta' : 'data-carr-visto'), card = (ap || vi).closest('.alu-item'), nid = card && card.getAttribute('data-id');
@@ -981,7 +985,7 @@
       if (bt) { bt.scrollIntoView({ block: 'center' }); bt.click(); } else if (++n < 25) setTimeout(pide, 120); })();
   }, true);
   setInterval(function () { if (document.querySelector('.alu-item[data-carr-id]')) { cssNotis(); sincNotis(); } }, 1000);
-  window.LMCarr = { faltaTxt: faltaTxt, sinc: function () { cssNotis(); sincNotis(); } };
+  window.LMCarr = { abrir: function () { abrirPanel(); }, faltaTxt: faltaTxt, sinc: function () { cssNotis(); sincNotis(); } };
   function arrancar() { refrescar(); setInterval(function () { if (!document.hidden) refrescar(); }, 60000); setInterval(function () { try { pintar(); } catch (e) {} }, 5000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') refrescar(); });
