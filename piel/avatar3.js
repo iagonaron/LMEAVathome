@@ -26,9 +26,9 @@ const ROPA_C=['#2a3052','#111827','#f8fafc','#ef4444','#2563eb','#16a34a','#facc
 const FONDO_C=['#1b2038','#2a1a45','#10294a','#12312b','#3a1622','#24262e','#3b2a14','#0f3b3a'];
 /* (20-nov 23:25, Iago) su barba: verticales del bigote hacia abajo, mosca y un pelín de perilla */
 /* (21-nov 07:06, Iago) su barba, más fina: patillas desde la altura de la boca, verticales del bigote, mosca y un pelín de perilla */
-const BARBA_PROFE=P=>'<path d="M55.1 104 A46 46 0 0 0 144.9 104 L138.6 104 C137.5 120 121 131 100 131 C79 131 62.5 120 61.4 104 Z" fill="'+P+'"/><path d="M87 101 q13 -6 26 0" stroke="'+P+'" stroke-width="4.6" fill="none" stroke-linecap="round"/>'+
-  '<path d="M88 101 C86.5 108 86.5 116 89 125" stroke="'+P+'" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M112 101 C113.5 108 113.5 116 111 125" stroke="'+P+'" stroke-width="3.6" fill="none" stroke-linecap="round"/>'+
-  '<path d="M97 117 Q100 115.5 103 117 L101.5 122 Q100 123.5 98.5 122 Z" fill="'+P+'"/><path d="M93 137 Q100 147 107 137 Z" fill="'+P+'"/>';
+const BARBA_PROFE=P=>'<path d="M55.1 104 A46 46 0 0 0 144.9 104 L137.8 104 C136.6 118 119.5 129 100 129 C80.5 129 63.4 118 62.2 104 Z" fill="'+P+'"/><path d="M86 101 q14 -7 28 0" stroke="'+P+'" stroke-width="6" fill="none" stroke-linecap="round"/>'+   /* (07:08) el redondo un poco más fino que al principio; bigote, verticales, mosca y perilla como estaban */
+  '<path d="M88 101 C86 109 86 117 89 125" stroke="'+P+'" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M112 101 C114 109 114 117 111 125" stroke="'+P+'" stroke-width="5" fill="none" stroke-linecap="round"/>'+
+  '<path d="M96 117 Q100 115 104 117 L102 123 Q100 125 98 123 Z" fill="'+P+'"/><path d="M92 137 Q100 149 108 137 Z" fill="'+P+'"/>';
 /* (21-nov 07:06, Iago) el profe lleva cejas siempre, salvo en los gestos que ya las dibujan */
 const CEJAS_PROFE=(P,k,g)=>(['llorar','triste','sospechar','pensar','rascar'].indexOf(g)>=0||k==='picaro')?'':'<path d="M77 81 q8 -5 16 -1 M107 80 q8 -4 16 1" stroke="'+P+'" stroke-width="3.4" fill="none" stroke-linecap="round"'+((g==='sorpresa'||k==='sorpresa')?' transform="translate(0 -4)"':'')+'/>';
 const BARBA=P=>'<path d="M54 94 A46 46 0 0 0 146 94 L136 96 C134 116 118 126 100 126 C82 126 66 116 64 96 Z" fill="'+P+'"/><path d="M86 101 q14 -7 28 0" stroke="'+P+'" stroke-width="6" fill="none" stroke-linecap="round"/>';
