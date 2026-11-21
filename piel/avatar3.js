@@ -199,7 +199,7 @@ function expr(x){ x=x||{}; const r={};
 /* ---------------- el dibujo ---------------- */
 function render(cfg,op){ op=op||{}; const o=Object.assign(norm(cfg),cfg&&cfg.__raw?cfg:{} ,op.forzar||{}); const id=++UID, c=op.anillo||o.color, R=o.ropa, g0=op.gesto||'';
   if(op.profe){ Object.assign(o,PROFE); }
-  if(op.cara) o.cara=op.cara; if(op.gafas) o.gafas=op.gafas;
+  if(op.cara) o.cara=op.cara; if(op.gafas&&!op.profe) o.gafas=op.gafas;   /* (21-nov) el profe nunca con gafas de sol, tampoco de líder */
   const h=pelo(o.pelo,o.peloC), gr=gorro(o.gorro,o.gorroC), cp=comp([(op.profe&&o.compCara==='barba')?'nada':o.compCara],o.peloC,o.color);   /* el profe lleva su propia barba (BARBA_PROFE) */
   const conGorro=['ninguno','diadema','auriculares','bandana'].indexOf(o.gorro)<0;
   const peloDe=conGorro?'':h.de, peloAt=(conGorro&&o.pelo==='afro')?'<circle cx="100" cy="96" r="58" fill="'+o.peloC+'"/>':(conGorro&&o.pelo==='mono'?'':h.at);
@@ -207,9 +207,9 @@ function render(cfg,op){ op=op||{}; const o=Object.assign(norm(cfg),cfg&&cfg.__r
   const cabeza='<circle cx="100" cy="94" r="46" fill="'+o.color+'"/>'+(op.profe?'<ellipse cx="84" cy="62" rx="12" ry="6" fill="#fff" opacity=".35" transform="rotate(-24 84 62)"/>':'');
   const esc='<g transform="translate(100 90.5) scale(1.08) translate(-100 -94)">';
   const badge=op.profe?BADGE_PROFE:(op.bot?badgeBot(c):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):''));
-  return '<svg class="av av3 '+(op.quieto?'quieto ':'')+(op.vivoFondo?'mueve ':'')+g0+(op.dir<0?' izq':'')+'" viewBox="-16 -16 232 232"><defs><clipPath id="v3c'+id+'"><circle cx="100" cy="100" r="96"/></clipPath></defs>'+
+  return '<svg class="av av3 '+(op.entra?'entra ':'')+(op.quieto?'quieto ':'')+(op.vivoFondo?'mueve ':'')+g0+(op.dir<0?' izq':'')+'" viewBox="-16 -16 232 232"><defs><clipPath id="v3c'+id+'"><circle cx="100" cy="100" r="96"/></clipPath></defs>'+
     '<g clip-path="url(#v3c'+id+')">'+fondo(o.fondo,o.fondoC,o.color,id)+'<g class="resp"><g class="cab">'+esc+peloAt+gr.at+'</g>'+cp.at+'</g>'+rp.at+rp.de+cp.cu+
-    '<g class="cab">'+cabeza+cp.de+(o.compCara==='barba'?(op.profe?BARBA_PROFE(o.peloC):BARBA(o.peloC))+(op.profe?CEJAS_PROFE(o.peloC,o.cara,g0):''):'')+cara(o.cara,g0,op.dir)+gafas(o.gafas)+esc+peloDe+gr.de+'</g></g>'+(g0==='llorar'?'':brazos(g0,R,o.color))+'</g></g>'+
+    '<g class="cab">'+cabeza+cp.de+(o.compCara==='barba'?(op.profe?BARBA_PROFE(o.peloC):BARBA(o.peloC))+(op.profe?CEJAS_PROFE(o.peloC,o.cara,g0):''):'')+cara(o.cara,g0,op.dir)+gafas(o.gafas)+esc+peloDe+gr.de+'</g></g>'+(g0==='llorar'?'':'<g class="brz">'+brazos(g0,R,o.color)+'</g>')+'</g></g>'+
     '<circle cx="100" cy="100" r="95" fill="none" stroke="'+c+'" stroke-width="7"/>'+badge+'</svg>'; }
 /* ---------------- CSS (una vez) ---------------- */
 function css(){ if(document.getElementById('av3-css')) return; const s=document.createElement('style'); s.id='av3-css'; s.textContent=
@@ -231,6 +231,16 @@ function css(){ if(document.getElementById('av3-css')) return; const s=document.
  '.av3.mueve .nb-sube{animation:av3sube 9s ease-in-out infinite alternate}@keyframes av3sube{to{transform:translateY(-16px)}}'+
  '.av3.mueve .nb-ola{animation:av3ola 12s ease-in-out infinite alternate}@keyframes av3ola{to{transform:translateX(-18px) translateY(6px)}}'+
  '.av3.quieto *{animation:none!important}'+
+ /* (21-nov 07:32, Iago) «que se mueva de verdad»: con op.entra, los brazos suben desde abajo y la mirada y la cabeza giran con suavidad */
+ '.av3.entra .brz{animation:av3brz .42s cubic-bezier(.2,.9,.3,1.15) both;transform-box:view-box;transform-origin:100px 230px}'+
+ '@keyframes av3brz{from{transform:translateY(60px) rotate(8deg);opacity:0}to{transform:none;opacity:1}}'+
+ '.av3.entra.mirar .ojos>g{animation:av3mirD .4s ease-out both}.av3.entra.mirar.izq .ojos>g{animation-name:av3mirI}'+
+ '@keyframes av3mirD{from{transform:translateX(0)}to{transform:translateX(6px)}}@keyframes av3mirI{from{transform:translateX(0)}to{transform:translateX(-6px)}}'+
+ '.av3.entra.mirar .cab{animation:av3tiltD .5s ease-out both}.av3.entra.mirar.izq .cab{animation-name:av3tiltI}'+
+ '@keyframes av3tiltD{to{transform:rotate(5deg)}}@keyframes av3tiltI{to{transform:rotate(-5deg)}}'+
+ /* en el lobby, mirar a quien reacciona de verdad (la animación de reposo tapaba el giro) y ladear un poco la cabeza */
+ '#co .mono.mira-i .av3 .mira,#co .mono.mira-d .av3 .mira,#co .mono.mira-a .av3 .mira{animation:none}#co .mono .av3 .mira{transition:transform .3s ease}'+
+ '#co .mono.mira-i .av3 .cab{transform:rotate(-5deg)}#co .mono.mira-d .av3 .cab{transform:rotate(5deg)}'+
  '#co .mono.parpadea .av3 .ojos{transform:scaleY(.12)}#co .mono.mira-i .av3 .mirada,#co .mono.mira-i .av3 .mira{transform:translateX(-6px)}#co .mono.mira-d .av3 .mira{transform:translateX(6px)}#co .mono.mira-a .av3 .mira{transform:translateY(-4px)}'+
  '@media (prefers-reduced-motion:reduce){.av3 *{animation:none!important}}'+
  /* editor */

@@ -173,7 +173,7 @@
       /* (20-nov 23:10, Iago) «Tu avatar»: 25 % abajo a la derecha, cuadrado */
       '#lm-carr-pan .fila2{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);gap:14px;align-items:stretch}#lm-carr-pan .fila2>.card{min-width:0;box-sizing:border-box}' +
       '#lm-carr-pan .card.yo{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;width:100%;min-height:290px;padding:18px 14px 16px;text-align:center}#lm-carr-pan .card.yo .yoin{position:sticky;top:10px;display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin-top:6px}' +
-      '#lm-carr-pan .card.yo h2{align-self:flex-start;margin:0}#lm-carr-pan .card.yo .avw{width:100%;display:flex;align-items:center;justify-content:center}#lm-carr-pan .card.yo .avw svg{width:min(100%,220px);height:auto;display:block}' +
+      '#lm-carr-pan .card.yo h2{align-self:flex-start;margin:0}#lm-carr-pan .card.yo .avw{width:100%;display:grid;place-items:center}#lm-carr-yo .avw>.capa{grid-area:1/1;display:flex;justify-content:center;width:100%;transition:opacity .32s ease}#lm-carr-pan .card.yo .avw svg{width:min(100%,220px);height:auto;display:block}' +
       '#lm-carr-yo .avw [class^="nb-"],#lm-carr-yo .avw [class*=" nb-"]{animation-delay:var(--avt,0s)!important}#lm-carr-pan .fila2>.card:first-child{display:flex;flex-direction:column}#lm-carr-pan .fila2 .vacio{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px 10px;font-size:17px;color:rgba(255,255,255,.72)}#lm-carr-pan .card.yo .falta{border:0;background:none;padding:2px 0;color:#fdba74;font:700 12.5px/1.2 inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}' +
       /* (21-nov 07:13, Iago) megáfono animado junto a «Partidas anunciadas», como anunciando */
       '#lm-carr-pan h2 .megA{display:inline-flex;vertical-align:-6px;margin-left:10px;color:#fff}#lm-carr-pan h2 .megA .cu{transform-box:fill-box;transform-origin:15% 60%;animation:lmMegTil 2.6s ease-in-out infinite}' +
@@ -516,6 +516,7 @@
     var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
     PAN.querySelector('.x:not(.vv)').onclick = cerrarPanel;
     var pe = PAN.querySelector('#lm-carr-pers'); if (pe) pe.onclick = abreEditor;
+    [].forEach.call(PAN.querySelectorAll('.cols > .card, .fila2 > .card:first-child'), function (e) { e.onmouseenter = miraMenu; });
     var vv = PAN.querySelector('.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
@@ -598,29 +599,36 @@
     if (AVCARGA) return AVCARGA;
     AVCARGA = new Promise(function (res) {
       if (window.AV3) return res();
-      var sc = document.createElement('script'); sc.src = (MI_SRC ? MI_SRC.replace(/carrusel-aviso\.js.*$/, '') : '/piel/') + 'avatar3.js?v=20261121a';
+      var sc = document.createElement('script'); sc.src = (MI_SRC ? MI_SRC.replace(/carrusel-aviso\.js.*$/, '') : '/piel/') + 'avatar3.js?v=20261121b';
       sc.onload = function () { res(); }; sc.onerror = function () { res(); }; document.head.appendChild(sc);
     }).then(async function () { var c = cuenta(); if (!c) return; var r = await rpcA('suite_cr_mi_avatar', { p_cuenta: c.id }); if (r && r.ok) MIAV = r; });
     return AVCARGA;
   }
   function yoSVG(est) {   /* (21-nov 07:14, Iago) que se sienta vivo: saluda, se rasca, bosteza, guiña, cambia de cara… (nunca llora ni se sorprende) */
     est = est || {}; var c = cuenta() || {};
-    if (MIAV.profe) return AV3.render(AV3.PROFE, { profe: true, anillo: '#ffd23f', gesto: est.g, cara: est.cara, dir: est.dir });
+    if (MIAV.profe) return AV3.render(AV3.PROFE, { profe: true, anillo: '#ffd23f', gesto: est.g, cara: est.cara, dir: est.dir, entra: true });
     var cfg = MIAV.cfg || AV3.porDefecto(c.id);
-    return AV3.render(cfg, { ins: (window.AV_INSTR && AV_INSTR[MIAV.ins]) || null, vivoFondo: true, gesto: est.g, cara: est.cara, dir: est.dir });
+    return AV3.render(cfg, { ins: (window.AV_INSTR && AV_INSTR[MIAV.ins]) || null, vivoFondo: true, gesto: est.g, cara: est.cara, dir: est.dir, entra: true });
   }
   function yoHTML() {
     if (!window.AV3 || !MIAV) return '<h2>Tu avatar</h2><div class="cg">Cargando…</div>';
-    return '<h2>Tu avatar</h2><div class="yoin"><div class="avw">' + yoSVG() + '</div><div class="nm">' + esc(String(MIAV.nombre || '').split(' ')[0]) + '</div>' +
+    return '<h2>Tu avatar</h2><div class="yoin"><div class="avw"><div class="capa">' + yoSVG() + '</div></div><div class="nm">' + esc(String(MIAV.nombre || '').split(' ')[0]) + '</div>' +
       (MIAV.profe ? '' : '<button type="button" class="bt" id="lm-carr-pers">✏️ Personalizar</button>') + '</div>';   /* (21-nov 07:22, Iago) el instrumento no se elige: sale solo de la ficha */
   }
   var VIVO = { t0: Date.now(), tm: null, ult: '', base: true };
-  var ACC = [{ g: 'saludar', ms: 2300 }, { cara: 'guino', ms: 1000 }, { g: 'rascar', ms: 2600 }, { g: 'bostezar', ms: 2500 }, { g: 'mirar', dir: 1, ms: 1500 }, { g: 'mirar', dir: -1, ms: 1500 },
+  var ACC = [{ g: 'saludar', ms: 2300 }, { cara: 'guino', ms: 1000 }, { g: 'rascar', ms: 2600 }, { g: 'bostezar', ms: 2500 }, { g: 'mirar', dir: 1, ms: 1500 }, { g: 'mirar', dir: -1, ms: 2400 }, { g: 'mirar', dir: -1, ms: 2000 },
     { g: 'pensar', ms: 2600 }, { g: 'sospechar', ms: 1900 }, { g: 'celebrar', ms: 1900 }, { cara: 'feliz', ms: 2000 }, { cara: 'picaro', ms: 2000 }, { cara: 'dientes', ms: 1800 }, { cara: 'lengua', ms: 1600 }, { cara: 'tranqui', ms: 2200 }];
   function yoPinta(est) {
     var w = PAN && PAN.querySelector('#lm-carr-yo .avw'); if (!w || !window.AV3 || !MIAV) return;
     w.style.setProperty('--avt', (-(Date.now() - VIVO.t0) / 1000).toFixed(2) + 's');   /* el fondo sigue su movimiento sin saltos al cambiar de gesto */
-    w.innerHTML = yoSVG(est);
+    /* (21-nov 07:32, Iago) «que se mueva de verdad»: fundido entre gestos (los brazos suben, la mirada gira) */
+    var nu = document.createElement('div'); nu.className = 'capa'; nu.style.opacity = '0'; nu.innerHTML = yoSVG(est);
+    var viejas = [].slice.call(w.children); w.appendChild(nu);
+    requestAnimationFrame(function () { nu.style.opacity = '1'; viejas.forEach(function (v) { v.style.opacity = '0'; setTimeout(function () { if (v.parentNode) v.parentNode.removeChild(v); }, 350); }); });
+  }
+  function miraMenu() {   /* al pasar por el menú, tu avatar lo mira (está a su izquierda) */
+    if (!VIVO.base || Date.now() - (VIVO.ultMira || 0) < 2500 || !MIAV) return;
+    VIVO.ultMira = Date.now(); clearTimeout(VIVO.tm); yoPinta({ g: 'mirar', dir: -1 }); VIVO.base = false; VIVO.tm = setTimeout(vivo, 1900);
   }
   function vivo(primero) {
     clearTimeout(VIVO.tm); VIVO.tm = null;
