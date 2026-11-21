@@ -228,6 +228,21 @@
       '#lm-pulso .lp-sg{width:24px;height:24px;flex:none;display:grid;place-items:center}#lm-pulso .lp-sg svg{width:24px;height:24px}' +
       '#lm-pulso .lp-sg.vacio{border:1.5px dashed rgba(148,163,184,.5);border-radius:50%;width:20px;height:20px;margin:2px}' +
       '#lm-pulso .lp-e{position:relative;overflow:hidden;flex:none}' +
+      /* (21-nov-2026 16:23, Iago) Carrusel: «individual» o «multijugador» en blanco, megáfono animado junto al anfitrión y el fondo
+         de círculos en movimiento (como en las notificaciones: una capa que gira y respira, la mueve la tarjeta gráfica) */
+      '#lm-pulso .lp-e.lp-crv{isolation:isolate;background:#11162b!important}' +
+      '#lm-pulso .lp-crfx{position:absolute;inset:0;z-index:-1;overflow:hidden;border-radius:inherit;pointer-events:none}' +
+      '#lm-pulso .lp-crfx::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,11,22,.86),rgba(8,11,22,.62) 55%,rgba(8,11,22,.34))}' +
+      '#lm-pulso .lp-crfx .gi{position:absolute;left:50%;top:50%;width:calc(100% + 240px);aspect-ratio:1;transform:translate(-50%,-50%);will-change:transform;animation:lpCrRot 24s linear infinite}' +
+      '#lm-pulso .lp-crfx .fx{position:absolute;inset:0;backface-visibility:hidden;will-change:transform;animation:lpCrRes 6s ease-in-out infinite alternate;background:repeating-radial-gradient(circle at 50% 50%,rgba(8,5,20,0) 0,rgba(8,5,20,.55) 13px,rgba(8,5,20,0) 26px),conic-gradient(from 0deg at 50% 50%,#b23ad6,#e8862a 22%,#4cb04a 42%,#1aa6c9 56%,#2f5fe0 71%,#6b3fe0 86%,#b23ad6)}' +
+      '@keyframes lpCrRot{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes lpCrRes{from{transform:scale(1)}to{transform:scale(1.14)}}' +
+      '#lm-pulso .lp-crt{color:rgba(255,255,255,.82);font-weight:600;margin-left:5px}' +
+      '#lm-pulso .lp-meg{display:inline-flex;vertical-align:-5px;margin-left:6px;color:#fff}#lm-pulso .lp-meg svg{width:26px;height:19px}' +
+      '#lm-pulso .lp-meg .cu{transform-box:fill-box;transform-origin:15% 60%;animation:lpMegTil 2.6s ease-in-out infinite}' +
+      '#lm-pulso .lp-meg .on{stroke:#f97316;opacity:0;animation:lpMegOnda 1.3s ease-out infinite}#lm-pulso .lp-meg .o2{animation-delay:.22s}#lm-pulso .lp-meg .o3{animation-delay:.44s}' +
+      '@keyframes lpMegTil{0%,55%,100%{transform:rotate(0)}64%{transform:rotate(-9deg)}73%{transform:rotate(5deg)}82%{transform:rotate(-4deg)}91%{transform:rotate(2deg)}}' +
+      '@keyframes lpMegOnda{0%{opacity:0;transform:translateX(-2px)}35%{opacity:1}100%{opacity:0;transform:translateX(3px)}}' +
+      '@media (prefers-reduced-motion:reduce){#lm-pulso .lp-crfx .gi,#lm-pulso .lp-crfx .fx,#lm-pulso .lp-meg *{animation:none!important}#lm-pulso .lp-meg .on{opacity:1}}' +
       '#lm-pulso .lp-sellog{position:absolute;pointer-events:none;transform:rotate(-12deg)}' +
       '#lm-pulso.sA .lp-sellog{position:static;width:40px;height:40px;opacity:.7;flex:none}' +
       '#lm-pulso.sB .lp-sellog{width:84px;height:84px;right:-42px;bottom:-42px;opacity:.5}' +
@@ -337,9 +352,10 @@
   function grupos(es) {
     var m = {}, out = [];
     es.forEach(function (e) {
-      var k = e.nombre + '|' + e.app + '|' + (e.origen === 'carrusel-online' ? 'cr' : '') + '|' + (e.parte || '') + '|' + (e.sub || '') + '|' + diaDe(e.fin);   /* (20-nov) el carrusel, aparte del PreDict */
+      var k = e.nombre + '|' + e.app + '|' + (e.origen === 'carrusel-online' ? 'cr' + (e.cr && e.cr.tipo ? ':' + e.cr.tipo : '') : '') + '|' + (e.parte || '') + '|' + (e.sub || '') + '|' + diaDe(e.fin);   /* (20-nov) el carrusel, aparte del PreDict */
       if (!m[k]) { m[k] = { k: k, sid: e.sid, sub: e.sub || '', yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, origen: e.origen || '', parte: e.parte || '', area: e.area, mult: e.mult, fin: e.fin,
-                             min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [], tot: e.tot_min || 0, areas: e.areas || null }; out.push(m[k]); }
+                             min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [], tot: e.tot_min || 0, areas: e.areas || null, cr: e.cr ? { tipo: e.cr.tipo, anf: false } : null }; out.push(m[k]); }
+      if (e.cr && e.cr.anf && m[k].cr) m[k].cr.anf = true;   /* (21-nov) anfitrión en alguna de esas partidas: megáfono */
       var g = m[k]; g.min += e.min || 0; g.pts += Number(e.pts) || 0; g.verificado = g.verificado && !!e.verificado;
       /* (20-nov-2026, Iago) Ritmo entonado: los minutos repartidos en verde (ritmo) y azul (entonación) */
       if (e.reparto && typeof e.reparto === 'object') { g.reparto = g.reparto || {}; g.reparto_mult = g.reparto_mult || {};
@@ -419,7 +435,9 @@
   function fila(e) {
     var c = COL[e.area] || '#64748b', k = String(e.app || '').replace(/-(ge|gp)$/, ''), app = (e.app === 'ritmo-gp') ? 'Ritmo entonado' : (APP[k] || k);
     /* (20-nov-2026 22:27, Iago) las partidas del carrusel online no son «PreDict»: «CARRUSEL online», con su textura de círculos */
-    var carr = (e.origen === 'carrusel-online'); if (carr) app = 'Carrusel';   /* (20-nov 22:49, Iago) «Carrusel», como «PreDict» o «Ritmo» */
+    var carr = (e.origen === 'carrusel-online'); if (carr) app = 'Carrusel';
+    var crT = carr && e.cr ? (e.cr.tipo === 'ahora' ? 'individual' : (e.cr.tipo === 'anunciada' ? 'multijugador' : '')) : '';
+    var meg = carr && e.cr && e.cr.anf ? '<span class="lp-meg" title="Anfitrión" aria-label="Anfitrión"><svg viewBox="0 0 34 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g class="cu"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></g><path class="on o1" d="M24.5 9.6q1.8 2.4 0 4.8"/><path class="on o2" d="M27.6 7.6q3.2 4.4 0 8.8"/><path class="on o3" d="M30.7 5.6q4.6 6.4 0 12.8"/></svg></span>' : '';   /* (20-nov 22:49, Iago) «Carrusel», como «PreDict» o «Ritmo» */
     var pt = parte(e.parte), tx = TEXP[k], pts = Number(e.pts) || 0, mx = Number(e.mult) > 1.001 ? '<span class="lp-x2" style="background:' + c + '">' + mult(e.mult) + '</span>' : '';
     /* (20-nov-2026, Iago) una sesión repartida en dos áreas (Ritmo entonado): «2′ ritmo · 3′ entonación», cada parte en su color */
     var rp = '', ra = (e.reparto && typeof e.reparto === 'object') ? AREAS.filter(function (x) { return (Number(e.reparto[x[0]]) || 0) > 0; }) : [];
@@ -434,9 +452,9 @@
               (COMBO === '4' ? '' : '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span>') + '</div>' +
               (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : (!e.verificado && COMBO === '4' && MODO_SELLO === 'A' ? '<span class="lp-pv3">por<br>validar</span>' : e.verificado || COMBO === '4' ? '' : '<span class="lp-pv">Pendiente<br>de validar</span>')) + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
     var totTxt = (COMBO === '1' && e.tot > 0) ? '<span class="lp-ar-n" style="margin-left:6px">' + e.tot + ' min este trimestre</span>' : '';
-    return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + (PORTAL[k] ? ' lp-tex' : '') + (carr ? ' lp-tex' : '') + '"' + (carr ? ' style="--tex:url(https://ge.lmathome.es/piel/carrusel/textura-carrusel.jpg)"' : (tx ? ' style="--tex:url(' + TEXB + tx + ')"' : '')) + '>' + avatar(e, c) +
-      '<div><div class="lp-nm">' + esc(e.nombre) + totTxt + '</div>' +
-      '<div class="lp-d">' + mx + '<span class="lp-app" style="color:' + c + '">' + esc(app) + (pt ? ' · <span class="lp-tt">' + esc(pt) + '</span>' : '') + '</span>' + rp + '</div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + (COMBO === '4' && e.tot > 0 ? ' · <span class="lp-tt"><b style="color:#aab4d6;font-weight:700">' + e.tot + ' min</b> ' + (D && D.trimestre ? 'en el ' + esc(D.trimestre) : 'este trimestre') + '</span>' : '') + '</div></div>' + val + '</div>';
+    return '<div class="lp-e' + (e.yo ? ' lp-yo' : '') + (e.nuevo && !e.yo ? ' nuevo' : '') + (PORTAL[k] ? ' lp-tex' : '') + (carr ? ' lp-tex lp-crv' : '') + '"' + (carr ? ' style="--tex:url(https://ge.lmathome.es/piel/carrusel/textura-carrusel.jpg)"' : (tx ? ' style="--tex:url(' + TEXB + tx + ')"' : '')) + '>' + (carr ? '<span class="lp-crfx" aria-hidden="true"><span class="gi"><span class="fx"></span></span></span>' : '') + avatar(e, c) +
+      '<div><div class="lp-nm">' + esc(e.nombre) + meg + totTxt + '</div>' +
+      '<div class="lp-d">' + mx + '<span class="lp-app" style="color:' + c + '">' + esc(app) + (crT ? '<span class="lp-crt">' + crT + '</span>' : '') + (pt ? ' · <span class="lp-tt">' + esc(pt) + '</span>' : '') + '</span>' + rp + '</div><div class="lp-d" style="color:#7480a8;font-size:11px">' + hace(e.fin) + (COMBO === '4' && e.tot > 0 ? ' · <span class="lp-tt"><b style="color:#aab4d6;font-weight:700">' + e.tot + ' min</b> ' + (D && D.trimestre ? 'en el ' + esc(D.trimestre) : 'este trimestre') + '</span>' : '') + '</div></div>' + val + '</div>';
   }
   function like(k) {
     var s = cuenta(); if (!s || !D) return;
