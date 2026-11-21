@@ -192,6 +192,7 @@
       '#lm-carr-pan .fila2{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);gap:14px;align-items:stretch}#lm-carr-pan .fila2>.card{min-width:0;box-sizing:border-box}' +
       '#lm-carr-pan .card.yo{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;width:100%;min-height:290px;padding:18px 14px 16px;text-align:center}#lm-carr-pan .card.yo .yoin{position:sticky;top:10px;display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin-top:6px}' +
       '#lm-carr-pan .card.yo h2{align-self:flex-start;margin:0}#lm-carr-pan .card.yo .avw{width:100%;display:grid;place-items:center}#lm-carr-yo .avw .yoav{width:min(100%,220px);aspect-ratio:1/1}' +
+      '#lm-carr-pan .pt .gen{flex-basis:100%;width:100%;margin-top:-4px}#lm-carr-pan .pt .gen .lob{max-width:calc(100% - 200px)}#lm-carr-pan .avs{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:0}#lm-carr-pan .ava{display:flex;flex-direction:column;align-items:center;width:76px}#lm-carr-pan .ava .mav,#lm-carr-pan .ava .ph{display:block;width:72px;height:72px}#lm-carr-pan .ava b{display:flex;align-items:center;gap:3px;max-width:84px;margin-top:3px;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.86);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#lm-carr-pan .ava .meg{display:inline-flex;font-style:normal;color:#ffd23f}#lm-carr-pan .ava .meg svg{width:13px;height:13px}#lm-carr-pan .avs .mas{align-self:center;font-weight:800;color:rgba(255,255,255,.7)}' +
       '#lm-carr-pan .fila2>.card:first-child{display:flex;flex-direction:column}#lm-carr-pan .fila2 .vacio{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px 10px;font-size:17px;color:rgba(255,255,255,.72)}#lm-carr-pan .card.yo .falta{border:0;background:none;padding:2px 0;color:#fdba74;font:700 12.5px/1.2 inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}' +
       /* (21-nov 07:13, Iago) megáfono animado junto a «Partidas anunciadas», como anunciando */
       '#lm-carr-pan h2 .megA{display:inline-flex;vertical-align:-6px;margin-left:10px;color:#fff}#lm-carr-pan h2 .megA .cu{transform-box:fill-box;transform-origin:15% 60%;animation:lmMegTil 2.6s ease-in-out infinite}' +
@@ -493,7 +494,7 @@
     var quien = mia ? '<span class="cor">' + CORONA + '</span>Tu partida' : esc(p.creador) + ' <span class="g">(' + esc(grupoTxt(p.grupo)) + ')</span>';
     var cab = p.lobby_abierto ? '<i class="sq v"></i>Abierta ahora · empieza a las ' + esc(new Date(p.programada).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })) : '<i class="sq a"></i>Anunciada · ' + esc(cuando(p.programada));
     var otros = Math.max(0, (p.apuntados || 0) - 1);
-    var gente = monigotes(jugadores(p), nombresJug(p), 8);   /* (23:08) con el anfitrión */
+    var gente = (p.gente && p.gente.length && window.AV3 && AV3.vivo) ? avatares(p) : monigotes(jugadores(p), nombresJug(p), 8);   /* (23:08) con el anfitrión; (21-nov 10:12) con sus avatares */
     var bs, aviso = '';
     if (p.lobby_abierto) bs = '<button class="bt pri" data-go="' + p.id + '" data-e="' + (mia || p.yo_dentro ? '' : '1') + '">Entrar al lobby</button>';
     else if (cancelada) bs = '<span class="c">La cancelaste</span>';
@@ -510,8 +511,36 @@
       (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
     var nop = (!p.lobby_abierto && !cancelada && !sinAnf(p) && (mia || p.yo === 'si')) ? '<button type="button" class="nop" data-nop="' + p.id + '">¿No vas a poder jugar?</button>' : '';
     var lob = (!p.lobby_abierto && !cancelada && p.tipo !== 'individual' && (mia || p.yo === 'si')) ?   /* (21-nov) solo en tus partidas: con muchas, no se repite */ '<div class="lob">' + I_INFO + 'Se habilitará el lobby 5 minutos antes de la hora. Podrás acceder desde aquí.</div>' : '';   /* (20-nov 20:56, Iago) */
+    if (gente.indexOf('class="avs"') >= 0)   /* con avatares: van debajo, a todo el ancho, para que quepan en una fila */
+      return '<div class="pt' + (mia ? ' mia' : '') + (aviso ? ' sinanf' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div></div><div class="row">' + bs + '</div><div class="gen">' + gente + lob + aviso + '</div>' + nop + '</div>';
     return '<div class="pt' + (mia ? ' mia' : '') + (aviso ? ' sinanf' : '') + '"><div class="inf"><div class="q">' + quien + '</div><div class="c">' + cab + '</div><div class="c">' + gente + '</div>' + lob + aviso + '</div><div class="row">' + bs + '</div>' + nop + '</div>';
   }
+  /* (21-nov 10:12, Iago) en «Partidas anunciadas», los apuntados con su avatar: pequeños (un tercio del tuyo) y vivos, sin
+     emojis ni frases (eso queda para el lobby). Cada uno se monta una vez y sobrevive a los repintados del panel. */
+  var MINIS = {};
+  function avatares(p) {
+    return '<span class="avs">' + p.gente.slice(0, 14).map(function (g) {
+      return '<span class="ava' + (g.anf ? ' anf' : '') + '" title="' + esc(g.nombre) + (g.anf ? ' · anfitrión' : '') + '"><span class="ph" data-av="' + esc(p.id + '|' + g.id) + '"></span><b>' + (g.anf ? '<i class="meg">' + CORONA + '</i>' : '') + esc(g.nombre) + '</b></span>';
+    }).join('') + (p.gente.length > 14 ? '<span class="mas">+' + (p.gente.length - 14) + '</span>' : '') + '</span>';
+  }
+  function montaMinis() {
+    if (!PAN || !window.AV3 || !AV3.vivo) return;
+    var porK = {}; LISTA.forEach(function (p) { (p.gente || []).forEach(function (g) { porK[p.id + '|' + g.id] = g; }); });
+    [].forEach.call(PAN.querySelectorAll('.ph[data-av]'), function (ph) {
+      var k = ph.getAttribute('data-av'), g = porK[k]; if (!g) return;
+      var cfg = g.profe ? AV3.PROFE : (g.av || AV3.porDefecto(g.id)), ins = g.profe ? null : ((window.AV_INSTR && AV_INSTR[g.ins]) || null), firma = JSON.stringify([cfg, ins ? g.ins : '', !!g.profe]);
+      var m = MINIS[k];
+      if (!m || !m.rig || m.rig.muerto || m.firma !== firma) { if (m && m.rig) m.rig.destruye(); var el = document.createElement('span'); el.className = 'mav';
+        ph.parentNode.replaceChild(el, ph); MINIS[k] = { el: el, firma: firma, rig: AV3.vivo(el, cfg, { lite: true, profe: !!g.profe, anillo: g.profe ? '#ffd23f' : null, ins: ins }) }; }
+      else ph.parentNode.replaceChild(m.el, ph);
+    });
+  }
+  setInterval(function () {   /* de vez en cuando, uno de ellos hace un gesto (uno cada vez: no carga) */
+    if (!PAN || PAN.hidden || document.hidden || Math.random() > .55) return;
+    var L = Object.keys(MINIS).map(function (k) { return MINIS[k]; }).filter(function (m) { return m.rig && !m.rig.muerto && m.el.isConnected && !m.rig.ocupado(); });
+    if (!L.length) return; var G = ['saludar', 'guino', 'mirar', 'tararear', 'asentir', 'bostezar', 'reir', 'estirarse', 'bailar', 'mirar'];
+    L[Math.floor(Math.random() * L.length)].rig.gesto(G[Math.floor(Math.random() * G.length)]);
+  }, 2600);
   function minHora() { var d = new Date(Date.now() + 11 * 6e4); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); }
   function pintaPanel() {
     if (!PAN || PAN.hidden) return;
@@ -535,7 +564,7 @@
     PAN.querySelector('.x:not(.vv)').onclick = cerrarPanel;
     var pe = PAN.querySelector('#lm-carr-pers'); if (pe) pe.onclick = abreEditor;
     [].forEach.call(PAN.querySelectorAll('.cols > .card, .fila2 > .card:first-child'), function (e) { e.onmouseenter = miraMenu; });
-    montaYo();
+    montaYo(); montaMinis();
     [].forEach.call(PAN.querySelectorAll('.vv'), function (vv) { vv.onclick = function () { if (/\.html/.test(VIDEO_URL)) { abreVideo(); return; } VID = !VID; pintaPanel(); }; });
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
