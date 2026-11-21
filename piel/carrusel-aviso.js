@@ -237,7 +237,11 @@
       '#lm-carr-pan .conf .cm{max-width:470px;background:rgba(18,13,52,.97);border:1.5px solid rgba(255,255,255,.34);border-radius:14px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}' +
       '#lm-carr-pan .rojo{color:#ef4444;font-weight:800}#lm-carr-pan .conf h3{margin:0 0 10px;font-size:22px;font-weight:900}#lm-carr-pan .conf p{color:#f1eeff;margin:0 0 16px}#lm-carr-pan .conf .row{justify-content:flex-end}' +
       /* (20-nov) el campo de la fecha es un botón que abre el selector propio */ '#lm-carr-pan button.fh{display:flex;align-items:center;gap:9px;height:42px;padding:0 14px;box-sizing:border-box;border-radius:10px;border:1.5px solid rgba(255,255,255,.42);background:rgba(10,8,30,.5);color:#fff;font:700 15px "Helvetica Neue",Arial,sans-serif;cursor:pointer;white-space:nowrap;text-align:left}#lm-carr-pan button.fh svg{width:19px;height:19px;flex:none}#lm-carr-pan button.fh .ph{position:static;inset:auto;padding:0;display:none;color:inherit;font:inherit}#lm-carr-pan button.fh.vacio{border-style:dashed;border-color:rgba(255,210,63,.85);color:#ffd23f}#lm-carr-pan button.fh.vacio .ph{display:inline}#lm-carr-pan button.fh.vacio .vl{display:none}#lm-carr-pan button.fh:hover{background:rgba(255,210,63,.1)}' +
-      '@media (max-width:900px){#lm-carr-btn,#lm-carr-aviso,#lm-carr-pan{display:none!important}}';
+      /* (21-nov-2026 19:00, incidencia de Margarita, 4.º A: «en la parte de arriba no me sale el apartado del carrusel, pero sí en la campana»; su ventana era de 609 px)
+         Antes se escondía por ANCHO de ventana (<900 px): eso también lo quitaba en ordenadores con la ventana estrecha y en tablets en vertical.
+         Ahora solo se esconde en el MÓVIL, con el mismo criterio que el juego (esMovilCarr). Deshacer: volver a la regla @media (max-width:900px). */
+      'html.lm-carr-movil #lm-carr-btn,html.lm-carr-movil #lm-carr-aviso,html.lm-carr-movil #lm-carr-pan{display:none!important}' +
+      '@media (max-width:700px){#lm-carr-yo #lm-carr-pers{max-width:100%;min-width:0;box-sizing:border-box;padding-left:6px;padding-right:6px;font-size:12px;white-space:nowrap;justify-content:center}#lm-carr-yo #lm-carr-pers svg{display:none}}';
     document.head.appendChild(st);
   }
   var ESP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>';
@@ -1006,6 +1010,11 @@
   }, true);
   setInterval(function () { if (document.querySelector('.alu-item[data-carr-id]')) { cssNotis(); sincNotis(); } }, 1000);
   window.LMCarr = { abrir: function () { abrirPanel(); }, faltaTxt: faltaTxt, sinc: function () { cssNotis(); sincNotis(); } };
+  /* (21-nov-2026) móvil = lo mismo que decide el juego (lobby.js esMovil): teléfono por el navegador, o pantalla táctil con el lado corto < 600 px. Las tablets y los ordenadores, siempre. */
+  function esMovilCarr() { try { var ua = navigator.userAgent || ''; if (/iPad|Tablet|PlayBook|Silk/i.test(ua)) return false;
+    if (/iPhone|iPod|Windows Phone|IEMobile|Android.+Mobile|Mobile.+Firefox|Opera Mini/i.test(ua)) return true;
+    return matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 600; } catch (e) { return false; } }
+  try { if (esMovilCarr()) document.documentElement.classList.add('lm-carr-movil'); } catch (e) {}
   function arrancar() { refrescar(); setInterval(function () { if (!document.hidden) refrescar(); }, 60000); setInterval(function () { try { pintar(); } catch (e) {} }, 5000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') refrescar(); });
