@@ -576,8 +576,8 @@
       if (!hi.value) return; var f = new Date(hi.value);
       if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,5 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar', null, DISP)) return;
       var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id, p_programada: f.toISOString() });
-      if (r && r.ok) { MSG = 'Partida anunciada para ' + cuando(f.toISOString()) + '.'; HORA = ''; }
-      else MSG = r && r.error === 'aun_no' ? 'El carrusel online se abre ' + ABRE_TXT + '.' : r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 7 días desde ahora.' : 'No he podido anunciar la partida.';
+      if (r && r.ok) { MSG = 'Partida anunciada para ' + cuando(f.toISOString()) + '. A tus compañeros de curso les llega un aviso.'; HORA = ''; }
+      else MSG = r && r.error === 'una_por_semana' ? 'Ya tienes una partida anunciada esa semana. Puedes anunciar una por semana (de lunes a domingo).' : r && r.error === 'aun_no' ? 'El carrusel online se abre ' + ABRE_TXT + '.' : r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 7 días desde ahora.' : 'No he podido anunciar la partida.';
       refrescar();
     };
     PAN.querySelector('#lm-carr-ya').onclick = function () { abrirURL(URL_CARR + '?solo=1'); };
