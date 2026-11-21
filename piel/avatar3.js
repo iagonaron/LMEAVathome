@@ -171,7 +171,9 @@ function insBadge(k,c,f,b){ const A=(typeof AV_INS_ARTE!=='undefined')&&AV_INS_A
   return '<defs><clipPath id="v3i'+id+'"><circle cx="183" cy="183" r="30"/></clipPath></defs><g clip-path="url(#v3i'+id+')"><g transform="translate(153 153) scale(.3)">'+fondo(f,b,c,'i'+id)+'</g></g>'+
     '<circle cx="183" cy="183" r="30" fill="none" stroke="'+c+'" stroke-width="6"/><svg x="162" y="162" width="42" height="42" viewBox="0 0 '+A.w+' '+A.h+'">'+A.b+'</svg>'; }
 const BADGE_PROFE='<rect x="138" y="168" width="72" height="32" rx="7" fill="#0b0b10" stroke="#ffd23f" stroke-width="5"/><text x="174" y="191" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-weight="900" font-size="17" letter-spacing="1.2" fill="#ffd23f">PROFE</text>';
-const badgeBot=c=>'<circle cx="183" cy="183" r="24" fill="#0b0b10" stroke="'+c+'" stroke-width="5"/><text x="183" y="192" text-anchor="middle" font-size="24">🤖</text>';
+/* (21-nov 10:10, Iago) nada de robot: un cartelito «BOT» como el de «PROFE», con el fondo del propio compositor */
+const badgeBot=(c,f,b,col)=>{ const id=++UID; return '<defs><clipPath id="v3k'+id+'"><rect x="140" y="170" width="68" height="28" rx="6"/></clipPath></defs><g clip-path="url(#v3k'+id+')"><g transform="translate(140 150) scale(.34)">'+fondo(f||'liso',b||'#1b2038',col||c,'k'+id)+'</g><rect x="140" y="170" width="68" height="28" fill="rgba(0,0,0,.3)"/></g>'+
+  '<rect x="138" y="168" width="72" height="32" rx="7" fill="none" stroke="'+c+'" stroke-width="5"/><text x="174" y="191" text-anchor="middle" font-family="Helvetica Neue,Arial,sans-serif" font-weight="900" font-size="17" letter-spacing="1.6" fill="#fff">BOT</text>'; };
 /* ---------------- configuración: de lo guardado (v1 o v3) a una completa ---------------- */
 const BASE={color:'#ffd23f',fondo:'liso',fondoC:'#1b2038',cara:'sonrisa',pelo:'ninguno',peloC:'#1f1a17',gorro:'ninguno',gorroC:'#ef4444',gafas:'ninguna',prenda:'camiseta',ropa:'#2563eb',compCara:'nada',compCuello:'nada'};
 const OK=(lista,v,def)=>lista.some(x=>x[0]===v)?v:def;
@@ -206,7 +208,7 @@ function render(cfg,op){ op=op||{}; const o=Object.assign(norm(cfg),cfg&&cfg.__r
   const rp=ropa(o.prenda,R,o.compCuello);
   const cabeza='<circle cx="100" cy="94" r="46" fill="'+o.color+'"/>'+(op.profe?'<ellipse cx="84" cy="62" rx="12" ry="6" fill="#fff" opacity=".35" transform="rotate(-24 84 62)"/>':'');
   const esc='<g transform="translate(100 90.5) scale(1.08) translate(-100 -94)">';
-  const badge=op.profe?BADGE_PROFE:(op.bot?badgeBot(c):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):''));
+  const badge=op.profe?BADGE_PROFE:(op.bot?badgeBot(c,o.fondo,o.fondoC,o.color):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):''));
   return '<svg class="av av3 '+(op.entra?'entra ':'')+(op.quieto?'quieto ':'')+(op.vivoFondo?'mueve ':'')+g0+(op.dir<0?' izq':'')+'" viewBox="-16 -16 232 232"><defs><clipPath id="v3c'+id+'"><circle cx="100" cy="100" r="96"/></clipPath></defs>'+
     '<g clip-path="url(#v3c'+id+')">'+fondo(o.fondo,o.fondoC,o.color,id)+'<g class="resp"><g class="cab">'+esc+peloAt+gr.at+'</g>'+cp.at+'</g>'+rp.at+rp.de+cp.cu+
     '<g class="cab">'+cabeza+cp.de+(o.compCara==='barba'?(op.profe?BARBA_PROFE(o.peloC):BARBA(o.peloC))+(op.profe?CEJAS_PROFE(o.peloC,o.cara,g0):''):'')+cara(o.cara,g0,op.dir)+gafas(o.gafas)+esc+peloDe+gr.de+'</g></g>'+(g0==='llorar'?'':'<g class="brz">'+brazos(g0,R,o.color)+'</g>')+'</g></g>'+
@@ -385,7 +387,7 @@ function vivo(host,cfg,op){ css(); op=op||{}; let o,cej0; const E={}, UL={};
   const brazo=k=>'<g data-r="b'+k+'" visibility="hidden"><path data-r="bp'+k+'" stroke="'+R+'" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle data-r="bm'+k+'" r="11.5" fill="'+osc(o.color,.14)+'"/></g>';
   const nota='<g fill="'+c+'"><ellipse cx="0" cy="0" rx="4.4" ry="3.3" transform="rotate(-22)"/><path d="M3.6 -1.2 V-15 q5.5 1.5 6.5 6.5" stroke="'+c+'" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>';
   const chispa='<path d="M0 -8 Q1.2 -1.2 8 0 Q1.2 1.2 0 8 Q-1.2 1.2 -8 0 Q-1.2 -1.2 0 -8Z" fill="#ffd23f"/>';
-  const badge=op.profe?BADGE_PROFE:(op.bot?badgeBot(c):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):''));
+  const badge=op.profe?BADGE_PROFE:(op.bot?badgeBot(c,o.fondo,o.fondoC,o.color):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):''));
   const F='<div class="av3v-fw"><svg class="av3v-f av3 quieto" '+vb+' aria-hidden="true" style="animation-delay:-'+(hash(String(cfg&&cfg.color)+o.fondo+id)%40)+'s">'+fondo(o.fondo,o.fondoC,o.color,id)+'</svg></div>';
   const P='<svg class="av3v-p" '+vb+' aria-hidden="true"><defs><clipPath id="v3p'+id+'"><circle cx="100" cy="100" r="96"/></clipPath><clipPath id="v3b'+id+'"><path data-r="bocaC"/></clipPath></defs>'+
     '<g clip-path="url(#v3p'+id+')"><g data-r="cuerpo">'+
