@@ -33,7 +33,7 @@
   var VIDEO_URL = GP ? 'https://ge.lmathome.es/piel/carrusel/video-gp/index.html' : 'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge.mp4?v=4';
   /* (21-nov-2026, Iago) el vídeo nuevo de GP es como las intros de Teoría (página viva a pantalla completa). Hasta que lo revise
      y diga «Publica el vídeo del carrusel GP», solo lo ven sus cuentas Tester/Protester. Deshacer: VIDEO_URL de GP = '' */
-  var VIDEO_PRUEBA = GP;
+  var VIDEO_PRUEBA = false;   /* (21-nov 09:38, Iago) el vídeo se activa con todo lo demás, después de su clase del martes */
   function videoVisible() { return !!VIDEO_URL && (!VIDEO_PRUEBA || esTester()); }
   function abreVideo() {   /* a pantalla completa, como abrirVideo de Teoría PRO */
     if (document.getElementById('lm-carr-vid')) return;
@@ -522,7 +522,7 @@
       (!cerrado() && videoVisible() ? '<button class="vv" type="button" title="Ver el vídeo de presentación">' + I_PLAY + (VID ? 'Ocultar vídeo' : 'Ver vídeo') + '</button>' : '') + '<button class="x" type="button" title="Cerrar">' + I_X + '</button></div>' +
       (VID && !cerrado() ? '<div class="card" style="margin-bottom:14px">' + videoHTML(VIDEO_URL) + '</div>' : '') +
       (MSG ? '<div class="msg">' + esc(MSG) + '</div>' : '') +
-(GP && esTester() && Date.now() < ABRE ? '<div class="msg">Los alumnos ven «No disponible hasta el martes a las 20:00». Tú, como Protester, ya puedes probarlo.</div>' : '') +   /* (21-nov 07:17, Iago) */
+(GP && esTester() && Date.now() < ABRE ? '<div class="msg">Los alumnos no ven nada del carrusel hasta el martes 24: 2.º GP C a las 19:00 y 2.º GP F a las 20:00. Tú, como Protester, ya puedes probarlo.</div>' : '') +   /* (21-nov 07:17, Iago) */
 (cerrado() ? '<div class="card"><h2>' + (GP ? 'No disponible hasta el martes a las 20:00' : 'Muy pronto') + '</h2>' + (GP ? '<p>Te lo explico en clase.</p>' : '<p>El carrusel online estará disponible <b>' + ABRE_TXT + '</b>. Te lo explico en clase' + (VIDEO_URL ? '; mientras, puedes ver el vídeo.</p>' + videoHTML(VIDEO_URL) : '.</p>')) + '</div>' : 
       '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p>Elige día y hora. <b>Serás el anfitrión</b><span class="meg">' + I_CAL + '</span></p>' +
       '<div class="row"><button type="button" class="fh' + (HORA ? '' : ' vacio') + '" id="lm-carr-fh"><input type="hidden" id="lm-carr-hora" value="' + esc(HORA) + '"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2.5\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg><span class="ph">Elige día y hora</span><span class="vl">' + esc(lmfTexto(HORA)) + '</span></button><button class="bt pri" id="lm-carr-ok" type="button"' + (HORA ? '' : ' disabled') + '>' + I_CAL + 'Anunciar</button></div></div>' +
@@ -834,7 +834,9 @@
   function pintar() {
     var host = document.querySelector('.topbar .topbar-right');
     var b = BTN || document.getElementById('lm-carr-btn'), a = document.getElementById('lm-carr-aviso');
-    if (!host || !cuenta() || !OK || (GP && !GP_PUBLICO && !esTester())) { if (b) b.hidden = true; if (a) a.hidden = true; cerrarPanel(); return; }
+    /* (21-nov 09:38, Iago) en GP, a los alumnos no les sale NADA del carrusel (ni botón, ni vídeo, ni avisos) hasta que el servidor lo
+       abre después de su clase del martes 24: 2.º GP C a las 19:00 y 2.º GP F a las 20:00. El Protester lo ve ya. */
+    if (!host || !cuenta() || !OK || (GP && !esTester() && (!GP_PUBLICO || ABIERTO !== true))) { if (b) b.hidden = true; if (a) a.hidden = true; cerrarPanel(); return; }
     css();
     document.documentElement.classList.toggle('lm-carr-profe', esTester()); if (esTester()) cssProfe();   /* (menú profe) */
     if (!b) {
