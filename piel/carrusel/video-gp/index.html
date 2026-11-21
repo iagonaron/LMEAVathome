@@ -88,6 +88,27 @@
   #barraTiempo{position:absolute;left:0;bottom:0;height:5px;width:0;background:#fff}
   body:not(.sonando) #pausaIco{display:none} body.sonando #playIco{display:none}
   html.fijo #controles,html.fijo #barra{display:none}
+  /* ---- v2 (21-nov 10:10, Iago) ---- */
+  .foco{position:absolute;z-index:14;pointer-events:none;box-shadow:0 0 0 4000px rgba(4,3,16,var(--a,0)),0 0 0 3px rgba(255,214,90,calc(var(--a,0) * 1.3)),0 0 34px rgba(255,214,90,calc(var(--a,0) * .6))}
+  .viva.avs,.viva.ranking,.viva.reloj{inset:0;z-index:11}
+  .avh{position:absolute;will-change:transform,opacity}
+  .relojv{position:absolute;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .viva.intro{left:960px;top:520px;z-index:12;text-align:center;width:1800px}
+  .intro .linea{font:900 96px/1.18 var(--fuente);color:#fff;white-space:nowrap}
+  .intro .linea span{display:inline-block;margin:0 .14em;will-change:transform,opacity}
+  .intro .linea b{color:#fde047}
+  .rotulo.parte{font-size:120px;background:rgba(10,8,30,.84);border-radius:30px;padding:20px 56px;text-shadow:none}
+  .ranking .fila{position:absolute;display:grid;grid-template-columns:90px 64px 1fr 190px 150px;align-items:center;gap:10px;padding:9px 22px;border-radius:16px;font:800 33px "Helvetica Neue",Arial,sans-serif;border:2.5px solid transparent;background:rgba(255,255,255,.06);box-sizing:border-box;color:#fff}
+  .ranking .fila .pos{color:var(--c);font-size:38px}
+  .ranking .fila .nom{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ranking .fila .nom i{font-style:normal;font-weight:600;font-size:21px;color:rgba(255,255,255,.55);margin-left:8px}
+  .ranking .fila .del{color:#7ee7b6;font-size:28px;text-align:right}
+  .ranking .fila .pts{font-variant-numeric:tabular-nums;text-align:right}
+  .ranking .fila.yo{border-color:var(--c);background:rgba(var(--rgb),.2)}
+  .ranking .fila.sub2{background:rgba(52,211,153,.24)}.ranking .fila.baja{background:rgba(255,90,90,.22)}.ranking .fila.lider{background:rgba(255,210,63,.18)}
+  .ranking .fila.yo.sub2,.ranking .fila.yo.lider{background:rgba(var(--rgb),.3)}
+  .ranking .co-avr{display:block;line-height:0;position:relative}
+  .ranking .co-avr .avh{position:relative;width:92px;height:92px;margin:-14px 0 -14px -14px}
 </style>
 </head>
 <body>
@@ -104,7 +125,7 @@
 </div>
 <audio id="audio" preload="auto"></audio>
 <script src="avatar3.js"></script>
-<script src="guion.js?v=202611210910"></script>
-<script src="motor.js?v=202611210910"></script>
+<script src="guion.js?v=36ab383a"></script>
+<script src="motor.js?v=36ab383a"></script>
 </body>
 </html>
