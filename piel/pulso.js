@@ -103,6 +103,9 @@
     o.querySelector('.lpv-x').addEventListener('click', cerrarVideo);
     document.body.appendChild(o);
     var V = o.querySelector('video'), barra = o.querySelector('.lpv-barra i'), pc = o.querySelector('.lpv-pc'), carga = o.querySelector('.lpv-carga');
+    /* (21-nov-2026) como los didácticos: mientras se baja, el título del vídeo (su primer fotograma) nítido y, debajo, una barra fina */
+    if (VMAN.q1440 && VMAN.q1440.portada) { var por = VBASE + VMAN.q1440.portada + '?v=' + VMAN.v; carga.classList.add('lpv-dida');
+      carga.insertAdjacentHTML('afterbegin', '<img class="lpv-por" alt="" src="' + por + '">'); V.poster = por; }
     function listo(url) { V.src = url; carga.style.display = 'none'; var pr = V.play(); if (pr && pr.catch) pr.catch(function () {}); }
     if (VBLOB) { listo(VBLOB); return; }
     (async function () {
@@ -111,7 +114,10 @@
           return !!(r.supported && r.smooth && (!hw || r.powerEfficient)); } catch (e) { return false; } };
         var cv = +((/Chrome\/(\d+)/.exec(navigator.userAgent) || [])[1] || 0), aula = /Linux/.test(navigator.userAgent) && !/Android|CrOS/.test(navigator.userAgent) && cv && cv < 110;
         var v4 = man.k4 && man.k4.trozos && man.k4.trozos.length, v30 = man.t30 && man.t30.trozos && man.t30.trozos.length, Q = man;
-        if (aula && v30) Q = man.t30; else if (v4 && await puede(3840, 2160, 60, 3e6, true)) Q = man.k4; else if (v30 && !(await puede(1920, 1080, 60, 1e6, false))) Q = man.t30;
+        /* (21-nov-2026 08:18, Iago) «el mismo formato que los vídeos didácticos, la misma calidad, los mismos frames y que cargue de la
+           misma forma»: un solo vídeo 2560×1440 a 60 fps para todos (como «Escalas mayores» de Teoría PRO), bajado entero antes de verse */
+        if (man.q1440 && man.q1440.trozos && man.q1440.trozos.length) Q = man.q1440;
+        else if (aula && v30) Q = man.t30; else if (v4 && await puede(3840, 2160, 60, 3e6, true)) Q = man.k4; else if (v30 && !(await puede(1920, 1080, 60, 1e6, false))) Q = man.t30;
         var tot = Q.bytes || 0, rec = 0, partes = [], CA = null;
         try { if (window.caches) CA = await caches.open('lm-pulso-video'); } catch (e) { CA = null; }
         if (CA) try { (await CA.keys()).forEach(function (rq) { var u = new URL(rq.url); if (u.pathname.indexOf(VNOM) >= 0 && u.searchParams.get('v') !== String(man.v)) CA.delete(rq); }); } catch (e) {}
@@ -127,7 +133,7 @@
         }
         VBLOB = URL.createObjectURL(new Blob(partes, { type: 'video/mp4' }));
         if (document.getElementById('lm-pulso-vid')) listo(VBLOB);
-      } catch (e) { o.querySelector('.lpv-t').textContent = 'No se ha podido cargar el vídeo. Prueba otra vez en un rato.'; pc.textContent = ''; }
+      } catch (e) { carga.classList.add('lpv-err'); o.querySelector('.lpv-t').textContent = 'No se ha podido cargar el vídeo. Prueba otra vez en un rato.'; pc.textContent = ''; }
     })();
   }
 
@@ -255,6 +261,12 @@
       '#lm-pulso-vid .lpv-ic .lp-h{stroke:#fff;stroke-dasharray:26 300;stroke-dashoffset:26;opacity:0;filter:drop-shadow(0 0 3px rgba(255,255,255,.55));animation:lpTrazo 3.2s infinite,lpTrazoO 3.2s linear infinite}#lm-pulso-vid .lpv-ic .lp-l{stroke:url(#lpGradPulso);opacity:.6}' +
       '#lm-pulso-vid .lpv-barra{width:min(320px,70%);height:6px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}#lm-pulso-vid .lpv-barra i{display:block;height:100%;width:0;background:' + AC + ';border-radius:4px}' +
       '#lm-pulso-vid .lpv-pc{font-size:12.5px;color:#aab4d6;font-variant-numeric:tabular-nums}' +
+      /* (21-nov-2026) carga «como los didácticos»: portada nítida + barra fina bajo el título (colores del Pulso), sin texto ni % */
+      '#lm-pulso-vid .lpv-carga.lpv-dida{padding:0;gap:0}#lm-pulso-vid .lpv-dida .lpv-por{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}' +
+      '#lm-pulso-vid .lpv-dida .lpv-ic,#lm-pulso-vid .lpv-dida .lpv-t,#lm-pulso-vid .lpv-dida .lpv-pc{display:none}' +
+      '#lm-pulso-vid .lpv-dida .lpv-barra{position:absolute;left:38%;top:79%;width:24%;height:8px;border-radius:4px;background:rgba(255,255,255,.16);box-shadow:0 0 0 1px rgba(0,0,0,.25)}' +
+      '#lm-pulso-vid .lpv-dida .lpv-barra i{background:linear-gradient(90deg,#3b82f6,#22c55e 36%,#f97316 68%,#ec4899);box-shadow:0 0 14px rgba(236,72,153,.45);transition:width .25s linear}' +
+      '#lm-pulso-vid .lpv-dida.lpv-err .lpv-barra{display:none}#lm-pulso-vid .lpv-dida.lpv-err .lpv-t{display:block;position:absolute;left:0;right:0;top:80%;padding:0 20px}' +
       '#lm-pulso-vid .lpv-x{position:absolute;right:0;top:-40px;width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(10,14,28,.9);color:#fff;font:700 15px/1 system-ui,sans-serif;cursor:pointer}' +
       '#lm-pulso .lp-vacio{padding:18px 6px;text-align:center;color:#94a3b8;font-size:12.5px;line-height:1.45}' +
       '#lm-pulso .lp-pie{padding:8px 14px 12px;font-size:11px;color:#7480a8;line-height:1.4;border-top:1px solid rgba(255,255,255,.07)}';
