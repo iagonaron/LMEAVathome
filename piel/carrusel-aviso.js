@@ -638,12 +638,15 @@
   function rojo(t) { return t.replace(/(perder[áa]s (?:un )?0,\d+ de actitud)/g, '<b class="rojo">$1</b>'); }
   function pedirConf(t, x, si, no, d) {
     return new Promise(function (res) {
-      CONF = { t: t, x: x, si: si, no: no, d: d }; pintaPanel();
-      var fin = function (v) { CONF = null; pintaPanel(); res(v); };
-      PAN.querySelector('#lm-c-si').onclick = function () { fin(true); };
-      PAN.querySelector('#lm-c-no').onclick = function () { fin(false); };
+      CONF = { t: t, x: x, si: si, no: no, d: d, res: res }; pintaPanel();
     });
   }
+  /* (21-nov 13:47) los botones de la ventanita se vuelven a enganchar en cada repintado (antes, si el panel se repintaba con la
+     ventanita abierta —p. ej. al llegar tu avatar—, «Sí, me apunto» dejaba de responder) */
+  function ataConf() { if (!CONF || !PAN) return;
+    var fin = function (v) { var r = CONF && CONF.res; CONF = null; pintaPanel(); if (r) r(v); };
+    var a = PAN.querySelector('#lm-c-si'), b = PAN.querySelector('#lm-c-no'); if (a) a.onclick = function () { fin(true); }; if (b) b.onclick = function () { fin(false); }; }
+  var _pintaPanel0 = pintaPanel; pintaPanel = function () { _pintaPanel0(); ataConf(); };
   /* ---- (20-nov 23:10, Iago) tu avatar en la ventana del carrusel: vivo, con tu instrumento y «Personalizar» ---- */
   var MIAV = null, AVCARGA = null;
   function cargaAv() {
@@ -895,10 +898,51 @@
   async function refrescar() {
     try {
       if (!cuenta()) { OK = false; pintar(); return; }
-      var l = await lista(); OK = (l !== null); if (OK) LISTA = l; pintar();
+      var l = await lista(); OK = (l !== null); if (OK) LISTA = l; pintar(); try { sincNotis(); } catch (e) {}
       var f = document.activeElement; if (!(PAN && f && PAN.contains(f) && f.tagName === 'INPUT') && !CONF) pintaPanel();
     } catch (e) { console.warn('[carrusel-aviso]', e); }
   }
+  /* (21-nov-2026 13:47, Iago) AVISO DE PARTIDA ANUNCIADA en «Tus notificaciones» (tarjeta con la textura del carrusel, la pintan
+     los portales con data-carr-id). Aquí van sus acciones, para GE y GP a la vez:
+     · «Me apunto»: cierra las notificaciones, abre la ventana del Carrusel y pide el compromiso de siempre (ahí se ven los
+       monigotes y se puede personalizar el avatar). · «Marcar como visto»: es el mismo «visto» del panel (no hay que repetirlo
+       arriba) y deja la notificación leída. · La tarjeta se pone al día sola: «✓ Apuntado», «Visto» o «Ya no está disponible»,
+       y la cuenta atrás (días, horas y minutos) avanza. */
+  function faltaTxt(iso) { var ms = new Date(iso).getTime() - Date.now(); if (!(ms > 0)) return 'Empieza ya';
+    var m = Math.floor(ms / 60000), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mi = m % 60;
+    return 'Faltan ' + (d ? d + ' d ' : '') + ((d || h) ? h + ' h ' : '') + mi + ' min'; }
+  function sincNotis() {
+    document.querySelectorAll('[data-carr-cuenta]').forEach(function (e) { e.textContent = faltaTxt(e.getAttribute('data-carr-cuenta')); });
+    if (!OK) return;
+    document.querySelectorAll('.alu-item[data-carr-id]').forEach(function (c) { var id = c.getAttribute('data-carr-id'), P = LISTA.filter(function (x) { return x.id === id; })[0];
+      c.classList.toggle('carr-si', !!(P && P.yo === 'si')); c.classList.toggle('carr-visto', !!(P && P.yo === 'quiza')); c.classList.toggle('carr-fuera', !P); });
+  }
+  function cssNotis() { if (document.getElementById('lm-carr-notis-css')) return; var st = document.createElement('style'); st.id = 'lm-carr-notis-css';
+    st.textContent = '.alu-item[data-carr-id] .cv2-mas{display:none!important}' +
+      '.alu-item[data-carr-id] .carr-b-visto{color:#fff!important;background:rgba(10,8,30,.5)!important;border:1.5px solid rgba(255,255,255,.55)!important;font-weight:700!important}' +
+      '.alu-item[data-carr-id] .carr-b-visto:hover{background:rgba(255,255,255,.14)!important}' +
+      '.alu-item[data-carr-id] .carr-chip{display:none;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 12px;border-radius:9px;font-weight:800;font-size:14px;white-space:nowrap}' +
+      '.alu-item[data-carr-id] .carr-ok{background:rgba(34,197,94,.18);color:#4ade80;border:1.5px solid rgba(74,222,128,.6)}' +
+      '.alu-item[data-carr-id] .carr-off{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1.5px solid rgba(255,255,255,.25)}' +
+      '#alu-body .alu-item.carr-si .carr-b,#alu-body .alu-item.carr-fuera .carr-b,#alu-body .alu-item.carr-visto .carr-b-visto{display:none!important}' +
+      '.alu-item.carr-si .carr-ok,.alu-item.carr-fuera .carr-off{display:inline-flex}' +
+      '.alu-item.carr-fuera{opacity:.6}.alu-item.carr-fuera [data-carr-cuenta]{display:none}';
+    document.head.appendChild(st); }
+  document.addEventListener('click', async function (ev) {
+    var t = ev.target && ev.target.closest ? ev.target : null; if (!t) return;
+    var ap = t.closest('[data-carr-apunta]'), vi = t.closest('[data-carr-visto]'); if (!ap && !vi) return;
+    ev.preventDefault(); ev.stopPropagation(); if (!cuenta()) return;
+    var id = (ap || vi).getAttribute(ap ? 'data-carr-apunta' : 'data-carr-visto'), card = (ap || vi).closest('.alu-item'), nid = card && card.getAttribute('data-id');
+    if (nid && card.classList.contains('no-leido')) { card.classList.remove('no-leido'); rpcA('suite_alumno_marcar_leido', { p_cuenta_id: cuenta().id, p_notif_id: nid }); }
+    if (vi) { vi.disabled = true; await rpcA('suite_cr_apuntar', { p_cuenta: cuenta().id, p_partida: id, p_resp: 'quiza' }); await refrescar(); return; }
+    var x = document.getElementById('alu-close'); if (x) x.click();
+    if (!LISTA.some(function (q) { return q.id === id; })) await refrescar();
+    abrirPanel();
+    var n = 0; (function pide() { var bt = PAN && PAN.querySelector('button[data-a="si"][data-id="' + id + '"]');
+      if (bt) { bt.scrollIntoView({ block: 'center' }); bt.click(); } else if (++n < 25) setTimeout(pide, 120); })();
+  }, true);
+  setInterval(function () { if (document.querySelector('.alu-item[data-carr-id]')) { cssNotis(); sincNotis(); } }, 1000);
+  window.LMCarr = { faltaTxt: faltaTxt, sinc: function () { cssNotis(); sincNotis(); } };
   function arrancar() { refrescar(); setInterval(function () { if (!document.hidden) refrescar(); }, 60000); setInterval(function () { try { pintar(); } catch (e) {} }, 5000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') refrescar(); });
