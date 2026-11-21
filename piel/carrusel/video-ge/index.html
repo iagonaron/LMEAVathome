@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carrusel Online · vídeo</title>
+<style>
+  :root{--fuente:"Helvetica Neue",Helvetica,Arial,sans-serif;color-scheme:dark}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#07061a;color:#fff;font-family:var(--fuente);overflow:hidden;-webkit-font-smoothing:antialiased}
+  #escenario{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;overflow:hidden;background:#0d0a26}
+  /* fondo psicodélico del carrusel, en vivo */
+  /* el mismo fondo que el juego (remolino de colores + anillos + viñeta), en marcha (21-nov 11:07) */
+  #fondo{position:absolute;inset:0;overflow:hidden;background:linear-gradient(160deg,#1d1545,#0c0926 60%,#070512)}
+  #anillos{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block}
+  #velo{position:absolute;inset:0;background:radial-gradient(ellipse 72% 72% at 50% 42%,rgba(10,7,30,.34),rgba(10,7,30,.86) 80%)}
+  .viva.teclea{z-index:21;width:0;height:0}
+  .viva.teclea .caja{position:absolute;left:0;top:0;width:max-content;max-width:1180px;background:rgba(12,10,32,.9);border:2px solid rgba(255,255,255,.28);border-radius:22px;padding:22px 36px;font:700 50px/1.25 var(--fuente);color:#fff;text-align:left;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+  .viva.teclea .caja b{color:#fde68a}
+  .viva.teclea .caret{display:inline-block;width:5px;height:52px;margin-left:5px;vertical-align:-8px;background:#fde68a;border-radius:2px}
+  .viva.fantasma{left:0;top:0;width:0;height:0;z-index:4}
+  .viva.fantasma .nota{position:absolute;width:23px;height:16px;margin:-8px 0 0 -11.5px;border-radius:50%;background:#5b9dfe;transform:rotate(-26deg)}
+  .viva.boton{left:0;top:0;width:0;height:0;z-index:19}
+  .viva.boton .velo{position:absolute;left:0;top:0;width:1920px;height:1080px;background:#04030f}
+  .viva.boton .bb{position:absolute;left:0;top:0;width:320px;height:320px;margin:-160px 0 0 -160px;border-radius:94px;background:#0a071e;will-change:transform}
+  .viva.boton .bb::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 8px rgba(255,255,255,.28);z-index:2}
+  .viva.boton .cl{position:absolute;inset:0;overflow:hidden;border-radius:inherit;z-index:0}
+  .viva.boton .gi{position:absolute;left:50%;top:50%;width:200%;aspect-ratio:1;will-change:transform}
+  .viva.boton .fx{position:absolute;inset:0;will-change:transform;backface-visibility:hidden;background:repeating-radial-gradient(circle at 50% 50%,rgba(10,7,30,0) 0 47px,rgba(10,7,30,.14) 47px 94px),radial-gradient(circle at 50% 50%,rgba(10,7,30,.22),rgba(10,7,30,.50)),conic-gradient(from 0deg at 50% 50%,#5bd0ff,#bd92ff,#ff5fa2,#fff,#ffd23f,#34d399,#5bd0ff)}
+  .viva.boton svg{position:absolute;left:50%;top:50%;width:207px;height:207px;margin:-103.5px 0 0 -103.5px;z-index:1;filter:drop-shadow(0 0 19px rgba(10,7,30,.95)) drop-shadow(0 0 47px rgba(10,7,30,.7))}
+  .viva.boton .onda{position:absolute;inset:0;border-radius:inherit;z-index:4}
+  .viva.boton .pto{position:absolute;z-index:3;right:-38px;top:-38px;min-width:160px;height:160px;padding:0 38px;box-sizing:border-box;border-radius:84px;border:19px solid #0f172a;background:#f97316;color:#fff;font:900 94px/1 system-ui,sans-serif;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+  #capa{position:absolute;inset:0}
+  .plano{position:absolute;overflow:hidden;will-change:transform,opacity}
+  .plano.full{left:0;top:0;width:1920px;height:1080px}
+  .plano.card{border-radius:26px;box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.18)}
+  .plano img{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;user-select:none}
+  .rotulo{position:absolute;z-index:20;white-space:nowrap;font:900 92px/1.02 var(--fuente);letter-spacing:-.01em;text-align:center;color:#fff;
+    text-shadow:0 6px 30px rgba(0,0,0,.65),0 2px 0 rgba(0,0,0,.4);will-change:transform,opacity}
+  .rotulo.mediano{font-size:64px}.rotulo.peq{font-size:44px;font-weight:800}
+  .rotulo.caja{background:rgba(12,10,32,.86);border:2px solid rgba(255,255,255,.25);border-radius:22px;padding:16px 34px;text-shadow:none}
+  .rotulo.rojo{color:#fecaca;background:rgba(127,29,29,.92);border-color:#f87171}
+  .rotulo.verde{color:#bbf7d0;background:rgba(20,83,45,.92);border-color:#4ade80}
+  .rotulo.oro{color:#fde68a}
+  .rotulo b{color:var(--c,#fde047)}
+  .aro.icono{border-radius:42px}
+  .aro{position:absolute;z-index:15;border:6px solid #fde047;border-radius:22px;box-shadow:0 0 0 4px rgba(0,0,0,.35),0 0 40px rgba(253,224,71,.8);pointer-events:none}
+  .aro.redondo{border-radius:50%}.aro.rosa{border-color:#f472b6;box-shadow:0 0 0 4px rgba(0,0,0,.35),0 0 40px rgba(244,114,182,.85)}
+  .cursor{position:absolute;z-index:25;width:0;height:0}
+  .cursor svg{position:absolute;left:-6px;top:-4px;width:64px;height:64px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));transform-origin:6px 4px}
+  .cursor i{position:absolute;left:0;top:0;width:110px;height:110px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 30px #fff}
+  .flota{position:absolute;z-index:18;font-size:76px;line-height:1;will-change:transform,opacity}
+  .flota.frase{font:800 32px/1.15 var(--fuente);background:var(--c,#6366f1);color:#fff;border-radius:18px;padding:12px 20px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .flota.frase i{display:block;font:600 20px var(--fuente);opacity:.85;font-style:normal}
+  .viva{position:absolute;z-index:12}
+  .viva.titulo{left:960px;top:520px;text-align:center}
+  .viva .logo{display:flex;align-items:baseline;gap:22px;white-space:nowrap}
+  .viva .logo .car{font:700 190px/1 Georgia,"Times New Roman",serif;background:linear-gradient(90deg,#22d3ee,#a3e635,#facc15,#fb923c,#f472b6,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .viva .logo .pro{font:900 92px/1 var(--fuente);color:#fbbf24;letter-spacing:.04em}
+  .viva .logo .onl{font:300 170px/1 var(--fuente);color:#e9e5ff}
+  .viva .sub{font:700 46px var(--fuente);letter-spacing:.32em;text-transform:uppercase;color:#cfc8ff;margin-top:18px}
+  .viva.montaje{inset:0}
+  .montaje .grande{position:absolute;left:660px;top:150px;width:600px;height:600px}
+  .montaje .grande svg,.montaje .mini svg,.compositores .av svg{width:100%;height:100%;display:block}
+  .montaje .lista{position:absolute;left:0;right:0;top:820px;text-align:center}
+  .montaje .lista span{display:inline-block;font:900 96px var(--fuente);color:#fff;text-shadow:0 8px 30px rgba(0,0,0,.6);letter-spacing:.02em}
+  .montaje .rejilla{position:absolute;left:110px;right:110px;top:150px;display:grid;grid-template-columns:repeat(6,1fr);gap:26px 18px}
+  .montaje .mini{text-align:center;will-change:transform,opacity}
+  .montaje .mini svg{width:210px;height:210px;margin:0 auto}
+  .montaje .mini .avm{width:210px;height:210px;margin:0 auto}
+  .montaje .mini b{display:block;font:800 28px var(--fuente);margin-top:6px}
+  .viva.compositores{left:0;right:0;top:170px;text-align:center}
+  .compositores h2{margin:0 0 54px;font:900 64px/1.1 var(--fuente);color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.5)}
+  .compositores h2 b{color:#fde68a}
+  .compositores .fila{display:flex;justify-content:center;gap:56px}
+  .compositores .hueco{position:relative;width:360px}
+  .compositores .hueco > i{position:absolute;left:50%;top:0;width:300px;height:300px;margin-left:-150px;border-radius:50%;border:6px dashed rgba(255,255,255,.38);box-sizing:border-box;background:rgba(10,7,30,.35)}
+  .compositores .bocadillo{position:absolute;left:50%;top:408px;transform-origin:50% 0;width:max-content;max-width:470px;background:#fff;color:#1b1340;border-radius:22px;padding:16px 26px;font:900 40px/1.15 var(--fuente);box-shadow:0 18px 50px rgba(0,0,0,.5);opacity:0;z-index:3}
+  .compositores .bocadillo::before{content:"";position:absolute;left:50%;top:-20px;margin-left:-18px;border:18px solid transparent;border-top:0;border-bottom:22px solid #fff}
+  .compositores .comp{text-align:center;width:360px;will-change:transform,opacity;transform-origin:50% 150px}
+  .compositores .av{width:300px;height:300px;margin:0 auto}
+  .compositores .comp > b{display:block;font:900 46px var(--fuente);margin-top:14px;text-shadow:0 6px 24px rgba(0,0,0,.6)}
+  .viva.barajar{left:960px;top:560px}
+  .barajar .parte{position:absolute;left:-125px;top:-160px;width:250px;height:320px;border-radius:28px;background:var(--c);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 0 0 4px rgba(255,255,255,.35);will-change:transform,opacity}
+  .barajar .parte i{font:900 90px var(--fuente);font-style:normal;color:rgba(255,255,255,.95);width:130px;height:130px;border-radius:50%;border:6px solid rgba(255,255,255,.9);display:grid;place-items:center}
+  .barajar .parte b{font:900 34px var(--fuente);letter-spacing:.06em;text-transform:uppercase}
+  .viva.actitud{left:0;right:0;top:0;bottom:0;display:grid;place-items:center}
+  .actitud .tarj{width:1180px;background:rgba(14,10,42,.9);border:2px solid rgba(255,255,255,.25);border-radius:34px;padding:56px 70px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+  .actitud h3{margin:0 0 34px;font:900 46px var(--fuente);letter-spacing:.18em;text-transform:uppercase;color:#c4b5fd}
+  .actitud .fila{display:flex;align-items:center;gap:26px;font:800 64px var(--fuente)}
+  .actitud .fila .ic{width:70px;height:70px;border-radius:50%;background:conic-gradient(#f43f5e,#f59e0b,#84cc16,#06b6d4,#6366f1,#d946ef,#f43f5e);box-shadow:inset 0 0 0 14px #0e0a2a}
+  .actitud .fila em{margin-left:auto;font-style:normal;color:#4ade80;font-variant-numeric:tabular-nums}
+  .actitud .barra{height:30px;border-radius:15px;background:rgba(255,255,255,.12);margin:36px 0 34px;overflow:hidden}
+  .actitud .barra i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#86efac);border-radius:15px}
+  .actitud .topes{display:flex;gap:24px}
+  .actitud .topes span{font:800 40px var(--fuente);background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);border-radius:16px;padding:14px 26px}
+  /* portada, final y controles (como las intros de Teoría) */
+  #portada{position:absolute;left:0;right:0;top:780px;display:flex;justify-content:center;z-index:40;transition:opacity .6s}
+  #portada.fuera{opacity:0;pointer-events:none}
+  #carga{position:absolute;left:50%;top:0;transform:translateX(-50%);width:760px;text-align:center;transition:opacity .4s}
+  #carga.fuera{opacity:0;pointer-events:none}
+  #carga b{display:block;font:800 46px/1.2 var(--fuente);color:#fff;margin-bottom:22px;text-shadow:0 4px 20px rgba(0,0,0,.6)}
+  #carga .bar{height:22px;border-radius:11px;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.3);overflow:hidden}
+  #carga .bar i{display:block;height:100%;background:linear-gradient(90deg,#5bd0ff,#bd92ff,#ff5fa2,#ffd23f);transform-origin:0 50%;transform:scaleX(0)}
+  #carga .pc{display:block;margin-top:14px;font:700 32px var(--fuente);color:#d9d3ff}
+  #botonPlay:disabled{visibility:hidden}
+  #botonPlay{width:124px;height:124px;border-radius:24px;border:0;background:#fff;color:#1b1340;cursor:pointer;display:grid;place-items:center;opacity:.45;transition:opacity .3s,transform .2s}
+  #botonPlay.listo{opacity:1}#botonPlay:hover{transform:scale(1.05)}#botonPlay svg{width:52px;height:52px;margin-left:6px}
+  #finalUI{position:absolute;left:0;right:0;top:800px;display:none;justify-content:center;gap:28px;z-index:40}
+  #finalUI.on{display:flex}
+  .boton{font:700 32px/1 var(--fuente);text-decoration:none;border-radius:16px;padding:26px 50px;min-width:300px;text-align:center;color:#fff;background:rgba(12,10,32,.8);border:2px solid rgba(255,255,255,.5)}
+  .boton.lleno{background:#fff;color:#1b1340;border-color:#fff}
+  #controles{position:absolute;right:26px;bottom:30px;display:flex;gap:10px;z-index:45;opacity:0;transition:opacity .35s}
+  body.raton #controles,body:not(.sonando) #controles{opacity:1}
+  #controles button{width:60px;height:60px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(12,10,32,.85);color:#fff;cursor:pointer;display:grid;place-items:center}
+  #controles svg{width:26px;height:26px}
+  #barra{position:absolute;left:0;right:0;bottom:0;height:18px;z-index:45;cursor:pointer;opacity:0;transition:opacity .35s}
+  body.raton #barra,body:not(.sonando) #barra{opacity:1}
+  #barra::before{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(255,255,255,.14)}
+  #barraTiempo{position:absolute;left:0;bottom:0;height:5px;width:0;background:#fff}
+  body:not(.sonando) #pausaIco{display:none} body.sonando #playIco{display:none}
+  html.fijo #controles,html.fijo #barra{display:none}
+  /* ---- v2 (21-nov 10:10, Iago) ---- */
+  .foco{position:absolute;z-index:14;pointer-events:none;box-shadow:0 0 0 4000px rgba(4,3,16,var(--a,0)),0 0 0 3px rgba(255,214,90,calc(var(--a,0) * 1.3)),0 0 34px rgba(255,214,90,calc(var(--a,0) * .6))}
+  .viva.avs,.viva.ranking,.viva.reloj{inset:0;z-index:11}
+  .avh{position:absolute;will-change:transform,opacity}
+  .relojv{position:absolute;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .viva.intro{left:960px;top:520px;z-index:12;text-align:center;width:1800px}
+  .intro .linea{font:900 96px/1.18 var(--fuente);color:#fff;white-space:nowrap}
+  .intro .linea span{display:inline-block;margin:0 .14em;will-change:transform,opacity}
+  .intro .linea b{color:#fde047}
+  .rotulo.parte{font-size:120px;background:rgba(10,8,30,.84);border-radius:30px;padding:20px 56px;text-shadow:none}
+  .ranking .fila{position:absolute;display:grid;grid-template-columns:90px 64px 1fr 190px 150px;align-items:center;gap:10px;padding:9px 22px;border-radius:16px;font:800 33px "Helvetica Neue",Arial,sans-serif;border:2.5px solid transparent;background:rgba(255,255,255,.06);box-sizing:border-box;color:#fff}
+  .ranking .fila .pos{color:var(--c);font-size:38px}
+  .ranking .fila .nom{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ranking .fila .nom i{font-style:normal;font-weight:600;font-size:21px;color:rgba(255,255,255,.55);margin-left:8px}
+  .ranking .fila .del{color:#7ee7b6;font-size:28px;text-align:right}
+  .ranking .fila .pts{font-variant-numeric:tabular-nums;text-align:right}
+  .ranking .fila.yo{border-color:var(--c);background:rgba(var(--rgb),.2)}
+  .ranking .fila.sub2{background:rgba(52,211,153,.24)}.ranking .fila.baja{background:rgba(255,90,90,.22)}.ranking .fila.lider{background:rgba(255,210,63,.18)}
+  .ranking .fila.yo.sub2,.ranking .fila.yo.lider{background:rgba(var(--rgb),.3)}
+  .ranking .co-avr{display:block;line-height:0;position:relative}
+  .ranking .co-avr .avh{position:relative;width:92px;height:92px;margin:-14px 0 -14px -14px}
+</style>
+</head>
+<body>
+<div id="escenario">
+  <div id="fondo"><canvas id="anillos" width="1920" height="1080"></canvas><div id="velo"></div></div>
+  <div id="capa"></div>
+  <div id="portada"><div id="carga"><b>Cargando vídeo…</b><div class="bar"><i></i></div><span class="pc">0 %</span></div><button id="botonPlay" disabled title="Ver el vídeo"><svg viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z" fill="currentColor"/></svg></button></div>
+  <div id="finalUI"><a class="boton" id="otraVez" href="#">Ver otra vez</a><a class="boton lleno" id="salir" href="#">Salir</a></div>
+  <div id="controles">
+    <button id="botonReinicio" title="Desde el principio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v5h5"/></svg></button>
+    <button id="botonPausa" title="Pausa / seguir"><svg id="pausaIco" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg id="playIco" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg></button>
+  </div>
+  <div id="barra" title="Ir a un momento"><i id="barraTiempo"></i></div>
+</div>
+<audio id="audio" preload="auto"></audio>
+<script src="avatar3.js?v=6e7141a7"></script>
+<script src="guion.js?v=6e7141a7"></script>
+<script src="motor.js?v=6e7141a7"></script>
+</body>
+</html>
