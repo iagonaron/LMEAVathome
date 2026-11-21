@@ -12,7 +12,6 @@
   /* fondo psicodélico del carrusel, en vivo */
   /* el mismo fondo que el juego (remolino de colores + anillos + viñeta), en marcha (21-nov 11:07) */
   #fondo{position:absolute;inset:0;overflow:hidden;background:linear-gradient(160deg,#1d1545,#0c0926 60%,#070512)}
-  #giro{position:absolute;left:50%;top:50%;width:2995px;height:2995px;margin:-1497.5px 0 0 -1497.5px;display:block;will-change:transform}
   #anillos{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block}
   #velo{position:absolute;inset:0;background:radial-gradient(ellipse 72% 72% at 50% 42%,rgba(10,7,30,.34),rgba(10,7,30,.86) 80%)}
   .viva.teclea{z-index:21;width:0;height:0}
@@ -21,7 +20,8 @@
   .viva.teclea .caret{display:inline-block;width:5px;height:52px;margin-left:5px;vertical-align:-8px;background:#fde68a;border-radius:2px}
   .viva.fantasma{left:0;top:0;width:0;height:0;z-index:4}
   .viva.fantasma .nota{position:absolute;width:23px;height:16px;margin:-8px 0 0 -11.5px;border-radius:50%;background:#5b9dfe;transform:rotate(-26deg)}
-  .viva.boton{left:0;top:0;width:0;height:0;z-index:22}
+  .viva.boton{left:0;top:0;width:0;height:0;z-index:19}
+  .viva.boton .velo{position:absolute;left:0;top:0;width:1920px;height:1080px;background:#04030f}
   .viva.boton .bb{position:absolute;left:0;top:0;width:320px;height:320px;margin:-160px 0 0 -160px;border-radius:94px;background:#0a071e;will-change:transform}
   .viva.boton .bb::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 8px rgba(255,255,255,.28);z-index:2}
   .viva.boton .cl{position:absolute;inset:0;overflow:hidden;border-radius:inherit;z-index:0}
@@ -94,6 +94,13 @@
   /* portada, final y controles (como las intros de Teoría) */
   #portada{position:absolute;left:0;right:0;top:780px;display:flex;justify-content:center;z-index:40;transition:opacity .6s}
   #portada.fuera{opacity:0;pointer-events:none}
+  #carga{position:absolute;left:50%;top:0;transform:translateX(-50%);width:760px;text-align:center;transition:opacity .4s}
+  #carga.fuera{opacity:0;pointer-events:none}
+  #carga b{display:block;font:800 46px/1.2 var(--fuente);color:#fff;margin-bottom:22px;text-shadow:0 4px 20px rgba(0,0,0,.6)}
+  #carga .bar{height:22px;border-radius:11px;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.3);overflow:hidden}
+  #carga .bar i{display:block;height:100%;background:linear-gradient(90deg,#5bd0ff,#bd92ff,#ff5fa2,#ffd23f);transform-origin:0 50%;transform:scaleX(0)}
+  #carga .pc{display:block;margin-top:14px;font:700 32px var(--fuente);color:#d9d3ff}
+  #botonPlay:disabled{visibility:hidden}
   #botonPlay{width:124px;height:124px;border-radius:24px;border:0;background:#fff;color:#1b1340;cursor:pointer;display:grid;place-items:center;opacity:.45;transition:opacity .3s,transform .2s}
   #botonPlay.listo{opacity:1}#botonPlay:hover{transform:scale(1.05)}#botonPlay svg{width:52px;height:52px;margin-left:6px}
   #finalUI{position:absolute;left:0;right:0;top:800px;display:none;justify-content:center;gap:28px;z-index:40}
@@ -135,9 +142,9 @@
 </head>
 <body>
 <div id="escenario">
-  <div id="fondo"><canvas id="giro" width="360" height="360"></canvas><canvas id="anillos" width="1920" height="1080"></canvas><div id="velo"></div></div>
+  <div id="fondo"><canvas id="anillos" width="1920" height="1080"></canvas><div id="velo"></div></div>
   <div id="capa"></div>
-  <div id="portada"><button id="botonPlay" disabled title="Ver el vídeo"><svg viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z" fill="currentColor"/></svg></button></div>
+  <div id="portada"><div id="carga"><b>Cargando vídeo…</b><div class="bar"><i></i></div><span class="pc">0 %</span></div><button id="botonPlay" disabled title="Ver el vídeo"><svg viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z" fill="currentColor"/></svg></button></div>
   <div id="finalUI"><a class="boton" id="otraVez" href="#">Ver otra vez</a><a class="boton lleno" id="salir" href="#">Salir</a></div>
   <div id="controles">
     <button id="botonReinicio" title="Desde el principio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v5h5"/></svg></button>
@@ -146,8 +153,8 @@
   <div id="barra" title="Ir a un momento"><i id="barraTiempo"></i></div>
 </div>
 <audio id="audio" preload="auto"></audio>
-<script src="avatar3.js?v=184013f7"></script>
-<script src="guion.js?v=184013f7"></script>
-<script src="motor.js?v=184013f7"></script>
+<script src="avatar3.js?v=66c841ff"></script>
+<script src="guion.js?v=66c841ff"></script>
+<script src="motor.js?v=66c841ff"></script>
 </body>
 </html>

@@ -11,13 +11,14 @@
   function io(x) { x = cl(x, 0, 1); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
   function eo(x) { x = cl(x, 0, 1); return 1 - Math.pow(1 - x, 3); }
   function rampa(t, a, b) { return cl((t - a) / (b - a), 0, 1); }
+  function vis2(t, a, b, fi, fo) { if (t < a || t > b + fo) return 0; var x = 1; if (fi > 0) x = Math.min(x, rampa(t, a, a + fi)); if (fo > 0) x = Math.min(x, 1 - rampa(t, b, b + fo)); return x; }
   function vis(t, a, b, fi, fo) { if (t < a - fi || t > b + fo) return 0; var x = 1; if (fi > 0) x = Math.min(x, rampa(t, a - fi, a)); if (fo > 0) x = Math.min(x, 1 - rampa(t, b, b + fo)); return x; }
   /* ---- escalado del escenario ---- */
   function encaja() { var s = Math.min(innerWidth / 1920, innerHeight / 1080); esc.style.transform = 'translate(-50%,-50%) scale(' + s + ')'; }
   addEventListener('resize', encaja); encaja();
   /* ---- planos (capturas) ---- */
   var PL = G.planos.map(function (p) {
-    var w = el('div', 'plano ' + p.modo), im = el('img', '', w); im.src = p.src; im.alt = ''; im.draggable = false;
+    var w = el('div', 'plano ' + p.modo), im = el('img', '', w); if (FIJO != null) im.src = p.src; im.alt = ''; im.draggable = false;
     im.style.width = p.w + 'px'; im.style.height = p.h + 'px'; w.style.display = 'none';
     return { p: p, w: w, im: im };
   });
@@ -49,6 +50,7 @@
     var a = 1; if (!prev) a = Math.min(a, rampa(t, f.t0 - (f.fi == null ? 0.3 : f.fi), f.t0)); if (!next) a = Math.min(a, 1 - rampa(t, f.t1, f.t1 + (f.fo == null ? 0.3 : f.fo)));
     var m = f.m == null ? 12 : f.m;
     FOCO.style.display = ''; FOCO.style.left = (r[0] - m) + 'px'; FOCO.style.top = (r[1] - m) + 'px'; FOCO.style.width = (r[2] + 2 * m) + 'px'; FOCO.style.height = (r[3] + 2 * m) + 'px';
+    if (f.pl) a *= (PLOP[f.pl] || 0);
     FOCO.style.borderRadius = (f.rad == null ? 18 : f.rad) + 'px'; FOCO.style.setProperty('--a', (a * (f.alfa || 0.56)).toFixed(3));
   }
   /* ---- escenas vivas (avatares) ---- */
@@ -58,28 +60,28 @@
   /* (21-nov 11:07, Iago) el fondo de círculos concéntricos se mueve, suave, siempre que se ve: el remolino de colores del
      juego gira (lienzo pequeño que agranda y gira la tarjeta gráfica) y los anillos se van abriendo hacia fuera despacio.
      Las capturas del lobby, la cuenta atrás y el podio vienen sin fondo, así que debajo se ve este mismo fondo en marcha. */
-  var fondo = document.getElementById('fondo'), giro = document.getElementById('giro'), ani = document.getElementById('anillos'), actx = ani.getContext('2d'), faseAnt = null;
-  (function () { var c = giro.getContext('2d'), W = giro.width, R = W / 2, cols = ['#ff5fa2', '#ff9a3c', '#ffd23f', '#34d399', '#5bd0ff', '#7c6cff', '#bd92ff', '#ff5fa2'];
-    c.save(); c.beginPath(); c.arc(R, R, R, 0, 2 * Math.PI); c.clip();
-    if (c.createConicGradient) { var g = c.createConicGradient(-Math.PI / 2, R, R); cols.forEach(function (k, i) { g.addColorStop(i / (cols.length - 1), k); }); c.fillStyle = g; c.fillRect(0, 0, W, W); }
-    c.restore(); })();
+  var fondo = document.getElementById('fondo'), ani = document.getElementById('anillos'), actx = ani.getContext('2d'), tAnt = null;
+  var COLS = ['#ff5fa2', '#ff9a3c', '#ffd23f', '#34d399', '#5bd0ff', '#7c6cff', '#bd92ff', '#ff5fa2'];
   function pintaFondo(t, tapado) {
-    if (tapado) { if (fondo.style.visibility !== 'hidden') fondo.style.visibility = 'hidden'; return; }
-    if (fondo.style.visibility) fondo.style.visibility = '';
-    giro.style.transform = 'rotate(' + (t * 4.8) + 'deg)';
-    var P = 68, f = (t * 12) % P; if (faseAnt !== null && Math.abs(f - faseAnt) < 0.04) return; faseAnt = f;
-    actx.clearRect(0, 0, 1920, 1080); actx.strokeStyle = 'rgba(10,7,30,.30)';
+    if (tapado || (tAnt !== null && Math.abs(t - tAnt) < 0.004)) return; tAnt = t;
+    if (actx.createConicGradient) { var g = actx.createConicGradient(-Math.PI / 2 + t * 4.8 * Math.PI / 180, 960, 540); COLS.forEach(function (k, i) { g.addColorStop(i / (COLS.length - 1), k); }); actx.fillStyle = g; }
+    else actx.fillStyle = '#5b3fa0';
+    actx.fillRect(0, 0, 1920, 1080);
+    var P = 68, f = (t * 12) % P; actx.strokeStyle = 'rgba(10,7,30,.30)';
     for (var a0 = f + 34 - P; a0 < 1180; a0 += P) { var a = Math.max(0, a0), b = a0 + 34; if (b <= 0) continue;
       actx.lineWidth = b - a; actx.beginPath(); actx.arc(960, 453.6, (a + b) / 2, 0, 2 * Math.PI); actx.stroke(); }
   }
+  var PLOP = {};
   function dibuja(t) {
-    var tapado = false;
-    PL.forEach(function (o) { var p = o.p; if (!p.alfa && p.modo === 'full' && vis(t, p.t0, p.t1, p.fi == null ? 0.3 : p.fi, p.fo == null ? 0.3 : p.fo) >= 0.999) tapado = true; });
+    var tapado = false, ops = PL.map(function (o) { var p = o.p; return vis2(t, p.t0, p.t1, p.fi == null ? 0.3 : p.fi, p.fo == null ? 0.3 : p.fo); });
+    PL.forEach(function (o, i) { var p = o.p;
+      if (ops[i] > 0 && ops[i] < 1 && t > p.t1 && !p.alfa) for (var j = 0; j < PL.length; j++) if (j !== i && ops[j] > 0 && !PL[j].p.alfa && PL[j].p.t0 >= p.t1 - 0.05 && PL[j].p.t0 <= t) { ops[i] = 1; break; }
+      PLOP[p.id] = ops[i]; if (!p.alfa && p.modo === 'full' && ops[i] >= 0.999) tapado = true; });
     pintaFondo(t, tapado);
-    PL.forEach(function (o) {
-      var p = o.p, op = vis(t, p.t0, p.t1, p.fi == null ? 0.3 : p.fi, p.fo == null ? 0.3 : p.fo);
+    PL.forEach(function (o, i) {
+      var p = o.p, op = ops[i];
       if (op <= 0) {
-        var pre = t < p.t0 && t > p.t0 - (p.fi == null ? 0.3 : p.fi) - 2.5;   /* (21-nov 11:16) precarga: así no hay fotogramas negros al cambiar de imagen */
+        var pre = t < p.t0 && t > p.t0 - 1.2;   /* (21-nov 11:16) precarga: así no hay fotogramas negros al cambiar de imagen */
         if (!pre) { if (o.w.style.display !== 'none') o.w.style.display = 'none'; return; }
         op = 0.002; }
       o.w.style.display = ''; o.w.style.opacity = op; o.w.style.zIndex = op <= 0.002 ? 1 : (p.z || 2);
@@ -98,7 +100,7 @@
       o.e.style.transform = tr; o.e.style.opacity = op;
     });
     AR.forEach(function (o) {
-      var r = o.r, p = PLID[r.plano], op = vis(t, r.t0, r.t1, 0.15, 0.2);
+      var r = o.r, p = PLID[r.plano], op = vis(t, r.t0, r.t1, 0.15, 0.2) * (PLOP[r.plano] || 0);
       if (op <= 0 || !p) { o.e.style.display = 'none'; return; }
       var a = aEscena(p, t, r.r[0], r.r[1]), b = aEscena(p, t, r.r[0] + r.r[2], r.r[1] + r.r[3]), m = r.m || 10, pul = 1 + 0.06 * Math.sin((t - r.t0) * 7);
       o.e.style.display = ''; o.e.style.opacity = op;
@@ -106,7 +108,7 @@
       o.e.style.transform = 'scale(' + pul + ')';
     });
     CU.forEach(function (o) {
-      var r = o.r, p = PLID[r.plano], P = r.pts, op = vis(t, P[0][0], P[P.length - 1][0] + (r.queda || 0.6), 0.2, 0.25);
+      var r = o.r, p = PLID[r.plano], P = r.pts, op = vis(t, P[0][0], P[P.length - 1][0] + (r.queda || 0.6), 0.2, 0.25) * (PLOP[r.plano] || 0);
       if (op <= 0 || !p) { o.e.style.display = 'none'; return; }
       var i = 0; while (i < P.length - 2 && t > P[i + 1][0]) i++;
       var k = io(rampa(t, P[i][0], P[i + 1][0])), ix = P[i][1] + (P[i + 1][1] - P[i][1]) * k, iy = P[i][2] + (P[i + 1][2] - P[i][2]) * k, s = aEscena(p, t, ix, iy);
@@ -124,7 +126,7 @@
     });
     pintaFoco(t);
     VIV.forEach(function (o) {
-      var v = o.v, op = vis(t, v.t0, v.t1, v.fi == null ? 0.3 : v.fi, v.fo == null ? 0.3 : v.fo);
+      var v = o.v, op = v.pl ? (t >= v.t0 && t <= v.t1 + 1 ? (PLOP[v.pl] || 0) : 0) : vis2(t, v.t0, v.t1, v.fi == null ? 0.3 : v.fi, v.fo == null ? 0.3 : v.fo);
       if (op <= 0) { o.raiz.style.display = 'none'; return; }
       o.raiz.style.display = ''; o.raiz.style.opacity = op; VIVAS[v.tipo].pinta(o, t);
     });
@@ -266,13 +268,15 @@
       o.n.style.display = ''; o.n.style.left = tr[2] + 'px'; o.n.style.top = yy + 'px'; }
   };
   VIVAS.boton = {
-    init: function (o) { o.raiz.innerHTML = '<div class="bb"><span class="cl"><span class="gi"><span class="fx"></span></span></span>' +
+    init: function (o) { o.raiz.innerHTML = '<div class="velo"></div><div class="bb"><span class="cl"><span class="gi"><span class="fx"></span></span></span>' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>' +
       '<span class="pto">1</span></div>';
-      o.bb = o.raiz.querySelector('.bb'); o.gi = o.raiz.querySelector('.gi'); o.fx = o.raiz.querySelector('.fx'); o.on = o.raiz.querySelector('.onda'); o.pt = o.raiz.querySelector('.pto'); o.raiz.querySelector('svg').style.transformOrigin = '54.17% 45.83%'; },
+      o.ve = o.raiz.querySelector('.velo'); o.bb = o.raiz.querySelector('.bb'); o.gi = o.raiz.querySelector('.gi'); o.fx = o.raiz.querySelector('.fx'); o.on = o.raiz.querySelector('.onda'); o.pt = o.raiz.querySelector('.pto'); o.raiz.querySelector('svg').style.transformOrigin = '54.17% 45.83%'; },
     pinta: function (o, t) { var v = o.v, S = v.S, d = v.desde, a = v.a;
-      var ki = eo(rampa(t, v.t0, v.t0 + 0.7)), ko = io(rampa(t, v.vuelve, v.t1)), k = ki * (1 - ko), s0 = d[2] / S;
-      var x = d[0] + (a[0] - d[0]) * k, y = d[1] + (a[1] - d[1]) * k, s = s0 + (1 - s0) * k;
+      var u = rampa(t, v.t0, v.t0 + 0.5), ki = 1 + 2.2 * Math.pow(u - 1, 3) + 1.2 * Math.pow(u - 1, 2), ko = io(rampa(t, v.vuelve, v.t1)), s0 = d[2] / S;
+      var x = a[0] + (d[0] - a[0]) * ko, y = a[1] + (d[1] - a[1]) * ko, s = (0.55 + 0.45 * ki) * (1 - ko) + s0 * ko;
+      o.ve.style.opacity = (0.62 * Math.min(1, u * 2) * (1 - ko)).toFixed(3); o.bb.style.opacity = Math.min(1, u * 3);
+      var k = 1 - ko;
       o.bb.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
       o.bb.style.boxShadow = '0 30px 90px rgba(0,0,0,' + (0.6 * k).toFixed(2) + ')';
       var m = t - v.mov, gi = 0, fx = 1;
@@ -290,12 +294,34 @@
   var bPlay = document.getElementById('botonPlay'), fin = document.getElementById('finalUI'), barra = document.getElementById('barraTiempo');
   function bucle() { var t = audio.currentTime || 0; dibuja(t); barra.style.width = (100 * t / G.tot) + '%'; fin.classList.toggle('on', t > G.tot - 4.5); requestAnimationFrame(bucle); }
   if (FIJO != null) { document.documentElement.classList.add('fijo'); document.getElementById('portada').style.display = 'none'; setTimeout(function () { dibuja(FIJO); document.title = 'listo'; }, 400); return; }
-  audio.src = G.audio;
-  var faltan = 1, imgs = PL.map(function (o) { return o.im; });
-  imgs.forEach(function (im) { if (im.decode) im.decode().catch(function () {}); });
-  function listo() { if (--faltan > 0) return; bPlay.disabled = false; bPlay.classList.add('listo'); if (Q.has('auto')) empieza(); }
-  imgs.forEach(function (im) { faltan++; if (im.complete) setTimeout(listo); else { im.onload = listo; im.onerror = listo; } });
-  audio.addEventListener('canplaythrough', listo, { once: true }); audio.load();
+  /* (21-nov 11:50, Iago) primero se descarga TODO (audio e imágenes) con «Cargando vídeo» y una barra fluida; luego se ve
+     con la calidad con la que está hecho y sin parones. Las imágenes pasan a ser blobs ya descargados: no hay nada a medias. */
+  var PESOS = G.pesos || {}, URLS = Object.keys(PESOS), TOT = URLS.reduce(function (s, u) { return s + PESOS[u]; }, 0) || 1, LLEVA = {}, HECHOS = 0, shown = 0, listoYa = false;
+  var cargaEl = document.getElementById('carga'), cargaBar = cargaEl.querySelector('.bar i'), cargaPc = cargaEl.querySelector('.pc');
+  function tipo(u) { return /\.webp/.test(u) ? 'image/webp' : /\.jpe?g/.test(u) ? 'image/jpeg' : /\.mp3/.test(u) ? 'audio/mpeg' : ''; }
+  function baja(u, cb) {
+    fetch(u).then(function (r) {
+      if (!r.ok) throw 0;
+      var rd = r.body && r.body.getReader ? r.body.getReader() : null, partes = [], n = 0;
+      if (!rd) return r.blob().then(function (b) { LLEVA[u] = PESOS[u]; cb(b); });
+      function paso() { return rd.read().then(function (x) { if (x.done) { LLEVA[u] = PESOS[u]; cb(new Blob(partes, { type: tipo(u) })); return; } partes.push(x.value); n += x.value.length; LLEVA[u] = Math.min(n, PESOS[u]); return paso(); }); }
+      return paso();
+    }).catch(function () { LLEVA[u] = PESOS[u]; cb(null); });
+  }
+  if (!PESOS[G.audio]) { PESOS[G.audio] = 1; URLS.push(G.audio); }
+  function hecho() { if (++HECHOS < URLS.length + 1) return; listoYa = true; }
+  URLS.forEach(function (u) {
+    if (u === G.audio) { baja(u, function (b) { audio.src = b ? URL.createObjectURL(b) : u; audio.load(); hecho(); }); return; }   /* en el iPhone «canplaythrough» no llega sin tocar: basta con tenerlo descargado */
+    baja(u, function (b) { var s = b ? URL.createObjectURL(b) : u; PL.forEach(function (o) { if (o.p.src === u) o.im.src = s; }); hecho(); });
+  });
+  hecho();   /* el «+1» del contador */
+  (function anima() {
+    var real = URLS.reduce(function (s, u) { return s + (LLEVA[u] || 0); }, 0) / TOT;
+    shown += (Math.min(listoYa ? 1 : 0.995, real) - shown) * 0.09; if (listoYa && shown > 0.995) shown = 1;
+    cargaBar.style.transform = 'scaleX(' + shown.toFixed(4) + ')'; cargaPc.textContent = Math.round(shown * 100) + ' %';
+    if (shown >= 1) { cargaEl.classList.add('fuera'); bPlay.disabled = false; bPlay.classList.add('listo'); if (Q.has('auto')) empieza(); return; }
+    requestAnimationFrame(anima);
+  })();
   function empieza() { document.getElementById('portada').classList.add('fuera'); document.body.classList.add('sonando'); audio.play().catch(function () { document.getElementById('portada').classList.remove('fuera'); }); }
   bPlay.onclick = empieza;
   document.getElementById('botonPausa').onclick = function () { if (audio.paused) { audio.play(); document.body.classList.add('sonando'); } else { audio.pause(); document.body.classList.remove('sonando'); } };
