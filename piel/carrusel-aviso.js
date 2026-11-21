@@ -121,21 +121,24 @@
       '#lm-carr-btn{order:-5;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:0;padding:0;width:var(--lm-ctl,34px);height:var(--lm-ctl,34px);min-width:var(--lm-ctl,34px);border-radius:10px;color:#fff;background:#0a071e;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);transition:filter .15s}' +
       '#lm-carr-btn:hover,#lm-carr-btn.abierto{filter:brightness(1.14)}#lm-carr-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}' +
       '#lm-carr-btn svg{position:relative;width:22px;height:22px;display:block;pointer-events:none;stroke-width:2.1;filter:drop-shadow(0 0 2px rgba(10,7,30,.95)) drop-shadow(0 0 5px rgba(10,7,30,.7))}' +
-      '#lm-carr-btn svg{animation:none}@keyframes lmCarrGira{to{transform:rotate(360deg)}}' +
+      /* (21-nov-2026 11:16, Iago) con algo activo se mueve TODO el botón: la textura en espiral gira y respira, la espiral blanca
+         gira sobre su propio centro (hacia fuera, como ondas que salen) y el número late suave. Nada de anillos alrededor. */
+      '#lm-carr-btn svg{transform-origin:54.17% 45.83%}#lm-carr-btn.mov svg{animation:lmCarrEsp 6s linear infinite;will-change:transform}@keyframes lmCarrEsp{to{transform:rotate(-360deg)}}' +
       '#lm-carr-btn .pto{z-index:3;position:absolute;right:-4px;top:-4px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;border:2px solid #0f172a;background:#f97316;color:#fff;font:900 10px/1 system-ui,sans-serif;display:none;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}' +
       '#lm-carr-btn .pto.on{display:inline-flex}' +
       /* (20-nov-2026 22:00, Iago) «que haya algún tipo de pulsión para que no se les escape apuntarse»: el botón late (onda naranja)
          SOLO mientras hay algo nuevo que aún no has visto; al abrir el panel deja de latir. El número sigue hasta que respondes
          («Me apunto» o «Marcar como visto»); al marcar como visto desaparece también el número. */
       '#lm-carr-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;opacity:0}' +
-      '#lm-carr-btn.pulsa::before{animation:lmCarrOnda 1.7s ease-out infinite}#lm-carr-btn.pulsa .pto{animation:lmCarrLate 1.7s ease-in-out infinite}' +
-      '@keyframes lmCarrOnda{0%{opacity:1;box-shadow:0 0 0 0 rgba(249,115,22,.85)}75%{opacity:1;box-shadow:0 0 0 12px rgba(249,115,22,0)}100%{opacity:0;box-shadow:0 0 0 12px rgba(249,115,22,0)}}' +
-      '@keyframes lmCarrLate{0%,40%,100%{transform:scale(1)}15%{transform:scale(1.3)}}' +
-      '@media (prefers-reduced-motion:reduce){#lm-carr-btn.pulsa::before{animation:none;opacity:1;box-shadow:0 0 0 3px rgba(249,115,22,.9)}#lm-carr-btn.pulsa .pto{animation:none}}' +
+      '#lm-carr-btn.pulsa .pto{animation:lmCarrLate 1.6s ease-in-out infinite}' +
+      '@keyframes lmCarrLate{0%,100%{transform:scale(1)}50%{transform:scale(1.16)}}' +
+      '@media (prefers-reduced-motion:reduce){#lm-carr-btn.pulsa .pto{animation:none}}' +
       '@media (prefers-reduced-motion:reduce){#lm-carr-btn.mov svg{animation:none}}' +
       /* el cartelito: una franja por partida; la más próxima a la vista y las demás debajo, tras la flechita */
       '#lm-incid-btn{order:-6!important}' +
       '#lm-carr-aviso{order:-7;z-index:2147480400;display:inline-flex;align-items:center;gap:4px}' +
+      /* (21-nov 11:19, Iago) la franja no puede quedar por encima de «Tus notificaciones» */
+      'body:has(.alu-modal.open) #lm-carr-aviso,body:has(.alu-resp-modal) #lm-carr-aviso{visibility:hidden}' +
       '.lm-fr{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;height:var(--lm-ctl,34px);padding:0 12px 0 9px;border-radius:10px;color:#fff;font:800 13px/1 inherit;font-family:inherit;letter-spacing:.01em;white-space:nowrap;max-width:470px;overflow:hidden;text-decoration:none;cursor:pointer;' +
       'background:#140f33;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);text-shadow:0 1px 6px rgba(0,0,0,.55);border:0;position:relative;isolation:isolate}' +
       '.lm-fr > svg,.lm-fr > span:not(.cl){position:relative;z-index:1}' +
@@ -212,7 +215,7 @@
       '#lm-carr-pan .bt.ko{background:#ef4444;border-color:#ef4444;color:#fff;font-weight:800}#lm-carr-pan .bt.ko:hover{filter:brightness(.92)}' +
       /* (19-nov, Iago) «Cancelar partida» ocupa exactamente lo mismo que «Me apunto» + ✕ */
       '#lm-carr-pan .pt > .row .ap{display:inline-flex;align-items:center;gap:6px;color:#4ade80;font-weight:800;white-space:nowrap;padding:0 6px}#lm-carr-pan .pt > .row .ap svg{width:18px;height:18px}' +
-      '#lm-carr-pan .pt > .row{width:290px;flex:none;flex-wrap:nowrap;justify-content:flex-end}#lm-carr-pan .pt > .row .bt.pri,#lm-carr-pan .pt > .row .bt.ko{flex:1;justify-content:center}' +
+      '#lm-carr-pan .pt > .row{width:300px;flex:none;flex-wrap:nowrap;justify-content:flex-end}#lm-carr-pan .pt > .row .bt{white-space:nowrap}#lm-carr-pan .pt > .row .bt:not(.pri):not(.ico){padding:11px 12px}#lm-carr-pan .pt > .row .bt.pri,#lm-carr-pan .pt > .row .bt.ko{flex:1;justify-content:center}' +
       '#lm-carr-pan .bt.ico{width:40px;height:40px;padding:0;justify-content:center}' +
       '#lm-carr-pan svg.sv{width:17px;height:17px;flex:none}' +
       '#lm-carr-pan .fh{position:relative;display:inline-flex}#lm-carr-pan .fh .ph{position:absolute;inset:0;display:flex;align-items:center;gap:9px;padding:0 14px;pointer-events:none;font:700 15px "Helvetica Neue",Arial,sans-serif;color:#ffd23f;white-space:nowrap}' +
@@ -508,7 +511,7 @@
     /* (20-nov-2026 20:38, Iago) ya apuntado: «✓ Apuntado» y «Desapuntarme» (rojo, con «¿Seguro? X cuenta con que vas a jugar») */
     else if (p.yo === 'si') bs = '<span class="ap">' + I_OK + 'Apuntado</span>';
     else bs = '<button class="bt pri" data-a="si" data-id="' + p.id + '">Me apunto</button>' +
-      (p.yo === 'quiza' ? '' : '<button class="bt ico" data-a="' + (p.yo === 'si' ? 'no' : 'quiza') + '" data-id="' + p.id + '" title="' + (p.yo === 'si' ? 'Quitarme de la partida' : 'Marcar como visto') + '">' + I_X + '</button>');
+      (p.yo === 'quiza' ? '' : '<button class="bt" data-a="quiza" data-id="' + p.id + '">Marcar como visto</button>');   /* (21-nov 11:16, Iago) con texto, no una ✕ */
     var nop = (!p.lobby_abierto && !cancelada && !sinAnf(p) && (mia || p.yo === 'si')) ? '<button type="button" class="nop" data-nop="' + p.id + '">¿No vas a poder jugar?</button>' : '';
     var lob = (!p.lobby_abierto && !cancelada && p.tipo !== 'individual' && (mia || p.yo === 'si')) ?   /* (21-nov) solo en tus partidas: con muchas, no se repite */ '<div class="lob">' + I_INFO + 'Se habilitará el lobby 5 minutos antes de la hora.</div>' : '';   /* (20-nov 20:56, Iago) */
     if (gente.indexOf('class="avs"') >= 0)   /* con avatares: van debajo, a todo el ancho, para que quepan en una fila */

@@ -55,13 +55,34 @@
   var VIV = [];
   function pintaHTML(o, clave, nodo, html) { if (o.cache[clave] === html) return; o.cache[clave] = html; nodo.innerHTML = html; }
   /* ---- fondo ---- */
-  var fondo = document.getElementById('fondo');
+  /* (21-nov 11:07, Iago) el fondo de círculos concéntricos se mueve, suave, siempre que se ve: el remolino de colores del
+     juego gira (lienzo pequeño que agranda y gira la tarjeta gráfica) y los anillos se van abriendo hacia fuera despacio.
+     Las capturas del lobby, la cuenta atrás y el podio vienen sin fondo, así que debajo se ve este mismo fondo en marcha. */
+  var fondo = document.getElementById('fondo'), giro = document.getElementById('giro'), ani = document.getElementById('anillos'), actx = ani.getContext('2d'), faseAnt = null;
+  (function () { var c = giro.getContext('2d'), W = giro.width, R = W / 2, cols = ['#ff5fa2', '#ff9a3c', '#ffd23f', '#34d399', '#5bd0ff', '#7c6cff', '#bd92ff', '#ff5fa2'];
+    c.save(); c.beginPath(); c.arc(R, R, R, 0, 2 * Math.PI); c.clip();
+    if (c.createConicGradient) { var g = c.createConicGradient(-Math.PI / 2, R, R); cols.forEach(function (k, i) { g.addColorStop(i / (cols.length - 1), k); }); c.fillStyle = g; c.fillRect(0, 0, W, W); }
+    c.restore(); })();
+  function pintaFondo(t, tapado) {
+    if (tapado) { if (fondo.style.visibility !== 'hidden') fondo.style.visibility = 'hidden'; return; }
+    if (fondo.style.visibility) fondo.style.visibility = '';
+    giro.style.transform = 'rotate(' + (t * 4.8) + 'deg)';
+    var P = 68, f = (t * 12) % P; if (faseAnt !== null && Math.abs(f - faseAnt) < 0.04) return; faseAnt = f;
+    actx.clearRect(0, 0, 1920, 1080); actx.strokeStyle = 'rgba(10,7,30,.30)';
+    for (var a0 = f + 34 - P; a0 < 1180; a0 += P) { var a = Math.max(0, a0), b = a0 + 34; if (b <= 0) continue;
+      actx.lineWidth = b - a; actx.beginPath(); actx.arc(960, 453.6, (a + b) / 2, 0, 2 * Math.PI); actx.stroke(); }
+  }
   function dibuja(t) {
-    fondo.style.transform = 'rotate(' + (t * 6) + 'deg)';   /* solo transformación: va por la GPU, sin repintar */
+    var tapado = false;
+    PL.forEach(function (o) { var p = o.p; if (!p.alfa && p.modo === 'full' && vis(t, p.t0, p.t1, p.fi == null ? 0.3 : p.fi, p.fo == null ? 0.3 : p.fo) >= 0.999) tapado = true; });
+    pintaFondo(t, tapado);
     PL.forEach(function (o) {
       var p = o.p, op = vis(t, p.t0, p.t1, p.fi == null ? 0.3 : p.fi, p.fo == null ? 0.3 : p.fo);
-      if (op <= 0) { if (o.w.style.display !== 'none') o.w.style.display = 'none'; return; }
-      o.w.style.display = ''; o.w.style.opacity = op; o.w.style.zIndex = p.z || 2;
+      if (op <= 0) {
+        var pre = t < p.t0 && t > p.t0 - (p.fi == null ? 0.3 : p.fi) - 2.5;   /* (21-nov 11:16) precarga: así no hay fotogramas negros al cambiar de imagen */
+        if (!pre) { if (o.w.style.display !== 'none') o.w.style.display = 'none'; return; }
+        op = 0.002; }
+      o.w.style.display = ''; o.w.style.opacity = op; o.w.style.zIndex = op <= 0.002 ? 1 : (p.z || 2);
       var c = camara(p, t);
       if (c.caja) { o.w.style.left = c.caja[0] + 'px'; o.w.style.top = c.caja[1] + 'px'; o.w.style.width = c.caja[2] + 'px'; o.w.style.height = c.caja[3] + 'px';
         var ent = p.entra ? eo(rampa(t, p.t0 - 0.3, p.t0 + 0.35)) : 1; o.w.style.transform = 'translateY(' + ((1 - ent) * 60) + 'px) scale(' + (0.94 + 0.06 * ent) + ')'; }
@@ -134,7 +155,7 @@
       init: function (o) { o.hs = o.v.lista.map(function (a) { var h = el('div', 'avh', o.raiz); h.style.left = a.r[0] + 'px'; h.style.top = a.r[1] + 'px'; h.style.width = a.r[2] + 'px'; h.style.height = a.r[3] + 'px'; return h; }); },
       pinta: function (o, t) { o.v.lista.forEach(function (a, i) { var h = o.hs[i], t0 = a.t0 == null ? o.v.t0 : a.t0, t1 = a.t1 == null ? o.v.t1 : a.t1;
         if (t < t0 - 0.01 || t > t1) { h.style.display = 'none'; return; } h.style.display = '';
-        if (a.entra) { var k = eo(rampa(t, t0, t0 + 0.4)); h.style.opacity = k; h.style.transform = 'translateY(' + ((1 - k) * 30) + 'px) scale(' + (0.7 + 0.3 * k) + ')'; }
+        if (a.entra) { var k = rampa(t, t0, t0 + 0.34); h.style.opacity = Math.min(1, (t - t0) / 0.04); h.style.transform = 'scale(' + (1 + 0.32 * Math.sin(Math.PI * k) * (1 - 0.35 * k)) + ')'; }
         if (!a.evf) a.evf = (a.ev || []).map(function (e) { return [e[0], accion(e)]; });
         muevete(o, 'a' + i, h, t, a.desde == null ? o.v.t0 : a.desde, function () { return [a.cfg, a.op || {}]; }, a.evf); }); }
     },
@@ -198,9 +219,11 @@
       }
     },
     compositores: {
-      init: function (o) { o.raiz.innerHTML = o.v.lista.map(function (c) { return '<div class="comp"><div class="av"></div><b>' + c.n + '</b></div>'; }).join(''); },
-      pinta: function (o, t) { var v = o.v;
-        [].forEach.call(o.raiz.children, function (d, i) { var c = v.lista[i], k = eo(rampa(t, c.t, c.t + 0.35)); d.style.opacity = k; d.style.transform = 'translateY(' + ((1 - k) * 80) + 'px) scale(' + (0.5 + 0.5 * k) + ')';
+      init: function (o) { o.raiz.innerHTML = (o.v.titulo ? '<h2>' + o.v.titulo + '</h2>' : '') + '<div class="fila">' + o.v.lista.map(function (c) { return '<div class="hueco"><i></i><div class="comp"><div class="av"></div><b>' + c.n + '</b></div></div>'; }).join('') + '</div>'; },
+      pinta: function (o, t) { var v = o.v, h2 = o.raiz.querySelector('h2');
+        if (h2) { var kh = eo(rampa(t, v.t0, v.t0 + 0.5)); h2.style.opacity = kh; h2.style.transform = 'translateY(' + ((1 - kh) * 30) + 'px)'; }
+        [].forEach.call(o.raiz.querySelectorAll('.hueco'), function (hu, i) { var kh = eo(rampa(t, v.t0 + 0.2 + 0.18 * i, v.t0 + 0.55 + 0.18 * i)); hu.querySelector('i').style.opacity = kh * (t < v.lista[i].t ? 1 : 0.0); hu.querySelector('i').style.transform = 'scale(' + (0.6 + 0.4 * kh) + ')'; });
+        [].forEach.call(o.raiz.querySelectorAll('.comp'), function (d, i) { var c = v.lista[i], k = rampa(t, c.t, c.t + 0.36); d.style.opacity = t < c.t ? 0 : Math.min(1, (t - c.t) / 0.05); d.style.transform = 'scale(' + (t < c.t ? 0.3 : Math.min(1, 0.3 + 0.7 * k / 0.45) + 0.18 * Math.sin(Math.PI * k)) + ')';
           muevete(o, 'c' + i, d.querySelector('.av'), t, v.t0, function () { return [c.cfg, { ins: c.ins, bot: true }]; },
             [[c.t + 0.15, function (r) { r.gesto('saludar'); }], [v.picaro, function (r) { r.cara('picaro'); r.gesto(i === 1 ? 'sospechar' : (i === 0 ? 'pensar' : 'guino')); }]]); }); }
     },
@@ -220,6 +243,48 @@
         var k = eo(rampa(t, v.t0, v.t0 + 0.5)); o.raiz.querySelector('.tarj').style.transform = 'translateY(' + ((1 - k) * 60) + 'px)'; }
     }
   };
+  /* (21-nov 11:07, Iago) «cuando hace referencia al icono, quiero que aparezca el icono grande en pantalla… que se vea la
+     pulsión y la animación»: el botón del portal, ampliado y en vectorial, sale de su sitio, se queda en el centro y vuelve.
+     Mismo dibujo y mismas animaciones que carrusel-aviso.js (textura que gira 9,6 s y respira 3,2 s; la espiral gira 6 s hacia fuera; el número late suave 1,6 s; sin anillos). */
+  /* (21-nov 11:19, Iago) un momento solo con texto que se teclea (con sonido de tecleo en el audio) */
+  VIVAS.teclea = {
+    init: function (o) { var v = o.v; o.raiz.style.left = v.x + 'px'; o.raiz.style.top = v.y + 'px'; o.raiz.innerHTML = '<div class="caja"><span class="tx"></span><i class="caret"></i></div>' + (v.flecha ? '<b class="fl"></b>' : ''); o.tx = o.raiz.querySelector('.tx'); o.ca = o.raiz.querySelector('.caret'); },
+    pinta: function (o, t) { var v = o.v, nv = t < v.ta ? 0 : Math.floor((t - v.ta) / v.dt) + 1, s = '', c = 0, q, ch, tot = v.txt.replace(/\*/g, '').length;
+      for (q = 0; q < v.txt.length; q++) { ch = v.txt[q]; if (ch !== '*') { if (c >= nv) break; c++; } s += ch; }
+      if (o.cache.s !== s) { o.cache.s = s; o.tx.innerHTML = s.replace(/\*([^*]*)\*?/g, '<b>$1</b>'); }
+      o.ca.style.opacity = (c < tot || Math.floor(t * 2.2) % 2 === 0) ? 1 : 0;
+      var k = eo(rampa(t, v.t0, v.t0 + 0.35)); o.raiz.firstChild.style.transform = 'translate(-50%,0) translateY(' + ((1 - k) * 24) + 'px)'; }
+  };
+  /* (21-nov 11:18, Iago) la nota fantasma del melódico, dibujada en vivo sobre unas pocas capturas (nada de pasar fotos: parpadeaba) */
+  VIVAS.fantasma = {
+    init: function (o) { o.n = el('div', 'nota', o.raiz); },
+    pinta: function (o, t) { var v = o.v, P = v.pts, i = 0; while (i < P.length - 2 && t > P[i + 1][0]) i++;
+      var k = io(rampa(t, P[i][0], P[i + 1][0])), x = P[i][1] + (P[i + 1][1] - P[i][1]) * k, y = P[i][2] + (P[i + 1][2] - P[i][2]) * k;
+      var tr = v.tramos.filter(function (r) { return t >= r[0] && t < r[1]; })[0];
+      if (!tr) { o.n.style.display = 'none'; return; }
+      var paso = v.paso / 2, yy = v.l0 + Math.round((y - v.l0) / paso) * paso; yy = Math.max(v.l0 - 2 * paso, Math.min(v.l0 + 10 * paso, yy));
+      o.n.style.display = ''; o.n.style.left = tr[2] + 'px'; o.n.style.top = yy + 'px'; }
+  };
+  VIVAS.boton = {
+    init: function (o) { o.raiz.innerHTML = '<div class="bb"><span class="cl"><span class="gi"><span class="fx"></span></span></span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11a2 2 0 0 1 4 0a4 4 0 0 1-8 0a6 6 0 0 1 12 0a8 8 0 0 1-16 0"/></svg>' +
+      '<span class="pto">1</span></div>';
+      o.bb = o.raiz.querySelector('.bb'); o.gi = o.raiz.querySelector('.gi'); o.fx = o.raiz.querySelector('.fx'); o.on = o.raiz.querySelector('.onda'); o.pt = o.raiz.querySelector('.pto'); o.raiz.querySelector('svg').style.transformOrigin = '54.17% 45.83%'; },
+    pinta: function (o, t) { var v = o.v, S = v.S, d = v.desde, a = v.a;
+      var ki = eo(rampa(t, v.t0, v.t0 + 0.7)), ko = io(rampa(t, v.vuelve, v.t1)), k = ki * (1 - ko), s0 = d[2] / S;
+      var x = d[0] + (a[0] - d[0]) * k, y = d[1] + (a[1] - d[1]) * k, s = s0 + (1 - s0) * k;
+      o.bb.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+      o.bb.style.boxShadow = '0 30px 90px rgba(0,0,0,' + (0.6 * k).toFixed(2) + ')';
+      var m = t - v.mov, gi = 0, fx = 1;
+      if (m > 0) { gi = 360 * m / 9.6; var u = ((m + 1.824) / 3.2) % 2; if (u > 1) u = 2 - u; fx = 0.72 + 0.46 * (0.5 - 0.5 * Math.cos(Math.PI * u)); }
+      o.gi.style.transform = 'translate(-50%,-50%) rotate(' + gi + 'deg)'; o.fx.style.transform = 'scale(' + fx + ')';
+      var sv = o.raiz.querySelector('svg'); sv.style.transform = m > 0 ? 'rotate(' + (-360 * m / 6) + 'deg)' : '';
+      var n = t - v.nueva;
+      if (n < 0) { o.pt.style.opacity = 0; return; }
+      var kp = eo(Math.min(1, n / 0.35)), sp = kp * (1 + 0.3 * Math.sin(Math.PI * Math.min(1, n / 0.35))), late = n > 0.35 ? 1 + 0.08 * (1 - Math.cos(2 * Math.PI * (n - 0.35) / 1.6)) : 1;
+      o.pt.style.opacity = kp; o.pt.style.transform = 'scale(' + (sp * late) + ')';
+    }
+  };
   VIV = (G.vivas || []).map(function (v) { var raiz = el('div', 'viva ' + v.tipo); raiz.style.display = 'none'; var o = { v: v, raiz: raiz, cache: {} }; (VIVAS[v.tipo].init || function () {})(o); return o; });
   /* ---------------- reproducción ---------------- */
   var bPlay = document.getElementById('botonPlay'), fin = document.getElementById('finalUI'), barra = document.getElementById('barraTiempo');
@@ -227,6 +292,7 @@
   if (FIJO != null) { document.documentElement.classList.add('fijo'); document.getElementById('portada').style.display = 'none'; setTimeout(function () { dibuja(FIJO); document.title = 'listo'; }, 400); return; }
   audio.src = G.audio;
   var faltan = 1, imgs = PL.map(function (o) { return o.im; });
+  imgs.forEach(function (im) { if (im.decode) im.decode().catch(function () {}); });
   function listo() { if (--faltan > 0) return; bPlay.disabled = false; bPlay.classList.add('listo'); if (Q.has('auto')) empieza(); }
   imgs.forEach(function (im) { faltan++; if (im.complete) setTimeout(listo); else { im.onload = listo; im.onerror = listo; } });
   audio.addEventListener('canplaythrough', listo, { once: true }); audio.load();
