@@ -618,7 +618,7 @@
     if (AVCARGA) return AVCARGA;
     AVCARGA = new Promise(function (res) {
       if (window.AV3) return res();
-      var sc = document.createElement('script'); sc.src = (MI_SRC ? MI_SRC.replace(/carrusel-aviso\.js.*$/, '') : '/piel/') + 'avatar3.js?v=20261121v';
+      var sc = document.createElement('script'); sc.src = (MI_SRC ? MI_SRC.replace(/carrusel-aviso\.js.*$/, '') : '/piel/') + 'avatar3.js?v=20261121w';
       sc.onload = function () { res(); }; sc.onerror = function () { res(); }; document.head.appendChild(sc);
     }).then(async function () { var c = cuenta(); if (!c) return; var r = await rpcA('suite_cr_mi_avatar', { p_cuenta: c.id }); if (r && r.ok) MIAV = r; });
     return AVCARGA;
