@@ -124,7 +124,10 @@
       var f = o.f, it = o.it, p = PLID[f.plano], d = t - it.t, D = it.d || 2.4;
       if (d < 0 || d > D || !p) { o.e.style.display = 'none'; return; }
       var s = aEscena(p, t, it.x, it.y), k = d / D;
-      o.e.style.display = ''; o.e.style.left = (s[0] + Math.sin(d * 3 + it.x) * 14) + 'px'; o.e.style.top = (s[1] - (it.sube ? 20 : 60) - (it.sube || 230) * eo(k)) + 'px';
+      if (it.x2 != null) {   /* (13:08, Iago) por el carril de su fila, hacia la derecha; sigue su carril aunque la fila se mueva */
+        var s2 = aEscena(p, t, it.x2, it.y), kk = 1 - Math.pow(1 - k, 1.6);
+        o.e.style.display = ''; o.e.style.left = (s[0] + (s2[0] - s[0]) * kk) + 'px'; o.e.style.top = (s[1] + Math.sin(d * 4 + it.x2) * 5) + 'px';
+      } else { o.e.style.display = ''; o.e.style.left = (s[0] + Math.sin(d * 3 + it.x) * 14) + 'px'; o.e.style.top = (s[1] - (it.sube ? 20 : 60) - (it.sube || 230) * eo(k)) + 'px'; }
       o.e.style.opacity = (k < 0.12 ? k / 0.12 : (k > 0.75 ? (1 - k) / 0.25 : 1)) * (f.funde ? (PLOP[f.plano] || 0) : 1); o.e.style.transform = 'translate(-50%,-50%) scale(' + (0.6 + 0.4 * eo(Math.min(1, d / 0.3))) + ')';
     });
     pintaFoco(t);
