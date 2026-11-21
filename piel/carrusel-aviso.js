@@ -978,6 +978,9 @@
       L + ':not(.no-leido) .cv2-tile{filter:grayscale(1);opacity:.7!important}' +
       L + ':not(.no-leido) .alu-item-tit,' + L + ':not(.no-leido) .alu-item-cuerpo,' + L + ':not(.no-leido) .cv2-sub,' + L + ':not(.no-leido) .cv2-fecha{color:rgba(255,255,255,.55)!important}' +
       L + ':not(.no-leido) [data-carr-cuenta]::before{filter:grayscale(1);opacity:.7}' +
+      /* (21-nov 16:28, Iago) si ya la marcó como vista, «Me apunto» también en gris (se puede seguir pulsando) */
+      H + '.carr-visto .carr-b-si{background:#4b5063!important;color:rgba(255,255,255,.88)!important}' +
+      H + '.carr-visto .carr-b-si:hover{background:#5b6175!important}' +
       /* penalización: lo que pierdes, en rojo; tras «Entendido», sin el botón */
       'html #alu-body .carr-pen-pts{color:#f87171;font-weight:800}' +
       'html #alu-body .alu-item.carr-penal:not(.no-leido) .reco-ok{display:none!important}' +
