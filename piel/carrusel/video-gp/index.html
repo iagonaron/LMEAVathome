@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carrusel PRO Online · vídeo</title>
+<style>
+  :root{--fuente:"Helvetica Neue",Helvetica,Arial,sans-serif;color-scheme:dark}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#07061a;color:#fff;font-family:var(--fuente);overflow:hidden;-webkit-font-smoothing:antialiased}
+  #escenario{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%;overflow:hidden;background:#0d0a26}
+  /* fondo psicodélico del carrusel, en vivo */
+  #fondo{position:absolute;left:-480px;top:-420px;width:2880px;height:1920px;will-change:transform,filter;
+    background:repeating-radial-gradient(circle at 50% 50%,rgba(14,10,40,.92) 0 46px,rgba(14,10,40,.55) 46px 92px),conic-gradient(from 0deg,#f43f5e,#f59e0b,#84cc16,#06b6d4,#6366f1,#d946ef,#f43f5e)}
+  #velo{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(10,8,30,.25),rgba(6,5,18,.78))}
+  #capa{position:absolute;inset:0}
+  .plano{position:absolute;overflow:hidden;will-change:transform,opacity}
+  .plano.full{left:0;top:0;width:1920px;height:1080px}
+  .plano.card{border-radius:26px;box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.18)}
+  .plano img{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;user-select:none}
+  .rotulo{position:absolute;z-index:20;white-space:nowrap;font:900 92px/1.02 var(--fuente);letter-spacing:-.01em;text-align:center;color:#fff;
+    text-shadow:0 6px 30px rgba(0,0,0,.65),0 2px 0 rgba(0,0,0,.4);will-change:transform,opacity}
+  .rotulo.mediano{font-size:64px}.rotulo.peq{font-size:44px;font-weight:800}
+  .rotulo.caja{background:rgba(12,10,32,.86);border:2px solid rgba(255,255,255,.25);border-radius:22px;padding:16px 34px;text-shadow:none}
+  .rotulo.rojo{color:#fecaca;background:rgba(127,29,29,.92);border-color:#f87171}
+  .rotulo.verde{color:#bbf7d0;background:rgba(20,83,45,.92);border-color:#4ade80}
+  .rotulo.oro{color:#fde68a}
+  .rotulo b{color:var(--c,#fde047)}
+  .aro{position:absolute;z-index:15;border:6px solid #fde047;border-radius:22px;box-shadow:0 0 0 4px rgba(0,0,0,.35),0 0 40px rgba(253,224,71,.8);pointer-events:none}
+  .aro.redondo{border-radius:50%}.aro.rosa{border-color:#f472b6;box-shadow:0 0 0 4px rgba(0,0,0,.35),0 0 40px rgba(244,114,182,.85)}
+  .cursor{position:absolute;z-index:25;width:0;height:0}
+  .cursor svg{position:absolute;left:-6px;top:-4px;width:64px;height:64px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));transform-origin:6px 4px}
+  .cursor i{position:absolute;left:0;top:0;width:110px;height:110px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 30px #fff}
+  .flota{position:absolute;z-index:18;font-size:76px;line-height:1;will-change:transform,opacity}
+  .flota.frase{font:800 32px/1.15 var(--fuente);background:var(--c,#6366f1);color:#fff;border-radius:18px;padding:12px 20px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .flota.frase i{display:block;font:600 20px var(--fuente);opacity:.85;font-style:normal}
+  .viva{position:absolute;z-index:12}
+  .viva.titulo{left:960px;top:520px;text-align:center}
+  .viva .logo{display:flex;align-items:baseline;gap:22px;white-space:nowrap}
+  .viva .logo .car{font:700 190px/1 Georgia,"Times New Roman",serif;background:linear-gradient(90deg,#22d3ee,#a3e635,#facc15,#fb923c,#f472b6,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .viva .logo .pro{font:900 92px/1 var(--fuente);color:#fbbf24;letter-spacing:.04em}
+  .viva .logo .onl{font:300 170px/1 var(--fuente);color:#e9e5ff}
+  .viva .sub{font:700 46px var(--fuente);letter-spacing:.32em;text-transform:uppercase;color:#cfc8ff;margin-top:18px}
+  .viva.montaje{inset:0}
+  .montaje .grande{position:absolute;left:660px;top:150px;width:600px;height:600px}
+  .montaje .grande svg,.montaje .mini svg,.compositores .av svg{width:100%;height:100%;display:block}
+  .montaje .lista{position:absolute;left:0;right:0;top:820px;text-align:center}
+  .montaje .lista span{display:inline-block;font:900 96px var(--fuente);color:#fff;text-shadow:0 8px 30px rgba(0,0,0,.6);letter-spacing:.02em}
+  .montaje .rejilla{position:absolute;left:110px;right:110px;top:150px;display:grid;grid-template-columns:repeat(6,1fr);gap:26px 18px}
+  .montaje .mini{text-align:center;will-change:transform,opacity}
+  .montaje .mini svg{width:210px;height:210px;margin:0 auto}
+  .montaje .mini .avm{width:210px;height:210px;margin:0 auto}
+  .montaje .mini b{display:block;font:800 28px var(--fuente);margin-top:6px}
+  .viva.compositores{left:0;right:0;top:250px;display:flex;justify-content:center;gap:90px}
+  .compositores .comp{text-align:center;width:380px;will-change:transform,opacity}
+  .compositores .av{width:380px;height:380px}
+  .compositores b{display:block;font:900 52px var(--fuente);margin-top:12px;text-shadow:0 6px 24px rgba(0,0,0,.6)}
+  .viva.barajar{left:960px;top:560px}
+  .barajar .parte{position:absolute;left:-125px;top:-160px;width:250px;height:320px;border-radius:28px;background:var(--c);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 0 0 4px rgba(255,255,255,.35);will-change:transform,opacity}
+  .barajar .parte i{font:900 90px var(--fuente);font-style:normal;color:rgba(255,255,255,.95);width:130px;height:130px;border-radius:50%;border:6px solid rgba(255,255,255,.9);display:grid;place-items:center}
+  .barajar .parte b{font:900 34px var(--fuente);letter-spacing:.06em;text-transform:uppercase}
+  .viva.actitud{left:0;right:0;top:0;bottom:0;display:grid;place-items:center}
+  .actitud .tarj{width:1180px;background:rgba(14,10,42,.9);border:2px solid rgba(255,255,255,.25);border-radius:34px;padding:56px 70px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+  .actitud h3{margin:0 0 34px;font:900 46px var(--fuente);letter-spacing:.18em;text-transform:uppercase;color:#c4b5fd}
+  .actitud .fila{display:flex;align-items:center;gap:26px;font:800 64px var(--fuente)}
+  .actitud .fila .ic{width:70px;height:70px;border-radius:50%;background:conic-gradient(#f43f5e,#f59e0b,#84cc16,#06b6d4,#6366f1,#d946ef,#f43f5e);box-shadow:inset 0 0 0 14px #0e0a2a}
+  .actitud .fila em{margin-left:auto;font-style:normal;color:#4ade80;font-variant-numeric:tabular-nums}
+  .actitud .barra{height:30px;border-radius:15px;background:rgba(255,255,255,.12);margin:36px 0 34px;overflow:hidden}
+  .actitud .barra i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#86efac);border-radius:15px}
+  .actitud .topes{display:flex;gap:24px}
+  .actitud .topes span{font:800 40px var(--fuente);background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);border-radius:16px;padding:14px 26px}
+  /* portada, final y controles (como las intros de Teoría) */
+  #portada{position:absolute;left:0;right:0;top:780px;display:flex;justify-content:center;z-index:40;transition:opacity .6s}
+  #portada.fuera{opacity:0;pointer-events:none}
+  #botonPlay{width:124px;height:124px;border-radius:24px;border:0;background:#fff;color:#1b1340;cursor:pointer;display:grid;place-items:center;opacity:.45;transition:opacity .3s,transform .2s}
+  #botonPlay.listo{opacity:1}#botonPlay:hover{transform:scale(1.05)}#botonPlay svg{width:52px;height:52px;margin-left:6px}
+  #finalUI{position:absolute;left:0;right:0;top:800px;display:none;justify-content:center;gap:28px;z-index:40}
+  #finalUI.on{display:flex}
+  .boton{font:700 32px/1 var(--fuente);text-decoration:none;border-radius:16px;padding:26px 50px;min-width:300px;text-align:center;color:#fff;background:rgba(12,10,32,.8);border:2px solid rgba(255,255,255,.5)}
+  .boton.lleno{background:#fff;color:#1b1340;border-color:#fff}
+  #controles{position:absolute;right:26px;bottom:30px;display:flex;gap:10px;z-index:45;opacity:0;transition:opacity .35s}
+  body.raton #controles,body:not(.sonando) #controles{opacity:1}
+  #controles button{width:60px;height:60px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(12,10,32,.85);color:#fff;cursor:pointer;display:grid;place-items:center}
+  #controles svg{width:26px;height:26px}
+  #barra{position:absolute;left:0;right:0;bottom:0;height:18px;z-index:45;cursor:pointer;opacity:0;transition:opacity .35s}
+  body.raton #barra,body:not(.sonando) #barra{opacity:1}
+  #barra::before{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(255,255,255,.14)}
+  #barraTiempo{position:absolute;left:0;bottom:0;height:5px;width:0;background:#fff}
+  body:not(.sonando) #pausaIco{display:none} body.sonando #playIco{display:none}
+  html.fijo #controles,html.fijo #barra{display:none}
+</style>
+</head>
+<body>
+<div id="escenario">
+  <div id="fondo"></div><div id="velo"></div>
+  <div id="capa"></div>
+  <div id="portada"><button id="botonPlay" disabled title="Ver el vídeo"><svg viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z" fill="currentColor"/></svg></button></div>
+  <div id="finalUI"><a class="boton" id="otraVez" href="#">Ver otra vez</a><a class="boton lleno" id="salir" href="#">Salir</a></div>
+  <div id="controles">
+    <button id="botonReinicio" title="Desde el principio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v5h5"/></svg></button>
+    <button id="botonPausa" title="Pausa / seguir"><svg id="pausaIco" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg id="playIco" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg></button>
+  </div>
+  <div id="barra" title="Ir a un momento"><i id="barraTiempo"></i></div>
+</div>
+<audio id="audio" preload="auto"></audio>
+<script src="avatar3.js"></script>
+<script src="guion.js?v=202611210910"></script>
+<script src="motor.js?v=202611210910"></script>
+</body>
+</html>
