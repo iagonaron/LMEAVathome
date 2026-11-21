@@ -108,7 +108,7 @@
       o.e.style.transform = 'scale(' + pul + ')';
     });
     CU.forEach(function (o) {
-      var r = o.r, p = PLID[r.plano], P = r.pts, op = vis(t, P[0][0], P[P.length - 1][0] + (r.queda || 0.6), 0.2, 0.25) * (PLOP[r.plano] || 0);
+      var r = o.r, p = PLID[r.plano], P = r.pts, op = vis(t, P[0][0], P[P.length - 1][0] + (r.queda || 0.6), 0.2, 0.25) * Math.max.apply(null, (r.pls || [r.plano]).map(function (id) { return PLOP[id] || 0; }));
       if (op <= 0 || !p) { o.e.style.display = 'none'; return; }
       var i = 0; while (i < P.length - 2 && t > P[i + 1][0]) i++;
       var k = io(rampa(t, P[i][0], P[i + 1][0])), ix = P[i][1] + (P[i + 1][1] - P[i][1]) * k, iy = P[i][2] + (P[i + 1][2] - P[i][2]) * k, s = aEscena(p, t, ix, iy);
@@ -293,7 +293,7 @@
   /* ---------------- reproducción ---------------- */
   var bPlay = document.getElementById('botonPlay'), fin = document.getElementById('finalUI'), barra = document.getElementById('barraTiempo');
   function bucle() { var t = audio.currentTime || 0; dibuja(t); barra.style.width = (100 * t / G.tot) + '%'; fin.classList.toggle('on', t > G.tot - 4.5); requestAnimationFrame(bucle); }
-  if (FIJO != null) { document.documentElement.classList.add('fijo'); document.getElementById('portada').style.display = 'none'; setTimeout(function () { dibuja(FIJO); document.title = 'listo'; }, 400); return; }
+  if (FIJO != null) { document.documentElement.classList.add('fijo'); document.getElementById('portada').style.display = 'none'; window.__dibuja = dibuja; setTimeout(function () { dibuja(FIJO); document.title = 'listo'; }, 400); return; }
   /* (21-nov 11:50, Iago) primero se descarga TODO (audio e imágenes) con «Cargando vídeo» y una barra fluida; luego se ve
      con la calidad con la que está hecho y sin parones. Las imágenes pasan a ser blobs ya descargados: no hay nada a medias. */
   var PESOS = G.pesos || {}, URLS = Object.keys(PESOS), TOT = URLS.reduce(function (s, u) { return s + PESOS[u]; }, 0) || 1, LLEVA = {}, HECHOS = 0, shown = 0, listoYa = false;
