@@ -75,7 +75,10 @@
   function dibuja(t) {
     var tapado = false, ops = PL.map(function (o) { var p = o.p; return vis2(t, p.t0, p.t1, p.fi == null ? 0.3 : p.fi, p.fo == null ? 0.3 : p.fo); });
     PL.forEach(function (o, i) { var p = o.p;
-      if (ops[i] > 0 && ops[i] < 1 && t > p.t1 && !p.alfa) for (var j = 0; j < PL.length; j++) if (j !== i && ops[j] > 0 && !PL[j].p.alfa && PL[j].p.t0 >= p.t1 - 0.05 && PL[j].p.t0 <= t) { ops[i] = 1; break; }
+      /* (13:00) un plano opaco que sale no se funde si detrás viene otro opaco enseguida: se queda entero debajo hasta que el nuevo
+         está del todo (así no asoma el fondo de círculos entre dos pantallas del portal) */
+      if (t > p.t1 && !p.alfa && p.modo === 'full') for (var j = 0; j < PL.length; j++) { var q = PL[j].p;
+        if (j !== i && !q.alfa && q.modo === 'full' && q.t0 >= p.t1 - 0.05 && q.t0 <= p.t1 + 0.6 && t <= q.t0 + (q.fi == null ? 0.3 : q.fi)) { ops[i] = 1; break; } }
       PLOP[p.id] = ops[i]; if (!p.alfa && p.modo === 'full' && ops[i] >= 0.999) tapado = true; });
     pintaFondo(t, tapado);
     PL.forEach(function (o, i) {
