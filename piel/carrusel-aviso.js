@@ -516,7 +516,6 @@
     var sc2 = PAN.querySelector('.caja'); if (sc2) sc2.scrollTop = top;
     PAN.querySelector('.x:not(.vv)').onclick = cerrarPanel;
     var pe = PAN.querySelector('#lm-carr-pers'); if (pe) pe.onclick = abreEditor;
-    var pi = PAN.querySelector('#lm-carr-ins'); if (pi) pi.onclick = abreEditor;
     var vv = PAN.querySelector('.vv'); if (vv) vv.onclick = function () { VID = !VID; pintaPanel(); };
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
@@ -613,8 +612,7 @@
   function yoHTML() {
     if (!window.AV3 || !MIAV) return '<h2>Tu avatar</h2><div class="cg">Cargando…</div>';
     return '<h2>Tu avatar</h2><div class="yoin"><div class="avw">' + yoSVG() + '</div><div class="nm">' + esc(String(MIAV.nombre || '').split(' ')[0]) + '</div>' +
-      (MIAV.profe ? '' : '<button type="button" class="bt" id="lm-carr-pers">✏️ Personalizar</button>' +
-        (MIAV.ins ? '' : '<button type="button" class="falta" id="lm-carr-ins">Falta tu instrumento: elígelo</button>')) + '</div>';
+      (MIAV.profe ? '' : '<button type="button" class="bt" id="lm-carr-pers">✏️ Personalizar</button>') + '</div>';   /* (21-nov 07:22, Iago) el instrumento no se elige: sale solo de la ficha */
   }
   var VIVO = { t0: Date.now(), tm: null, ult: '', base: true };
   var ACC = [{ g: 'saludar', ms: 2300 }, { cara: 'guino', ms: 1000 }, { g: 'rascar', ms: 2600 }, { g: 'bostezar', ms: 2500 }, { g: 'mirar', dir: 1, ms: 1500 }, { g: 'mirar', dir: -1, ms: 1500 },
@@ -636,11 +634,10 @@
   }
   function abreEditor() {
     var c = cuenta(); if (!c || !window.AV3 || !MIAV) return;
-    AV3.editor({ cfg: MIAV.cfg || AV3.porDefecto(c.id), nombre: MIAV.nombre || '', ins: (window.AV_INSTR && AV_INSTR[MIAV.ins]) || null, elegirIns: !MIAV.ins,
+    AV3.editor({ cfg: MIAV.cfg || AV3.porDefecto(c.id), nombre: MIAV.nombre || '', ins: (window.AV_INSTR && AV_INSTR[MIAV.ins]) || null,
       onGuardar: async function (cfg, insNom) { var r = await rpcA('suite_cr_avatar_guardar', { p_cuenta: c.id, p_cfg: cfg });
         if (!(r && r.ok)) return false;
         MIAV.cfg = r.cfg; try { localStorage.setItem('co_avatar', JSON.stringify(r.cfg)); } catch (e) {}
-        if (insNom && !MIAV.ins) { var r2 = await rpcA('suite_cr_instr_guardar', { p_cuenta: c.id, p_ins: insNom }); if (r2 && r2.ok && r2.ins) MIAV.ins = r2.ins; }
         pintaPanel(); return true; } });
   }
   var MEGA = '<span class="megA" aria-hidden="true"><svg viewBox="0 0 34 24" width="34" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g class="cu"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></g><path class="on o1" d="M24.5 9.6q1.8 2.4 0 4.8"/><path class="on o2" d="M27.6 7.6q3.2 4.4 0 8.8"/><path class="on o3" d="M30.7 5.6q4.6 6.4 0 12.8"/></svg></span>';
