@@ -912,7 +912,10 @@
     var m = Math.floor(ms / 60000), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mi = m % 60;
     return 'Faltan ' + (d ? d + ' d ' : '') + ((d || h) ? h + ' h ' : '') + mi + ' min'; }
   function sincNotis() {
-    document.querySelectorAll('[data-carr-cuenta]').forEach(function (e) { e.textContent = faltaTxt(e.getAttribute('data-carr-cuenta')); });
+    /* (21-nov 14:45, Iago) además del texto, una barra de colores debajo: todo su ancho son 7 días y queda llena la parte que falta */
+    document.querySelectorAll('[data-carr-cuenta]').forEach(function (e) { var iso = e.getAttribute('data-carr-cuenta'), t = faltaTxt(iso);
+      if (e.textContent !== t) e.textContent = t;
+      var q = Math.max(0, Math.min(1, (Date.parse(iso) - Date.now()) / (7 * 864e5))); e.style.setProperty('--q', q.toFixed(4)); });
     if (!OK) return;
     document.querySelectorAll('.alu-item[data-carr-id]').forEach(function (c) { var id = c.getAttribute('data-carr-id'), P = LISTA.filter(function (x) { return x.id === id; })[0];
       c.classList.toggle('carr-si', !!(P && P.yo === 'si')); c.classList.toggle('carr-visto', !!(P && P.yo === 'quiza')); c.classList.toggle('carr-fuera', !P); });
@@ -951,6 +954,11 @@
       H + ' .carr-b-si{background:#f97316!important;color:#fff!important;border:0!important;box-shadow:none!important}' +
       H + ' .carr-b-si:hover{background:#fb8a3c!important}' +
       '.alu-item[data-carr-id] .cv2-mas{display:none!important}' +
+      'html #alu-body [data-carr-cuenta]{position:relative;display:inline-block;white-space:nowrap;padding-bottom:9px;vertical-align:top}' +
+      'html #alu-body [data-carr-cuenta]::after,html #alu-body [data-carr-cuenta]::before{content:"";position:absolute;left:0;right:0;bottom:1px;height:4px;border-radius:3px}' +
+      'html #alu-body [data-carr-cuenta]::after{background:rgba(255,255,255,.16)}' +
+      'html #alu-body [data-carr-cuenta]::before{z-index:1;background:linear-gradient(90deg,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399);clip-path:inset(0 calc((1 - var(--q,1)) * 100%) 0 0 round 3px)}' +
+      'html #alu-body .alu-item.carr-si [data-carr-cuenta]::before{filter:grayscale(1);opacity:.7}' +
       '.alu-item[data-carr-id] .carr-b-visto{color:#fff!important;background:rgba(10,8,30,.5)!important;border:1.5px solid rgba(255,255,255,.55)!important;font-weight:700!important}' +
       '.alu-item[data-carr-id] .carr-b-visto:hover{background:rgba(255,255,255,.14)!important}' +
       /* «✓ Apuntado» (no se pulsa) y «Ya no está disponible» */
