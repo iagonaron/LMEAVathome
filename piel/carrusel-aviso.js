@@ -925,7 +925,7 @@
      Coste: una capa por tarjeta que mueve la GPU (rotate/scale, sin repintar); solo se mueven las no leídas o la partida
      pendiente; las leídas, la apuntada (en gris) y la que ya no está disponible se quedan quietas. */
   function cssNotis() { if (document.getElementById('lm-carr-notis-css')) return; var st = document.createElement('style'); st.id = 'lm-carr-notis-css';
-    var H = 'html #alu-body .alu-item.cv2.carr-anim', V = ':not(.carr-si):not(.carr-fuera):not(.carr-visto)', MUEVE = H + '.no-leido' + V + ',' + H + '[data-carr-id]' + V;
+    var L = 'html #alu-body .alu-item.cv2.carr-lanz', H = 'html #alu-body .alu-item.cv2.carr-anim', V = ':not(.carr-si):not(.carr-fuera):not(.carr-visto)', MUEVE = H + '.no-leido' + V + ',' + H + '[data-carr-id]' + V;
     var mv = function (sel) { return MUEVE.split(',').map(function (x) { return x + sel; }).join(','); };
     st.textContent = H + '{position:relative;isolation:isolate;background:#0e0904!important}' +
       H + '>.cv2-izq,' + H + '>.cv2-mid{position:relative;z-index:1}' +
@@ -972,6 +972,15 @@
       H + '.carr-si .cv2-tile,' + H + '.carr-fuera .cv2-tile{filter:grayscale(1);opacity:.7!important}' +
       H + '.carr-si .alu-item-tit,' + H + '.carr-si .alu-item-cuerpo,' + H + '.carr-si .cv2-sub,' + H + '.carr-si .cv2-fecha{color:rgba(255,255,255,.55)!important}' +
       H + '.carr-si{border-color:rgba(255,255,255,.16)!important}' +
+      /* (21-nov 16:03) leída: el portal pone en gris TODA la tarjeta; aquí no: en gris y quieta, pero lo que se pulsa y «✓ Apuntado», en color */
+      L + ':not(.no-leido){filter:none!important;opacity:1!important}' +
+      L + ':not(.no-leido)>.carr-fx{filter:grayscale(1) brightness(.8)}' +
+      L + ':not(.no-leido) .cv2-tile{filter:grayscale(1);opacity:.7!important}' +
+      L + ':not(.no-leido) .alu-item-tit,' + L + ':not(.no-leido) .alu-item-cuerpo,' + L + ':not(.no-leido) .cv2-sub,' + L + ':not(.no-leido) .cv2-fecha{color:rgba(255,255,255,.55)!important}' +
+      L + ':not(.no-leido) [data-carr-cuenta]::before{filter:grayscale(1);opacity:.7}' +
+      /* penalización: lo que pierdes, en rojo; tras «Entendido», sin el botón */
+      'html #alu-body .carr-pen-pts{color:#f87171;font-weight:800}' +
+      'html #alu-body .alu-item.carr-penal:not(.no-leido) .reco-ok{display:none!important}' +
       '.alu-item.carr-fuera{opacity:.6}.alu-item.carr-fuera [data-carr-cuenta]{display:none}';
     document.head.appendChild(st); }
   try { cssNotis(); } catch (e) {}

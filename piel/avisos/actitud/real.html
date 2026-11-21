@@ -334,6 +334,11 @@ body.f-sug .sug{border-color:#facc15}
     var uQ = function (q) { return GH + (gp ? 'ritmopro/' : 'ritmoathome/') + '?quizCarta=' + encodeURIComponent(q.carta) + '&envio=' + encodeURIComponent(q.envio_id || '') + '&cuenta=' + encodeURIComponent(P.cuenta || ''); };
     Q.forEach(function (q) { f.push(['c', -0.5, 'Quiz sin terminar', 'Carta ' + q.carta + (q.nombre ? ' · ' + q.nombre : '') + ' · si lo terminas, deja de restar', null, { u: uQ(q) }]); });
     if (Q.length) sug.unshift(['⭐', 'Termina ' + (Q.length === 1 ? 'el <b>quiz de la carta ' + esc(qz[0]) + '</b>: resta medio punto.' : 'los <b>quiz de las cartas ' + esc(qz.join(', ')) + '</b> (empieza por el ' + esc(qz[0]) + '): cada uno resta medio punto.'), uQ(Q[0])]);
+    /* ---- (21-nov-2026, Iago) Carrusel online: apuntado o anfitrión que no apareció, o que se desapuntó/canceló a última hora ---- */
+    (d.carrusel || []).forEach(function (c) { var p = +c.pts || 0, anf = c.motivo === 'no_aparecio' || (c.motivo === 'cancelo_tarde' && p <= -0.5);
+      var tit = c.motivo === 'cancelo_tarde' ? (anf ? 'Carrusel cancelado a última hora' : 'Carrusel del que te desapuntaste a última hora')
+                                             : (anf ? 'Carrusel del que eras anfitrión y no asististe' : 'Carrusel apuntado al que no asististe');
+      f.push(['c', p, tit, (anf ? 'tu partida' : (c.quien ? 'partida de ' + c.quien : 'partida')) + ' · ' + ddmm(c.f) + (c.motivo === 'cancelo_tarde' ? ' · a menos de 5 minutos' : '')]); });
     /* ---- fichas en el periodo extra ---- */
     var fe = d.fichas_extra || [], gratisCurso = fe.filter(function (x) { return d.curso === '2026-2027' && t === '1T' && x.fin <= '2026-11-13'; }),
         resto = fe.filter(function (x) { return gratisCurso.indexOf(x) < 0; }), pagan = resto.slice(2), perd = resto.slice(0, 2);
