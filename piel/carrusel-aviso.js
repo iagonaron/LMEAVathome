@@ -917,17 +917,56 @@
     document.querySelectorAll('.alu-item[data-carr-id]').forEach(function (c) { var id = c.getAttribute('data-carr-id'), P = LISTA.filter(function (x) { return x.id === id; })[0];
       c.classList.toggle('carr-si', !!(P && P.yo === 'si')); c.classList.toggle('carr-visto', !!(P && P.yo === 'quiza')); c.classList.toggle('carr-fuera', !P); });
   }
+  /* (21-nov-2026 13:52, Iago) Tarjetas del Carrusel online en «Tus notificaciones» (anuncio de partida, lanzamiento y «le ha
+     gustado»): fondo vivo de círculos concéntricos que gira y respira, como el botón en movimiento, e icono del botón tal cual.
+     Coste: una capa por tarjeta que mueve la GPU (rotate/scale, sin repintar); solo se mueven las no leídas o la partida
+     pendiente; las leídas, la apuntada (en gris) y la que ya no está disponible se quedan quietas. */
   function cssNotis() { if (document.getElementById('lm-carr-notis-css')) return; var st = document.createElement('style'); st.id = 'lm-carr-notis-css';
-    st.textContent = '.alu-item[data-carr-id] .cv2-mas{display:none!important}' +
+    var H = 'html #alu-body .alu-item.cv2.carr-anim', V = ':not(.carr-si):not(.carr-fuera):not(.carr-visto)', MUEVE = H + '.no-leido' + V + ',' + H + '[data-carr-id]' + V;
+    var mv = function (sel) { return MUEVE.split(',').map(function (x) { return x + sel; }).join(','); };
+    st.textContent = H + '{position:relative;isolation:isolate;background:#0e0904!important}' +
+      H + '>.cv2-izq,' + H + '>.cv2-mid{position:relative;z-index:1}' +
+      H + ' .alu-item-tit,' + H + ' .alu-item-cuerpo{text-shadow:0 1px 8px rgba(0,0,0,.95)}' +
+      H + '>.carr-fx{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:inherit;pointer-events:none}' +
+      H + '>.carr-fx::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,9,4,.94) 0%,rgba(14,9,4,.8) 38%,rgba(14,9,4,.54) 72%,rgba(14,9,4,.42) 100%)}' +
+      H + '>.carr-fx .gi{position:absolute;left:50%;top:50%;width:calc(100% + 240px);aspect-ratio:1;transform:translate(-50%,-50%)}' +
+      H + '>.carr-fx .fx{position:absolute;inset:0;backface-visibility:hidden;background:repeating-radial-gradient(circle at 50% 50%,rgba(8,5,20,0) 0,rgba(8,5,20,.55) 13px,rgba(8,5,20,0) 26px),conic-gradient(from 0deg at 50% 50%,#b23ad6,#e8862a 22%,#4cb04a 42%,#1aa6c9 56%,#2f5fe0 71%,#6b3fe0 86%,#b23ad6)}' +
+      mv('>.carr-fx .gi') + '{will-change:transform;animation:lmCarrNRot 24s linear infinite}' +
+      mv('>.carr-fx .fx') + '{will-change:transform;animation:lmCarrNRes 6s ease-in-out infinite alternate}' +
+      /* icono: el botón del carrusel en movimiento */
+      'html #alu-body .alu-item.cv2.carr-lanz .cv2-tile{background:#0a071e!important;border-color:rgba(255,255,255,.35)!important;opacity:1!important}' +
+      'html #alu-body .carr-ic{position:absolute;inset:0;border-radius:inherit;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff}' +
+      'html #alu-body .carr-ic .gi{position:absolute;left:50%;top:50%;width:200%;aspect-ratio:1;transform:translate(-50%,-50%)}' +
+      'html #alu-body .carr-ic .fx{position:absolute;inset:0;backface-visibility:hidden;background:' + TEX_BTN.replace('ellipse', 'circle') + '}' +
+      'html #alu-body .carr-ic svg{position:relative;width:60%;height:60%;display:block;transform-origin:54.17% 45.83%;filter:drop-shadow(0 0 2px rgba(10,7,30,.95)) drop-shadow(0 0 5px rgba(10,7,30,.7))}' +
+      'html #alu-body .alu-item.cv2.carr-anim' + V + ' .carr-ic .gi{will-change:transform;animation:lmCarrNRot 9.6s linear infinite}' +
+      'html #alu-body .alu-item.cv2.carr-anim' + V + ' .carr-ic .fx{will-change:transform;animation:lmCarrNResI 3.2s ease-in-out infinite alternate}' +
+      'html #alu-body .alu-item.cv2.carr-anim' + V + ' .carr-ic svg{will-change:transform;animation:lmCarrNEsp 6s linear infinite}' +
+      '@keyframes lmCarrNRot{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}' +
+      '@keyframes lmCarrNRes{from{transform:scale(1)}to{transform:scale(1.14)}}' +
+      '@keyframes lmCarrNResI{from{transform:scale(.72)}to{transform:scale(1.18)}}' +
+      '@keyframes lmCarrNEsp{to{transform:rotate(-360deg)}}' +
+      '@media (prefers-reduced-motion:reduce){html #alu-body .carr-anim .gi,html #alu-body .carr-anim .fx,html #alu-body .carr-anim .carr-ic svg{animation:none!important}}' +
+      /* botones: «Me apunto» naranja; «Marcar como visto» con texto blanco */
+      H + ' .carr-b-si{background:#f97316!important;color:#fff!important;border:0!important;box-shadow:none!important}' +
+      H + ' .carr-b-si:hover{background:#fb8a3c!important}' +
+      '.alu-item[data-carr-id] .cv2-mas{display:none!important}' +
       '.alu-item[data-carr-id] .carr-b-visto{color:#fff!important;background:rgba(10,8,30,.5)!important;border:1.5px solid rgba(255,255,255,.55)!important;font-weight:700!important}' +
       '.alu-item[data-carr-id] .carr-b-visto:hover{background:rgba(255,255,255,.14)!important}' +
-      '.alu-item[data-carr-id] .carr-chip{display:none;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 12px;border-radius:9px;font-weight:800;font-size:14px;white-space:nowrap}' +
-      '.alu-item[data-carr-id] .carr-ok{background:rgba(34,197,94,.18);color:#4ade80;border:1.5px solid rgba(74,222,128,.6)}' +
+      /* «✓ Apuntado» (no se pulsa) y «Ya no está disponible» */
+      '.alu-item[data-carr-id] .carr-chip{display:none;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;width:100%;height:34px;padding:0 12px;border-radius:9px;font-weight:800;font-size:14px;white-space:nowrap;cursor:default;user-select:none}' +
+      '.alu-item[data-carr-id] .carr-ok{background:rgba(22,101,52,.55);color:#4ade80;border:1.5px solid #4ade80}' +
       '.alu-item[data-carr-id] .carr-off{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1.5px solid rgba(255,255,255,.25)}' +
       '#alu-body .alu-item.carr-si .carr-b,#alu-body .alu-item.carr-fuera .carr-b,#alu-body .alu-item.carr-visto .carr-b-visto{display:none!important}' +
       '.alu-item.carr-si .carr-ok,.alu-item.carr-fuera .carr-off{display:inline-flex}' +
+      /* apuntado: la tarjeta en gris y quieta; el recuadro «✓ Apuntado», en color */
+      H + '.carr-si>.carr-fx,' + H + '.carr-fuera>.carr-fx{filter:grayscale(1) brightness(.8)}' +
+      H + '.carr-si .cv2-tile,' + H + '.carr-fuera .cv2-tile{filter:grayscale(1);opacity:.7!important}' +
+      H + '.carr-si .alu-item-tit,' + H + '.carr-si .alu-item-cuerpo,' + H + '.carr-si .cv2-sub,' + H + '.carr-si .cv2-fecha{color:rgba(255,255,255,.55)!important}' +
+      H + '.carr-si{border-color:rgba(255,255,255,.16)!important}' +
       '.alu-item.carr-fuera{opacity:.6}.alu-item.carr-fuera [data-carr-cuenta]{display:none}';
     document.head.appendChild(st); }
+  try { cssNotis(); } catch (e) {}
   document.addEventListener('click', async function (ev) {
     var t = ev.target && ev.target.closest ? ev.target : null; if (!t) return;
     var ap = t.closest('[data-carr-apunta]'), vi = t.closest('[data-carr-visto]'); if (!ap && !vi) return;
