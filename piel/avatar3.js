@@ -257,20 +257,21 @@ function generoDe(nom){ const n=String(nom||'').trim().split(/\s+/)[0].normalize
 /* ---------------- editor «Personalizar» ---------------- */
 let ED=null;
 function editor(p){ css(); p=p||{}; const nom=p.nombre||'', gen=generoDe(nom), lab=n=>{ const q=String(n).split('|'); return q.length>1?(gen==='chico'?q[0]:q[1]):n; };
-  ED={cfg:norm(p.cfg), tab:'color', p};
+  ED={cfg:norm(p.cfg), tab:(p.elegirIns&&!p.ins)?'ins':'color', p, ins:p.ins||null, insNom:null};   /* (21-nov) elegirIns: si su ficha no tiene instrumento, lo elige aquí */
   let w=document.getElementById('av3Ed'); if(w) w.remove();
   w=document.createElement('div'); w.id='av3Ed'; document.body.appendChild(w);
   w.innerHTML='<div class="caja" role="dialog" aria-label="Personaliza tu avatar"><div class="ti"><b>Personaliza tu avatar</b><button type="button" class="x" data-no="1" aria-label="Cerrar">✕</button></div>'+
     '<div class="pv"></div><div class="ed"><div class="tabs"></div><div class="panel"></div></div><div class="pie"><button type="button" class="no" data-no="1">Cancelar</button><button type="button" class="si">Guardar mi avatar</button></div></div>';
-  const TABS=[['color','Color'],['fondo','Fondo'],['cara','Cara base'],['pelo','Peinado'],['gorro','Gorro'],['gafas','Gafas'],['ropa','Ropa'],['comp','Complementos']];
-  const av=(extra,opt)=>render(Object.assign({},ED.cfg,extra||{}),Object.assign({ins:p.ins},opt||{}));
+  const TABS=(p.elegirIns?[['ins','Instrumento']]:[]).concat([['color','Color'],['fondo','Fondo'],['cara','Cara base'],['pelo','Peinado'],['gorro','Gorro'],['gafas','Gafas'],['ropa','Ropa'],['comp','Complementos']]);
+  const av=(extra,opt)=>render(Object.assign({},ED.cfg,extra||{}),Object.assign({ins:ED.ins},opt||{}));
   const ops=(lista,campo)=>'<div class="grid">'+lista.map(([k,n])=>'<div class="op'+(ED.cfg[campo]===k?' on':'')+'" data-campo="'+campo+'" data-k="'+k+'">'+av({[campo]:k},{quieto:true,vivoFondo:campo==='fondo'}).replace('class="av av3 quieto mueve','class="av av3 mueve')+lab(n)+'</div>').join('')+'</div>';
   const cols=(campo,lista,tit)=>'<div class="h">'+tit+'</div><div class="cols">'+lista.map(c=>'<button type="button" class="'+(ED.cfg[campo]===c?'on':'')+'" style="background:'+c+'" data-campo="'+campo+'" data-k="'+c+'"></button>').join('')+'</div>';
   function pinta(){
     w.querySelector('.pv').style.setProperty('--c',ED.cfg.color);
-    w.querySelector('.pv').innerHTML='<div class="gr">'+av({},{vivoFondo:true})+'</div><div class="n">'+(nom||'Tú')+'</div><div class="i">Tu instrumento sale solo, de tu ficha</div><div class="bo">¡Vamos!</div>';
+    w.querySelector('.pv').innerHTML='<div class="gr">'+av({},{vivoFondo:true})+'</div><div class="n">'+(nom||'Tú')+'</div><div class="i">'+(p.elegirIns?(ED.insNom?ED.insNom:'Elige tu instrumento'):'Tu instrumento sale solo, de tu ficha')+'</div><div class="bo">¡Vamos!</div>';
     w.querySelector('.tabs').innerHTML=TABS.map(([k,n])=>'<button type="button" class="'+(ED.tab===k?'on':'')+'" data-tab="'+k+'">'+n+'</button>').join('');
     let h=''; const T=ED.tab;
+    if(T==='ins') h='<div class="h">¿Qué instrumento tocas? Saldrá en tu avatar en todas las partidas</div><div class="grid">'+Object.keys(AV_INSTR).map(k=>'<div class="op'+(ED.insNom===k?' on':'')+'" data-ins="'+k+'">'+render(ED.cfg,{ins:AV_INSTR[k],quieto:true})+k+'</div>').join('')+'</div>';
     if(T==='color') h='<div class="h">Color del personaje (también el del anillo y el de sus mensajes)</div>'+ops(COLS.map(c=>[c,'']),'color');
     if(T==='fondo') h=ops(FONDOS,'fondo')+(ED.cfg.fondo==='liso'?'<div style="margin-top:10px">'+cols('fondoC',FONDO_C,'Color del fondo liso')+'</div>':'');
     if(T==='cara') h='<div class="h">Es la cara que pones normalmente; luego reaccionas a lo que pasa y vuelves a ella</div>'+ops(CARAS,'cara');
@@ -281,10 +282,11 @@ function editor(p){ css(); p=p||{}; const nom=p.nombre||'', gen=generoDe(nom), l
     if(T==='comp') h='<div class="h">De la cara (elige uno)</div>'+ops(COMP_CARA,'compCara')+'<div class="h" style="margin-top:12px">Al cuello (elige uno)</div>'+ops(COMP_CUELLO,'compCuello');
     const pan=w.querySelector('.panel'), y=pan.scrollTop; pan.innerHTML=h; pan.scrollTop=y; }
   const cerrar=()=>{ w.remove(); ED=null; try{ p.onCerrar&&p.onCerrar(); }catch(e){} };
-  w.addEventListener('click',async ev=>{ if(ev.target===w){ cerrar(); return; } const t=ev.target.closest('[data-tab],[data-campo],[data-no],.si'); if(!t) return;
+  w.addEventListener('click',async ev=>{ if(ev.target===w){ cerrar(); return; } const t=ev.target.closest('[data-tab],[data-campo],[data-ins],[data-no],.si'); if(!t) return;
     if(t.dataset.no){ cerrar(); return; }
-    if(t.classList.contains('si')){ t.disabled=true; let ok=true; try{ if(p.onGuardar) ok=await p.onGuardar(Object.assign({v:3},ED.cfg)); }catch(e){ ok=false; } t.disabled=false; if(ok!==false) cerrar(); return; }
+    if(t.classList.contains('si')){ t.disabled=true; let ok=true; try{ if(p.onGuardar) ok=await p.onGuardar(Object.assign({v:3},ED.cfg),ED.insNom); }catch(e){ ok=false; } t.disabled=false; if(ok!==false) cerrar(); return; }
     if(t.dataset.tab){ ED.tab=t.dataset.tab; w.querySelector('.panel').scrollTop=0; pinta(); return; }
+    if(t.dataset.ins){ ED.insNom=t.dataset.ins; ED.ins=AV_INSTR[t.dataset.ins]||null; pinta(); return; }
     ED.cfg[t.dataset.campo]=t.dataset.k; pinta(); });
   pinta(); }
 /* ---------------- API ---------------- */
