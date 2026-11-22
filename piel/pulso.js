@@ -225,7 +225,7 @@
       '#lm-pulso .lp-num span{font-size:11.5px;color:#cbd5e1;font-variant-numeric:tabular-nums}' +
       '#lm-pulso .lp-num b small{font-size:10.5px;font-weight:600;color:#94a3b8}' +
       '#lm-pulso .lp-val.pend .lp-num b{color:#94a3b8}#lm-pulso .lp-val.pend .lp-num span{color:#94a3b8}' +
-      '#lm-pulso .lp-num b.lp-tope,#lm-pulso .lp-val.pend .lp-num b.lp-tope{color:#facc15;font-size:14px}' +
+      '#lm-pulso .lp-num span.lp-tope{display:inline-flex;align-items:center;height:24px;box-sizing:border-box;padding:0 8px;border:1.5px solid #facc15;border-radius:7px;background:rgba(250,204,21,.12);color:#facc15!important;font-size:12px!important;font-weight:800!important;white-space:nowrap}' +   /* (22-nov 15:28, Iago: propuesta B, pastilla) */
       '#lm-pulso .lp-sg{width:24px;height:24px;flex:none;display:grid;place-items:center}#lm-pulso .lp-sg svg{width:24px;height:24px}' +
       '#lm-pulso .lp-sg.vacio{border:1.5px dashed rgba(148,163,184,.5);border-radius:50%;width:20px;height:20px;margin:2px}' +
       '#lm-pulso .lp-e{position:relative;overflow:hidden;flex:none}' +
@@ -452,7 +452,7 @@
     /* (19-nov 10:43, Iago) a la derecha, lo mismo que ven en el aviso de la campana: minutos, lo que sube de actitud y el sello (si lo tiene) */
     /* (22-nov-2026, Iago, encargo 00j) si ya no suma por el tope: «Tope semanal» / «Tope trimestral» en amarillo, nunca «+0,00»; los minutos siguen */
     var topeE = (e.tope && Math.round(pts * 100) === 0) ? e.tope : '';
-    var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num">' + (topeE ? '<b class="lp-tope">Tope ' + topeE + '</b>' : '<b>+' + num(pts, 2) + '<small> actitud</small></b>') +
+    var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num">' + (topeE ? '<span class="lp-tope">Tope ' + topeE + '</span>' : '<b>+' + num(pts, 2) + '<small> actitud</small></b>') +
               (COMBO === '4' ? '' : '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span>') + '</div>' +
               (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : (!e.verificado && COMBO === '4' && MODO_SELLO === 'A' ? '<span class="lp-pv3">por<br>validar</span>' : e.verificado || COMBO === '4' ? '' : '<span class="lp-pv">Pendiente<br>de validar</span>')) + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
     var totTxt = (COMBO === '1' && e.tot > 0) ? '<span class="lp-ar-n" style="margin-left:6px">' + e.tot + ' min este trimestre</span>' : '';
