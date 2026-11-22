@@ -241,6 +241,8 @@
          Antes se escondía por ANCHO de ventana (<900 px): eso también lo quitaba en ordenadores con la ventana estrecha y en tablets en vertical.
          Ahora solo se esconde en el MÓVIL, con el mismo criterio que el juego (esMovilCarr). Deshacer: volver a la regla @media (max-width:900px). */
       'html.lm-carr-movil #lm-carr-btn,html.lm-carr-movil #lm-carr-aviso,html.lm-carr-movil #lm-carr-pan{display:none!important}' +
+      /* (22-nov-2026) visor del profe en pantalla pequeña: icono y franja en una segunda línea, bajo los botones, sin pisar el saludo */
+      '@media (max-width:700px){html.lm-carr-visor .topbar{margin-bottom:58px!important}html.lm-carr-visor .topbar .topbar-right{position:relative}html.lm-carr-visor #lm-carr-btn{position:absolute;top:calc(100% + 14px);right:0;z-index:30}html.lm-carr-visor #lm-carr-aviso{position:absolute;top:calc(100% + 14px);right:calc(var(--lm-ctl,34px) + 10px);z-index:30}html.lm-carr-visor #lm-carr-aviso .lm-fr{max-width:calc(100vw - 70px)}}' +
       '@media (max-width:700px){#lm-carr-yo #lm-carr-pers{max-width:100%;min-width:0;box-sizing:border-box;padding-left:6px;padding-right:6px;font-size:12px;white-space:nowrap;justify-content:center}#lm-carr-yo #lm-carr-pers svg{display:none}}';
     document.head.appendChild(st);
   }
@@ -1014,7 +1016,9 @@
   function esMovilCarr() { try { var ua = navigator.userAgent || ''; if (/iPad|Tablet|PlayBook|Silk/i.test(ua)) return false;
     if (/iPhone|iPod|Windows Phone|IEMobile|Android.+Mobile|Mobile.+Firefox|Opera Mini/i.test(ua)) return true;
     return matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 600; } catch (e) { return false; } }
-  try { if (esMovilCarr()) document.documentElement.classList.add('lm-carr-movil'); } catch (e) {}
+  /* (22-nov-2026, Iago) en el VISOR del profesor (Ojeador / «Ver su portal» desde el Diario móvil, #visor=) el carrusel se ve también en el móvil,
+     como en el ordenador; a los alumnos en el móvil se les sigue escondiendo. En pantalla pequeña, la franja baja a una segunda línea. */
+  try { if (window.__VISOR) document.documentElement.classList.add('lm-carr-visor'); else if (esMovilCarr()) document.documentElement.classList.add('lm-carr-movil'); } catch (e) {}
   function arrancar() { refrescar(); setInterval(function () { if (!document.hidden) refrescar(); }, 60000); setInterval(function () { try { pintar(); } catch (e) {} }, 5000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') refrescar(); });
