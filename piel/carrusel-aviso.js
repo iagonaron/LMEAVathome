@@ -919,6 +919,7 @@
     return 'Faltan ' + (d ? d + ' d ' : '') + ((d || h) ? h + ' h ' : '') + mi + ' min'; }
   function sincNotis() {
     /* (21-nov 14:45, Iago) además del texto, una barra de colores debajo: todo su ancho son 7 días y queda llena la parte que falta */
+    /* (22-nov 22:00, Iago) como una MECHA: lo gastado (vacío) queda a la IZQUIERDA y lo que falta, a la derecha */
     document.querySelectorAll('[data-carr-cuenta]').forEach(function (e) { var iso = e.getAttribute('data-carr-cuenta'), t = faltaTxt(iso);
       if (e.textContent !== t) e.textContent = t;
       var q = Math.max(0, Math.min(1, (Date.parse(iso) - Date.now()) / (7 * 864e5))); e.style.setProperty('--q', q.toFixed(4)); });
@@ -963,7 +964,7 @@
       'html #alu-body [data-carr-cuenta]{position:relative;display:inline-block;white-space:nowrap;padding-bottom:9px;vertical-align:top}' +
       'html #alu-body [data-carr-cuenta]::after,html #alu-body [data-carr-cuenta]::before{content:"";position:absolute;left:0;right:0;bottom:1px;height:4px;border-radius:3px}' +
       'html #alu-body [data-carr-cuenta]::after{background:rgba(255,255,255,.16)}' +
-      'html #alu-body [data-carr-cuenta]::before{z-index:1;background:linear-gradient(90deg,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399);clip-path:inset(0 calc((1 - var(--q,1)) * 100%) 0 0 round 3px)}' +
+      'html #alu-body [data-carr-cuenta]::before{z-index:1;background:linear-gradient(90deg,#5bd0ff,#bd92ff,#ff5fa2,#ff9a3c,#ffd23f,#34d399);clip-path:inset(0 0 0 calc((1 - var(--q,1)) * 100%) round 3px)}' +
       'html #alu-body .alu-item.carr-si [data-carr-cuenta]::before{filter:grayscale(1);opacity:.7}' +
       '.alu-item[data-carr-id] .carr-b-visto{color:#fff!important;background:rgba(10,8,30,.5)!important;border:1.5px solid rgba(255,255,255,.55)!important;font-weight:700!important}' +
       '.alu-item[data-carr-id] .carr-b-visto:hover{background:rgba(255,255,255,.14)!important}' +
