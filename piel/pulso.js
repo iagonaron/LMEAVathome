@@ -225,6 +225,7 @@
       '#lm-pulso .lp-num span{font-size:11.5px;color:#cbd5e1;font-variant-numeric:tabular-nums}' +
       '#lm-pulso .lp-num b small{font-size:10.5px;font-weight:600;color:#94a3b8}' +
       '#lm-pulso .lp-val.pend .lp-num b{color:#94a3b8}#lm-pulso .lp-val.pend .lp-num span{color:#94a3b8}' +
+      '#lm-pulso .lp-num b.lp-tope,#lm-pulso .lp-val.pend .lp-num b.lp-tope{color:#facc15;font-size:14px}' +
       '#lm-pulso .lp-sg{width:24px;height:24px;flex:none;display:grid;place-items:center}#lm-pulso .lp-sg svg{width:24px;height:24px}' +
       '#lm-pulso .lp-sg.vacio{border:1.5px dashed rgba(148,163,184,.5);border-radius:50%;width:20px;height:20px;margin:2px}' +
       '#lm-pulso .lp-e{position:relative;overflow:hidden;flex:none}' +
@@ -354,9 +355,10 @@
     es.forEach(function (e) {
       var k = e.nombre + '|' + e.app + '|' + (e.origen === 'carrusel-online' ? 'cr' + (e.cr && e.cr.tipo ? ':' + e.cr.tipo : '') : '') + '|' + (e.parte || '') + '|' + (e.sub || '') + '|' + diaDe(e.fin);   /* (20-nov) el carrusel, aparte del PreDict */
       if (!m[k]) { m[k] = { k: k, sid: e.sid, sub: e.sub || '', yo: e.yo, nombre: e.nombre, ini: e.ini, app: e.app, origen: e.origen || '', parte: e.parte || '', area: e.area, mult: e.mult, fin: e.fin,
-                             min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [], tot: e.tot_min || 0, areas: e.areas || null, cr: e.cr ? { tipo: e.cr.tipo, anf: false } : null }; out.push(m[k]); }
+                             min: 0, pts: 0, verificado: true, nuevo: false, likes: 0, megusta: false, sids: [], tot: e.tot_min || 0, areas: e.areas || null, cr: e.cr ? { tipo: e.cr.tipo, anf: false } : null, tope: null }; out.push(m[k]); }
       if (e.cr && e.cr.anf && m[k].cr) m[k].cr.anf = true;   /* (21-nov) anfitrión en alguna de esas partidas: megáfono */
       var g = m[k]; g.min += e.min || 0; g.pts += Number(e.pts) || 0; g.verificado = g.verificado && !!e.verificado;
+      if (e.tope) g.tope = (g.tope === 'trimestral' || e.tope === 'trimestral') ? 'trimestral' : 'semanal';   /* (22-nov-2026, encargo 00j) */
       /* (20-nov-2026, Iago) Ritmo entonado: los minutos repartidos en verde (ritmo) y azul (entonación) */
       if (e.reparto && typeof e.reparto === 'object') { g.reparto = g.reparto || {}; g.reparto_mult = g.reparto_mult || {};
         Object.keys(e.reparto).forEach(function (a) { g.reparto[a] = (g.reparto[a] || 0) + (Number(e.reparto[a]) || 0); g.reparto_mult[a] = Math.max(g.reparto_mult[a] || 1, Number((e.reparto_mult || {})[a]) || 1); }); }
@@ -448,7 +450,9 @@
                (mm > 1.001 ? ' <span class="lp-x2" style="background:' + x[1] + '">' + mult(mm) + '</span>' : '') + '</span>'; }).join('') + '</span>';
     }
     /* (19-nov 10:43, Iago) a la derecha, lo mismo que ven en el aviso de la campana: minutos, lo que sube de actitud y el sello (si lo tiene) */
-    var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num"><b>+' + num(pts, 2) + '<small> actitud</small></b>' +
+    /* (22-nov-2026, Iago, encargo 00j) si ya no suma por el tope: «Tope semanal» / «Tope trimestral» en amarillo, nunca «+0,00»; los minutos siguen */
+    var topeE = (e.tope && Math.round(pts * 100) === 0) ? e.tope : '';
+    var val = '<div class="lp-val' + (e.verificado ? '' : ' pend') + '"><div class="lp-num">' + (topeE ? '<b class="lp-tope">Tope ' + topeE + '</b>' : '<b>+' + num(pts, 2) + '<small> actitud</small></b>') +
               (COMBO === '4' ? '' : '<span>' + e.min + ' min' + (e.verificado ? ' validados' : '') + '</span>') + '</div>' +
               (e.verificado && MODO_SELLO === 'A' ? selloGrande(c) : (!e.verificado && COMBO === '4' && MODO_SELLO === 'A' ? '<span class="lp-pv3">por<br>validar</span>' : e.verificado || COMBO === '4' ? '' : '<span class="lp-pv">Pendiente<br>de validar</span>')) + '</div>' + (e.verificado && MODO_SELLO !== 'A' ? selloGrande(c) : '');
     var totTxt = (COMBO === '1' && e.tot > 0) ? '<span class="lp-ar-n" style="margin-left:6px">' + e.tot + ' min este trimestre</span>' : '';
