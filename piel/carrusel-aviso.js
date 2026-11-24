@@ -33,7 +33,7 @@
   /* (24-nov-2026 17:02, Iago, en el aula: «el vídeo va a tirones… tiene que ser un MP4 ya fluido, ya cargado, no una animación»)
      Ahora es el MP4 1080p grabado de cada vídeo (los mismos definitivos, con su voz): se descarga ENTERO con barra y luego se reproduce.
      Deshacer: volver a las páginas vivas video-gp/index.html y video-ge/index.html. */
-  var VIDEO_URL = GP ? 'https://ge.lmathome.es/piel/carrusel/carrusel-pro-online-1080.mp4?v=1' : 'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge-1080.mp4?v=1';   /* (21-nov 14:40, Iago: «puedes publicar») el vídeo nuevo de GE, como el de GP; deshacer: volver a carrusel-online-ge.mp4?v=4 */
+  var VIDEO_URL = GP ? 'https://ge.lmathome.es/piel/carrusel/carrusel-pro-online-1080.mp4?v=2' : 'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge-1080.mp4?v=1';   /* (21-nov 14:40, Iago: «puedes publicar») el vídeo nuevo de GE, como el de GP; deshacer: volver a carrusel-online-ge.mp4?v=4 */
   /* (21-nov-2026, Iago) el vídeo nuevo de GP es como las intros de Teoría (página viva a pantalla completa). Hasta que lo revise
      y diga «Publica el vídeo del carrusel GP», solo lo ven sus cuentas Tester/Protester. Deshacer: VIDEO_URL de GP = '' */
   var VIDEO_PRUEBA = false;   /* (21-nov 09:38, Iago) el vídeo se activa con todo lo demás, después de su clase del martes */
