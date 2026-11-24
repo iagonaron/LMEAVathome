@@ -55,12 +55,12 @@
   /* (24-nov-2026) MP4: primero se descarga entero («Cargando vídeo» + barra que avanza de verdad), después se reproduce desde memoria: sin tirones */
   function abreMp4() {
     var ov = document.createElement('div'); ov.id = 'lm-carr-vid';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:rgba(4,6,16,.9);display:flex;align-items:center;justify-content:center;font-family:inherit';   /* (24-nov 17:59, Iago) ventana centrada más pequeña, como los vídeos didácticos: a pantalla completa se ve cutre */
+    ov.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:#050403;display:flex;align-items:center;justify-content:center;font-family:inherit';   /* (24-nov 17:59, Iago) ventana centrada más pequeña, como los vídeos didácticos: a pantalla completa se ve cutre */
     ov.innerHTML = '<div class="cg" style="width:min(420px,80vw);text-align:center;color:#fff">' +
       '<div style="font-size:18px;font-weight:700;margin-bottom:14px">Cargando vídeo</div>' +
       '<div style="height:8px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden"><div class="br" style="height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#f97316,#ec4899,#8b5cf6,#38bdf8);transition:width .25s linear"></div></div>' +
       '<div class="pc" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,.6)">0 %</div></div>' +
-      '<video playsinline preload="auto" controlslist="nofullscreen" disablepictureinpicture style="display:none;width:min(1280px,72vw,calc((100vh - 140px)*16/9));height:auto;aspect-ratio:16/9;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.65);background:#000"></video>' +
+      '<video playsinline preload="auto" controlslist="nofullscreen" disablepictureinpicture style="display:none;width:min(92vw,calc(86vh*16/9));height:min(51.75vw,86vh);border:1px solid rgba(255,255,255,.22);border-radius:14px;background:#000"></video>' +
       '<button type="button" class="go" style="display:none;position:absolute;padding:16px 28px;border-radius:12px;border:0;background:#f97316;color:#fff;font-weight:700;font-size:20px;font-family:inherit;cursor:pointer">▶ Reproducir</button>' +
       '<button type="button" class="x" aria-label="Cerrar el vídeo" title="Cerrar el vídeo" style="position:absolute;top:16px;right:16px;width:52px;height:52px;border-radius:12px;border:1.5px solid rgba(255,255,255,.35);background:rgba(0,0,0,.45);color:#fff;font-size:26px;line-height:1;cursor:pointer;z-index:2">✕</button>';
     document.body.appendChild(ov);
