@@ -30,13 +30,17 @@
   /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 17:30 (antes 19:00; cambiado el 20-nov 08:40). El servidor también lo
      impide; Tester/Protester siempre pueden. El vídeo de presentación se puede ver antes: poner aquí su enlace (YouTube o .mp4). */
   var ABRE = GP ? Date.parse('2026-11-24T20:00:00+01:00') : Date.parse('2026-11-20T17:30:00+01:00'), ABRE_TXT = GP ? 'el martes 24 de noviembre a las 20:00' : 'hoy viernes a las 17:30';
-  var VIDEO_URL = GP ? 'https://ge.lmathome.es/piel/carrusel/video-gp/index.html' : 'https://ge.lmathome.es/piel/carrusel/video-ge/index.html';   /* (21-nov 14:40, Iago: «puedes publicar») el vídeo nuevo de GE, como el de GP; deshacer: volver a carrusel-online-ge.mp4?v=4 */
+  /* (24-nov-2026 17:02, Iago, en el aula: «el vídeo va a tirones… tiene que ser un MP4 ya fluido, ya cargado, no una animación»)
+     Ahora es el MP4 1080p grabado de cada vídeo (los mismos definitivos, con su voz): se descarga ENTERO con barra y luego se reproduce.
+     Deshacer: volver a las páginas vivas video-gp/index.html y video-ge/index.html. */
+  var VIDEO_URL = GP ? 'https://ge.lmathome.es/piel/carrusel/carrusel-pro-online-1080.mp4?v=1' : 'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge-1080.mp4?v=1';   /* (21-nov 14:40, Iago: «puedes publicar») el vídeo nuevo de GE, como el de GP; deshacer: volver a carrusel-online-ge.mp4?v=4 */
   /* (21-nov-2026, Iago) el vídeo nuevo de GP es como las intros de Teoría (página viva a pantalla completa). Hasta que lo revise
      y diga «Publica el vídeo del carrusel GP», solo lo ven sus cuentas Tester/Protester. Deshacer: VIDEO_URL de GP = '' */
   var VIDEO_PRUEBA = false;   /* (21-nov 09:38, Iago) el vídeo se activa con todo lo demás, después de su clase del martes */
   function videoVisible() { return !!VIDEO_URL && (!VIDEO_PRUEBA || esTester()); }
   function abreVideo() {   /* a pantalla completa, como abrirVideo de Teoría PRO */
     if (document.getElementById('lm-carr-vid')) return;
+    if (/\.mp4(\?|$)/i.test(VIDEO_URL)) return abreMp4();
     var ov = document.createElement('div'); ov.id = 'lm-carr-vid';
     ov.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:#000;display:flex;align-items:center;justify-content:center';
     ov.innerHTML = '<iframe title="Vídeo del Carrusel Online" allow="autoplay; fullscreen" style="width:100%;height:100%;border:0;display:block"></iframe><button type="button" aria-label="Cerrar el vídeo" title="Cerrar el vídeo" style="position:absolute;top:16px;right:16px;width:52px;height:52px;border-radius:12px;border:1.5px solid rgba(255,255,255,.35);background:rgba(12,10,32,.8);color:#fff;font:700 22px sans-serif;cursor:pointer">✕</button>';
@@ -48,6 +52,42 @@
     addEventListener('message', msg); addEventListener('keydown', tec, true);
     ov.querySelector('button').onclick = cierra; try { f.focus(); } catch (e) {}
   }   /* (20-nov-2026 12:58, Iago) el tráiler v4, con un botón discreto «Ver vídeo» */
+  /* (24-nov-2026) MP4: primero se descarga entero («Cargando vídeo» + barra que avanza de verdad), después se reproduce desde memoria: sin tirones */
+  function abreMp4() {
+    var ov = document.createElement('div'); ov.id = 'lm-carr-vid';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:2147483646;background:#000;display:flex;align-items:center;justify-content:center;font-family:inherit';
+    ov.innerHTML = '<div class="cg" style="width:min(420px,80vw);text-align:center;color:#fff">' +
+      '<div style="font-size:18px;font-weight:700;margin-bottom:14px">Cargando vídeo</div>' +
+      '<div style="height:8px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden"><div class="br" style="height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#f97316,#ec4899,#8b5cf6,#38bdf8);transition:width .25s linear"></div></div>' +
+      '<div class="pc" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,.6)">0 %</div></div>' +
+      '<video playsinline preload="auto" style="display:none;width:100%;height:100%;object-fit:contain;background:#000"></video>' +
+      '<button type="button" class="go" style="display:none;position:absolute;padding:16px 28px;border-radius:12px;border:0;background:#f97316;color:#fff;font-weight:700;font-size:20px;font-family:inherit;cursor:pointer">▶ Reproducir</button>' +
+      '<button type="button" class="x" aria-label="Cerrar el vídeo" title="Cerrar el vídeo" style="position:absolute;top:16px;right:16px;width:52px;height:52px;border-radius:12px;border:1.5px solid rgba(255,255,255,.35);background:rgba(0,0,0,.45);color:#fff;font-size:26px;line-height:1;cursor:pointer;z-index:2">✕</button>';
+    document.body.appendChild(ov);
+    var v = ov.querySelector('video'), br = ov.querySelector('.br'), pc = ov.querySelector('.pc'), go = ov.querySelector('.go'), url = null, vivo = true, ctl = null;
+    try { ctl = new AbortController(); } catch (e) {}
+    function cierra() { vivo = false; try { ctl && ctl.abort(); } catch (e) {} try { v.pause(); } catch (e) {} removeEventListener('keydown', tec, true);
+      if (url) { try { URL.revokeObjectURL(url); } catch (e) {} } try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {} if (ov.parentNode) ov.parentNode.removeChild(ov); }
+    function tec(e) { if (e.key === 'Escape') { e.stopPropagation(); cierra(); } }
+    addEventListener('keydown', tec, true); ov.querySelector('.x').onclick = cierra;
+    function pon(f) { br.style.width = Math.round(f * 100) + '%'; pc.textContent = Math.round(f * 100) + ' %'; }
+    function arranca(src) { if (!vivo) return; ov.querySelector('.cg').style.display = 'none'; v.style.display = 'block'; v.controls = true; v.src = src;
+      try { ov.requestFullscreen && ov.requestFullscreen().catch(function () {}); } catch (e) {}
+      var p = v.play(); if (p && p.catch) p.catch(function () { go.style.display = 'block'; }); }
+    go.onclick = function () { go.style.display = 'none'; v.play().catch(function () {}); };
+    v.onended = function () { setTimeout(cierra, 600); };
+    fetch(VIDEO_URL, ctl ? { signal: ctl.signal } : {}).then(function (r) {
+      if (!r.ok) throw new Error('http ' + r.status);
+      var tot = +r.headers.get('content-length') || 0;
+      if (!r.body || !r.body.getReader || !tot) return r.blob();
+      var rd = r.body.getReader(), trozos = [], n = 0;
+      return (function lee() { return rd.read().then(function (x) { if (x.done) return new Blob(trozos, { type: 'video/mp4' });
+        trozos.push(x.value); n += x.value.length; pon(Math.min(1, n / tot)); return lee(); }); })();
+    }).then(function (b) { if (!vivo) return; pon(1); url = URL.createObjectURL(b); arranca(url); })
+      .catch(function () {   /* si no se puede descargar antes, que al menos lo cargue el navegador entero antes de empezar */
+        if (!vivo) return; pc.textContent = 'Cargando…'; v.preload = 'auto'; v.src = VIDEO_URL;
+        v.oncanplaythrough = function () { v.oncanplaythrough = null; arranca(VIDEO_URL); }; try { v.load(); } catch (e) {} });
+  }
 
   function ses() { try { return JSON.parse(localStorage.getItem(SESION) || 'null') || window.__LM_SES || null; } catch (e) { return window.__LM_SES || null; } }
   function cuenta() { var s = ses(); return (s && s.id && s.estado === 'validado') ? s : null; }
@@ -574,7 +614,7 @@
     var pe = PAN.querySelector('#lm-carr-pers'); if (pe) pe.onclick = abreEditor;
     [].forEach.call(PAN.querySelectorAll('.cols > .card, .fila2 > .card:first-child'), function (e) { e.onmouseenter = miraMenu; });
     montaYo(); montaMinis();
-    [].forEach.call(PAN.querySelectorAll('.vv'), function (vv) { vv.onclick = function () { if (/\.html/.test(VIDEO_URL)) { abreVideo(); return; } VID = !VID; pintaPanel(); }; });
+    [].forEach.call(PAN.querySelectorAll('.vv'), function (vv) { vv.onclick = function () { if (/\.(html|mp4)/.test(VIDEO_URL)) { abreVideo(); return; } VID = !VID; pintaPanel(); }; });
     if (cerrado()) return;
     var hi = PAN.querySelector('#lm-carr-hora'), ok = PAN.querySelector('#lm-carr-ok');
     PAN.querySelector('#lm-carr-fh').onclick = function () { lmSelFecha(HORA, function (v) { var hh = PAN.querySelector('#lm-carr-hora'); if (hh) hh.value = v; HORA = v; pintaPanel(); }); };   /* (20-nov, Iago) selector propio: el mismo en todos los navegadores */
