@@ -18,7 +18,7 @@
   if (window.__lmCarrAviso) return; window.__lmCarrAviso = 1;
   var GP = /(^|\.)gp\.lmathome\.es$/i.test(location.hostname) || /lmpro/i.test(location.pathname);
   var MI_SRC = (document.currentScript && document.currentScript.src) || '';
-  var AV3_V = '20261125a';   /* (20-nov 23:10) para cargar avatar3.js de la misma carpeta */
+  var AV3_V = '20261125b';   /* (20-nov 23:10) para cargar avatar3.js de la misma carpeta */
   /* (20-nov-2026, C1) también en el portal GP: «Carrusel PRO Online» (se abre el martes 24-nov a las 20:00) */
   var NOMBRE = GP ? 'Carrusel PRO Online' : 'Carrusel Online', SESION = GP ? 'lmpro_session' : 'lmeav_session';
   /* (20-nov-2026 20:36, Iago) en GP el botón ya lo ven todos, con «Disponible a partir del martes 24 a las 20:00»; se abre solo
@@ -1056,7 +1056,7 @@
         var el = document.createElement('span'); el.className = 'carr-avt-av';
         var b = document.createElement('span'); b.className = 'carr-avt-ic'; b.innerHTML = ic;
         ph.innerHTML = ''; ph.appendChild(el); ph.appendChild(b); ph.classList.add('con-av');
-        try { AVN.push({ el: el, rig: AV3.vivo(el, cfg, { lite: true, auto: true, profe: prof, sinBadge: true, anillo: prof ? '#ffd23f' : null, ins: null }) }); }
+        try { AVN.push({ el: el, rig: AV3.vivo(el, cfg, { lite: true, auto: true, profe: prof, sinBadge: true, cuadrado: true, anillo: prof ? '#ffd23f' : null, ins: null }) }); }
         catch (e) { ph.classList.remove('con-av'); ph.innerHTML = ic; }
       });
     });
@@ -1071,7 +1071,7 @@
   try { var stAv = document.createElement('style'); stAv.textContent =
     'html #alu-body .carr-avt{position:absolute;inset:0;border-radius:inherit;display:block}' +
     'html #alu-body .carr-avt.con-av{inset:-1px}' +
-    'html #alu-body .carr-avt-av{position:absolute;inset:0;display:block;border-radius:50%;overflow:hidden}' +
+    'html #alu-body .carr-avt-av{position:absolute;inset:0;display:block;border-radius:12px;overflow:hidden}' +
     'html #alu-body .carr-avt-av>*{width:100%!important;height:100%!important}' +
     'html #alu-body .carr-avt-ic{position:absolute;right:-7px;bottom:-7px;width:22px;height:22px;border-radius:6px;overflow:hidden;display:block;box-shadow:0 0 0 2px #0e0904}' +
     'html #alu-body .carr-avt-ic .carr-ic{position:absolute;inset:0;border-radius:inherit}' +
