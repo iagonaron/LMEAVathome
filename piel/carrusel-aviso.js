@@ -17,7 +17,8 @@
   'use strict';
   if (window.__lmCarrAviso) return; window.__lmCarrAviso = 1;
   var GP = /(^|\.)gp\.lmathome\.es$/i.test(location.hostname) || /lmpro/i.test(location.pathname);
-  var MI_SRC = (document.currentScript && document.currentScript.src) || '';   /* (20-nov 23:10) para cargar avatar3.js de la misma carpeta */
+  var MI_SRC = (document.currentScript && document.currentScript.src) || '';
+  var AV3_V = '20261125a';   /* (20-nov 23:10) para cargar avatar3.js de la misma carpeta */
   /* (20-nov-2026, C1) también en el portal GP: «Carrusel PRO Online» (se abre el martes 24-nov a las 20:00) */
   var NOMBRE = GP ? 'Carrusel PRO Online' : 'Carrusel Online', SESION = GP ? 'lmpro_session' : 'lmeav_session';
   /* (20-nov-2026 20:36, Iago) en GP el botón ya lo ven todos, con «Disponible a partir del martes 24 a las 20:00»; se abre solo
@@ -698,7 +699,7 @@
     if (AVCARGA) return AVCARGA;
     AVCARGA = new Promise(function (res) {
       if (window.AV3) return res();
-      var sc = document.createElement('script'); sc.src = (MI_SRC ? MI_SRC.replace(/carrusel-aviso\.js.*$/, '') : '/piel/') + 'avatar3.js?v=20261121x';
+      var sc = document.createElement('script'); sc.src = (MI_SRC ? MI_SRC.replace(/carrusel-aviso\.js.*$/, '') : '/piel/') + 'avatar3.js?v=' + AV3_V;
       sc.onload = function () { res(); }; sc.onerror = function () { res(); }; document.head.appendChild(sc);
     }).then(async function () { var c = cuenta(); if (!c) return; var r = await rpcA('suite_cr_mi_avatar', { p_cuenta: c.id }); if (r && r.ok) MIAV = r; });
     return AVCARGA;
@@ -1032,6 +1033,52 @@
       'html #alu-body .alu-item.carr-penal:not(.no-leido) .reco-ok{display:none!important}' +
       '.alu-item.carr-fuera{opacity:.6}.alu-item.carr-fuera [data-carr-cuenta]{display:none}';
     document.head.appendChild(st); }
+  /* (25-nov-2026 09:37, Iago) «cuando alguien crea una partida, que aparezca su avatar»: en el aviso de partida, el cuadrado lleva el
+     avatar de quien la crea, vivo (saluda, mira, guiña…), y abajo a la derecha —donde a los alumnos les sale el instrumento— la espiral
+     pequeña girando. Si la crea Iago, su avatar de profe (sin el cartel PROFE) y la etiqueta «¡A la primera invito yo!». */
+  var AVN = [], AV3P = null;
+  function cargaAV3() {
+    if (window.AV3) return Promise.resolve(); if (AV3P) return AV3P;
+    AV3P = new Promise(function (res) { var sc = document.createElement('script'); sc.src = (MI_SRC ? MI_SRC.replace(/carrusel-aviso\.js.*$/, '') : '/piel/') + 'avatar3.js?v=' + AV3_V;
+      sc.onload = function () { res(); }; sc.onerror = function () { res(); }; document.head.appendChild(sc); });
+    return AV3P;
+  }
+  function montaAvNotis() {
+    AVN = AVN.filter(function (m) { if (m.el.isConnected) return true; try { m.rig && m.rig.destruye(); } catch (e) {} return false; });
+    if (!document.querySelector('.carr-avt[data-carr-av]:not([data-av-ok])')) return;
+    cargaAV3().then(function () {
+      if (!window.AV3 || !AV3.vivo) return;
+      [].forEach.call(document.querySelectorAll('.carr-avt[data-carr-av]:not([data-av-ok])'), function (ph) {
+        ph.setAttribute('data-av-ok', '1');
+        var prof = ph.getAttribute('data-carr-prof') === '1', id = ph.getAttribute('data-carr-av'), cfg = null, ic = ph.innerHTML;
+        try { cfg = JSON.parse(ph.getAttribute('data-carr-cfg') || 'null'); } catch (e) {}
+        cfg = prof ? AV3.PROFE : (cfg || AV3.porDefecto(id));
+        var el = document.createElement('span'); el.className = 'carr-avt-av';
+        var b = document.createElement('span'); b.className = 'carr-avt-ic'; b.innerHTML = ic;
+        ph.innerHTML = ''; ph.appendChild(el); ph.appendChild(b); ph.classList.add('con-av');
+        try { AVN.push({ el: el, rig: AV3.vivo(el, cfg, { lite: true, auto: true, profe: prof, sinBadge: true, anillo: prof ? '#ffd23f' : null, ins: null }) }); }
+        catch (e) { ph.classList.remove('con-av'); ph.innerHTML = ic; }
+      });
+    });
+  }
+  setInterval(function () { try { montaAvNotis(); } catch (e) {} }, 900);
+  setInterval(function () {   /* de vez en cuando uno saluda o hace un gesto (uno cada vez) */
+    if (document.hidden || Math.random() > .6) return;
+    var L = AVN.filter(function (m) { return m.rig && !m.rig.muerto && m.el.isConnected && m.el.offsetParent && !(m.rig.ocupado && m.rig.ocupado()); });
+    if (!L.length) return; var G = ['saludar', 'saludar', 'guino', 'mirar', 'asentir', 'reir', 'tararear'];
+    try { L[Math.floor(Math.random() * L.length)].rig.gesto(G[Math.floor(Math.random() * G.length)]); } catch (e) {}
+  }, 2800);
+  try { var stAv = document.createElement('style'); stAv.textContent =
+    'html #alu-body .carr-avt{position:absolute;inset:0;border-radius:inherit;display:block}' +
+    'html #alu-body .carr-avt.con-av{inset:-1px}' +
+    'html #alu-body .carr-avt-av{position:absolute;inset:0;display:block;border-radius:50%;overflow:hidden}' +
+    'html #alu-body .carr-avt-av>*{width:100%!important;height:100%!important}' +
+    'html #alu-body .carr-avt-ic{position:absolute;right:-7px;bottom:-7px;width:22px;height:22px;border-radius:6px;overflow:hidden;display:block;box-shadow:0 0 0 2px #0e0904}' +
+    'html #alu-body .carr-avt-ic .carr-ic{position:absolute;inset:0;border-radius:inherit}' +
+    'html #alu-body .carr-avt-ic svg{width:15px;height:15px}' +
+    'html #alu-body .cv2-tile:has(.carr-avt.con-av){border-color:transparent!important;background:transparent!important}' +
+    'html #alu-body .carr-invito{display:inline-block;margin-left:7px;padding:1px 7px;border-radius:6px;background:rgba(255,210,63,.14);border:1px solid rgba(255,210,63,.55);color:#ffd23f;font-weight:700;font-size:.9em;letter-spacing:0;white-space:nowrap;text-transform:none}';
+    document.head.appendChild(stAv); } catch (e) {}
   try { cssNotis(); } catch (e) {}
   document.addEventListener('click', async function (ev) {
     var t = ev.target && ev.target.closest ? ev.target : null; if (!t) return;

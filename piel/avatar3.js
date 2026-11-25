@@ -208,7 +208,7 @@ function render(cfg,op){ op=op||{}; const o=Object.assign(norm(cfg),cfg&&cfg.__r
   const rp=ropa(o.prenda,R,o.compCuello);
   const cabeza='<circle cx="100" cy="94" r="46" fill="'+o.color+'"/>'+(op.profe?'<ellipse cx="84" cy="62" rx="12" ry="6" fill="#fff" opacity=".35" transform="rotate(-24 84 62)"/>':'');
   const esc='<g transform="translate(100 90.5) scale(1.08) translate(-100 -94)">';
-  const badge=op.profe?BADGE_PROFE:(op.bot?badgeBot(c,o.fondo,o.fondoC,o.color):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):''));
+  const badge=op.sinBadge?'':(op.profe?BADGE_PROFE:(op.bot?badgeBot(c,o.fondo,o.fondoC,o.color):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):'')));   /* (25-nov-2026) sinBadge: en el aviso de partida va la espiral en su lugar */
   return '<svg class="av av3 '+(op.entra?'entra ':'')+(op.quieto?'quieto ':'')+(op.vivoFondo?'mueve ':'')+g0+(op.dir<0?' izq':'')+'" viewBox="-16 -16 232 232"><defs><clipPath id="v3c'+id+'"><circle cx="100" cy="100" r="96"/></clipPath></defs>'+
     '<g clip-path="url(#v3c'+id+')">'+fondo(o.fondo,o.fondoC,o.color,id)+'<g class="resp"><g class="cab">'+esc+peloAt+gr.at+'</g>'+cp.at+'</g>'+rp.at+rp.de+cp.cu+
     '<g class="cab">'+cabeza+cp.de+(o.compCara==='barba'?(op.profe?BARBA_PROFE(o.peloC):BARBA(o.peloC))+(op.profe?CEJAS_PROFE(o.peloC,o.cara,g0):''):'')+cara(o.cara,g0,op.dir)+gafas(o.gafas)+esc+peloDe+gr.de+'</g></g>'+(g0==='llorar'?'':'<g class="brz">'+brazos(g0,R,o.color)+'</g>')+'</g></g>'+
@@ -387,7 +387,7 @@ function vivo(host,cfg,op){ css(); op=op||{}; let o,cej0; const E={}, UL={};
   const brazo=k=>'<g data-r="b'+k+'" visibility="hidden"><path data-r="bp'+k+'" stroke="'+R+'" stroke-width="17" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle data-r="bm'+k+'" r="11.5" fill="'+osc(o.color,.14)+'"/></g>';
   const nota='<g fill="'+c+'"><ellipse cx="0" cy="0" rx="4.4" ry="3.3" transform="rotate(-22)"/><path d="M3.6 -1.2 V-15 q5.5 1.5 6.5 6.5" stroke="'+c+'" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>';
   const chispa='<path d="M0 -8 Q1.2 -1.2 8 0 Q1.2 1.2 0 8 Q-1.2 1.2 -8 0 Q-1.2 -1.2 0 -8Z" fill="#ffd23f"/>';
-  const badge=op.profe?BADGE_PROFE:(op.bot?badgeBot(c,o.fondo,o.fondoC,o.color):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):''));
+  const badge=op.sinBadge?'':(op.profe?BADGE_PROFE:(op.bot?badgeBot(c,o.fondo,o.fondoC,o.color):(op.ins?insBadge(op.ins,c,o.fondo,o.fondoC):'')));   /* (25-nov-2026) sinBadge: en el aviso de partida va la espiral en su lugar */
   const F='<div class="av3v-fw"><svg class="av3v-f av3 quieto" '+vb+' aria-hidden="true" style="animation-delay:-'+(hash(String(cfg&&cfg.color)+o.fondo+id)%40)+'s">'+fondo(o.fondo,o.fondoC,o.color,id)+'</svg></div>';
   const P='<svg class="av3v-p" '+vb+' aria-hidden="true"><defs><clipPath id="v3p'+id+'"><circle cx="100" cy="100" r="96"/></clipPath><clipPath id="v3b'+id+'"><path data-r="bocaC"/></clipPath></defs>'+
     '<g clip-path="url(#v3p'+id+')"><g data-r="cuerpo">'+
