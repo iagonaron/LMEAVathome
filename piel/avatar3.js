@@ -405,7 +405,7 @@ function vivo(host,cfg,op){ css(); op=op||{}; let o,cej0; const E={}, UL={};
           '<g data-r="xn" visibility="hidden"><g data-r="xn0">'+nota+'</g><g data-r="xn1">'+nota+'</g><g data-r="xn2">'+nota+'</g></g></g>'+
       '</g>'+brazo('L')+brazo('R')+
     '</g></g></svg>';
-  const A='<svg class="av3v-a" '+vb+' aria-hidden="true">'+(op.cuadrado?'<rect x="3.5" y="3.5" width="193" height="193" rx="28" fill="none" stroke="'+c+'" stroke-width="7"/>':'<circle cx="100" cy="100" r="95" fill="none" stroke="'+c+'" stroke-width="7"/>')+badge+'</svg>';   /* (25-nov-2026) cuadrado: llena el cuadrado del aviso */
+  const A='<svg class="av3v-a" '+vb+' aria-hidden="true">'+(op.cuadrado?'':'<circle cx="100" cy="100" r="95" fill="none" stroke="'+c+'" stroke-width="7"/>')+badge+'</svg>';   /* (25-nov-2026) cuadrado: llena el cuadrado del aviso */
   if(!document.getElementById('av3v-css')){ const st=document.createElement('style'); st.id='av3v-css'; st.textContent='.av3v{position:relative;display:block;width:100%;height:100%}.av3v>svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}'+
     '.av3v.lite .av3v-p{animation:av3vR 3.6s ease-in-out infinite;transform-origin:50% 88%}@keyframes av3vR{50%{transform:scale(1.012)}}'+
     /* (21-nov 09:56, Iago) «los fondos, con ligera animación suave, sin que roben protagonismo»: el fondo entero deriva y gira muy despacio */
