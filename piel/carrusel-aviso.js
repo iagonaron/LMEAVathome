@@ -18,7 +18,7 @@
   if (window.__lmCarrAviso) return; window.__lmCarrAviso = 1;
   var GP = /(^|\.)gp\.lmathome\.es$/i.test(location.hostname) || /lmpro/i.test(location.pathname);
   var MI_SRC = (document.currentScript && document.currentScript.src) || '';
-  var AV3_V = '20261125c';   /* (20-nov 23:10) para cargar avatar3.js de la misma carpeta */
+  var AV3_V = '20261126a';   /* (20-nov 23:10) para cargar avatar3.js de la misma carpeta */
   /* (20-nov-2026, C1) también en el portal GP: «Carrusel PRO Online» (se abre el martes 24-nov a las 20:00) */
   var NOMBRE = GP ? 'Carrusel PRO Online' : 'Carrusel Online', SESION = GP ? 'lmpro_session' : 'lmeav_session';
   /* (20-nov-2026 20:36, Iago) en GP el botón ya lo ven todos, con «Disponible a partir del martes 24 a las 20:00»; se abre solo
