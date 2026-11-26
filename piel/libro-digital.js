@@ -63,7 +63,7 @@
     var u=d.base+nums[0]+'&evaluar='+nums.join(',')+(s&&s.id?'&cuenta='+encodeURIComponent(s.id):'');
     var real=url; url=function(){ return u; }; try{ return abre(null,'leccion_'+nums[0],'Lecciones a evaluar'); } finally { url=real; } }
   function aEvaluar(){ var out=[];
-    try{ var E=window.LMEscaleta; if(E && E.vista && E.formatea){ var v=E.vista(); (v.bloques||[]).forEach(function(b){ var f=E.formatea(b, v.grupo)||{};
+    try{ var E=window.LMEscaleta; if(E && E.vista && E.formatea){ var v=E.vista(); (v.bloques||[]).forEach(function(b){ var f=(b && b.t) ? b : (E.formatea(b, v.grupo)||{});   /* (26-nov-2026) vista() ya da los bloques traducidos ({t,s}): volver a traducirlos los convertía en «Actividad» y no salía ninguna */
         if(/^Evaluaci/.test(f.t||'')){ var L=(b.lecs&&b.lecs.length)?b.lecs:(String(f.s||'').match(/\d+/g)||[]); L.forEach(function(n){ out.push(parseInt(n,10)); }); } }); } }catch(e){}
     if(!out.length){ try{ document.querySelectorAll('[data-parte^="leccion_"]').forEach(function(el){ var n=numDe(el.getAttribute('data-parte')); if(n) out.push(n); }); }catch(e){} }
     return digitales(out); }
