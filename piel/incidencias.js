@@ -232,7 +232,7 @@
     var chips = E.tema === 'resultados' ? '<div class="li-chips">' + DETALLE_RES.map(function (d) { return '<button class="li-chip" data-d="' + esc(d) + '">' + esc(d) + '</button>'; }).join('') + '</div>' : '';
     var ej = esFicha ? 'Ej.: «Ficha 6, el ejercicio de los acordes: puse lo mismo que la solución»'
       : E.tema === 'resultados' ? 'Ej.: «En dictado me sale un 4 en la semana 45 y yo creía que tenía un 6»'
-      : E.tema === 'actitud' ? 'Ej.: «Me sale un portal sin ver y sí lo vi»'
+      : E.tema === 'actitud' ? 'Ej.: «Hice un dictado entero y no me ha sumado»'
       : E.tema === 'otra' ? 'Cuéntalo aquí'
       : 'Ej.: «En la lección 4 le doy a grabar y no me detecta la voz»';
     var el = pinta('<div class="li-paso">' + (E.tema === 'otra' ? 'PASO 2 DE 2' : 'PASO 3 DE 3') + '</div><h3>¿Qué ha pasado?</h3>' +

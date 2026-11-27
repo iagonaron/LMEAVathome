@@ -4,7 +4,7 @@
      carrusel online (https://predict.ge.lmathome.es/carrusel-online/). Un puntito avisa: verde parpadeando si hay un
      lobby abierto ahora; naranja si hay partidas anunciadas que aún no has visto.
    · Al pulsar el botón se abre un panel con las partidas activas (abiertas y anunciadas), con «Me apunto» / «Marcar como
-     visto» (con aviso: si luego no asistes, −0,25 de actitud; se evita quitándote hasta 5 min antes) y «Anunciar carrusel»
+     visto» (con aviso: es un compromiso; si no puedes, quítate hasta 5 min antes · 27-nov-2026: ya no resta actitud) y «Anunciar carrusel»
      (con aviso: anfitrión que no asiste, −0,25; se evita cancelando hasta 5 min antes). «Jugar ahora» abre el lobby.
    · Cartelito a la izquierda de «?» (Incidencias): una franja con la partida más próxima a la que te has apuntado; si hay más,
      una flechita despliega las demás hacia abajo. («Tienes un carrusel mañana a las 17:00», «… en 3 h», «… en 25 min»).
@@ -76,6 +76,11 @@
       var p = v.play(); if (p && p.catch) p.catch(function () { go.style.display = 'block'; }); }
     go.onclick = function () { go.style.display = 'none'; v.play().catch(function () {}); };
     v.onended = function () { setTimeout(cierra, 600); };
+    /* (27-nov-2026, Iago: «hay que quitar esa parte de los vídeos de carrusel, lo de que reste») mientras el MP4 recortado no esté subido,
+       el vídeo de siempre (?v=2) se salta el tramo de «si no apareces, pierdes actitud» (GE 47,5–62,8 s · GP 47,5–62,85 s).
+       Al subir el MP4 nuevo, VIDEO_URL pasa a ?v=3 y esto deja de actuar solo. */
+    var SALTO = /[?&]v=2\b/.test(VIDEO_URL) ? [47.45, GP ? 62.85 : 62.8] : null;
+    if (SALTO) setInterval(function () { if (vivo && v.currentTime > SALTO[0] && v.currentTime < SALTO[1] - 0.3) v.currentTime = SALTO[1]; }, 40);
     fetch(VIDEO_URL, ctl ? { signal: ctl.signal } : {}).then(function (r) {
       if (!r.ok) throw new Error('http ' + r.status);
       var tot = +r.headers.get('content-length') || 0;
@@ -620,7 +625,7 @@
     PAN.querySelector('#lm-carr-fh').onclick = function () { lmSelFecha(HORA, function (v) { var hh = PAN.querySelector('#lm-carr-hora'); if (hh) hh.value = v; HORA = v; pintaPanel(); }); };   /* (20-nov, Iago) selector propio: el mismo en todos los navegadores */
     ok.onclick = async function () {
       if (!hi.value) return; var f = new Date(hi.value);
-      if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,5 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.', 'Sí, anunciar', null, DISP)) return;
+      if (!await pedirConf('¿Anunciar esta partida?', 'Será ' + cuando(f.toISOString()) + ' y serás el anfitrión. Es un compromiso con quien se apunte: si al final no puedes, cancélala como mucho 5 minutos antes de su inicio.', 'Sí, anunciar', null, DISP)) return;
       var r = await rpcA('suite_cr_crear', { p_cuenta: cuenta().id, p_programada: f.toISOString() });
       if (r && r.ok) { MSG = 'Partida anunciada para ' + cuando(f.toISOString()) + '. A tus compañeros de curso les llega un aviso.'; HORA = ''; }
       else MSG = r && r.error === 'una_por_semana' ? 'Ya tienes una partida anunciada esa semana. Puedes anunciar una por semana (de lunes a domingo).' : r && r.error === 'aun_no' ? 'El carrusel online se abre ' + ABRE_TXT + '.' : r && r.error === 'hora' ? 'La hora debe estar entre 10 minutos y 7 días desde ahora.' : 'No he podido anunciar la partida.';
@@ -630,7 +635,7 @@
     PAN.querySelectorAll('button[data-go]').forEach(function (bt) { bt.onclick = function () { abrirCarrusel(bt.dataset.go, bt.dataset.e === '1'); }; });
     PAN.querySelectorAll('button[data-heredar]').forEach(function (bt) {
       bt.onclick = async function () {
-        if (!await pedirConf('¿Quieres ser el anfitrión?', 'La partida será tuya: la empiezas tú. Los minutos que practiques en ella contarán ×1,5. Si luego no asistes, perderás 0,5 de actitud.', 'Sí, seré el anfitrión', null, DISP)) return;
+        if (!await pedirConf('¿Quieres ser el anfitrión?', 'La partida será tuya: la empiezas tú. Los minutos que practiques en ella contarán ×1,5. Los demás cuentan contigo: si al final no puedes, cancélala a tiempo.', 'Sí, seré el anfitrión', null, DISP)) return;
         bt.disabled = true;
         var r = await rpcA('suite_cr_heredar', { p_cuenta: cuenta().id, p_partida: bt.dataset.heredar });
         MSG = r && r.ok ? 'Ahora eres el anfitrión. Tus minutos en esta partida contarán ×1,5.' : 'No he podido hacerte anfitrión (puede que otro se haya adelantado).'; refrescar();
@@ -641,7 +646,7 @@
         var P = LISTA.filter(function (x) { return x.id === bt.dataset.cancel; })[0]; if (!P) return;
         /* (20-nov 13:58, Iago) sin nadie apuntado, la partida desaparece; con gente, los apuntados reciben el aviso «!» para quedarse de anfitrión (×1,5) */
         var otros = Math.max(0, (P.apuntados || 0) - 1), pen = tarde(P) && otros > 0, AV = 'Avisaremos a los apuntados para que uno se quede de anfitrión (sus minutos cuentan ×1,5).';
-        if (!await pedirConf(pen ? 'Cancelar ahora cuenta como no asistir' : '¿Cancelar tu partida?', !otros ? 'No hay nadie apuntado: la partida desaparece. No pierdes actitud.' : (pen ? 'Hay gente apuntada y faltan menos de 5 minutos: perderás 0,5 de actitud. ' + AV + ' ¿Cancelar igualmente?' : 'No pierdes actitud porque faltan más de 5 minutos. ' + AV), 'Sí, cancelar', 'No, la mantengo')) return;
+        if (!await pedirConf(pen ? '¿Cancelar a última hora?' : '¿Cancelar tu partida?', !otros ? 'No hay nadie apuntado: la partida desaparece.' : (pen ? 'Hay gente apuntada y faltan menos de 5 minutos: tus compañeros ya cuentan contigo. ' + AV + ' ¿Cancelar igualmente?' : AV), 'Sí, cancelar', 'No, la mantengo')) return;
         var r = await rpcA('suite_cr_cancelar', { p_cuenta: cuenta().id, p_partida: P.id });
         MSG = r && r.ok ? (r.quitada ? 'Partida cancelada. Como no había nadie apuntado, ya no aparece.' : 'Has cancelado la partida. Los apuntados ya tienen el aviso para quedarse de anfitrión.') : 'No he podido cancelar la partida.'; refrescar();
       };
@@ -651,16 +656,16 @@
         var P = LISTA.filter(function (x) { return x.id === bt.dataset.nop; })[0]; if (!P) return; MSG = '';
         if (soyAnf(P)) {
           var otros = Math.max(0, (P.apuntados || 0) - 1), pen = tarde(P) && otros > 0, AV = 'Avisaremos a los apuntados para que uno se quede de anfitrión (sus minutos cuentan ×1,5).';
-          var x = !otros ? 'No hay nadie apuntado: si la cancelas, la partida desaparece y no pierdes actitud.'
-            : (pen ? 'Faltan menos de 5 minutos: cancelar ahora cuenta como no asistir y perderás 0,5 de actitud. ' + AV
-                   : 'Cancélala ahora y no pierdes actitud. ' + AV + ' Si no apareces sin haberla cancelado, perderás 0,5 de actitud.');
+          var x = !otros ? 'No hay nadie apuntado: si la cancelas, la partida desaparece.'
+            : (pen ? 'Faltan menos de 5 minutos: tus compañeros ya cuentan contigo. ' + AV
+                   : 'Cancélala ahora, así nadie te espera. ' + AV);
           if (!await pedirConf('¿No vas a poder jugar?', x, 'Cancelar la partida', 'Sí que juego')) return;
           var r = await rpcA('suite_cr_cancelar', { p_cuenta: cuenta().id, p_partida: P.id });
           MSG = r && r.ok ? (r.quitada ? 'Partida cancelada. Como no había nadie apuntado, ya no aparece.' : 'Has cancelado la partida. Los apuntados ya tienen el aviso para quedarse de anfitrión.') : 'No he podido cancelar la partida.'; refrescar();
         } else {
           var an = String(P.anfitrion || P.creador || 'El anfitrión').split(' ')[0];
-          var y = tarde(P) ? 'Faltan menos de 5 minutos: desapuntarte ahora cuenta como no asistir y perderás 0,25 de actitud.'
-            : 'Desapúntate ahora y no pierdes actitud. ' + an + ' cuenta contigo: si no apareces sin haberte desapuntado, perderás 0,25 de actitud.';
+          var y = tarde(P) ? 'Faltan menos de 5 minutos: ' + an + ' ya cuenta contigo.'
+            : 'Desapúntate ahora, así ' + an + ' no te espera.';
           if (!await pedirConf('¿No vas a poder jugar?', y, 'Desapuntarme', 'Sí que juego')) return;
           await rpcA('suite_cr_apuntar', { p_cuenta: cuenta().id, p_partida: P.id, p_resp: 'no' }); refrescar();
         }
@@ -670,10 +675,10 @@
       bt.onclick = async function () {
         var a = bt.dataset.a, id = bt.dataset.id, P = LISTA.filter(function (x) { return x.id === id; })[0];
         if (a === 'si' && P && P.yo === 'si') return;
-        if (a === 'si' && P && P.tipo === 'anunciada') { if (!await pedirConf('¿Estás seguro?', 'Si luego no asistes, perderás 0,25 de actitud. Puedes evitarlo quitándote de la partida hasta 5 minutos antes de que empiece.', 'Sí, me apunto', null, DISP)) return; }
-        if ((a === 'no' || a === 'quiza') && P && P.yo === 'si' && tarde(P)) { if (!await pedirConf('Ya es tarde para quitarte', 'Quitarte ahora cuenta como no asistir: perderás 0,25 de actitud. ¿Quieres quitarte igualmente?', 'Sí, quitarme', 'No, me quedo')) return; }
+        if (a === 'si' && P && P.tipo === 'anunciada') { if (!await pedirConf('¿Estás seguro?', 'Apuntarte es un compromiso: los demás cuentan contigo. Si al final no puedes, quítate de la partida hasta 5 minutos antes de que empiece.', 'Sí, me apunto', null, DISP)) return; }
+        if ((a === 'no' || a === 'quiza') && P && P.yo === 'si' && tarde(P)) { if (!await pedirConf('Ya es muy tarde para quitarte', 'Faltan menos de 5 minutos y tus compañeros cuentan contigo. ¿Quieres quitarte igualmente?', 'Sí, quitarme', 'No, me quedo')) return; }
         else if (a === 'no' && P && P.yo === 'si') { var an = String(P.anfitrion || P.creador || 'El anfitrión').split(' ')[0];
-          if (!await pedirConf('¿Seguro que te desapuntas?', an + ' cuenta con que vas a jugar. Hasta 5 minutos antes de empezar puedes desapuntarte sin perder actitud.', 'Sí, desapuntarme', 'No, me quedo')) return; }
+          if (!await pedirConf('¿Seguro que te desapuntas?', an + ' cuenta con que vas a jugar. Gracias por avisar a tiempo.', 'Sí, desapuntarme', 'No, me quedo')) return; }
         bt.disabled = true; MSG = '';
         await rpcA('suite_cr_apuntar', { p_cuenta: cuenta().id, p_partida: id, p_resp: a }); refrescar();
       };

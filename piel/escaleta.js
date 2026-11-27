@@ -213,9 +213,9 @@
      le cuelga el enlace por su slot (el título sin tildes), en cualquier semana en que aparezca: el cartel enseña «Abrir ›», la
      tarjeta y la ventana del + «▶ Ejemplo de actitud», y la barra comprimida «Abrir Ejemplo de actitud». No se abre sola.
      La imagen, en ge.lmathome.es/piel/avisos/ (una para GE y otra para GP). Para quitarlo: vaciar ENLACES_FIJOS. */
-  var ENLACES_FIJOS = {
-    'como-valoro-tu-actitud': { t: 'Ejemplo de actitud', ge: 'https://ge.lmathome.es/piel/avisos/actitud-ejemplo-ge.html', gp: 'https://ge.lmathome.es/piel/avisos/actitud-ejemplo-gp.html' }
-  };
+  /* (27-nov-2026, Iago) fuera el «Ejemplo de actitud» (el vídeo de cómo valoraba la actitud ya no vale: la actitud ya no resta).
+     Antes: 'como-valoro-tu-actitud': { t: 'Ejemplo de actitud', ge: '…/piel/avisos/actitud-ejemplo-ge.html', gp: '…/actitud-ejemplo-gp.html' } */
+  var ENLACES_FIJOS = {};
   var ENL = { src: null, out: null };
   function conEnlaces(pub) {
     try {
